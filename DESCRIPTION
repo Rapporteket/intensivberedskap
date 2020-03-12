@@ -7,8 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "lenaringstado@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: Viser resultater fra influensa og 
-beredskapsregistrering i Norsk Intensivregister.
+Description: Resultater fra influensa- og beredskapsregistrering i Norsk Intensivregister.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -38,3 +37,4 @@ VignetteBuilder: knitr
 Suggests: 
     MASS,
     testthat (>= 2.1.0)
+RoxygenNote: 7.0.2

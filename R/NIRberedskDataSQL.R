@@ -1,18 +1,19 @@
-#' Henter data fra pårørendeskjema registrert for Intensiv og kobler til 
+#' Henter data fra pårørendeskjema registrert for Intensiv og kobler til
 #' noen variabler fra hovedskjema.
 #'
 #' Henter data for Intensivregisterets database
 #'
-#' @inheritParams NIRFigAndeler
 #' @param medH kobler på variabler fra hovedskjema
+#' @param datoFra startdato
+#' @param datoTil sluttdato
 #'
 #' @return Henter dataramma RegData for Intensivregisteret
 #' @export
 #'
 #'
 NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date()) {
-      
-      
+
+
   varBeredsk <- c("UPPER(SkjemaGUID) AS SkjemaGUID
 ,AddressQuality
 ,AgeAdmitted
@@ -71,14 +72,14 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date()) {
 ,Sykehus
 ,TransferredStatus
 ,UnitId")
-              
-      
+
+
       query <- paste0('SELECT ',
                       varBeredsk,
                       ' FROM ReadinessFormDataContract Q
                       WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
 
-      
+
       RegData <- rapbase::LoadRegData(registryName="nir", query=query, dbType="mysql")
       return(RegData)
 }
