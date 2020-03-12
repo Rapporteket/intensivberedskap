@@ -1,0 +1,12 @@
+unit.test.R
+*.aux
+*.lof
+*.log
+*.out
+*.tex
+*.toc
+*.lot
+*.nav
+NIRmndRapp.nav
+NIRmndRapp.snm
+NIRmndRapp.vrb

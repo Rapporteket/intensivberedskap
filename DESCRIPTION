@@ -1,0 +1,40 @@
+Package: intensivberedskap
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.1
+Authors@R: 
+    person(given = "Lena Ringstad",
+           family = "Olsen",
+           role = c("aut", "cre"),
+           email = "lenaringstado@gmail.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Viser resultater fra influensa og 
+beredskapsregistrering i Norsk Intensivregister.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (>= 3.5.0),
+    rapbase (>= 1.0.0)
+Remotes: 
+      Rapporteket/rapbase,
+      Rapporteket/rapFigurer,
+      Rapporteket/raplog
+Imports:
+    digest,
+    DT,
+    kableExtra,
+    knitr,
+    lifecycle,
+    lubridate,
+    plyr,
+    rapbase,
+    rapFigurer,
+    raplog,
+    shiny,
+    shinyalert,
+    xtable,
+    zoo
+VignetteBuilder: knitr
+Suggests: 
+    MASS,
+    testthat (>= 2.1.0)
