@@ -15,6 +15,9 @@ RisikofaktorerTab(RegData, tidsenhet = "Uke", datoTil = Sys.Date(), reshID = 0)
 
 \item{reshID}{enhetens resh}
 }
+\value{
+
+}
 \description{
 Tabell med oversikt over tilstander som medfører økt risiko ved Coronasmitte
 }

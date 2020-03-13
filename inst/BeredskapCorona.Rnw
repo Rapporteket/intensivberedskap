@@ -14,6 +14,7 @@
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 knitr::opts_knit$set(root.dir = './')
 library(intensiv)
+library(intensivberedskap)
 library(lubridate)
 library(xtable)
 @
@@ -31,82 +32,83 @@ if (!exists('CoroData')){
 }
 @
 
-<<'test', include=FALSE>>=
-#CoroData <- intensiv::NIRPreprosess(RegData=CoroData, skjema = 4)
+<<'tilrettelegg', include=FALSE>>=
+CoroData <- NIRPreprosessBeredsk(RegData=CoroData, skjema = 4)
+CoroData <- preprosessBeredVar(CoroData)
+
       #Kjønn
-      CoroData$erMann <- CoroData$PatientGender #1=Mann, 2=Kvinne, 0=Ukjent
-      CoroData$erMann[CoroData$PatientGender == 0] <- NA
-      CoroData$erMann[CoroData$PatientGender == 2] <- 0
-
-      names(CoroData)[which(names(CoroData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
-      names(CoroData)[which(names(CoroData) == 'Nems')] <- 'NEMS'
-      names(CoroData)[which(names(CoroData) == 'PatientAge')] <- 'Alder'
-      #	names(CoroData)[which(names(CoroData) == 'ReAdmitted')] <- 'Reinn'
-      names(CoroData)[which(names(CoroData) == 'Respirator')] <- 'respiratortid'
-      names(CoroData)[which(names(CoroData) == 'TransferredStatus')] <- 'Overf'
-      names(CoroData)[which(names(CoroData) == 'TypeOfAdmission')] <- 'InnMaate'
-      names(CoroData)[which(names(CoroData) == 'ReshID')] <- 'ReshId'
-      #names(CoroData)[which(names(CoroData) == 'PatientInRegistryGuid')] <- 'PasientID'
-
-        names(CoroData)[which(names(CoroData) == 'UnitId')] <- 'ReshId'
-      #Avvik ml. test og prod-data:
-      names(CoroData)[
-            names(CoroData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
-
-      # Riktig format
-      CoroData$ShNavn <- trimws(as.character(CoroData$ShNavn)) #Fjerner mellomrom (før) og etter navn
-      #Riktig format på datovariable:
-      CoroData$InnDato <- as.Date(CoroData$DateAdmittedIntensive, tz= 'UTC', format="%Y-%m-%d")
-      CoroData$Innleggelsestidspunkt <- as.POSIXlt(CoroData$DateAdmittedIntensive, tz= 'UTC', format="%Y-%m-%d %H:%M:%S" )
-      CoroData$DateDischargedIntensive <- as.POSIXlt(CoroData$DateDischargedIntensive, tz= 'UTC', format="%Y-%m-%d %H:%M:%S" )
-
-      # Nye variable:
-      CoroData$MndNum <- CoroData$Innleggelsestidspunkt$mon +1
-      CoroData$MndAar <- format(CoroData$Innleggelsestidspunkt, '%b%y')
-      CoroData$Kvartal <- ceiling(CoroData$MndNum/3)
-      CoroData$Halvaar <- ceiling(CoroData$MndNum/6)
-      CoroData$Aar <- 1900 + CoroData$Innleggelsestidspunkt$year #strptime(CoroData$Innleggelsestidspunkt, format="%Y")$year
-
-      ##Kode om  pasienter som er overført til/fra egen avdeling til "ikke-overført"
-      #1= ikke overført, 2= overført
-      ind <- union(which(CoroData$ReshId == CoroData$PatientTransferredFromHospital),
-                   which(CoroData$ReshId == CoroData$PatientTransferredToHospital))
-      CoroData$Overf[ind] <- 1
-
-
-      #En "overlever": Person som er i live 30 dager etter innleggelse.
-      CoroData$Dod30 <- 0
-      CoroData$Dod30[which(difftime(as.Date(CoroData$Morsdato, format="%Y-%m-%d %H:%M:%S"),
-                                   as.Date(CoroData$InnDato), units='days')< 30)] <- 1
-      CoroData$Dod90 <- 0
-      CoroData$Dod90[which(difftime(as.Date(CoroData$Morsdato, format="%Y-%m-%d %H:%M:%S"),
-                                   as.Date(CoroData$InnDato), units='days')< 90)] <- 1
-
-      CoroData$Dod365 <- 0
-      CoroData$Dod365[which(difftime(as.Date(CoroData$Morsdato, format="%Y-%m-%d %H:%M:%S"),
-                                   as.Date(CoroData$InnDato), units='days')< 365)] <- 1
-
-      #Konvertere boolske variable fra tekst til boolske variable...
-      TilLogiskeVar <- function(Skjema){
-            verdiGML <- c('True','False')
-            verdiNY <- c(TRUE,FALSE)
-            mapping <- data.frame(verdiGML,verdiNY)
-            LogVar <- names(Skjema)[which(Skjema[1,] %in% verdiGML)]
-            if (length(LogVar)>0) {
-                  for (k in 1:length(LogVar)) {
-                        Skjema[,LogVar[k]] <- mapping$verdiNY[match(Skjema[,LogVar[k]], mapping$verdiGML)]
-                  }}
-            return(Skjema)
-      }
-
-      CoroData <- TilLogiskeVar(CoroData)
+      # CoroData$erMann <- CoroData$PatientGender #1=Mann, 2=Kvinne, 0=Ukjent
+      # CoroData$erMann[CoroData$PatientGender == 0] <- NA
+      # CoroData$erMann[CoroData$PatientGender == 2] <- 0
+      #
+      # names(CoroData)[which(names(CoroData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
+      # names(CoroData)[which(names(CoroData) == 'Nems')] <- 'NEMS'
+      # names(CoroData)[which(names(CoroData) == 'PatientAge')] <- 'Alder'
+      # #	names(CoroData)[which(names(CoroData) == 'ReAdmitted')] <- 'Reinn'
+      # names(CoroData)[which(names(CoroData) == 'Respirator')] <- 'respiratortid'
+      # names(CoroData)[which(names(CoroData) == 'TransferredStatus')] <- 'Overf'
+      # names(CoroData)[which(names(CoroData) == 'TypeOfAdmission')] <- 'InnMaate'
+      # names(CoroData)[which(names(CoroData) == 'ReshID')] <- 'ReshId'
+      # #names(CoroData)[which(names(CoroData) == 'PatientInRegistryGuid')] <- 'PasientID'
+      #
+      #   names(CoroData)[which(names(CoroData) == 'UnitId')] <- 'ReshId'
+      # #Avvik ml. test og prod-data:
+      # names(CoroData)[
+      #       names(CoroData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
+      #
+      # # Riktig format
+      # CoroData$ShNavn <- trimws(as.character(CoroData$ShNavn)) #Fjerner mellomrom (før) og etter navn
+      # #Riktig format på datovariable:
+      # CoroData$InnDato <- as.Date(CoroData$DateAdmittedIntensive, tz= 'UTC', format="%Y-%m-%d")
+      # CoroData$Innleggelsestidspunkt <- as.POSIXlt(CoroData$DateAdmittedIntensive, tz= 'UTC', format="%Y-%m-%d %H:%M:%S" )
+      # CoroData$DateDischargedIntensive <- as.POSIXlt(CoroData$DateDischargedIntensive, tz= 'UTC', format="%Y-%m-%d %H:%M:%S" )
+      #
+      # # Nye variable:
+      # CoroData$MndNum <- CoroData$Innleggelsestidspunkt$mon +1
+      # CoroData$MndAar <- format(CoroData$Innleggelsestidspunkt, '%b%y')
+      # CoroData$Kvartal <- ceiling(CoroData$MndNum/3)
+      # CoroData$Halvaar <- ceiling(CoroData$MndNum/6)
+      # CoroData$Aar <- 1900 + CoroData$Innleggelsestidspunkt$year #strptime(CoroData$Innleggelsestidspunkt, format="%Y")$year
+      #
+      # ##Kode om  pasienter som er overført til/fra egen avdeling til "ikke-overført"
+      # #1= ikke overført, 2= overført
+      # ind <- union(which(CoroData$ReshId == CoroData$PatientTransferredFromHospital),
+      #              which(CoroData$ReshId == CoroData$PatientTransferredToHospital))
+      # CoroData$Overf[ind] <- 1
+      #
+      #
+      # #En "overlever": Person som er i live 30 dager etter innleggelse.
+      # CoroData$Dod30 <- 0
+      # CoroData$Dod30[which(difftime(as.Date(CoroData$Morsdato, format="%Y-%m-%d %H:%M:%S"),
+      #                              as.Date(CoroData$InnDato), units='days')< 30)] <- 1
+      # CoroData$Dod90 <- 0
+      # CoroData$Dod90[which(difftime(as.Date(CoroData$Morsdato, format="%Y-%m-%d %H:%M:%S"),
+      #                              as.Date(CoroData$InnDato), units='days')< 90)] <- 1
+      #
+      # CoroData$Dod365 <- 0
+      # CoroData$Dod365[which(difftime(as.Date(CoroData$Morsdato, format="%Y-%m-%d %H:%M:%S"),
+      #                              as.Date(CoroData$InnDato), units='days')< 365)] <- 1
+      #
+      # #Konvertere boolske variable fra tekst til boolske variable...
+      # TilLogiskeVar <- function(Skjema){
+      #       verdiGML <- c('True','False')
+      #       verdiNY <- c(TRUE,FALSE)
+      #       mapping <- data.frame(verdiGML,verdiNY)
+      #       LogVar <- names(Skjema)[which(Skjema[1,] %in% verdiGML)]
+      #       if (length(LogVar)>0) {
+      #             for (k in 1:length(LogVar)) {
+      #                   Skjema[,LogVar[k]] <- mapping$verdiNY[match(Skjema[,LogVar[k]], mapping$verdiGML)]
+      #             }}
+      #       return(Skjema)
+      # }
+      #
+      # CoroData <- TilLogiskeVar(CoroData)
 
 
 # CoroData$DateAdmittedIntensive
 # CoroData$DateDischargedIntensive
 # CoroData$FormDate
 
-#library(dplyr)
 datoStart <- '2020-03-01'
 CoroData$InnDato <- as.Date(CoroData$DateAdmittedIntensive) #, tz='UTC', format = '%Y-%m-%d"')
 #NB: Har benyttet FormDate for influensa
@@ -124,19 +126,6 @@ CoroData$InnDato <- as.Date(CoroData$DateAdmittedIntensive) #, tz='UTC', format 
 # 107 = Mistenkt SARS-CoV-2 med annen organmanifestasjon
 #"Når ein opprettar eit Coronaskjema har ein per def. Mistanke om Corona. Vi meiner difor at skjema med verdi -1 også bør tellast med som mistenkt Corona." Antar dette også gjelder Corona.
 
-CoroData$Korona <- factor(NA, levels = c('Mistenkt', 'Bekreftet'))
- CoroData$Korona[which(CoroData$Diagnosis %in% c(-1,104:107))] <- 'Mistenkt'
- CoroData$Korona[which(CoroData$Diagnosis %in% 100:103)] <- 'Bekreftet'
-
-#Legge på tidsenheter
-CoroData$Aar <- format(CoroData$InnDato, '%Y')
-CoroData$UkeNr <- format(CoroData$InnDato, '%V')
-CoroData$UkeAar <- format(CoroData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
-CoroData$UkeAar <- as.factor(CoroData$UkeAar)
-CoroData$Dag <- format(CoroData$InnDato, '%d.%B')
-
-CoroData$RHF <- factor(sub('Helse ', '', CoroData$RHF))
-CoroData$erMann <- factor(CoroData$erMann, levels=0:1, labels=c('kvinner','menn'))
 
 indFerdig <- which(CoroData$FormStatus==2)
 antFerdig <- length(indFerdig)
@@ -177,27 +166,6 @@ av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
 \end{frame}
 
 
-
-<<'LageTabeller', results='asis'>>=
-# 1.	Totalt tal tilfeller. Fordeling etter alder, kjønn, helseregion. Prikke celler <3. Mogleg å lage «grove» alderskategoriar først, og forfine etter kvart som ein får fleire tilfeller?
-# 2.	Nye tilfeller siste døger. Fordeling etter alder og kjønn, og helseregion. Prikke celler <3. Mogleg å lage «grove» alderskategoriar først, og forfine etter kvart som ein får fleire tilfeller?
-# 3.	Tal CoV-pasientar som ligg på respirator og tal CoV-pasientar som ligg på ECMO. (Andel av total kapasitet?)
-# 4.	Er i tillegg til dagleg rapport over forekomst som for influensa, interessert i alders- og kjønnsfordeling.
-# 5.	Vidare bør vi kunne seie noko om kor mange respiratorar som er i bruk og kor mange ecmo-maskiner som er i bruk for desse pasientane. Men dette kan hende skal sendast separat til Helsedirektoratet. Dei høgare i systemet må berre bestemme seg for kva dei vil ha først.
-
-# 1.	Totalt tal tilfeller. Fordeling etter alder, kjønn, helseregion. Prikke celler <3. Mogleg å lage «grove» alderskategoriar først, og forfine etter kvart som ein får fleire tilfeller?
-
-
-
-#TabUkeCoro <- table(CoroData[ ,c('UkeAar', 'Corona')])
-#TabUkeCoroFerdig <- table(CoroData[indFerdig ,c('UkeAar', 'Corona')])      #CoroData$UkeNr, function(x) sum((CoroData$ICD10_1==10 | CoroData$ICD10_2==10)))
-
-#TabUkeTot <- addmargins(TabUkeCoro) #cbind(TabUkeCoro, 'Tot. ant. skjema' = table(CoroData$UkeAar))
-#row.names(TabUkeTot)[antUker+1] <- 'Sum, hele sesongen'
-#TabUkeTotFerdig <- addmargins(TabUkeCoroFerdig) #cbind(TabUkeCoro, 'Tot. ant. skjema' = table(CoroData$UkeAar))
-#row.names(TabUkeTotFerdig)[antUker+1] <- 'Sum, hele sesongen'
-@
-
 \begin{frame}[fragile] {Corona i regionene}
 
 Registrerte tilfeller per dag og totalt antall tilfeller.
@@ -206,7 +174,7 @@ Registreringer med Diagnose=-1 (ikke angitt) er klassifiserte som mistenkte tilf
 <<'TabTot', results='asis'>>=
 #TabRHF <- table(CoroData$Dag, CoroData$RHF)
 #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
-
+TabTidRHF()
 TabDagRHF <- ftable(CoroData[ , c('Dag', 'RHF', 'Korona')], row.vars ='Dag') #, col.vars = c('RHF', 'Influensa'))
 
 navnRHF <- levels(CoroData$RHF)
@@ -317,6 +285,9 @@ xtable::xtable(TabHjelp,
                caption='Pasienter som har brukt respirator/ECMO')
 
 @
+\end{frame}
+
+\begin{frame}[fragile] {Risikofaktorer}
 
 \end{frame}
 

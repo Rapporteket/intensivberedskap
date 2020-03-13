@@ -17,7 +17,8 @@ Depends:
 Remotes: 
       Rapporteket/rapbase,
       Rapporteket/rapFigurer,
-      Rapporteket/raplog
+      Rapporteket/raplog,
+      Rapporteket/intensiv
 Imports:
     digest,
     DT,

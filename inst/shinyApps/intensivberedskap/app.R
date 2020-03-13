@@ -42,12 +42,12 @@ if (paaServer) {
   #CoroData <- NIRRegDataSQL(datoFra='2011-01-01', skjema=4) #, session = session) #datoFra = datoFra, datoTil = datoTil)
   qCoro <- 'SELECT *  from ReadinessFormDataContract'
   CoroData <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
-
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } #hente data på server
 
-CoroData <- intensiv::NIRPreprosess(RegData = CoroData, skjema=4)
-CoroData <- tilretteleggBeredVar(RegData=CoroData)
+
+CoroData <- NIRPreprosessBeredsk(RegData = CoroData, skjema = 4) #NIRPreprosessBeredsk(RegData = CoroData, skjema=4)
+CoroData <- preprosessBeredVar(RegData = CoroData) #preprosessBeredVar(RegData=CoroData)
 
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------
