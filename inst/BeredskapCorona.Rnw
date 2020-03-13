@@ -33,8 +33,8 @@ if (!exists('CoroData')){
 @
 
 <<'tilrettelegg', include=FALSE>>=
-CoroData <- NIRPreprosessBeredsk(RegData=CoroData, skjema = 4)
-CoroData <- preprosessBeredVar(CoroData)
+CoroData <- NIRPreprosessBeredsk(RegData=CoroData)
+#CoroData <- preprosessBeredVar(CoroData)
 
       #Kjønn
       # CoroData$erMann <- CoroData$PatientGender #1=Mann, 2=Kvinne, 0=Ukjent

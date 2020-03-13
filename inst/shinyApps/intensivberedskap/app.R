@@ -46,8 +46,8 @@ if (paaServer) {
 } #hente data på server
 
 
-CoroData <- NIRPreprosessBeredsk(RegData = CoroData, skjema = 4) #NIRPreprosessBeredsk(RegData = CoroData, skjema=4)
-CoroData <- preprosessBeredVar(RegData = CoroData) #preprosessBeredVar(RegData=CoroData)
+CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
+#CoroData <- preprosessBeredVar(RegData = CoroData)
 
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------
@@ -180,7 +180,7 @@ server <- function(input, output, session) {
     filename = function(){
       paste0('CoronaRapport', Sys.time(), '.pdf')},
     content = function(file){
-      henteSamlerapporter(file, rnwFil="BeredskapCorona.Rnw",
+      henteSamlerapporterBered(file, rnwFil="BeredskapCorona.Rnw",
                           reshID = reshID) #Vurder å ta med tidsinndeling eller startdato
     }
   )

@@ -4,12 +4,12 @@
 \alias{NIRPreprosessBeredsk}
 \title{Preprosesser data fra Intensivregisteret}
 \usage{
-NIRPreprosessBeredsk(RegData = RegData, skjema = 1)
+NIRPreprosessBeredsk(RegData = RegData)
 }
 \arguments{
 \item{RegData}{Beredskapsskjema}
 
-\item{skjema}{hvilket skjema data som skal preprosesseres tilhører 
+\item{skjema}{hvilket skjema data som skal preprosesseres tilhører
 1: hoved, 2: paaror, 3: influ, 4: beredsk}
 }
 \value{
