@@ -27,6 +27,13 @@ regTitle <- ifelse(paaServer,
                    'Norsk Intensivregister, Beredskapsregistrering',
                    'Norsk Intensivregister med FIKTIVE data')
 
+#Manuell kjøring av rapport
+# if (context == '') {
+#   CoroData <- read.table(file=paste0('A:/Intensiv/ReadinessFormDataContract', Sys.Date(), '.csv'), header=T,
+#                                      stringsAsFactors=FALSE, sep=';',encoding = 'UTF-8')
+#   setwd('./inst')
+#   knitr::knit2pdf('BeredskapCorona.Rnw')
+# }
 
 #---------Hente data------------
 #CoroData <- read.table(file='A:/Intensiv/ReadinessFormDataContract2020-03-12.csv', header=T, stringsAsFactors=FALSE, sep=';') #,encoding = 'UTF-8')
