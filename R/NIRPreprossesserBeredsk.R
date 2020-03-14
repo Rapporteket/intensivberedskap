@@ -16,18 +16,21 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 {
 
       #Kjønn
-      RegData$erMann <- RegData$PatientGender #1=Mann, 2=Kvinne, 0=Ukjent
-      RegData$erMann[RegData$PatientGender == 0] <- NA
+      RegData$erMann <- NA #1=Mann, 2=Kvinne, 0=Ukjent
+      RegData$erMann[RegData$PatientGender == 1] <- 1
       RegData$erMann[RegData$PatientGender == 2] <- 0
-      RegData$erMann <- factor(RegData$erMann, levels=0:1, labels=c('kvinner','menn'))
+      RegData$Kjonn <- factor(RegData$erMann, levels=0:1, labels=c('kvinner','menn'))
 
       #Riktig navn på regions-variabel:
       RegData$Korona <- factor(NA, levels = c('M', 'B'))
       RegData$Korona[which(RegData$Diagnosis %in% c(-1,104:107))] <- 'M'
       RegData$Korona[which(RegData$Diagnosis %in% 100:103)] <- 'B'
+      RegData$Bekreftet <- 0
+      RegData$Bekreftet[which(RegData$Diagnosis %in% 100:103)] <- 1
 
 
       RegData$RHF <- factor(sub('Helse ', '', RegData$RHF))
+      #RegData$RHFnr <-
 
 
       # Endre variabelnavn:

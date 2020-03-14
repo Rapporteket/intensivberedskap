@@ -78,15 +78,48 @@ ui <- tagList(
     tabPanel("Oversikt",
              sidebarPanel(
                  width = 3,
-                 h3('Dokument med samling av resultater'),
+                 h3('Coronarapport med samling av resultater'),
               #   h5('Dette kan man få regelmessig tilsendt på e-post.
                #     Gå til fanen "Abonnement" for å bestille dette.'),
-                 br(),
-                 h3("Coronarapport"), #),
                  downloadButton(outputId = 'CoroRapp.pdf', label='Last ned Coronarapport', class = "butt"),
                  tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
-                 br()
-             ),
+                 br(),
+              br(),
+              br(),
+              h3('Gjør filtreringer i tabellene for intensivopphold og risikofaktorer:'),
+              selectInput(inputId = "skjemaStatus", label="Skjemastatus",
+                          choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
+              ),
+              selectInput(inputId = "bekrMist", label="Bekreftet/Mistenkt",
+                          choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
+              ),
+              selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
+                          choices = c("Alle"=9, "Død"=1, "Levende"=0)
+              ),
+              selectInput(inputId = "erMann", label="Kjønn",
+                          choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+              )
+              # selectInput(inputId = "velgRHF", label="RHF",
+              #             choices = c("Alle"=9, ...)
+              # ),
+              # selectInput(inputId = 'enhetsGruppe', label='Enhetgruppe',
+              #             choices = c("RHF"=1, "HF"=2, "Sykehus"=3)
+              # ),
+              # dateRangeInput(inputId = 'datovalg', start = startDato, end = idag,
+              #                label = "Tidsperiode", separator="t.o.m.", language="nb" #)
+              # ),
+              # sliderInput(inputId="alder", label = "Alder", min = 0,
+              #             max = 110, value = c(0, 110)
+              # ),
+              # selectInput(inputId = 'velgResh', label='Velg eget Sykehus',
+              #             #selected = 0,
+              #             choices = sykehusValg),
+              # selectInput(inputId = 'enhetsNivaa', label='Enhetsnivå',
+              #             choices = c("Egen enhet"=2, "Hele landet"=0,
+              #                         "Egen sykehustype"=4, "Egen region"=7)
+              # ),
+              #actionButton("reset_fordValg", label="Tilbakestill valg")
+              ),
              mainPanel(width = 9,
                        shinyalert::useShinyalert(),
                        appNavbarUserWidget(user = uiOutput("appUserName"),
@@ -94,24 +127,32 @@ ui <- tagList(
                                            addUserInfo = TRUE),
                        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
 
-                       h2('Siden er under utvikling... '),
-                       h4('Utvalgsmuligheter som kommer: Levende/død ut fra intensiv,
-                          Kjønn, Mistenkt/Bekreftet'),
+                       h2('På disse sidene kan du hente oppsummeringer av registrering
+                       gjort i intensivregisterets beredskapsskjema for mistenkt/bekreftet
+                       Coronasmitte.'),
+                      h2('Siden er under utvikling... '),
+                      br(),
+                      br(),
 
-                       h3('Antall tilfeller'),
+                      h3('Status, bruk av respirator/ECMO'),
+                      h5('Oppsummering av registreringer'),
+                      h5('Er det intuitivt hva andelene er?
+                          Evt. hvordan skal vi tydeliggjøre hva det er andeler av?'),
+                      tableOutput('tabECMOrespirator'),
+                      br(),
+
+                      h3('Antall intensivopphold'),
+                      h5('Her bør det vel komme en tekst om hvilke utvalg som er gjort'),
                        tableOutput('tabTidEnhet'),
                         br(),
-                       h3('Bruk av respirator/ECMO'),
-                       h5('Er det intuitivt hva andelene er?
-                          Evt. hvordan skal vi tydeliggjøre hva det er andeler av?'),
-                       tableOutput('tabECMOrespirator'),
-                        br(),
-                        h3('Risikofaktorer'),
-                       h5('Tabellen oppsummerer alle opphold.'),
-                        tableOutput('tabRisikofaktorer')
+
+                      h3('Risikofaktorer'),
+                      h5('Tabellen oppsummerer alle opphold.'),
+                      h5('Her bør det vel komme en tekst om hvilke utvalg som er gjort'),
+                      tableOutput('tabRisikofaktorer')
 
              )
-    ),
+    ), #tab Tabeller
 
 #-----------Abonnement--------------------------------
     tabPanel("Abonnement"
@@ -205,21 +246,33 @@ server <- function(input, output, session) {
 
   #----------Tabeller----------------------------
 
+#skjemaStatus, bekrMist, dodInt
 
   output$tabECMOrespirator <- renderTable({
     statusECMOrespTab(RegData=CoroData) #, datoTil=Sys.Date(), reshID=0)
   }, rownames = T, digits=0, spacing="xs"
   )
 
+    output$tabTidEnhet <- renderTable({
+      print(input$erMann)
+    TabTidEnhet(RegData=CoroData, tidsenhet='dag', enhetsNivaa='RHF',
+                skjemaStatus=as.numeric(input$skjemaStatus),
+                bekr=as.numeric(input$bekrMist),
+                dodInt=as.numeric(input$dodInt),
+                erMann=as.numeric(input$erMann)
+    )}, rownames = T, digits=0, spacing="xs"
+  )
+
     output$tabRisikofaktorer <- renderTable({
-      RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt') #, datoTil=Sys.Date(), reshID=0)
+      RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',
+                        skjemaStatus=as.numeric(input$skjemaStatus),
+                        bekr=as.numeric(input$bekrMist),
+                        dodInt=as.numeric(input$dodInt),
+                        erMann=as.numeric(input$erMann)
+      ) #, datoTil=Sys.Date(), reshID=0)
     }, rownames = T, digits=0, spacing="xs"
     )
 
-  output$tabTidEnhet <- renderTable({
-    TabTidEnhet(RegData=CoroData, tidsenhet='dag', enhetsNivaa='RHF')
-  }, rownames = T, digits=0, spacing="xs"
-  )
 
 
 

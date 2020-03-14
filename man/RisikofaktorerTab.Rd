@@ -8,7 +8,13 @@ RisikofaktorerTab(
   RegData,
   tidsenhet = "Totalt",
   datoTil = Sys.Date(),
-  reshID = 0
+  reshID = 0,
+  erMann = "",
+  bekr = 9,
+  skjemaStatus = 9,
+  dodInt = 9,
+  velgRHF = 0,
+  velgAvd = 0
 )
 }
 \arguments{

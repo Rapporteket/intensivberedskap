@@ -4,7 +4,17 @@
 \alias{TabTidEnhet}
 \title{Title}
 \usage{
-TabTidEnhet(RegData, tidsenhet = "dag", enhetsNivaa = "RHF")
+TabTidEnhet(
+  RegData,
+  tidsenhet = "dag",
+  enhetsNivaa = "RHF",
+  erMann = 9,
+  bekr = 9,
+  skjemaStatus = 9,
+  dodInt = 9,
+  velgRHF = 0,
+  velgAvd = 0
+)
 }
 \arguments{
 \item{RegData}{dataramme med preprossesserte data}

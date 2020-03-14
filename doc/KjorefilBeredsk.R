@@ -16,6 +16,15 @@ CoroData <- NIRberedskDataSQL()
 CoroData <- NIRPreprosessBeredsk(CoroData)
 RegData <- CoroData
 
+
+reshID=0
+erMann=1
+bekr=9
+skjemaStatus=9
+dodInt=9
+velgRHF=0
+velgAvd=0
+
 statusECMOrespTab(CoroData)
 
 ut <- TabTidEnhet(RegData=CoroData, tidsenhet='uke', enhetsNivaa='HF')

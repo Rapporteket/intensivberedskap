@@ -9,7 +9,13 @@
 #'
 #' @export
 #' @return
-RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), reshID=0){
+RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), reshID=0,
+                              erMann='', bekr=9, skjemaStatus=9,
+                              dodInt=9, velgRHF=0, velgAvd=0){
+
+  RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
+                              bekr=bekr, skjemaStatus=skjemaStatus,dodInt=dodInt,
+                              reshID=reshID)$RegData #velgRHF=velgRHF, velgAvd=velgAvd
 #Kvikk fix: Totalt gir nå totalen for 2020
   Tidsvariabel <- switch(tidsenhet,
     Uke = paste0('uke',RegData$UkeNr),
@@ -52,7 +58,12 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
 #'
 #' @return
 #' @export
-TabTidEnhet <- function(RegData, tidsenhet='dag', enhetsNivaa='RHF'){
+TabTidEnhet <- function(RegData, tidsenhet='dag', enhetsNivaa='RHF',erMann=9,
+                        bekr=9, skjemaStatus=9, dodInt=9, velgRHF=0, velgAvd=0){
+
+    RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
+                                bekr=bekr, skjemaStatus=skjemaStatus,
+                                dodInt=dodInt)$RegData #velgRHF=velgRHF, velgAvd=velgAvd
 
   TidsVar <- switch (tidsenhet,
     dag = 'Dag',
@@ -87,6 +98,7 @@ return(TabTidEnh)
 #' @export
 #'
 statusECMOrespTab <- function(RegData){
+
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
 AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)

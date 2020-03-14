@@ -239,7 +239,7 @@ statusECMOrespTab(RegData=CoroData)
 
 \begin{frame}[fragile] {Corona, kjønnsfordeling}
 <<'TabKjonn', results='asis'>>=
-TabKjonn <- table(paste0('Uke ', CoroData$UkeNr), CoroData$erMann)
+TabKjonn <- table(paste0('Uke ', CoroData$UkeNr), CoroData$Kjonn)
 xtable::xtable(addmargins(TabKjonn),
                digits=0,
                caption='Coronatilfeller per uke, kvinner og menn')
