@@ -6,16 +6,17 @@
 #' @param datoTil sluttdato
 #' @param reshID enhetens resh
 #' @param tidsenhet 'Dag', 'Uke' (standard)
+#' @param valgtRHF 'Alle' (standard), RHF-navn uten 'Helse '
 #'
 #' @export
 #' @return
 RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), reshID=0,
                               erMann='', bekr=9, skjemaStatus=9,
-                              dodInt=9, velgRHF=0, velgAvd=0){
+                              dodInt=9, valgtRHF='Alle', velgAvd=0){
 
   RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                               bekr=bekr, skjemaStatus=skjemaStatus,dodInt=dodInt,
-                              reshID=reshID)$RegData #velgRHF=velgRHF, velgAvd=velgAvd
+                              reshID=reshID, valgtRHF=valgtRHF)$RegData #velgAvd=velgAvd
 #Kvikk fix: Totalt gir nå totalen for 2020
   Tidsvariabel <- switch(tidsenhet,
     Uke = paste0('uke',RegData$UkeNr),
@@ -59,11 +60,11 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
 #' @return
 #' @export
 TabTidEnhet <- function(RegData, tidsenhet='dag', enhetsNivaa='RHF',erMann=9,
-                        bekr=9, skjemaStatus=9, dodInt=9, velgRHF=0, velgAvd=0){
+                        bekr=9, skjemaStatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
 
     RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                                 bekr=bekr, skjemaStatus=skjemaStatus,
-                                dodInt=dodInt)$RegData #velgRHF=velgRHF, velgAvd=velgAvd
+                                dodInt=dodInt, valgtRHF=valgtRHF)$RegData #velgAvd=velgAvd
 
   TidsVar <- switch (tidsenhet,
     dag = 'Dag',
@@ -97,7 +98,12 @@ return(TabTidEnh)
 #' @return
 #' @export
 #'
-statusECMOrespTab <- function(RegData){
+statusECMOrespTab <- function(RegData, valgtRHF='Alle'){
+
+  RegData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF)$RegData
+                              # ,  datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
+                              # bekr=bekr, skjemaStatus=skjemaStatus,
+                              # dodInt=dodInt)$RegData velgAvd=velgAvd
 
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,

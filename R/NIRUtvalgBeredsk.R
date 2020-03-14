@@ -18,7 +18,7 @@
 #'
 NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, #enhetsUtvalg=0, minald=0, maxald=110,
                              bekr=9, skjemaStatus=9,
-                         dodInt=9, reshID=0, velgRHF=0, velgAvd=0) {
+                         dodInt=9, reshID=0, valgtRHF='Alle', velgAvd=0) {
 
 #RHF <- unique(RegData$RHF)
 
@@ -29,6 +29,7 @@ NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, #enhetsUtv
  if (erMann %in% 0:1){
    vec <- (RegData$erMann == erMann)
    RegData <- subset(RegData, vec)}
+  if (valgtRHF != 'Alle'){RegData <- subset(RegData, RegData$RHF == valgtRHF)}
 
 
  if(datoFra!=0) {RegData <- subset(RegData, RegData$InnDato >= as.Date(datoFra, tz= 'UTC'))}
@@ -44,9 +45,9 @@ NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, #enhetsUtv
     if (bekr %in% 0:1){paste(c('Bekreftede','Mistenkte')[bekr+1], 'tilfeller')},
     if (skjemaStatus %in% 0:5){paste('Skjemastatus:',
                                      c('ingen', 'kladd', 'ferdigstilt', '','slettet', 'returnert')[skjemaStatus+1])},
-    #if (velgRHF %in% 0:1) {paste0('RHF: ', c('Kvinner', 'Menn')[erMann+1])},
     if (erMann %in% 0:1) {paste0('Kjønn: ', c('Kvinner', 'Menn')[erMann+1])},
     if (dodInt %in% 0:1) {paste0('Status ut fra intensiv: ', c('Levende','Død')[as.numeric(dodInt)+1])},
+    if (valgtRHF != 'Alle'){paste('Valgt RHF:', valgtRHF)},
     if (velgAvd[1] != 0 & reshID==0) {'Viser valgte sykehus'}
   )
 

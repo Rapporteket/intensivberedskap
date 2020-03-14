@@ -48,7 +48,8 @@ CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
 #Definere utvalgsinnhold
 #sykehusNavn <- sort(c('',unique(CoroData$ShNavn)), index.return=T)
 #sykehusValg <- c(0,unique(CoroData$ReshId))[sykehusNavn$ix]
-hfNavn <- sort(unique(CoroData$ShNavn), index.return=T)
+rhfNavn <- c('Alle', as.character(sort(unique(CoroData$RHF)))) #, index.return=T)
+hfNavn <- sort(unique(CoroData$HF)) #, index.return=T)
 sykehusNavn <- sort(unique(CoroData$ShNavn), index.return=T)
 sykehusValg <- unique(CoroData$ReshId)[sykehusNavn$ix]
 sykehusValg <- c(0,sykehusValg)
@@ -78,7 +79,12 @@ ui <- tagList(
                  br(),
               br(),
               br(),
-              h3('Gjør filtreringer i tabellene for intensivopphold og risikofaktorer:'),
+              h3('Gjør filtreringer i tabellene'),
+              h4('Alle tabeller:'),
+              selectInput(inputId = "valgtRHF", label="Velg RHF",
+                          choices = rhfNavn
+              ),
+              h4('Tabellene for intensivopphold og risikofaktorer:'),
               selectInput(inputId = "skjemaStatus", label="Skjemastatus",
                           choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
               ),
@@ -91,6 +97,7 @@ ui <- tagList(
               selectInput(inputId = "erMann", label="Kjønn",
                           choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
               )
+
               # selectInput(inputId = "velgRHF", label="RHF",
               #             choices = c("Alle"=9, ...)
               # ),
@@ -122,6 +129,7 @@ ui <- tagList(
                        h2('På disse sidene kan du hente oppsummeringer av registrering
                        gjort i intensivregisterets beredskapsskjema for mistenkt/bekreftet
                        Coronasmitte.'),
+                       h3('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
                       h2('Siden er under utvikling... '),
                       br(),
                       br(),
@@ -241,13 +249,13 @@ server <- function(input, output, session) {
 #skjemaStatus, bekrMist, dodInt
 
   output$tabECMOrespirator <- renderTable({
-    statusECMOrespTab(RegData=CoroData) #, datoTil=Sys.Date(), reshID=0)
+    statusECMOrespTab(RegData=CoroData, valgtRHF=input$valgtRHF) #, datoTil=Sys.Date(), reshID=0)
   }, rownames = T, digits=0, spacing="xs"
   )
 
     output$tabTidEnhet <- renderTable({
-      print(input$erMann)
     TabTidEnhet(RegData=CoroData, tidsenhet='dag', enhetsNivaa='RHF',
+                valgtRHF= input$valgtRHF,
                 skjemaStatus=as.numeric(input$skjemaStatus),
                 bekr=as.numeric(input$bekrMist),
                 dodInt=as.numeric(input$dodInt),
@@ -257,6 +265,7 @@ server <- function(input, output, session) {
 
     output$tabRisikofaktorer <- renderTable({
       RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',
+                        valgtRHF= input$valgtRHF,
                         skjemaStatus=as.numeric(input$skjemaStatus),
                         bekr=as.numeric(input$bekrMist),
                         dodInt=as.numeric(input$dodInt),
