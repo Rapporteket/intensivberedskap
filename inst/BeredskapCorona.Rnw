@@ -169,12 +169,14 @@ av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
 \begin{frame}[fragile] {Corona i regionene}
 
 Registrerte tilfeller per dag og totalt antall tilfeller.
-Registreringer med Diagnose=-1 (ikke angitt) er klassifiserte som mistenkte tilfeller.
+Registreringer hvor diagnose ikke er angitt, er klassifiserte som mistenkte tilfeller.
 
 <<'TabTot', results='asis'>>=
 #TabRHF <- table(CoroData$Dag, CoroData$RHF)
 #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
-TabTidRHF()
+
+#TabTidRHF()
+
 TabDagRHF <- ftable(CoroData[ , c('Dag', 'RHF', 'Korona')], row.vars ='Dag') #, col.vars = c('RHF', 'Influensa'))
 
 navnRHF <- levels(CoroData$RHF)
@@ -202,22 +204,6 @@ print(xtable::xtable(TabDagRHF, digits=0, #method='compact', #align=c('l', rep('
 \end{frame}
 
 
-\begin{frame}[fragile] {Tilfeller registrert forrige døgn}
-
-Nye Coronatilfeller registrert forrige døgn i hver helseregion. (Basert på FormDate)
-
-<<'TabFordelinger', results='asis'>>=
-#CoroData$ukeOpprettet <- format(as.Date(CoroData$FormDate), '%V')
-CoroData$DagOpprettet <- format(as.Date(CoroData$FormDate), '%d.%m')
-
-#indNye <- which(CoroData$ukeOpprettet == format(Sys.Date(), '%V'))
-indNye <- which(CoroData$DagOpprettet == format(Sys.Date()-1, '%d.%m'))
-TabRHF <- table(CoroData$Dag[indNye], CoroData$RHF[indNye])
-xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller registrert i går')
-
-@
-
-\end{frame}
 
 \begin{frame}[fragile] {Antall døde}
 <<'Dod', results='asis'>>=
@@ -266,7 +252,7 @@ xtable::xtable(addmargins(TabAlder),
 \begin{frame}[fragile] {Corona på respirator/ECMO}
 
 Teller nå opp hvor mange som har vært i respirator/ECMO.
-//
+\\
 Visning av antall som ligger på respirator/ECMO akkurat nå, kommer..
 
 <<'TabUkeRHFalle', results='asis'>>=
@@ -289,8 +275,23 @@ xtable::xtable(TabHjelp,
 
 \begin{frame}[fragile] {Risikofaktorer}
 
+<<'Risikofaktorer', results='asis'>>=
+RisikofaktorerTab(RegData=CoroData)
+@
 \end{frame}
 
+
+% \begin{frame}[fragile] {Tilfeller registrert forrige døgn}
+% Nye Coronatilfeller registrert forrige døgn i hver helseregion. (Basert på FormDate)
+% <<'TabFordelinger', results='asis'>>=
+% #CoroData$ukeOpprettet <- format(as.Date(CoroData$FormDate), '%V')
+% CoroData$DagOpprettet <- format(as.Date(CoroData$FormDate), '%d.%m')
+% #indNye <- which(CoroData$ukeOpprettet == format(Sys.Date(), '%V'))
+% indNye <- which(CoroData$DagOpprettet == format(Sys.Date()-1, '%d.%m'))
+% TabRHF <- table(CoroData$Dag[indNye], CoroData$RHF[indNye])
+% xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller registrert i går')
+% @
+% \end{frame}
 
 \end{tiny}
 \end{document}

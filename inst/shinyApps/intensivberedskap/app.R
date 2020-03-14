@@ -88,13 +88,15 @@ ui <- tagList(
                  br()
              ),
              mainPanel(width = 12,
-                       #shinyalert::useShinyalert(),
-                       h3('Risikofaktorer'),
-                       #helpText('Denne trenger vi vel ikke på daglig basis.. '),
-                       tableOutput('tabRisikofaktorer')
-
-                       # appNavbarUserWidget(user = uiOutput("appUserName"),
-                       #                     organization = uiOutput("appOrgName")
+                       appNavbarUserWidget(user = uiOutput("appUserName"),
+                                           organization = uiOutput("appOrgName")),
+                        shinyalert::useShinyalert(),
+                       h3('Antall tilfeller'),
+                       tableOutput('tabTidEnhet'),
+                        br(),
+                        br(),
+                        h3('Risikofaktorer'),
+                        tableOutput('tabRisikofaktorer')
 
              )
     ),
@@ -111,6 +113,7 @@ ui <- tagList(
                  actionButton("subscribe", "Bestill!")
                ),
                 mainPanel(
+                  h4('Mulighet for å abonnere på rapport kommer')
                #   uiOutput("subscriptionContent")
                 )
              )
@@ -190,6 +193,22 @@ server <- function(input, output, session) {
       RisikofaktorerTab(RegData=CoroData, tidsenhet='Uke') #, datoTil=Sys.Date(), reshID=0)
     }, rownames = T, digits=0, spacing="xs"
     )
+
+  output$tabTidEnhet <- renderTable({
+    TabTidEnh <- TabTidEnhet(RegData=CoroData, tidsenhet='dag', enhetsNivaa='RHF') #, datoTil=Sys.Date(), reshID=0)
+
+    add.to.row <- list(pos = list(-1), command = NULL)
+    command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
+    add.to.row$command <- command
+    print(xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
+                         caption=paste0('Coronatilfeller per dag og region (B - bekreftet, M - mistenkt)')),
+          #footnote= 'B-bekreftet, M-mistenkt',),
+          add.to.row = add.to.row,
+          sanitize.rownames.function = identity)
+  }, rownames = T, digits=0, spacing="xs"
+  )
+
+
 
   #------------- Abonnement----------------
   ## rekative verdier for å holde rede på endringer som skjer mens

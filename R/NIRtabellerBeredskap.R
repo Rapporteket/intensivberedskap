@@ -9,14 +9,14 @@
 #'
 #' @export
 #' @return
-RisikofaktorerTab <- function(RegData, tidsenhet='Uke', datoTil=Sys.Date(), reshID=0){
-
+RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), reshID=0){
+#Kvikk fix: Totalt gir nå totalen for 2020
   Tidsvariabel <- switch(tidsenhet,
     Uke = paste0('uke',RegData$UkeNr),
     Dag = RegData$Dag,
-    Aar = RegData$Aar)
+    Totalt = RegData$Aar)
 
-    TabRisiko <- cbind(
+  TabRisiko <- rbind(
       Kreft = tapply(RegData$Kreft, Tidsvariabel, FUN=sum, na.rm = T),
       'Nedsatt immunforsvar' = tapply(RegData$IsImpairedImmuneSystemIncludingHivPatient, Tidsvariabel, FUN=sum, na.rm = T),
       Diabetes	= tapply(RegData$Diabetes, Tidsvariabel, FUN=sum, na.rm = T),
@@ -31,9 +31,11 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Uke', datoTil=Sys.Date(), resh
       'Røyker' =	tapply(RegData$IsActivSmoker, Tidsvariabel, FUN=sum, na.rm = T),
       'Opphold med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
     )
-
-    xtable::xtable(addmargins(t(TabRisiko), margin = 2),
+  TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
+  if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)}
+    xtable::xtable(TabRisiko,
                    digits=0,
+                   #align = c('l',rep('r'),
                    caption='Risikofaktorer')
     #return(TabRisiko)
 }
@@ -42,39 +44,27 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Uke', datoTil=Sys.Date(), resh
 #'
 #' @param RegData dataramme med preprossesserte data
 #' @param tidsenhet 'dag' (standard), 'uke', 'maaned'
-#' @param enhetsNivaa
+#' @param enhetsNivaa 'RHF', 'HF', 'ShNavn'
 #'
 #' @return
 #' @export
 TabTidEnhet <- function(RegData, tidsenhet='dag', enhetsNivaa='RHF'){
 
+  enhetsNivaa <- 'ShNavn'
   TidsVar <- switch (tidsenhet,
     dag = 'Dag',
-    uke = 'Uke',
+    uke = 'UkeNr',
     maaned = 'MndAar')
 
   RegData$EnhetsNivaaVar <- RegData[ ,enhetsNivaa]
+  #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
 
-  RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
+TabTidEnh <- ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
 
-TabTidEnh <- ftable(RegData[ , c(TidsVar, 'RHF', 'Korona')], row.vars =TidsVar)
-
-navnEnh <- levels(RegData$RHF)
+navnEnh <- unique(RegData$EnhetsNivaaVar)
 TabTidEnh <- as.matrix(TabTidEnh)
 colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
 
 TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
 
-add.to.row <- list(pos = list(-1), command = NULL)
-command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
-# Funker ikke: c(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''),
-#            "\\n{\\footnotesize B - bekreftet, M - mistenkt}\n") # #, '{\\footnote}{B-bekreftet, M-mistenkt}')
-# '& \\multicolumn{2}{c}{A} & \\multicolumn{2}{c}{B} & \\multicolumn{2}{c}{C} & \\multicolumn{2}{c}{D}  \\\\\n'
-#comment$command <- "\\hline\n{\\footnotesize B - bekreftet, M - mistenkt}\n"
-add.to.row$command <- command
-print(xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-                     caption=paste0('Coronatilfeller per dag og region (B - bekreftet, M - mistenkt)')),
-      #footnote= 'B-bekreftet, M-mistenkt',),
-      add.to.row = add.to.row,
-      sanitize.rownames.function = identity)
 }

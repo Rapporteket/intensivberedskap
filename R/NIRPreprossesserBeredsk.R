@@ -22,9 +22,9 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
       RegData$erMann <- factor(RegData$erMann, levels=0:1, labels=c('kvinner','menn'))
 
       #Riktig navn på regions-variabel:
-      RegData$Korona <- factor(NA, levels = c('Mistenkt', 'Bekreftet'))
-      RegData$Korona[which(RegData$Diagnosis %in% c(-1,104:107))] <- 'Mistenkt'
-      RegData$Korona[which(RegData$Diagnosis %in% 100:103)] <- 'Bekreftet'
+      RegData$Korona <- factor(NA, levels = c('M', 'B'))
+      RegData$Korona[which(RegData$Diagnosis %in% c(-1,104:107))] <- 'M'
+      RegData$Korona[which(RegData$Diagnosis %in% 100:103)] <- 'B'
 
 
       RegData$RHF <- factor(sub('Helse ', '', RegData$RHF))
