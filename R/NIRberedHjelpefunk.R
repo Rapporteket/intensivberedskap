@@ -1,13 +1,3 @@
-#' Legger til og formaterer tidsvariable og noen flere
-#'
-#' @param RegData
-#'
-#' @return
-#' @export
-#'
-preprosessBeredVar <- function(RegData){
-}
-
 
 #' Funksjon som produserer rapporten som skal sendes til mottager.
 #'

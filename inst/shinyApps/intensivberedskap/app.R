@@ -87,13 +87,21 @@ ui <- tagList(
                  tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                  br()
              ),
-             mainPanel(width = 12,
+             mainPanel(width = 9,
+                       shinyalert::useShinyalert(),
                        appNavbarUserWidget(user = uiOutput("appUserName"),
-                                           organization = uiOutput("appOrgName")),
-                        shinyalert::useShinyalert(),
+                                           organization = uiOutput("appOrgName"),
+                                           addUserInfo = TRUE),
+                       tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
+
+                       h2('Siden er under utvikling... Det er et mål at samlerapporten
+                          til enhver tid skal kunne benyttes. '),
+
                        h3('Antall tilfeller'),
                        tableOutput('tabTidEnhet'),
                         br(),
+                       h3('Bruk av respirator/ECMO'),
+                       tableOutput('tabECMOrespirator'),
                         br(),
                         h3('Risikofaktorer'),
                         tableOutput('tabRisikofaktorer')
@@ -151,9 +159,9 @@ server <- function(input, output, session) {
   # widget
   if (paaServer) {
     output$appUserName <- renderText(rapbase::getUserFullName(session))
-    output$appOrgName <- renderText(paste0('rolle: ', rolle(),
-                                           '<br> ReshID: ', reshID,
-                                           '<br> Org: ', egenOrg) )}
+    output$appOrgName <- renderText(paste0('rolle: ', rolle,
+                                           '<br> ReshID: ', reshID) )}
+                                           #,'<br> Org: ', egenOrg) )}
 
   # # User info in widget
   # userInfo <- rapbase::howWeDealWithPersonalData(session)
@@ -189,22 +197,23 @@ server <- function(input, output, session) {
   )
 
   #----------Tabeller----------------------------
-  output$tabRisikofaktorer <- renderTable({
-      RisikofaktorerTab(RegData=CoroData, tidsenhet='Uke') #, datoTil=Sys.Date(), reshID=0)
+
+
+  output$tabECMOrespirator <- renderTable({
+    statusECMOrespTab(RegData=CoroData) #, datoTil=Sys.Date(), reshID=0)
+  }, rownames = T, digits=0, spacing="xs"
+  )
+
+    output$tabRisikofaktorer <- renderTable({
+      RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt') #, datoTil=Sys.Date(), reshID=0)
     }, rownames = T, digits=0, spacing="xs"
     )
 
   output$tabTidEnhet <- renderTable({
-    TabTidEnh <- TabTidEnhet(RegData=CoroData, tidsenhet='dag', enhetsNivaa='RHF') #, datoTil=Sys.Date(), reshID=0)
-
-    add.to.row <- list(pos = list(-1), command = NULL)
-    command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
-    add.to.row$command <- command
-    print(xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-                         caption=paste0('Coronatilfeller per dag og region (B - bekreftet, M - mistenkt)')),
-          #footnote= 'B-bekreftet, M-mistenkt',),
-          add.to.row = add.to.row,
-          sanitize.rownames.function = identity)
+    TabTidEnhet(RegData=CoroData, tidsenhet='dag', enhetsNivaa='RHF')$TabTidEnh
+    # print(UtData$TabTidEnh,
+    #       add.to.row = UtData$add.to.row,
+    #       sanitize.rownames.function = identity)
   }, rownames = T, digits=0, spacing="xs"
   )
 

@@ -4,7 +4,12 @@
 \alias{RisikofaktorerTab}
 \title{Funksjoner for å lage tabeller}
 \usage{
-RisikofaktorerTab(RegData, tidsenhet = "Aar", datoTil = Sys.Date(), reshID = 0)
+RisikofaktorerTab(
+  RegData,
+  tidsenhet = "Totalt",
+  datoTil = Sys.Date(),
+  reshID = 0
+)
 }
 \arguments{
 \item{RegData}{data}

@@ -15,11 +15,11 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date()) {
 
 
   varBeredsk <- c("UPPER(SkjemaGUID) AS SkjemaGUID
-,AddressQuality
+-- ,AddressQuality
 ,AgeAdmitted
 ,Astma
 -- ,Birthdate
-,CurrentMunicipalNumber
+-- ,CurrentMunicipalNumber
 ,DateAdmittedIntensive
 ,DateDischargedIntensive
 ,DaysAdmittedIntensiv
@@ -27,15 +27,15 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date()) {
 ,Diabetes
 ,Diagnosis
 ,DischargedIntensivStatus
-,DistrictCode
+-- ,DistrictCode
 ,EcmoEnd
 ,EcmoStart
-,FormDate
+-- ,FormDate
 ,FormStatus
 ,FormTypeId
 ,Graviditet
 ,Helseenhet
-,HelseenhetID
+-- ,HelseenhetID
 ,HelseenhetKortnavn
 ,HF
 ,HovedskjemaGUID
@@ -57,7 +57,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date()) {
 ,MechanicalRespiratorStart
 ,MinorVersion
 ,MoreThan24Hours
-,Morsdato
+-- ,Morsdato
 ,MorsdatoOppdatert
 ,MovedPatientToAnotherIntensivDuring24Hours
 ,Municipal

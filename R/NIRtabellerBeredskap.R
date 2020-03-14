@@ -32,7 +32,8 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
       'Opphold med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
     )
   TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
-  if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)}
+  if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
+  colnames(TabRisiko) <- 'Sum'}
     xtable::xtable(TabRisiko,
                    digits=0,
                    #align = c('l',rep('r'),
@@ -50,7 +51,6 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
 #' @export
 TabTidEnhet <- function(RegData, tidsenhet='dag', enhetsNivaa='RHF'){
 
-  enhetsNivaa <- 'ShNavn'
   TidsVar <- switch (tidsenhet,
     dag = 'Dag',
     uke = 'UkeNr',
@@ -66,5 +66,44 @@ TabTidEnh <- as.matrix(TabTidEnh)
 colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
 
 TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
+add.to.row <- list(pos = list(-1), command = NULL)
+add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
+TabTidEnh <- xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
+               caption=paste0('Antall Coronatilfeller. (B - bekreftet, M - mistenkt)'))
 
+return(invisible(UtData <- list(TabTidEnh=TabTidEnh, add.to.row=add.to.row)))
+}
+
+#' Antall som er eller har vært i ECMO/respirator
+#'
+#' @param RegData beredskapsskjema
+#'
+#' @return
+#' @export
+#'
+statusECMOrespTab <- function(RegData){
+  N <- dim(CoroData)[1]
+  ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
+AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)
+AntBruktECMO <- sum(RegData$EcmoDurationInHours>0, na.rm=T)
+
+AntIrespNaa <- sum(!(is.na(RegData$MechanicalRespiratorStart))) -
+  sum(!(is.na(RegData$MechanicalRespiratorEnd)))
+AntIECMONaa <- sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
+AntPaaIntNaa <- N - sum(!(is.na(RegData$DateDischargedIntensive)))
+
+TabHjelp <- rbind(
+  'På respirator nå' = AntIrespNaa*(c(1, 100/AntPaaIntNaa)),
+  'På ECMO nå' = AntIECMONaa*(c(1, 100/AntPaaIntNaa)),
+  'På intensiv nå' = c(AntPaaIntNaa,100),
+  'Brukt respirator'= AntBruktResp*c(1, 100/N),
+  'Brukt ECMO'= AntBruktECMO*c(1, 100/N),
+  'Brukt intesivseng' = c(N,100)
+)
+colnames(TabHjelp) <- c('Antall', 'Andel')
+TabHjelp[,'Andel'] <- paste0(sprintf('%.0f', TabHjelp[,2]),'%')
+xtable::xtable(TabHjelp,
+               digits=0,
+               align = c('l','r','r'),
+               caption='Bruk av Respirator/ECMO.')
 }

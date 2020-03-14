@@ -12,5 +12,10 @@ knitr::knit2pdf('BeredskapCorona.Rnw') #, encoding = 'UTF-8')
 
 
 #RisikofaktorerTab(RegData=CoroData, tidsenhet='Aar')
+CoroData <- NIRberedskDataSQL()
+CoroData <- NIRPreprosessBeredsk(CoroData)
+RegData <- CoroData
 
-TabTidEnhet(RegData, tidsenhet='uke', enhetsNivaa='HF')
+statusECMOrespTab(CoroData)
+
+ut <- TabTidEnhet(RegData=CoroData, tidsenhet='uke', enhetsNivaa='HF')

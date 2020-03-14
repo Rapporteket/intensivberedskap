@@ -11,7 +11,7 @@ TabTidEnhet(RegData, tidsenhet = "dag", enhetsNivaa = "RHF")
 
 \item{tidsenhet}{'dag' (standard), 'uke', 'maaned'}
 
-\item{enhetsNivaa}{}
+\item{enhetsNivaa}{'RHF', 'HF', 'ShNavn'}
 }
 \value{
 
