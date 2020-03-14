@@ -82,7 +82,7 @@ return(invisible(UtData <- list(TabTidEnh=TabTidEnh, add.to.row=add.to.row)))
 #' @export
 #'
 statusECMOrespTab <- function(RegData){
-  N <- dim(CoroData)[1]
+  N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
 AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)
 AntBruktECMO <- sum(RegData$EcmoDurationInHours>0, na.rm=T)

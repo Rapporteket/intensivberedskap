@@ -199,22 +199,22 @@ print(xtable::xtable(UtData$TabTidEnh, digits=0, #method='compact', #align=c('l'
 \end{frame}
 
 
-
-\begin{frame}[fragile] {Antall døde}
-<<'Dod', results='asis'>>=
-indDod <- which(CoroData$DischargedIntensiveStatus==1)
-TabRHF <- table(CoroData$Dag[indDod], CoroData$RHF[indDod])
-if (length(indDod)==0) {
-  txtDod <- 'Ingen døde'} else {
-    txtDod <- ""
-xtable::xtable(addmargins(TabRHF), digits=0,
-               caption='Antall døde per dag i hvert RHF med mistenkt eller bekreftet Coronasmitte')}
-
-@
-
-\center{\large{\Sexpr{txtDod}}}
-
-\end{frame}
+%
+% \begin{frame}[fragile] {Antall døde}
+% <<'Dod', results='asis'>>=
+% indDod <- which(CoroData$DischargedIntensiveStatus==1)
+% TabRHF <- table(CoroData$Dag[indDod], CoroData$RHF[indDod])
+% if (length(indDod)==0) {
+%   txtDod <- 'Ingen døde'} else {
+%     txtDod <- ""
+% xtable::xtable(addmargins(TabRHF), digits=0,
+%                caption='Antall døde per dag i hvert RHF med mistenkt eller bekreftet Coronasmitte')}
+%
+% @
+%
+% \center{\large{\Sexpr{txtDod}}}
+%
+% \end{frame}
 
 
 \begin{frame}[fragile] {Corona, kjønnsfordeling}
