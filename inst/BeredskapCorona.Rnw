@@ -183,12 +183,12 @@ enhetsNivaa <- 'RHF'
     uke = 'UkeNr',
     maaned = 'MndAar')
 
-  RegData$EnhetsNivaaVar <- RegData[ ,enhetsNivaa]
+  RegData$EnhetsNivaaVar <- as.factor(RegData[ ,enhetsNivaa])
   #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
 
 TabTidEnh <- ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
 
-navnEnh <- unique(RegData$EnhetsNivaaVar)
+navnEnh <- levels(RegData$EnhetsNivaaVar) #unique(RegData$EnhetsNivaaVar)
 TabTidEnh <- as.matrix(TabTidEnh)
 colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
 
