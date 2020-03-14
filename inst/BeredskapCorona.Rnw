@@ -111,6 +111,7 @@ CoroData <- NIRPreprosessBeredsk(RegData=CoroData)
 
 datoStart <- '2020-03-01'
 CoroData$InnDato <- as.Date(CoroData$DateAdmittedIntensive) #, tz='UTC', format = '%Y-%m-%d"')
+RegData <- CoroData
 #NB: Har benyttet FormDate for influensa
 
 
@@ -175,31 +176,50 @@ Registreringer hvor diagnose ikke er angitt, er klassifiserte som mistenkte tilf
 #TabRHF <- table(CoroData$Dag, CoroData$RHF)
 #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
 
-#TabTidRHF()
+tidsenhet <- 'dag'
+enhetsNivaa <- 'RHF'
+  TidsVar <- switch (tidsenhet,
+    dag = 'Dag',
+    uke = 'UkeNr',
+    maaned = 'MndAar')
 
-TabDagRHF <- ftable(CoroData[ , c('Dag', 'RHF', 'Korona')], row.vars ='Dag') #, col.vars = c('RHF', 'Influensa'))
+  RegData$EnhetsNivaaVar <- RegData[ ,enhetsNivaa]
+  #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
 
-# navnRHF <- levels(CoroData$RHF)
-# #navnMistBekr <- levels(CoroData$Korona)
-# TabDagRHF <- as.matrix(TabDagRHF)
-# colnames(TabDagRHF) <- rep(c('M','B'), length(navnRHF)) #letters[1:8]
-# navnRHF <- sub('Helse ', '', navnRHF)
-# #TabDagRHF <- rbind( TabDagRHF, Sesongsum = colSums(TabDagRHF))
-# TabDagRHF <- addmargins(TabDagRHF, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
-#
-# add.to.row <- list(pos = list(-1), command = NULL)
-# command <- paste0(paste0('& \\multicolumn{2}{l}{', navnRHF, '} ', collapse=''), '\\\\\n')
-# add.to.row$command <- command
-    UtData <- TabTidEnhet(RegData=CoroData, tidsenhet='dag', enhetsNivaa='RHF') #, datoTil=Sys.Date(), reshID=0
-print(xtable::xtable(UtData$TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
+TabTidEnh <- ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
+
+navnEnh <- unique(RegData$EnhetsNivaaVar)
+TabTidEnh <- as.matrix(TabTidEnh)
+colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
+
+TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
+add.to.row <- list(pos = list(-1), command = NULL)
+add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
+
+print(xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
 		caption=paste0('Coronatilfeller per dag og region (B - bekreftet, M - mistenkt)')),
- 		add.to.row = UtData$add.to.row,
+ 		add.to.row = add.to.row,
 		sanitize.rownames.function = identity)
 @
 \end{frame}
 
+\begin{frame}[fragile] {Corona på respirator/ECMO}
+Oversikt over antall som ligger i respirator/ECMO, samt hvor mange som har vært.
+\\
+Antall som ligger på respirator NÅ, er antall registrert startede
+respiratorer (MechanicalRespiratorStart) - de som har slutttidspunkt for respiratortid (MechanicalRespiratorEnd).
 
-%
+<<'RespiratorECMO', results='asis'>>=
+
+statusECMOrespTab(RegData=CoroData)
+# xtable::xtable(TabHjelp,
+#                digits=0,
+#                align = c('l','r','r'),
+#                caption='Bruk av Respirator/ECMO.')
+@
+\end{frame}
+
+
 % \begin{frame}[fragile] {Antall døde}
 % <<'Dod', results='asis'>>=
 % indDod <- which(CoroData$DischargedIntensiveStatus==1)
@@ -227,8 +247,8 @@ xtable::xtable(addmargins(TabKjonn),
 @
 \end{frame}
 
-\begin{frame}[fragile] {Corona, aldersfordeling}
 
+\begin{frame}[fragile] {Corona, aldersfordeling}
 
 <<'TabAlder', results='asis'>>=
 #aldGr <- quantile(CoroData$Alder, probs = seq(0, 1, 0.5), na.rm = TRUE) #c(seq(0, 110, 10),110)
@@ -244,41 +264,7 @@ xtable::xtable(addmargins(TabAlder),
 @
 \end{frame}
 
-\begin{frame}[fragile] {Corona på respirator/ECMO}
 
-Oversikt over antall som ligger i respirator/ECMO, samt hvor mange som har vært.
-MechanicalRespirator=1 også hvis det bare er registrert tidspunkt for start av respirator.
-Antall som ligger på respirator NÅ, er antall registrert startede
-respiratorer (MechanicalRespiratorStart) - de som har slutttidspunkt for respiratortid (MechanicalRespiratorEnd).
-
-<<'RespiratorECMO', results='asis'>>=
-
-statusECMOrespTab(RegData=CoroData)
-# AntBruktResp <- sum(CoroData$MechanicalRespirator==1, na.rm=T)
-# AntBruktECMO <- sum(CoroData$EcmoDurationInHours>0, na.rm=T)
-#
-# AntIrespNaa <- sum(!(is.na(CoroData$MechanicalRespiratorStart))) -
-#   sum(!(is.na(CoroData$MechanicalRespiratorEnd)))
-# AntIECMONaa <- sum(!(is.na(CoroData$EcmoStart))) - sum(!(is.na(CoroData$EcmoEnd)))
-# AntPaaIntNaa <- N - sum(!(is.na(CoroData$DateDischargedIntensive)))
-#
-# TabHjelp <- rbind(
-#   'På intensiv nå' = AntIECMONaa(c(1, 100/N)),
-#   'På respirator nå' = AntIrespNaa(c(1, 100/AntPaaIntNaa)),
-#   'På ECMO nå' = AntIresp(c(1, 100/AntPaaIntNaa)),
-#   'Brukt respirator'= AntBruktResp*c(1, 100/N),
-#   'Brukt ECMO'= AntBruktECMO*c(1, 100/N),
-#   'Brukt intesivseng' = c(N,100)
-# )
-#  colnames(TabHjelp) <- c('Antall', 'Andel')
-# TabHjelp[,'Andel'] <- paste0(sprintf('%.0f', TabHjelp[,2]),'%')
-# xtable::xtable(TabHjelp,
-#                digits=0,
-#                align = c('l','r','r'),
-#                caption='Bruk av Respirator/ECMO.')
-
-@
-\end{frame}
 
 \begin{frame}[fragile] {Risikofaktorer}
 

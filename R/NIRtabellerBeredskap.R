@@ -34,9 +34,12 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
   TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
   if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
   colnames(TabRisiko) <- 'Sum'}
+  TabRisiko <- cbind(TabRisiko,
+        'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%')
+  )
     xtable::xtable(TabRisiko,
                    digits=0,
-                   #align = c('l',rep('r'),
+                   align = c('l',rep('r',ncol(TabRisiko))),
                    caption='Risikofaktorer')
     #return(TabRisiko)
 }
@@ -58,20 +61,22 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', enhetsNivaa='RHF'){
 
   RegData$EnhetsNivaaVar <- RegData[ ,enhetsNivaa]
   #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
+  #TabRHF <- table(CoroData$Dag, CoroData$RHF)
+  #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
 
-TabTidEnh <- ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
+TabTidEnh <- table(RegData[ , c(TidsVar, enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
 
 navnEnh <- unique(RegData$EnhetsNivaaVar)
 TabTidEnh <- as.matrix(TabTidEnh)
-colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
+#colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
 
 TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
-add.to.row <- list(pos = list(-1), command = NULL)
-add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
+#add.to.row <- list(pos = list(-1), command = NULL)
+#add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
 TabTidEnh <- xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-               caption=paste0('Antall Coronatilfeller. (B - bekreftet, M - mistenkt)'))
+               caption=paste0('Antall Coronatilfeller.'))
 
-return(invisible(UtData <- list(TabTidEnh=TabTidEnh, add.to.row=add.to.row)))
+return(TabTidEnh)
 }
 
 #' Antall som er eller har vært i ECMO/respirator

@@ -94,16 +94,20 @@ ui <- tagList(
                                            addUserInfo = TRUE),
                        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
 
-                       h2('Siden er under utvikling... Det er et mål at samlerapporten
-                          til enhver tid skal kunne benyttes. '),
+                       h2('Siden er under utvikling... '),
+                       h4('Utvalgsmuligheter som kommer: Levende/død ut fra intensiv,
+                          Kjønn, Mistenkt/Bekreftet'),
 
                        h3('Antall tilfeller'),
                        tableOutput('tabTidEnhet'),
                         br(),
                        h3('Bruk av respirator/ECMO'),
+                       h5('Er det intuitivt hva andelene er?
+                          Evt. hvordan skal vi tydeliggjøre hva det er andeler av?'),
                        tableOutput('tabECMOrespirator'),
                         br(),
                         h3('Risikofaktorer'),
+                       h5('Tabellen oppsummerer alle opphold.'),
                         tableOutput('tabRisikofaktorer')
 
              )
@@ -121,8 +125,11 @@ ui <- tagList(
                  actionButton("subscribe", "Bestill!")
                ),
                 mainPanel(
-                  h4('Mulighet for å abonnere på rapport kommer')
+                  h4('Mulighet for å abonnere på rapport kommer'),
                #   uiOutput("subscriptionContent")
+               br(),
+               br(),
+               h4('NB: Abonnementet løper til det sies opp. ')
                 )
              )
     )
@@ -210,10 +217,7 @@ server <- function(input, output, session) {
     )
 
   output$tabTidEnhet <- renderTable({
-    TabTidEnhet(RegData=CoroData, tidsenhet='dag', enhetsNivaa='RHF')$TabTidEnh
-    # print(UtData$TabTidEnh,
-    #       add.to.row = UtData$add.to.row,
-    #       sanitize.rownames.function = identity)
+    TabTidEnhet(RegData=CoroData, tidsenhet='dag', enhetsNivaa='RHF')
   }, rownames = T, digits=0, spacing="xs"
   )
 
