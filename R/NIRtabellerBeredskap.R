@@ -11,11 +11,11 @@
 #' @export
 #' @return
 RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), reshID=0,
-                              erMann='', bekr=9, skjemaStatus=9,
+                              erMann='', bekr=9, skjemastatus=9,
                               dodInt=9, valgtRHF='Alle', velgAvd=0){
 
   RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
-                              bekr=bekr, skjemaStatus=skjemaStatus,dodInt=dodInt,
+                              bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
                               reshID=reshID, valgtRHF=valgtRHF)$RegData #velgAvd=velgAvd
 #Kvikk fix: Totalt gir nå totalen for 2020
   Tidsvariabel <- switch(tidsenhet,
@@ -60,10 +60,10 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
 #' @return
 #' @export
 TabTidEnhet <- function(RegData, tidsenhet='dag', enhetsNivaa='RHF',erMann=9,
-                        bekr=9, skjemaStatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
+                        bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
 
     RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
-                                bekr=bekr, skjemaStatus=skjemaStatus,
+                                bekr=bekr, skjemastatus=skjemastatus,
                                 dodInt=dodInt, valgtRHF=valgtRHF)$RegData #velgAvd=velgAvd
 
   TidsVar <- switch (tidsenhet,
@@ -102,14 +102,11 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle'){
 
   RegData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF)$RegData
                               # ,  datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
-                              # bekr=bekr, skjemaStatus=skjemaStatus,
+                              # bekr=bekr, skjemastatus=skjemastatus,
                               # dodInt=dodInt)$RegData velgAvd=velgAvd
 
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
-AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)
-AntBruktECMO <- sum(RegData$EcmoDurationInHours>0, na.rm=T)
-
 AntIrespNaa <- sum(!(is.na(RegData$MechanicalRespiratorStart))) -
   sum(!(is.na(RegData$MechanicalRespiratorEnd)))
 AntIECMONaa <- sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
@@ -118,15 +115,59 @@ AntPaaIntNaa <- N - sum(!(is.na(RegData$DateDischargedIntensive)))
 TabHjelp <- rbind(
   'På respirator nå' = AntIrespNaa*(c(1, 100/AntPaaIntNaa)),
   'På ECMO nå' = AntIECMONaa*(c(1, 100/AntPaaIntNaa)),
-  'På intensiv nå' = c(AntPaaIntNaa,100),
-  'Brukt respirator'= AntBruktResp*c(1, 100/N),
-  'Brukt ECMO'= AntBruktECMO*c(1, 100/N),
-  'Brukt intesivseng' = c(N,100)
+  'På intensiv nå' = c(AntPaaIntNaa,'')
 )
 colnames(TabHjelp) <- c('Antall', 'Andel')
-TabHjelp[,'Andel'] <- paste0(sprintf('%.0f', TabHjelp[,2]),'%')
+TabHjelp[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
 xtable::xtable(TabHjelp,
                digits=0,
                align = c('l','r','r'),
                caption='Bruk av Respirator/ECMO.')
+}
+
+
+#' Antall som er eller har vært i ECMO/respirator
+#'
+#' @param RegData beredskapsskjema
+#' @inheritParams NIRUtvalgBeredsk
+#'
+#' @return
+#' @export
+#'
+oppsumLiggetiderTab <- function(RegData, valgtRHF='Alle'){
+
+  RegData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
+                              skjemastatus=2,)$RegData
+  # ,  datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
+  # bekr=bekr,
+  # dodInt=dodInt)$RegData velgAvd=velgAvd
+
+  N <- dim(RegData)[1]
+  ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
+  AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)
+  AntBruktECMO <- sum(RegData$ECMOTid>0, na.rm=T)
+  AntUtInt <- sum(RegData$DateDischargedIntensive>0, na.rm=T)
+  Liggetid <- summary(RegData$liggetid, na.rm = T)
+  RespTid <- summary(RegData$RespTid, na.rm = T)
+  ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
+
+med_IQR <- function(x){
+  c(sprintf('%.1f',x[3]), paste(sprintf('%.2f',x[2]), sprintf('%.2f',x[5]), sep='-'))}
+# x <- Liggetid
+# test <- sprintf('%.2f',c(x[2],x[5]))
+#med_IQR(Liggetid)
+
+TabLiggetider <- rbind(
+    'ECMO-tid,' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/AntUtInt))),
+    'Respiratortid' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/AntUtInt))),
+    'Liggetid' = c(med_IQR(Liggetid),AntUtInt, '')
+    #Median respiratortid'
+  )
+  colnames(TabLiggetider) <- c('Median', 'IQR', 'Antall', 'Andel')
+  TabLiggetider[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabLiggetider[1:2,'Andel'])),'%')
+  xtable::xtable(TabLiggetider,
+                 digits=0,
+                 align = c('l','r','c', 'r','r'),
+                 caption='Liggetider og ECMO/respiratorbruk, ferdigstilte opphold. \\
+                 IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet.')
 }

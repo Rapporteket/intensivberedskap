@@ -12,7 +12,9 @@ knitr::knit2pdf('BeredskapCorona.Rnw') #, encoding = 'UTF-8')
 
 
 #RisikofaktorerTab(RegData=CoroData, tidsenhet='Aar')
-CoroData <- NIRberedskDataSQL()
+CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-17.csv', sep=';',
+                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+#CoroData <- NIRberedskDataSQL()
 CoroData <- NIRPreprosessBeredsk(CoroData)
 RegData <- CoroData
 
@@ -22,7 +24,7 @@ erMann=1
 bekr=9
 skjemaStatus=9
 dodInt=9
-velgRHF=0
+valgtRHF='Alle'
 velgAvd=0
 
 statusECMOrespTab(CoroData)

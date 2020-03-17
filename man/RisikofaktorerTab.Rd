@@ -11,7 +11,7 @@ RisikofaktorerTab(
   reshID = 0,
   erMann = "",
   bekr = 9,
-  skjemaStatus = 9,
+  skjemastatus = 9,
   dodInt = 9,
   valgtRHF = "Alle",
   velgAvd = 0

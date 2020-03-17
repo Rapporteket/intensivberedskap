@@ -30,8 +30,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
 
       RegData$RHF <- factor(sub('Helse ', '', RegData$RHF))
-      #RegData$RHFnr <-
-
 
       # Endre variabelnavn:
       names(RegData)[which(names(RegData) == 'Saps2Score')] <- 'SMR' #Saps2Score er SAPS estimert mortalitet
@@ -55,8 +53,23 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
       #Riktig format på datovariable:
       RegData$InnDato <- as.Date(RegData$DateAdmittedIntensive, tz= 'UTC', format="%Y-%m-%d")
-      RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$DateAdmittedIntensive, tz= 'UTC', format="%Y-%m-%d %H:%M:%S" )
-      RegData$DateDischargedIntensive <- as.POSIXlt(RegData$DateDischargedIntensive, tz= 'UTC', format="%Y-%m-%d %H:%M:%S" )
+      RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$DateAdmittedIntensive, tz= 'UTC',
+                                                  format="%Y-%m-%d %H:%M:%S" )
+      RegData$DateDischargedIntensive <- as.POSIXlt(RegData$DateDischargedIntensive, tz= 'UTC',
+                                                    format="%Y-%m-%d %H:%M:%S" )
+      RegData$MechanicalRespiratorStart <- as.POSIXlt(RegData$MechanicalRespiratorStart,
+                                                      tz= 'UTC', format="%Y-%m-%d %H:%M:%S")
+      RegData$MechanicalRespiratorEnd <- as.POSIXlt(RegData$MechanicalRespiratorEnd,
+                                                      tz= 'UTC', format="%Y-%m-%d %H:%M:%S")
+
+      #Liggetider
+      names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
+      RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
+                                             RegData$EcmoStart,
+                                             units = 'days'))
+      RegData$RespTid <- as.numeric(difftime(RegData$MechanicalRespiratorEnd,
+                                  RegData$MechanicalRespiratorStart,
+                                  units = 'days'))
 
       # Nye tidsvariable:
       RegData$MndNum <- RegData$Innleggelsestidspunkt$mon +1
@@ -87,9 +100,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
       RegData$Dod90[which(difftime(as.Date(RegData$Morsdato, format="%Y-%m-%d %H:%M:%S"),
                                    as.Date(RegData$InnDato), units='days')< 90)] <- 1
 
-      RegData$Dod365 <- 0
-      RegData$Dod365[which(difftime(as.Date(RegData$Morsdato, format="%Y-%m-%d %H:%M:%S"),
-                                   as.Date(RegData$InnDato), units='days')< 365)] <- 1
 
       #Konvertere boolske variable fra tekst til boolske variable...
       TilLogiskeVar <- function(Skjema){

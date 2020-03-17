@@ -35,7 +35,10 @@ if (paaServer) {
   qCoro <- 'SELECT *  from ReadinessFormDataContract'
   CoroData <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
-} #hente data på server
+} else {
+  CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-17.csv', sep=';',
+                         stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+} #hente data
 
 
 CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
@@ -80,12 +83,13 @@ ui <- tagList(
               br(),
               br(),
               h3('Gjør filtreringer i tabellene'),
+              br(),
               h4('Alle tabeller:'),
               selectInput(inputId = "valgtRHF", label="Velg RHF",
                           choices = rhfNavn
               ),
               h4('Tabellene for intensivopphold og risikofaktorer:'),
-              selectInput(inputId = "skjemaStatus", label="Skjemastatus",
+              selectInput(inputId = "skjemastatus", label="Skjemastatus",
                           choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
               ),
               selectInput(inputId = "bekrMist", label="Bekreftet/Mistenkt",
@@ -126,19 +130,24 @@ ui <- tagList(
                                            addUserInfo = TRUE),
                        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
 
-                       h2('På disse sidene kan du hente oppsummeringer av registrering
-                       gjort i intensivregisterets beredskapsskjema for mistenkt/bekreftet
+                       h3('Alle resultater er basert på intensivregisterets beredskapsskjema for mistenkt/bekreftet
                        Coronasmitte.'),
-                       h3('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
-                      h2('Siden er under utvikling... '),
+                       h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
+                      h3('Siden er under utvikling... ', style = "color:red"),
                       br(),
                       br(),
 
-                      h3('Status, bruk av respirator/ECMO'),
-                      h5('Oppsummering av registreringer'),
-                      h5('Er det intuitivt hva andelene er?
-                          Evt. hvordan skal vi tydeliggjøre hva det er andeler av?'),
-                      tableOutput('tabECMOrespirator'),
+                      fluidRow(
+
+                        h3('Bruk av respirator/ECMO'),
+                        column(width=3,
+                               h5('Pågående aktivitet', align='center'),
+                               tableOutput('tabECMOrespirator')),
+                        column(width=5, offset=1,
+                               h5('Ferdigstilte registreringer', align='center'),
+                               tableOutput('tabOppsumLiggetider')
+                        )
+                      ),
                       br(),
 
                       h3('Antall intensivopphold'),
@@ -149,7 +158,10 @@ ui <- tagList(
                       h3('Risikofaktorer'),
                       h5('Tabellen oppsummerer alle opphold.'),
                       h5('Her bør det vel komme en tekst om hvilke utvalg som er gjort'),
-                      tableOutput('tabRisikofaktorer')
+                      tableOutput('tabRisikofaktorer'),
+                      br(),
+
+
 
              )
     ), #tab Tabeller
@@ -246,31 +258,37 @@ server <- function(input, output, session) {
 
   #----------Tabeller----------------------------
 
-#skjemaStatus, bekrMist, dodInt
-
-  output$tabECMOrespirator <- renderTable({
-    statusECMOrespTab(RegData=CoroData, valgtRHF=input$valgtRHF) #, datoTil=Sys.Date(), reshID=0)
-  }, rownames = T, digits=0, spacing="xs"
-  )
+#skjemastatus, bekrMist, dodInt
 
     output$tabTidEnhet <- renderTable({
     TabTidEnhet(RegData=CoroData, tidsenhet='dag', enhetsNivaa='RHF',
                 valgtRHF= input$valgtRHF,
-                skjemaStatus=as.numeric(input$skjemaStatus),
+                skjemastatus=as.numeric(input$skjemastatus),
                 bekr=as.numeric(input$bekrMist),
                 dodInt=as.numeric(input$dodInt),
                 erMann=as.numeric(input$erMann)
     )}, rownames = T, digits=0, spacing="xs"
   )
 
+  output$tabECMOrespirator <- renderTable({
+    statusECMOrespTab(RegData=CoroData, valgtRHF=input$valgtRHF) #, datoTil=Sys.Date(), reshID=0)
+  }, rownames = T, digits=0, spacing="xs"
+  )
+
+
     output$tabRisikofaktorer <- renderTable({
       RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',
                         valgtRHF= input$valgtRHF,
-                        skjemaStatus=as.numeric(input$skjemaStatus),
+                        skjemastatus=as.numeric(input$skjemastatus),
                         bekr=as.numeric(input$bekrMist),
                         dodInt=as.numeric(input$dodInt),
                         erMann=as.numeric(input$erMann)
       ) #, datoTil=Sys.Date(), reshID=0)
+    }, rownames = T, digits=0, spacing="xs"
+    )
+
+    output$tabOppsumLiggetider<- renderTable({
+      oppsumLiggetiderTab(RegData=CoroData, valgtRHF=input$valgtRHF) #, datoTil=Sys.Date(), reshID=0)
     }, rownames = T, digits=0, spacing="xs"
     )
 

@@ -10,7 +10,7 @@ NIRUtvalgBeredsk(
   datoTil = 0,
   erMann = 9,
   bekr = 9,
-  skjemaStatus = 9,
+  skjemastatus = 9,
   dodInt = 9,
   reshID = 0,
   valgtRHF = "Alle",
@@ -28,7 +28,7 @@ NIRUtvalgBeredsk(
 
 \item{bekr}{1-bekreftet, 0-mistenkt tilfelle}
 
-\item{skjemaStatus}{status på registreringa 0-ingen, 1-kladd, 2-ferdigstilt, 4-slettet, 5-returnert}
+\item{skjemastatus}{status på registreringa 0-ingen, 1-kladd, 2-ferdigstilt, 4-slettet, 5-returnert}
 
 \item{dodInt}{død på intensiv 0-nei, 1-ja}
 
