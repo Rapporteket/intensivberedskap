@@ -58,11 +58,8 @@ sykehusValg <- unique(CoroData$ReshId)[sykehusNavn$ix]
 sykehusValg <- c(0,sykehusValg)
 names(sykehusValg) <- c('Ikke valgt',sykehusNavn$x)
 
-enhetsUtvalg <- c("Egen region" = 7,
-                  "Hele landet"=0,
-              #    "Eget HF mot egen region" = 6,
-                  "Egen region mot resten" = 8)
-
+enhetsNivaa <- c('RHF', 'HF', 'ShNavn')
+names(enhetsNivaa) <- c('RHF', 'HF', 'Sykehus')
 
 ui <- tagList(
   navbarPage(
@@ -81,13 +78,16 @@ ui <- tagList(
                  tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                  br(),
               br(),
-              br(),
               h3('Gjør filtreringer i tabellene'),
               br(),
               h4('Alle tabeller:'),
               selectInput(inputId = "valgtRHF", label="Velg RHF",
                           choices = rhfNavn
               ),
+              # h4('Utvalget gjelder tabellen med antall tifeller. Det anbefales å først filtrere på RHF'),
+              # selectInput(inputId = "velgEnhetsnivaa", label="Velg enhetsnivaa",
+              #             choices = enhetsNivaa
+              # ),
               h4('Tabellene for intensivopphold og risikofaktorer:'),
               selectInput(inputId = "skjemastatus", label="Skjemastatus",
                           choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
@@ -130,7 +130,7 @@ ui <- tagList(
                                            addUserInfo = TRUE),
                        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
 
-                       h3('Alle resultater er basert på intensivregisterets beredskapsskjema for mistenkt/bekreftet
+                       h3('Resultater fra intensivregisterets beredskapsskjema for mistenkt/bekreftet
                        Coronasmitte.'),
                        h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
                       h3('Siden er under utvikling... ', style = "color:red"),
@@ -261,7 +261,7 @@ server <- function(input, output, session) {
 #skjemastatus, bekrMist, dodInt
 
     output$tabTidEnhet <- renderTable({
-    TabTidEnhet(RegData=CoroData, tidsenhet='dag', enhetsNivaa='RHF',
+    TabTidEnhet(RegData=CoroData, tidsenhet='dag', #enhetsNivaa='RHF',
                 valgtRHF= input$valgtRHF,
                 skjemastatus=as.numeric(input$skjemastatus),
                 bekr=as.numeric(input$bekrMist),

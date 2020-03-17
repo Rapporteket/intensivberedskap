@@ -20,12 +20,15 @@ RegData <- CoroData
 
 
 reshID=0
-erMann=1
+erMann=9
 bekr=9
-skjemaStatus=9
+skjemastatus=9
 dodInt=9
-valgtRHF='Alle'
+valgtRHF=RegData$RHF[3] #'Alle' #
+tidsenhet='dag'
 velgAvd=0
+
+TabTidEnhet(RegData, tidsenhet='dag', valgtRHF =valgtRHF )
 
 statusECMOrespTab(CoroData)
 

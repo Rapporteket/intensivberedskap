@@ -28,8 +28,15 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
       RegData$Bekreftet <- 0
       RegData$Bekreftet[which(RegData$Diagnosis %in% 100:103)] <- 1
 
-
+      # Enhetsnivånavn
+      RegData$ShNavn <- trimws(as.character(RegData$ShNavn)) #Fjerner mellomrom (før) og etter navn
       RegData$RHF <- factor(sub('Helse ', '', RegData$RHF))
+      # RegData$HF <- sub(' universitetssykehus', '', RegData$HF)
+      # RegData$HF <- sub(' sykehus', '', RegData$HF)
+      # RegData$HF <- sub('Sykehuset i', '', RegData$HF)
+      # RegData$HF <- sub('Sykehuset ', '', RegData$HF)
+      # RegData$HF <- sub(' AS', '', RegData$HF)
+
 
       # Endre variabelnavn:
       names(RegData)[which(names(RegData) == 'Saps2Score')] <- 'SMR' #Saps2Score er SAPS estimert mortalitet
@@ -48,8 +55,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
       names(RegData)[
             names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
-      # Riktig format
-      RegData$ShNavn <- trimws(as.character(RegData$ShNavn)) #Fjerner mellomrom (før) og etter navn
+
 
       #Riktig format på datovariable:
       RegData$InnDato <- as.Date(RegData$DateAdmittedIntensive, tz= 'UTC', format="%Y-%m-%d")

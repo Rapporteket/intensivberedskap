@@ -59,7 +59,7 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
 #'
 #' @return
 #' @export
-TabTidEnhet <- function(RegData, tidsenhet='dag', enhetsNivaa='RHF',erMann=9,
+TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
                         bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
 
     RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
@@ -70,6 +70,8 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', enhetsNivaa='RHF',erMann=9,
     dag = 'Dag',
     uke = 'UkeNr',
     maaned = 'MndAar')
+
+  enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
 
   RegData$EnhetsNivaaVar <- RegData[ ,enhetsNivaa]
   #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
@@ -83,6 +85,9 @@ TabTidEnh <- as.matrix(TabTidEnh)
 #colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
 
 TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
+colnames(TabTidEnh)[ncol(TabTidEnh)] <- switch(enhetsNivaa,
+                                               RHF = 'Hele landet',
+                                               HF = paste(valgtRHF, 'RHF'))
 #add.to.row <- list(pos = list(-1), command = NULL)
 #add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
 TabTidEnh <- xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),

@@ -7,7 +7,6 @@
 TabTidEnhet(
   RegData,
   tidsenhet = "dag",
-  enhetsNivaa = "RHF",
   erMann = 9,
   bekr = 9,
   skjemastatus = 9,
