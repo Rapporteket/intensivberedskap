@@ -13,7 +13,7 @@ RisikofaktorerTab(
   bekr = 9,
   skjemaStatus = 9,
   dodInt = 9,
-  velgRHF = 0,
+  valgtRHF = "Alle",
   velgAvd = 0
 )
 }
@@ -25,6 +25,8 @@ RisikofaktorerTab(
 \item{datoTil}{sluttdato}
 
 \item{reshID}{enhetens resh}
+
+\item{valgtRHF}{'Alle' (standard), RHF-navn uten 'Helse '}
 }
 \value{
 

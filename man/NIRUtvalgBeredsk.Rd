@@ -13,7 +13,7 @@ NIRUtvalgBeredsk(
   skjemaStatus = 9,
   dodInt = 9,
   reshID = 0,
-  velgRHF = 0,
+  valgtRHF = "Alle",
   velgAvd = 0
 )
 }

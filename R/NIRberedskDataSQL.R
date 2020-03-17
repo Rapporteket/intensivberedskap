@@ -4,8 +4,6 @@
 #' Henter data for Intensivregisterets database
 #'
 #' @param medH kobler på variabler fra hovedskjema
-#' @param datoFra startdato
-#' @param datoTil sluttdato
 #'
 #' @return Henter dataramma RegData for Intensivregisteret
 #' @export

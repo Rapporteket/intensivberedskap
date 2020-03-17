@@ -12,7 +12,7 @@ TabTidEnhet(
   bekr = 9,
   skjemaStatus = 9,
   dodInt = 9,
-  velgRHF = 0,
+  valgtRHF = "Alle",
   velgAvd = 0
 )
 }
