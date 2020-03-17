@@ -135,7 +135,6 @@ ui <- tagList(
                        h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
                       h3('Siden er under utvikling... ', style = "color:red"),
                       br(),
-                      br(),
 
                       fluidRow(
 

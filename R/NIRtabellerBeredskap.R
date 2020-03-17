@@ -87,7 +87,7 @@ TabTidEnh <- as.matrix(TabTidEnh)
 TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
 colnames(TabTidEnh)[ncol(TabTidEnh)] <- switch(enhetsNivaa,
                                                RHF = 'Hele landet',
-                                               HF = paste(valgtRHF, 'RHF'))
+                                               HF = paste0(valgtRHF, ', totalt'))
 #add.to.row <- list(pos = list(-1), command = NULL)
 #add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
 TabTidEnh <- xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
@@ -157,7 +157,7 @@ oppsumLiggetiderTab <- function(RegData, valgtRHF='Alle'){
   ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
 
 med_IQR <- function(x){
-  c(sprintf('%.1f',x[3]), paste(sprintf('%.2f',x[2]), sprintf('%.2f',x[5]), sep='-'))}
+  c(sprintf('%.1f',x[3]), paste(sprintf('%.2f',x[2]), sprintf('%.2f',x[5]), sep=' - '))}
 # x <- Liggetid
 # test <- sprintf('%.2f',c(x[2],x[5]))
 #med_IQR(Liggetid)
