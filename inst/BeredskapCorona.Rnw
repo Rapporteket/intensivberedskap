@@ -27,7 +27,7 @@ library(xtable)
 #startOfMonth<- function(x) {as.Date(format(x, "%Y-%m-01")) }
 #-----Manuell kjøring av rapport------
 if (!exists('CoroData')){
-  CoroData <- NIRberedskDataSQL(datoFra = '2019-09-30')
+  CoroData <- NIRberedskDataSQL()
   #test <- intensiv::NIRPreprosess(RegData=CoroData, skjema = 4)
 }
 @
