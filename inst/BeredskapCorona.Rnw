@@ -32,10 +32,10 @@ paaServer <- context %in% c("DEV", "TEST", "QA", "PRODUCTION")
 if (!exists('CoroData')){
   if (paaServer) {
     CoroData <- NIRberedskDataSQL()
-  } else {
-    CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
-                           stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
-  } #hente data
+  # } else {
+  #   CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
+  #                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+   } #hente data
 }
 @
 

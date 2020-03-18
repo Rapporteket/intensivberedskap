@@ -28,16 +28,15 @@ regTitle <- ifelse(paaServer,
                    'Norsk Intensivregister med FIKTIVE data')
 
 #---------Hente data------------
-#CoroData <- read.table(file='A:/Intensiv/ReadinessFormDataContract2020-03-12.csv', header=T, stringsAsFactors=FALSE, sep=';') #,encoding = 'UTF-8')
 
 if (paaServer) {
   #CoroData <- NIRRegDataSQL(datoFra='2011-01-01', skjema=4) #, session = session) #datoFra = datoFra, datoTil = datoTil)
   qCoro <- 'SELECT *  from ReadinessFormDataContract'
   CoroData <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
-} else {
-  CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
-                         stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+# } else {
+#   CoroData <- read.table('C:/ResultattjenesteGIT/XX.csv', sep=';',
+#                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 } #hente data
 
 
@@ -134,7 +133,7 @@ ui <- tagList(
                        h3('Resultater fra intensivregisterets beredskapsskjema for mistenkt/bekreftet
                        Coronasmitte.'),
                        h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
-                      h3('Siden er under utvikling... ', style = "color:red"),
+                      h3('Siden er under utvikling... TESTING', style = "color:red"),
                       br(),
 
                       fluidRow(
