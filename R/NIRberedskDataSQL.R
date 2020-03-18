@@ -28,7 +28,7 @@ NIRberedskDataSQL <- function() { #datoFra = '2020-03-01', datoTil = Sys.Date()
 -- ,DistrictCode
 ,EcmoEnd
 ,EcmoStart
--- ,FormDate
+,FormDate
 ,FormStatus
 ,FormTypeId
 ,Graviditet

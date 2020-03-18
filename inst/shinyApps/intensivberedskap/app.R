@@ -252,7 +252,7 @@ server <- function(input, output, session) {
       paste0('CoronaRapport', Sys.time(), '.pdf')},
     content = function(file){
       henteSamlerapporterBered(file, rnwFil="BeredskapCorona.Rnw",
-                               valgtRHF = input$valgtRHF,
+                               valgtRHF = as.character(input$valgtRHF),
                           reshID = reshID) #Vurder å ta med tidsinndeling eller startdato
     }
   )

@@ -203,7 +203,7 @@ levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], past
 TabAlder <- table(RegData$AldersGr, RegData$EnhetsNivaaVar)
 TabAlder <- addmargins(TabAlder)
 colnames(TabAlder)[ncol(TabAlder)] <- switch(enhetsNivaa,
-                                               RHF = 'Hele landet',
+                                               RHF = 'Totalt',
                                                HF = paste0(valgtRHF, ', totalt'))
 return(invisible(TabAlder))
 }
