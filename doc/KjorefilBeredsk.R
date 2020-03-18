@@ -14,9 +14,9 @@ knitr::knit2pdf('C:/ResultattjenesteGIT/intensivberedskap/inst/BeredskapCorona.R
 
 
 
-CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
-                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
-#CoroData <- NIRberedskDataSQL()
+#CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
+#                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+CoroData <- NIRberedskDataSQL()
 RegData <- NIRPreprosessBeredsk(CoroData)
 CoroData <- RegData
 

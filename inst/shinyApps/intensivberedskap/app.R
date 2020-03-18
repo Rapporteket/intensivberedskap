@@ -133,12 +133,12 @@ ui <- tagList(
                        h3('Resultater fra intensivregisterets beredskapsskjema for mistenkt/bekreftet
                        Coronasmitte.'),
                        h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
-                      h3('Siden er under utvikling... TESTING', style = "color:red"),
+                      h3('Siden er under utvikling... ', style = "color:red"),
                       br(),
 
                       fluidRow(
 
-                        h3('Bruk av respirator/ECMO'),
+                        h3('Kort oversikt'),
                         column(width=3,
                                h5('Pågående aktivitet', align='center'),
                                tableOutput('tabECMOrespirator')),
@@ -178,7 +178,7 @@ ui <- tagList(
                  actionButton("subscribe", "Bestill!")
                ),
                 mainPanel(
-                  h4('Mulighet for å abonnere på rapport kommer'),
+                  h3('Mulighet for å abonnere på rapport kommer...', style = "color:red"),
                #   uiOutput("subscriptionContent")
                br(),
                br(),

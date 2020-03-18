@@ -155,9 +155,10 @@ oppsumLiggetiderTab <- function(RegData, valgtRHF='Alle'){
   Liggetid <- summary(RegData$liggetid, na.rm = T)
   RespTid <- summary(RegData$RespTid, na.rm = T)
   ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
+  Alder <- summary(RegData$Alder, na.rm = T)
 
 med_IQR <- function(x){
-  c(sprintf('%.1f',x[3]), paste(sprintf('%.2f',x[2]), sprintf('%.2f',x[5]), sep=' - '))}
+  c(sprintf('%.1f',x[3]), paste(sprintf('%.f',x[2]), sprintf('%.1f',x[5]), sep=' - '))}
 # x <- Liggetid
 # test <- sprintf('%.2f',c(x[2],x[5]))
 #med_IQR(Liggetid)
@@ -165,7 +166,8 @@ med_IQR <- function(x){
 TabLiggetider <- rbind(
     'ECMO-tid,' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/AntUtInt))),
     'Respiratortid' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/AntUtInt))),
-    'Liggetid' = c(med_IQR(Liggetid),AntUtInt, '')
+    'Liggetid' = c(med_IQR(Liggetid),AntUtInt, ''),
+    'Alder' = c(med_IQR(Alder),AntUtInt, '')
     #Median respiratortid'
   )
   colnames(TabLiggetider) <- c('Median', 'IQR', 'Antall', 'Andel')
@@ -179,7 +181,7 @@ TabLiggetider <- rbind(
 
 #' Aldersfordeling, tabell
 #'
-#' @param RegData datatabell, beredskapsdatt
+#' @param RegData datatabell, beredskapsdata
 #' @inheritParams NIRUtvalgBeredsk
 #'
 #' @return
