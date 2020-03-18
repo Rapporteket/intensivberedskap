@@ -4,10 +4,14 @@
 \alias{TabAlder}
 \title{Aldersfordeling, tabell}
 \usage{
-TabAlder(RegData, valgtRHF = "Alle")
+TabAlder(RegData, valgtRHF = "Alle", bekr = 9, skjemastatus = 9)
 }
 \arguments{
 \item{RegData}{datatabell, beredskapsdatt}
+
+\item{bekr}{1-bekreftet, 0-mistenkt tilfelle}
+
+\item{skjemastatus}{status på registreringa 0-ingen, 1-kladd, 2-ferdigstilt, 4-slettet, 5-returnert}
 }
 \value{
 

@@ -186,9 +186,11 @@ TabLiggetider <- rbind(
 #' @export
 #'
 #' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
-TabAlder <- function(RegData, valgtRHF='Alle'){#enhetsNivaa='RHF'
+TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9){#enhetsNivaa='RHF'
 
   RegData <- NIRUtvalgBeredsk(RegData=RegData,
+                              bekr=bekr,
+                              skjemastatus=skjemastatus,
                               valgtRHF=valgtRHF)$RegData
 
   enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')

@@ -303,7 +303,9 @@ server <- function(input, output, session) {
     )
 
     output$tabAlder<- renderTable({
-      xtable::xtable(TabAlder(RegData=CoroData, valgtRHF=input$valgtRHF)) #, datoTil=Sys.Date(), reshID=0)
+      print(input$bekrMist)
+      xtable::xtable(TabAlder(RegData=CoroData, valgtRHF=input$valgtRHF,
+                              bekr=as.numeric(input$bekrMist))) #, datoTil=Sys.Date(), reshID=0)
     }, rownames = T, digits=0, spacing="xs"
     )
 
