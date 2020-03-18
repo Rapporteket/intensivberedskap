@@ -101,7 +101,7 @@ for denne rapporten.
 av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
 \item Skjema uten spesifikasjon av diagnose, er kategorisert som mistenkte Coronatilfeller.
 %\item Registrering av Coronatilfeller på intensivavdelinger ble innført 12.mars 2020.
-\item Rapporten er basert på alle registreringer til og med \Sexpr{Sys.Date()-1}.
+\item Rapporten er basert på alle registreringer gjort inntil 3 timer før rapporten ble lastet ned.
 \end{itemize}
 
 \end{frame}
@@ -183,10 +183,32 @@ statusECMOrespTab(RegData=RegData)
 
 \begin{frame}[fragile] {Corona, kjønnsfordeling}
 <<'TabKjonn', results='asis'>>=
-TabKjonn <- table(paste0('Uke ', RegData$UkeNr), RegData$Kjonn)
-xtable::xtable(addmargins(TabKjonn),
-               digits=0,
-               caption='Coronatilfeller per uke, kvinner og menn')
+
+TabKjonn <- ftable(RegData[ , c('UkeNr', 'Kjonn','Korona')], row.vars ='UkeNr')
+navnMB <- attributes(TabKjonn)$col.vars$Korona
+navnKjonn <- attributes(TabKjonn)$col.vars$Kjonn
+TabKjonn <- as.matrix(TabKjonn)
+colnames(TabKjonn) <- rep(navnMB, length(navnKjonn))
+rownames(TabKjonn) <- paste0('Uke ', rownames(TabKjonn))
+TabKjonn <- addmargins(TabKjonn, FUN=list(Totalt=sum, 'Totalt' = sum), quiet=TRUE)
+add.to.row <- list(pos = list(-1), command = NULL)
+add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnKjonn, '} ', collapse=''), '\\\\\n')
+
+# kable(dt, "latex", booktabs = T,
+# col.names = c("Item", "Short Title", "Very Very Very Very Very Very Long Title")) %>%
+# column_spec(2:3, width = "5cm")
+
+print(xtable::xtable(TabKjonn, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
+		caption=paste0('Coronatilfeller per uke, kvinner og menn (B - bekreftet, M - mistenkt)')),
+ 		add.to.row = add.to.row,
+		sanitize.rownames.function = identity)
+
+
+#TabKjonn <- table(paste0('Uke ', RegData$UkeNr), RegData$Kjonn)
+# xtable::xtable(addmargins(TabKjonn),
+#                digits=0,
+#                caption='Coronatilfeller per uke, kvinner og menn')
+
 
 @
 \end{frame}
@@ -194,19 +216,28 @@ xtable::xtable(addmargins(TabKjonn),
 
 \begin{frame}[fragile] {Corona, aldersfordeling}
 
+
 <<'TabAlder', results='asis'>>=
-# gr <- seq(0, 90, ifelse(N<100, 25, 10) )
-# RegData$AldersGr <- cut(RegData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
-# grtxt <- c('0-25', '25-50', "50-75", "75+")
-# levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
-# TabAlder <- table(RegData$AldersGr, RegData$RHF)
-# TabAlder <- addmargins(TabAlder)
+Alder <- round(summary(RegData$Alder))
+AlderBekr <- round(summary(RegData$Alder[RegData$Korona=='B']))
 
 tabAlder <- TabAlder(RegData, valgtRHF='Alle')
+@
+
+De registrerte er mellom \Sexpr{Alder[1]} og \Sexpr{Alder[6]} år med en gjennomsnittsalder på \Sexpr{Alder[4]}.
+For de bekreftede tilfellene er \Sexpr{AlderBekr[1]} og \Sexpr{AlderBekr[6]} år
+med en gjennomsnittsalder på \Sexpr{AlderBekr[4]}.
+
+<<'VisTabAlder', results='asis'>>=
 
 xtable::xtable(tabAlder,
                digits = 0,
                caption='Fordeling i aldersgrupper')
+
+xtable::xtable(TabAlder(RegData=RegData[which(RegData$Korona=='B'), ]
+                        , valgtRHF='Alle'),
+               digits = 0,
+               caption='Fordeling i aldersgrupper for bekreftede tilfeller')
 @
 \end{frame}
 
@@ -215,7 +246,12 @@ xtable::xtable(tabAlder,
 \begin{frame}[fragile] {Risikofaktorer}
 
 <<'Risikofaktorer', results='asis'>>=
-RisikofaktorerTab(RegData=RegData)
+    TabRisiko <- RisikofaktorerTab(RegData=RegData[which(RegData$Korona=='B'), ])
+    xtable::xtable(TabRisiko,
+                   digits=0,
+                   align = c('l',rep('r',ncol(TabRisiko))),
+                   caption='Risikofaktorer, bekreftede tilfeller')
+
 @
 \end{frame}
 

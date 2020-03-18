@@ -44,10 +44,10 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
   TabRisiko <- cbind(TabRisiko,
         'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%')
   )
-    xtable::xtable(TabRisiko,
-                   digits=0,
-                   align = c('l',rep('r',ncol(TabRisiko))),
-                   caption='Risikofaktorer')
+    # xtable::xtable(TabRisiko,
+    #                digits=0,
+    #                align = c('l',rep('r',ncol(TabRisiko))),
+    #                caption='Risikofaktorer')
     #return(TabRisiko)
 }
 
