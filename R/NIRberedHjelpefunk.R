@@ -43,6 +43,7 @@ henteSamlerapporterBered <- function(filnavn, rnwFil, reshID=0, Rpakke='intensiv
 #' @export
 
 abonnementBeredsk <- function(rnwFil, brukernavn='beredskap', reshID=0,
+                              valgtRHF = 'Alle',
                        datoFra=Sys.Date()-180, datoTil=Sys.Date(),
                        Rpakke='intensivberedskap') {
 
@@ -51,7 +52,7 @@ abonnementBeredsk <- function(rnwFil, brukernavn='beredskap', reshID=0,
   datoFra <- datoFra[[1]]
   datoTil <- datoTil[[1]]
   reshID <- reshID[[1]]
-  raplog::subLogger(author = brukernavn, registryName = 'Norsk Intensivregister',
+  raplog::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
                     reshId = reshID[[1]],
                     msg = "starter Abonnement: Corona-rapport")
   # raplog::subLogger(author = author[[1]], registryName = registryName[[1]],
@@ -72,7 +73,7 @@ abonnementBeredsk <- function(rnwFil, brukernavn='beredskap', reshID=0,
   #utfil <- file.copy(from = paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'),
   #         to = paste0(filbase, digest::digest(brukernavn),'.pdf')) #filnavn)
 
-  raplog::subLogger(author = brukernavn, registryName = 'Norsk Intensivregister',
+  raplog::subLogger(author = brukernavn, registryName = 'NIR - beredskap',
                     reshId = reshID[[1]],
                     msg = paste("Leverer: ", utfil))
   return(utfil)

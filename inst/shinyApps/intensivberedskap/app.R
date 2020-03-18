@@ -71,8 +71,8 @@ ui <- tagList(
              sidebarPanel(
                  width = 3,
                  h3('Coronarapport med samling av resultater'),
-              #   h5('Dette kan man få regelmessig tilsendt på e-post.
-               #     Gå til fanen "Abonnement" for å bestille dette.'),
+                 h5('Coronarapporten kan man få regelmessig tilsendt på e-post.
+                    Gå til fanen "Abonnement" for å bestille dette.'),
                  downloadButton(outputId = 'CoroRapp.pdf', label='Last ned Coronarapport', class = "butt"),
                  tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                  br(),
@@ -167,25 +167,26 @@ ui <- tagList(
     ), #tab Tabeller
 
 #-----------Abonnement--------------------------------
-    tabPanel("Abonnement"
-             ,
+    tabPanel(p("Abonnement",
+             title='Bestill automatisk utsending av rapporter på e-post'),
              sidebarLayout(
                sidebarPanel(width = 3,
-                 selectInput("subscriptionRep", "Dokument:", c("Corona")),
+                 selectInput("subscriptionRep", "Dokument:", c("Koronarapport")),
                  selectInput("subscriptionFreq", "Frekvens:",
-                             list(Månedlig="month", Ukentlig="week", Daglig="DSTday"),
-                             selected = "week"),
+                             list(Månedlig="Månedlig-month",
+                                   Ukentlig="Ukentlig-week",
+                                   Daglig="Daglig-DSTday"),
+                             selected = "Ukentlig-week"),
                  actionButton("subscribe", "Bestill!")
                ),
                 mainPanel(
-                  h3('Mulighet for å abonnere på rapport kommer...', style = "color:red"),
-               #   uiOutput("subscriptionContent")
-               br(),
-               br(),
-               h4('NB: Abonnementet løper til det sies opp. ')
+                  #h3('Mulighet for å abonnere på rapport kommer...', style = "color:red"),
+               h4('NB: Abonnementet løper til det sies opp. '),
+               uiOutput("subscriptionContent")
                 )
              )
-    )
+    ) #tab abonnement
+
 
   ) # navbarPage
 ) # tagList
@@ -303,7 +304,6 @@ server <- function(input, output, session) {
     )
 
     output$tabAlder<- renderTable({
-      print(input$bekrMist)
       xtable::xtable(TabAlder(RegData=CoroData, valgtRHF=input$valgtRHF,
                               bekr=as.numeric(input$bekrMist))) #, datoTil=Sys.Date(), reshID=0)
     }, rownames = T, digits=0, spacing="xs"
@@ -313,74 +313,72 @@ server <- function(input, output, session) {
 
 
   #------------- Abonnement----------------
-  ## rekative verdier for å holde rede på endringer som skjer mens
-  ## applikasjonen kjører
-  rv <- reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab(session))
+    #------------------ Abonnement ----------------------------------------------
+    ## reaktive verdier for å holde rede på endringer som skjer mens
+    ## applikasjonen kjører
+    rv <- reactiveValues(
+      subscriptionTab = rapbase::makeUserSubscriptionTab(session))
+    ## lag tabell over gjeldende status for abonnement
+    output$activeSubscriptions <- DT::renderDataTable(
+      rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
+      rownames = FALSE, options = list(dom = 't')
+    )
 
-  ## lag tabell over gjeldende status for abonnement
-  output$activeSubscriptions <- DT::renderDataTable(
-    rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
-    options = list(dom = 'tp', ordning = FALSE), rownames = FALSE
-  )
+    ## lag side som viser status for abonnement, også når det ikke finnes noen
+    output$subscriptionContent <- renderUI({
+      fullName <- rapbase::getUserFullName(session)
+      if (length(rv$subscriptionTab) == 0) {
+        p(paste("Ingen aktive abonnement for", fullName))
+      } else {
+        tagList(
+          p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
+                  rapbase::getUserEmail(session), ":")),
+          DT::dataTableOutput("activeSubscriptions")
+        )
+      }
+    })
 
-  ## lag side som viser status for abonnement, også når det ikke finnes noen
-  output$subscriptionContent <- renderUI({
-    userFullName <- rapbase::getUserFullName(session)
-    userEmail <- rapbase::getUserEmail(session)
-    if (length(rv$subscriptionTab) == 0) {
-      p(paste("Ingen aktive abonnement for", userFullName))
-    } else {
-      tagList(
-        p(paste0("Aktive abonnement som sendes per epost til ", userFullName,
-                 "(",userEmail, "):")),
-        DT::dataTableOutput("activeSubscriptions")
+
+    ## nye abonnement
+    observeEvent (input$subscribe, { #MÅ HA
+      #package <- "intensiv"
+      owner <- rapbase::getUserName(session)
+      interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
+      intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
+      organization <- rapbase::getUserReshId(session)
+      runDayOfYear <- rapbase::makeRunDayOfYearSequence(
+        interval = interval
       )
-    }
-  })
+      email <- rapbase::getUserEmail(session)
+      print(input$subscriptionRep)
+      if (input$subscriptionRep == "Koronarapport") {
+        synopsis <- "NIR-Beredskap/Rapporteket: Coronarapport"
+        rnwFil <- "BeredskapCorona.Rnw" #Navn på fila
+      }
+print(rnwFil)
+      fun <- "abonnementBeredsk"
+      paramNames <- c('rnwFil', 'brukernavn', "reshID", "valgtRHF")
+      paramValues <- c(rnwFil, brukernavn, reshID, input$valgtRHF) #input$subscriptionFileFormat)
 
-  ## nye abonnement
-  # observeEvent (input$subscribe, {
-  #   package <- "rapRegTemplate"
-  #   owner <- getUserName(session)
-  #   interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
-  #   intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
-  #   runDayOfYear <- rapbase::makeRunDayOfYearSequence(
-  #     interval = interval)
-  #
-  #   rapbase::getUserEmail(session)
-  #   organization <- rapbase::getUserReshId(session)
-  #
-  #   if (input$subscriptionRep == "Samlerapport1") {
-  #     synopsis <- "Automatisk samlerapport1"
-  #     fun <- "samlerapport1Fun"
-  #     paramNames <- c("p1", "p2")
-  #     paramValues <- c("Alder", 1)
-  #
-  #   }
-  #   if (input$subscriptionRep == "Samlerapport2") {
-  #     synopsis <- "Automatisk samlerapport2"
-  #     fun <- "samlerapport2Fun"
-  #     paramNames <- c("p1", "p2")
-  #     paramValues <- c("BMI", 2)
-  #   }
-  #   rapbase::createAutoReport(synopsis = synopsis, package = package,
-  #                             fun = fun, paramNames = paramNames,
-  #                             paramValues = paramValues, owner = owner,
-  #                             email = email, organization = organization,
-  #                             runDayOfYear = runDayOfYear,
-  #                             interval = interval, intervalName = intervalName)
-  #   rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
-  # })
+      #test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
+      #                       reshID=105460)
 
-  ## slett eksisterende abonnement
-  observeEvent(input$del_button, {
-    selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
-    rapbase::deleteAutoReport(selectedRepId)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
-  })
+      rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
+                                fun = fun, paramNames = paramNames,
+                                paramValues = paramValues, owner = owner,
+                                email = email, organization = organization,
+                                runDayOfYear = runDayOfYear, interval = interval,
+                                intervalName = intervalName)
+      rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    })
+
+    ## slett eksisterende abonnement
+    observeEvent(input$del_button, {
+      selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
+      rapbase::deleteAutoReport(selectedRepId)
+      rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    })
 }
-
 # Run the application
 shinyApp(ui = ui, server = server)
 

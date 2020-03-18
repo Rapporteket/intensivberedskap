@@ -11,6 +11,7 @@ abonnementBeredsk(
   rnwFil,
   brukernavn = "beredskap",
   reshID = 0,
+  valgtRHF = "Alle",
   datoFra = Sys.Date() - 180,
   datoTil = Sys.Date(),
   Rpakke = "intensivberedskap"

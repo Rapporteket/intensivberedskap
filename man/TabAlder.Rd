@@ -7,7 +7,7 @@
 TabAlder(RegData, valgtRHF = "Alle", bekr = 9, skjemastatus = 9)
 }
 \arguments{
-\item{RegData}{datatabell, beredskapsdatt}
+\item{RegData}{datatabell, beredskapsdata}
 
 \item{bekr}{1-bekreftet, 0-mistenkt tilfelle}
 

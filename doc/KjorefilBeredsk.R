@@ -12,7 +12,7 @@ setwd('C:/ResultattjenesteGIT/intensivberedskap/inst/')
 #tools::texi2pdf(file='BeredskapCorona.tex')
 knitr::knit2pdf('C:/ResultattjenesteGIT/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'UTF-8')
 
-
+#/home/rstudio/rap_config/autoReport.yml
 
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
