@@ -4,19 +4,21 @@
 
 library(knitr)
 library(intensivberedskap)
-
-setwd('./inst')
-#knit('BeredskapCorona.Rnw', encoding = 'UTF-8')
+CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
+                       stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+valgtRHF <- as.character(NIRPreprosessBeredsk(CoroData)$RHF[3])
+setwd('C:/ResultattjenesteGIT/intensivberedskap/inst/')
+#knit('C:/ResultattjenesteGIT/intensivberedskap/inst/BeredskapCorona.Rnw', encoding = 'UTF-8')
 #tools::texi2pdf(file='BeredskapCorona.tex')
-knitr::knit2pdf('BeredskapCorona.Rnw') #, encoding = 'UTF-8')
+knitr::knit2pdf('C:/ResultattjenesteGIT/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'UTF-8')
 
 
-#RisikofaktorerTab(RegData=CoroData, tidsenhet='Aar')
-CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-17.csv', sep=';',
+
+CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
                                   stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 #CoroData <- NIRberedskDataSQL()
-CoroData <- NIRPreprosessBeredsk(CoroData)
-RegData <- CoroData
+RegData <- NIRPreprosessBeredsk(CoroData)
+CoroData <- RegData
 
 
 reshID=0
@@ -28,6 +30,7 @@ valgtRHF=RegData$RHF[3] #'Alle' #
 tidsenhet='dag'
 velgAvd=0
 
+test <- TabAlder(RegData) #, valgtRHF = valgtRHF)
 TabTidEnhet(RegData, tidsenhet='dag', valgtRHF =valgtRHF )
 
 statusECMOrespTab(CoroData)

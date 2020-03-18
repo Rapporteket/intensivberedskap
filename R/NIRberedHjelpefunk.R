@@ -12,6 +12,7 @@
 #' @export
 
 henteSamlerapporterBered <- function(filnavn, rnwFil, reshID=0, Rpakke='intensivberedskap',
+                                     valgtRHF = 'Alle',
                                 datoFra=Sys.Date()-180, datoTil=Sys.Date()) {
   tmpFile <- paste0('tmp',rnwFil)
   src <- normalizePath(system.file(rnwFil, package=Rpakke))

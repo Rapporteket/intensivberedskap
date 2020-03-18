@@ -9,6 +9,7 @@ henteSamlerapporterBered(
   rnwFil,
   reshID = 0,
   Rpakke = "intensivberedskap",
+  valgtRHF = "Alle",
   datoFra = Sys.Date() - 180,
   datoTil = Sys.Date()
 )

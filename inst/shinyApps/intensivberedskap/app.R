@@ -36,7 +36,7 @@ if (paaServer) {
   CoroData <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } else {
-  CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-17.csv', sep=';',
+  CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 } #hente data
 
@@ -78,9 +78,9 @@ ui <- tagList(
                  tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                  br(),
               br(),
-              h3('Gjør filtreringer i tabellene'),
-              br(),
-              h4('Alle tabeller:'),
+              h3('Gjør filtreringer/utvalg:'),
+              #br(),
+              h4('Alle tabeller OG samledokument:'),
               selectInput(inputId = "valgtRHF", label="Velg RHF",
                           choices = rhfNavn
               ),
@@ -88,7 +88,8 @@ ui <- tagList(
               # selectInput(inputId = "velgEnhetsnivaa", label="Velg enhetsnivaa",
               #             choices = enhetsNivaa
               # ),
-              h4('Tabellene for intensivopphold og risikofaktorer:'),
+              br(),
+              h4('Tabellene for intensivopphold, aldersfordeling og risikofaktorer:'),
               selectInput(inputId = "skjemastatus", label="Skjemastatus",
                           choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
               ),
@@ -153,16 +154,17 @@ ui <- tagList(
                       h5('Her bør det vel komme en tekst om hvilke utvalg som er gjort'),
                        tableOutput('tabTidEnhet'),
                         br(),
-
-                      h3('Risikofaktorer'),
-                      h5('Tabellen oppsummerer alle opphold.'),
-                      h5('Her bør det vel komme en tekst om hvilke utvalg som er gjort'),
-                      tableOutput('tabRisikofaktorer'),
-                      br(),
-
-
-
-             )
+                      fluidRow(
+                        column(width=3,
+                               h3('Risikofaktorer'),
+                               h5('Tabellen oppsummerer alle opphold.'),
+                               tableOutput('tabRisikofaktorer')),
+                        column(width=5, offset=1,
+                               h3('Aldersfordeling'),
+                               h5('Her bør det vel komme en tekst om hvilke utvalg som er gjort'),
+                               tableOutput('tabAlder'))
+                      ),
+             ) #main
     ), #tab Tabeller
 
 #-----------Abonnement--------------------------------
@@ -251,9 +253,19 @@ server <- function(input, output, session) {
       paste0('CoronaRapport', Sys.time(), '.pdf')},
     content = function(file){
       henteSamlerapporterBered(file, rnwFil="BeredskapCorona.Rnw",
+                               valgtRHF = input$valgtRHF,
                           reshID = reshID) #Vurder å ta med tidsinndeling eller startdato
     }
   )
+  # output$samleDok.pdf <- downloadHandler(
+  #   filename = function(){ downloadFilename('Samledokument')},
+  #   content = function(file){
+  #     henteSamlerapporter(file, rnwFil="NGERSamleRapp.Rnw",
+  #                         reshID = reshID,
+  #                         datoFra = input$datovalgSamleDok[1],
+  #                         datoTil = input$datovalgSamleDok[2])
+  #   }
+  # )
 
   #----------Tabeller----------------------------
 
@@ -274,6 +286,11 @@ server <- function(input, output, session) {
   }, rownames = T, digits=0, spacing="xs"
   )
 
+  output$tabOppsumLiggetider<- renderTable({
+    oppsumLiggetiderTab(RegData=CoroData, valgtRHF=input$valgtRHF) #, datoTil=Sys.Date(), reshID=0)
+  }, rownames = T, digits=0, spacing="xs"
+  )
+
 
     output$tabRisikofaktorer <- renderTable({
       RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',
@@ -286,8 +303,8 @@ server <- function(input, output, session) {
     }, rownames = T, digits=0, spacing="xs"
     )
 
-    output$tabOppsumLiggetider<- renderTable({
-      oppsumLiggetiderTab(RegData=CoroData, valgtRHF=input$valgtRHF) #, datoTil=Sys.Date(), reshID=0)
+    output$tabAlder<- renderTable({
+      xtable::xtable(TabAlder(RegData=CoroData, valgtRHF=input$valgtRHF)) #, datoTil=Sys.Date(), reshID=0)
     }, rownames = T, digits=0, spacing="xs"
     )
 

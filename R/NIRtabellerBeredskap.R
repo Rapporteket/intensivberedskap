@@ -142,7 +142,7 @@ xtable::xtable(TabHjelp,
 oppsumLiggetiderTab <- function(RegData, valgtRHF='Alle'){
 
   RegData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
-                              skjemastatus=2,)$RegData
+                              skjemastatus=2)$RegData
   # ,  datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
   # bekr=bekr,
   # dodInt=dodInt)$RegData velgAvd=velgAvd
@@ -176,3 +176,35 @@ TabLiggetider <- rbind(
                  caption='Liggetider og ECMO/respiratorbruk, ferdigstilte opphold. \\
                  IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet.')
 }
+
+#' Aldersfordeling, tabell
+#'
+#' @param RegData datatabell, beredskapsdatt
+#' @inheritParams NIRUtvalgBeredsk
+#'
+#' @return
+#' @export
+#'
+#' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
+TabAlder <- function(RegData, valgtRHF='Alle'){#enhetsNivaa='RHF'
+
+  RegData <- NIRUtvalgBeredsk(RegData=RegData,
+                              valgtRHF=valgtRHF)$RegData
+
+  enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
+  RegData$EnhetsNivaaVar <- RegData[ , enhetsNivaa]
+N <- dim(RegData)[1]
+gr <- seq(0, 90, ifelse(N<100, 25, 10) )
+RegData$AldersGr <- cut(RegData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
+grtxt <- if(N<100){c('0-25', '25-50', "50-75", "75+")} else {
+                c('0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+')}
+#grtxt <- c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))#paste(gr,sep='-')
+levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
+TabAlder <- table(RegData$AldersGr, RegData$EnhetsNivaaVar)
+TabAlder <- addmargins(TabAlder)
+colnames(TabAlder)[ncol(TabAlder)] <- switch(enhetsNivaa,
+                                               RHF = 'Hele landet',
+                                               HF = paste0(valgtRHF, ', totalt'))
+return(invisible(TabAlder))
+}
+

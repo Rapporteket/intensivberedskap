@@ -30,7 +30,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
       # Enhetsnivånavn
       RegData$ShNavn <- trimws(as.character(RegData$ShNavn)) #Fjerner mellomrom (før) og etter navn
-      RegData$RHF <- factor(sub('Helse ', '', RegData$RHF))
+      RegData$RHF <- sub('Helse ', '', RegData$RHF) #factor()
       # RegData$HF <- sub(' universitetssykehus', '', RegData$HF)
       # RegData$HF <- sub(' sykehus', '', RegData$HF)
       # RegData$HF <- sub('Sykehuset i', '', RegData$HF)

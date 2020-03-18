@@ -6,8 +6,12 @@ unit.test.R
 *.tex
 *.toc
 *.lot
+*.vrb
 *.nav
+*.snm
+*.pdf
 NIRmndRapp.nav
 NIRmndRapp.snm
 NIRmndRapp.vrb
 BeredskapCorona.pdf
+BeredskapCorona.vrb

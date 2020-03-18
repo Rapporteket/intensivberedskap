@@ -9,11 +9,15 @@
 \usepackage{rotating}
 \usepackage{graphicx}
 
+% \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+% \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+% \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{L}{>{\centering\arraybackslash}m{3cm}}
+
 
 <<'initOpts',include=FALSE>>=
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 knitr::opts_knit$set(root.dir = './')
-library(intensiv)
 library(intensivberedskap)
 library(lubridate)
 library(xtable)
@@ -23,96 +27,32 @@ library(xtable)
 <<'hentDataOgTilrettelegg', include=FALSE>>=
 #«ICD-10-kode: J10» (bekreftet Corona),
 #«ICD-11-kode: J10» (mistenkt Corona),
-
-#startOfMonth<- function(x) {as.Date(format(x, "%Y-%m-01")) }
-#-----Manuell kjøring av rapport------
+context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
+paaServer <- context %in% c("DEV", "TEST", "QA", "PRODUCTION")
 if (!exists('CoroData')){
-  CoroData <- NIRberedskDataSQL()
-  #test <- intensiv::NIRPreprosess(RegData=CoroData, skjema = 4)
+  if (paaServer) {
+    CoroData <- NIRberedskDataSQL()
+  } else {
+    CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
+                           stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+  } #hente data
 }
 @
 
 <<'tilrettelegg', include=FALSE>>=
-CoroData <- NIRPreprosessBeredsk(RegData=CoroData)
-#CoroData <- preprosessBeredVar(CoroData)
-
-      #Kjønn
-      # CoroData$erMann <- CoroData$PatientGender #1=Mann, 2=Kvinne, 0=Ukjent
-      # CoroData$erMann[CoroData$PatientGender == 0] <- NA
-      # CoroData$erMann[CoroData$PatientGender == 2] <- 0
-      #
-      # names(CoroData)[which(names(CoroData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
-      # names(CoroData)[which(names(CoroData) == 'Nems')] <- 'NEMS'
-      # names(CoroData)[which(names(CoroData) == 'PatientAge')] <- 'Alder'
-      # #	names(CoroData)[which(names(CoroData) == 'ReAdmitted')] <- 'Reinn'
-      # names(CoroData)[which(names(CoroData) == 'Respirator')] <- 'respiratortid'
-      # names(CoroData)[which(names(CoroData) == 'TransferredStatus')] <- 'Overf'
-      # names(CoroData)[which(names(CoroData) == 'TypeOfAdmission')] <- 'InnMaate'
-      # names(CoroData)[which(names(CoroData) == 'ReshID')] <- 'ReshId'
-      # #names(CoroData)[which(names(CoroData) == 'PatientInRegistryGuid')] <- 'PasientID'
-      #
-      #   names(CoroData)[which(names(CoroData) == 'UnitId')] <- 'ReshId'
-      # #Avvik ml. test og prod-data:
-      # names(CoroData)[
-      #       names(CoroData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
-      #
-      # # Riktig format
-      # CoroData$ShNavn <- trimws(as.character(CoroData$ShNavn)) #Fjerner mellomrom (før) og etter navn
-      # #Riktig format på datovariable:
-      # CoroData$InnDato <- as.Date(CoroData$DateAdmittedIntensive, tz= 'UTC', format="%Y-%m-%d")
-      # CoroData$Innleggelsestidspunkt <- as.POSIXlt(CoroData$DateAdmittedIntensive, tz= 'UTC', format="%Y-%m-%d %H:%M:%S" )
-      # CoroData$DateDischargedIntensive <- as.POSIXlt(CoroData$DateDischargedIntensive, tz= 'UTC', format="%Y-%m-%d %H:%M:%S" )
-      #
-      # # Nye variable:
-      # CoroData$MndNum <- CoroData$Innleggelsestidspunkt$mon +1
-      # CoroData$MndAar <- format(CoroData$Innleggelsestidspunkt, '%b%y')
-      # CoroData$Kvartal <- ceiling(CoroData$MndNum/3)
-      # CoroData$Halvaar <- ceiling(CoroData$MndNum/6)
-      # CoroData$Aar <- 1900 + CoroData$Innleggelsestidspunkt$year #strptime(CoroData$Innleggelsestidspunkt, format="%Y")$year
-      #
-      # ##Kode om  pasienter som er overført til/fra egen avdeling til "ikke-overført"
-      # #1= ikke overført, 2= overført
-      # ind <- union(which(CoroData$ReshId == CoroData$PatientTransferredFromHospital),
-      #              which(CoroData$ReshId == CoroData$PatientTransferredToHospital))
-      # CoroData$Overf[ind] <- 1
-      #
-      #
-      # #En "overlever": Person som er i live 30 dager etter innleggelse.
-      # CoroData$Dod30 <- 0
-      # CoroData$Dod30[which(difftime(as.Date(CoroData$Morsdato, format="%Y-%m-%d %H:%M:%S"),
-      #                              as.Date(CoroData$InnDato), units='days')< 30)] <- 1
-      # CoroData$Dod90 <- 0
-      # CoroData$Dod90[which(difftime(as.Date(CoroData$Morsdato, format="%Y-%m-%d %H:%M:%S"),
-      #                              as.Date(CoroData$InnDato), units='days')< 90)] <- 1
-      #
-      # CoroData$Dod365 <- 0
-      # CoroData$Dod365[which(difftime(as.Date(CoroData$Morsdato, format="%Y-%m-%d %H:%M:%S"),
-      #                              as.Date(CoroData$InnDato), units='days')< 365)] <- 1
-      #
-      # #Konvertere boolske variable fra tekst til boolske variable...
-      # TilLogiskeVar <- function(Skjema){
-      #       verdiGML <- c('True','False')
-      #       verdiNY <- c(TRUE,FALSE)
-      #       mapping <- data.frame(verdiGML,verdiNY)
-      #       LogVar <- names(Skjema)[which(Skjema[1,] %in% verdiGML)]
-      #       if (length(LogVar)>0) {
-      #             for (k in 1:length(LogVar)) {
-      #                   Skjema[,LogVar[k]] <- mapping$verdiNY[match(Skjema[,LogVar[k]], mapping$verdiGML)]
-      #             }}
-      #       return(Skjema)
-      # }
-      #
-      # CoroData <- TilLogiskeVar(CoroData)
-
-
-# CoroData$DateAdmittedIntensive
-# CoroData$DateDischargedIntensive
-# CoroData$FormDate
-
+#NB: Har benyttet FormDate benyttes som hoveddato. Gjelder også influensa
+RegData <- NIRPreprosessBeredsk(RegData=CoroData)
+enhetsNivaa <- 'RHF'
+if (valgtRHF!='Alle'){
+  RegData <- subset(RegData, RegData$RHF == valgtRHF)
+  RegData$RHF <- as.character(RegData$RHF)
+  enhetsNivaa <- 'RHF' #Endres til HF når får på plass tekstdeling i kolonnenavn
+  }
 datoStart <- '2020-03-01'
-CoroData$InnDato <- as.Date(CoroData$DateAdmittedIntensive) #, tz='UTC', format = '%Y-%m-%d"')
-RegData <- CoroData
-#NB: Har benyttet FormDate for influensa
+
+  # RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann,
+  #                             bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
+  #                             reshID=reshID, valgtRHF=valgtRHF)$RegData #velgAvd=velgAvd
 
 
 #Diagnosis
@@ -128,9 +68,9 @@ RegData <- CoroData
 #"Når ein opprettar eit Coronaskjema har ein per def. Mistanke om Corona. Vi meiner difor at skjema med verdi -1 også bør tellast med som mistenkt Corona." Antar dette også gjelder Corona.
 
 
-indFerdig <- which(CoroData$FormStatus==2)
+indFerdig <- which(RegData$FormStatus==2)
 antFerdig <- length(indFerdig)
-antSkjema <- dim(CoroData)[1]
+antSkjema <- dim(RegData)[1]
 N <- antSkjema
 @
 
@@ -173,11 +113,11 @@ Registrerte tilfeller per dag og totalt antall tilfeller.
 Registreringer hvor diagnose ikke er angitt, er klassifiserte som mistenkte tilfeller.
 
 <<'TabTot', results='asis'>>=
-#TabRHF <- table(CoroData$Dag, CoroData$RHF)
+#TabRHF <- table(RegData$Dag, RegData$RHF)
 #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
 
 tidsenhet <- 'dag'
-enhetsNivaa <- 'RHF'
+#enhetsNivaa <- 'RHF'
   TidsVar <- switch (tidsenhet,
     dag = 'Dag',
     uke = 'UkeNr',
@@ -196,6 +136,10 @@ TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), qu
 add.to.row <- list(pos = list(-1), command = NULL)
 add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
 
+# kable(dt, "latex", booktabs = T,
+# col.names = c("Item", "Short Title", "Very Very Very Very Very Very Long Title")) %>%
+# column_spec(2:3, width = "5cm")
+
 print(xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
 		caption=paste0('Coronatilfeller per dag og region (B - bekreftet, M - mistenkt)')),
  		add.to.row = add.to.row,
@@ -211,7 +155,7 @@ respiratorer (MechanicalRespiratorStart) - de som har slutttidspunkt for respira
 
 <<'RespiratorECMO', results='asis'>>=
 
-statusECMOrespTab(RegData=CoroData)
+statusECMOrespTab(RegData=RegData)
 # xtable::xtable(TabHjelp,
 #                digits=0,
 #                align = c('l','r','r'),
@@ -222,8 +166,8 @@ statusECMOrespTab(RegData=CoroData)
 
 % \begin{frame}[fragile] {Antall døde}
 % <<'Dod', results='asis'>>=
-% indDod <- which(CoroData$DischargedIntensiveStatus==1)
-% TabRHF <- table(CoroData$Dag[indDod], CoroData$RHF[indDod])
+% indDod <- which(RegData$DischargedIntensiveStatus==1)
+% TabRHF <- table(RegData$Dag[indDod], RegData$RHF[indDod])
 % if (length(indDod)==0) {
 %   txtDod <- 'Ingen døde'} else {
 %     txtDod <- ""
@@ -239,7 +183,7 @@ statusECMOrespTab(RegData=CoroData)
 
 \begin{frame}[fragile] {Corona, kjønnsfordeling}
 <<'TabKjonn', results='asis'>>=
-TabKjonn <- table(paste0('Uke ', CoroData$UkeNr), CoroData$Kjonn)
+TabKjonn <- table(paste0('Uke ', RegData$UkeNr), RegData$Kjonn)
 xtable::xtable(addmargins(TabKjonn),
                digits=0,
                caption='Coronatilfeller per uke, kvinner og menn')
@@ -251,14 +195,16 @@ xtable::xtable(addmargins(TabKjonn),
 \begin{frame}[fragile] {Corona, aldersfordeling}
 
 <<'TabAlder', results='asis'>>=
-#aldGr <- quantile(CoroData$Alder, probs = seq(0, 1, 0.5), na.rm = TRUE) #c(seq(0, 110, 10),110)
-gr <- seq(0, 90, ifelse(N<100, 25, 10) )
-CoroData$AldersGr <- cut(CoroData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
-grtxt <- c('0-25', '25-50', "50-75", "75+")
-levels(CoroData$AldersGr) <- grtxt #c(levels(CoroData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
-TabAlder <- table(CoroData$AldersGr, CoroData$RHF)
+# gr <- seq(0, 90, ifelse(N<100, 25, 10) )
+# RegData$AldersGr <- cut(RegData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
+# grtxt <- c('0-25', '25-50', "50-75", "75+")
+# levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
+# TabAlder <- table(RegData$AldersGr, RegData$RHF)
+# TabAlder <- addmargins(TabAlder)
 
-xtable::xtable(addmargins(TabAlder),
+tabAlder <- TabAlder(RegData, valgtRHF='Alle')
+
+xtable::xtable(tabAlder,
                digits = 0,
                caption='Fordeling i aldersgrupper')
 @
@@ -269,7 +215,7 @@ xtable::xtable(addmargins(TabAlder),
 \begin{frame}[fragile] {Risikofaktorer}
 
 <<'Risikofaktorer', results='asis'>>=
-RisikofaktorerTab(RegData=CoroData)
+RisikofaktorerTab(RegData=RegData)
 @
 \end{frame}
 
@@ -277,11 +223,11 @@ RisikofaktorerTab(RegData=CoroData)
 % \begin{frame}[fragile] {Tilfeller registrert forrige døgn}
 % Nye Coronatilfeller registrert forrige døgn i hver helseregion. (Basert på FormDate)
 % <<'TabFordelinger', results='asis'>>=
-% #CoroData$ukeOpprettet <- format(as.Date(CoroData$FormDate), '%V')
-% CoroData$DagOpprettet <- format(as.Date(CoroData$FormDate), '%d.%m')
-% #indNye <- which(CoroData$ukeOpprettet == format(Sys.Date(), '%V'))
-% indNye <- which(CoroData$DagOpprettet == format(Sys.Date()-1, '%d.%m'))
-% TabRHF <- table(CoroData$Dag[indNye], CoroData$RHF[indNye])
+% #RegData$ukeOpprettet <- format(as.Date(RegData$FormDate), '%V')
+% RegData$DagOpprettet <- format(as.Date(RegData$FormDate), '%d.%m')
+% #indNye <- which(RegData$ukeOpprettet == format(Sys.Date(), '%V'))
+% indNye <- which(RegData$DagOpprettet == format(Sys.Date()-1, '%d.%m'))
+% TabRHF <- table(RegData$Dag[indNye], RegData$RHF[indNye])
 % xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller registrert i går')
 % @
 % \end{frame}

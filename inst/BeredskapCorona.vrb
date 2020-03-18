@@ -1,26 +1,26 @@
 \frametitle{Risikofaktorer}
-Skille på levende/død
+
 % latex table generated in R 3.6.1 by xtable 1.8-4 package
-% Sat Mar 14 04:16:24 2020
+% Wed Mar 18 10:21:02 2020
 \begin{table}[ht]
 \centering
-\begin{tabular}{rr}
+\begin{tabular}{lrr}
   \hline
- & x \\
+ & Sum & Andel \\
   \hline
-Kreft & 0 \\
-  Nedsatt immunforsvar & 0 \\
-  Diabetes & 0 \\
-  Hjertesykdom & 1 \\
-  Fedme (KMI$>$30) & 0 \\
-  Astma & 1 \\
-  Kronisk lungesykdom & 0 \\
-  Nyresykdom & 0 \\
-  Leversykdom & 0 \\
-  Nevrologisk/nevromusk. & 0 \\
-  Graviditet & 0 \\
-  Røyker & 1 \\
-  Opphold med risikofaktorer & 2 \\
+Kreft & 1 & 4\% \\
+  Nedsatt immunforsvar & 0 & 0\% \\
+  Diabetes & 3 & 13\% \\
+  Hjertesykdom & 8 & 35\% \\
+  Fedme (KMI$>$30) & 0 & 0\% \\
+  Astma & 3 & 13\% \\
+  Kronisk lungesykdom & 3 & 13\% \\
+  Nyresykdom & 0 & 0\% \\
+  Leversykdom & 0 & 0\% \\
+  Nevrologisk/nevromusk. & 0 & 0\% \\
+  Graviditet & 0 & 0\% \\
+  Røyker & 0 & 0\% \\
+  Opphold med risikofaktorer & 12 & 52\% \\
    \hline
 \end{tabular}
 \caption{Risikofaktorer}
