@@ -155,11 +155,11 @@ respiratorer (MechanicalRespiratorStart) - de som har slutttidspunkt for respira
 
 <<'RespiratorECMO', results='asis'>>=
 
-statusECMOrespTab(RegData=RegData)
-# xtable::xtable(TabHjelp,
-#                digits=0,
-#                align = c('l','r','r'),
-#                caption='Bruk av Respirator/ECMO.')
+#statusECMOrespTab(RegData=RegData)$Tab
+xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
+               digits=0,
+               align = c('l','r','r'),
+               caption='Bruk av Respirator/ECMO.')
 @
 \end{frame}
 
@@ -219,7 +219,7 @@ print(xtable::xtable(TabKjonn, digits=0, #method='compact', #align=c('l', rep('r
 
 <<'TabAlder', results='asis'>>=
 Alder <- round(summary(RegData$Alder))
-AlderBekr <- round(summary(RegData$Alder[RegData$Korona=='B']))
+AlderBekr <- round(summary(RegData$Alder[RegData$Bekreftet==1]))
 
 tabAlder <- TabAlder(RegData, valgtRHF='Alle')
 @
@@ -230,12 +230,12 @@ med en snittsalder på \Sexpr{AlderBekr[4]}.
 
 <<'VisTabAlder', results='asis'>>=
 
-xtable::xtable(tabAlder,
+xtable::xtable(tabAlder$Tab,
                digits = 0,
                caption='Fordeling i aldersgrupper')
 
-xtable::xtable(TabAlder(RegData=RegData[which(RegData$Korona=='B'), ]
-                        , valgtRHF='Alle'),
+xtable::xtable(TabAlder(RegData=RegData[which(RegData$Bekreftet==1), ]
+                        , valgtRHF='Alle')$Tab,
                digits = 0,
                caption='Fordeling i aldersgrupper for bekreftede tilfeller')
 @
@@ -246,7 +246,7 @@ xtable::xtable(TabAlder(RegData=RegData[which(RegData$Korona=='B'), ]
 \begin{frame}[fragile] {Risikofaktorer}
 
 <<'Risikofaktorer', results='asis'>>=
-    TabRisiko <- RisikofaktorerTab(RegData=RegData[which(RegData$Korona=='B'), ])
+    TabRisiko <- RisikofaktorerTab(RegData=RegData[which(RegData$Korona=='B'), ])$Tab
     xtable::xtable(TabRisiko,
                    digits=0,
                    align = c('l',rep('r',ncol(TabRisiko))),
