@@ -61,12 +61,17 @@ RegData <- UtData$RegData
 #' @return
 RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), reshID=0,
                               erMann='', bekr=9, skjemastatus=9,
-                              dodInt=9, valgtRHF='Alle', velgAvd=0){
+                              dodInt=9, valgtRHF='Alle',
+                              minald=0, maxald=110, velgAvd=0){
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                               bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
+                             minald=minald, maxald=maxald,
                               reshID=reshID, valgtRHF=valgtRHF) #velgAvd=velgAvd
+  Ntest <- dim(UtData$RegData)[1]
   RegData <- UtData$RegData
+
+
 #Kvikk fix: Totalt gir nå totalen for 2020
   Tidsvariabel <- switch(tidsenhet,
     Uke = paste0('uke',RegData$UkeNr),
@@ -98,7 +103,7 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
     #                digits=0,
     #                align = c('l',rep('r',ncol(TabRisiko))),
     #                caption='Risikofaktorer')
-    return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt))
+    return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
 }
 
 #' Antall som er eller har vært i ECMO/respirator

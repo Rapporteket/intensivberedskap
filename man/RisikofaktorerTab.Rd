@@ -14,6 +14,8 @@ RisikofaktorerTab(
   skjemastatus = 9,
   dodInt = 9,
   valgtRHF = "Alle",
+  minald = 0,
+  maxald = 110,
   velgAvd = 0
 )
 }

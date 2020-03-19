@@ -16,7 +16,7 @@
 #' @return
 #' @export
 #'
-NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, #enhetsUtvalg=0, minald=0, maxald=110,
+NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, minald=0, maxald=110, #enhetsUtvalg=0,
                              bekr=9, skjemastatus=9,
                          dodInt=9, reshID=0, valgtRHF='Alle', velgAvd=0) {
 
@@ -31,6 +31,8 @@ NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, #enhetsUtv
    RegData <- subset(RegData, vec)}
   if (valgtRHF != 'Alle'){RegData <- subset(RegData, RegData$RHF == valgtRHF)}
 
+  if(minald>0 | maxald<110) {RegData <- subset(RegData,
+                                               RegData$Alder >= minald & RegData$Alder <= maxald)}
 
  if(datoFra!=0) {RegData <- subset(RegData, RegData$InnDato >= as.Date(datoFra, tz= 'UTC'))}
  if(datoTil!=0) {RegData <- subset(RegData, RegData$InnDato <= as.Date(datoTil, tz= 'UTC'))}

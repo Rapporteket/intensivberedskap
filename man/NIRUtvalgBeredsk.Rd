@@ -9,6 +9,8 @@ NIRUtvalgBeredsk(
   datoFra = 0,
   datoTil = 0,
   erMann = 9,
+  minald = 0,
+  maxald = 110,
   bekr = 9,
   skjemastatus = 9,
   dodInt = 9,

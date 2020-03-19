@@ -100,7 +100,13 @@ ui <- tagList(
               ),
               selectInput(inputId = "erMann", label="Kjønn",
                           choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
-              )
+              ),
+              h4('Kun for risikofaktorer:'),
+              sliderInput(inputId="alder", label = "Alder",
+                          min = 0, max = 110,
+                          value = c(0, 110),
+                          step = 10
+              ),
 
               # selectInput(inputId = 'enhetsGruppe', label='Enhetgruppe',
               #             choices = c("RHF"=1, "HF"=2, "Sykehus"=3)
@@ -188,7 +194,8 @@ server <- function(input, output, session) {
   # regData <- getFakeRegData()
 
   #-----------Div serveroppstart------------------
-  raplog::appLogger(session = session, msg = "Starter Corona-app")
+  if (context %in% c('QA', 'PRODUCTION')){
+    raplog::appLogger(session = session, msg = "Starter Corona-app")}
 
   reshID <- ifelse(paaServer, as.numeric(rapbase::getUserReshId(session)), 0)
   rolle <- ifelse(paaServer, rapbase::getUserRole(shinySession=session), 'SC')
@@ -276,8 +283,11 @@ observe({
   utvalg <- if (length(UtData$utvalgTxt)>0) {
     UtData$utvalgTxt
     } else {'Alle registrerte '}
-  txt <- paste0('Gjennomsnittsalderen er <b>', round(mean(UtData$RegData$Alder, na.rm = T)), '</b> år og ',
-                round(100*mean(UtData$RegData$erMann, na.rm = T)), '% er menn.')
+  txt <- if(dim(UtData$RegData)[1]>2) {
+    paste0('Gjennomsnittsalderen er <b>', round(mean(UtData$RegData$Alder, na.rm = T)), '</b> år og ',
+                round(100*mean(UtData$RegData$erMann, na.rm = T)), '% er menn. Antall døde: ',
+           sum(UtData$RegData$DischargedIntensivStatus==1))
+    } else {''}
 
   output$utvalgHoved <- renderUI({
     UtTekst <- tagList(
@@ -311,10 +321,18 @@ observe({
                                  skjemastatus=as.numeric(input$skjemastatus),
                                  bekr=as.numeric(input$bekr),
                                  dodInt=as.numeric(input$dodInt),
-                                 erMann=as.numeric(input$erMann)
-  )
+                                 erMann=as.numeric(input$erMann),
+                                 minald=as.numeric(input$alder[1]),
+                                 maxald=as.numeric(input$alder[2]))
 
-    output$tabRisikofaktorer <- renderTable({RisikoTab$Tab}, rownames = T, digits=0, spacing="xs")
+
+    # output$tabRisikofaktorer <- renderTable({
+    #   if (RisikoTab$Ntest>2){ RisikoTab$Tab} else {'Få registreringer (N<3)'}},
+    #   rownames = T, digits=0, spacing="xs")
+
+    output$tabRisikofaktorer <- if (RisikoTab$Ntest>2){
+      renderTable(RisikoTab$Tab, rownames = T, digits=0, spacing="xs") } else {
+        renderText('Få registreringer (N<3)')}
 
     output$utvalgRisiko <- renderUI({h5(HTML(paste0(RisikoTab$utvalgTxt, '<br />'))) #tagList()
                          })

@@ -24,6 +24,8 @@ RegData <- NIRPreprosessBeredsk(CoroData)
 CoroData <- RegData
 
 
+minald <- 20
+maxald <- 55
 reshID=0
 erMann=9
 bekr=9
@@ -37,5 +39,6 @@ test <- TabAlder(RegData) #, valgtRHF = valgtRHF)
 TabTidEnhet(RegData, tidsenhet='dag', valgtRHF =valgtRHF )
 
 statusECMOrespTab(CoroData)
+RisikofaktorerTab(RegData, erMann = 1)
 
 ut <- TabTidEnhet(RegData=CoroData, tidsenhet='uke', enhetsNivaa='HF')
