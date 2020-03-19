@@ -107,7 +107,7 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
 }
 
 
-#' Antall som er eller har vært i ECMO/respirator
+#' Antall som er  i ECMO/respirator
 #'
 #' @param RegData beredskapsskjema
 #'
@@ -122,10 +122,10 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
 RegData <- UtData$RegData
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
-AntIrespNaa <- sum(!(is.na(RegData$MechanicalRespiratorStart))) -
-  sum(!(is.na(RegData$MechanicalRespiratorEnd)))
 AntIECMONaa <- sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
 AntPaaIntNaa <- N - sum(!(is.na(RegData$DateDischargedIntensive)))
+AntIrespNaa <- min(AntPaaIntNaa, sum(!(is.na(RegData$MechanicalRespiratorStart))) -
+  sum(!(is.na(RegData$MechanicalRespiratorEnd))))
 
 TabHjelp <- rbind(
   'På respirator nå' = AntIrespNaa*(c(1, 100/AntPaaIntNaa)),
