@@ -95,9 +95,9 @@ ui <- tagList(
               selectInput(inputId = "skjemastatus", label="Skjemastatus",
                           choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
               ),
-              selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
-                          choices = c("Alle"=9, "Død"=1, "Levende"=0)
-              ),
+              # selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
+              #             choices = c("Alle"=9, "Død"=1, "Levende"=0)
+              # ),
               selectInput(inputId = "erMann", label="Kjønn",
                           choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
               ),
@@ -269,14 +269,14 @@ observe({
                       valgtRHF= input$valgtRHF,
                       skjemastatus=as.numeric(input$skjemastatus),
                       bekr=as.numeric(input$bekr),
-                      dodInt=as.numeric(input$dodInt),
+                      #dodInt=as.numeric(input$dodInt),
                       erMann=as.numeric(input$erMann)
   )
       UtData <- NIRUtvalgBeredsk(RegData=CoroData,
                                  valgtRHF= input$valgtRHF,
                                  skjemastatus=as.numeric(input$skjemastatus),
                                  bekr=as.numeric(input$bekr),
-                                 dodInt=as.numeric(input$dodInt),
+                                 #dodInt=as.numeric(input$dodInt),
                                  erMann=as.numeric(input$erMann)
       )
 
@@ -320,7 +320,7 @@ observe({
                                  valgtRHF= input$valgtRHF,
                                  skjemastatus=as.numeric(input$skjemastatus),
                                  bekr=as.numeric(input$bekr),
-                                 dodInt=as.numeric(input$dodInt),
+                                 #dodInt=as.numeric(input$dodInt),
                                  erMann=as.numeric(input$erMann),
                                  minald=as.numeric(input$alder[1]),
                                  maxald=as.numeric(input$alder[2]))
@@ -339,7 +339,7 @@ observe({
 
     TabAlder <- TabAlder(RegData=CoroData,
                          valgtRHF=input$valgtRHF,
-                         dodInt=as.numeric(input$dodInt),
+                         #dodInt=as.numeric(input$dodInt),
                          erMann=as.numeric(input$erMann),
                          bekr=as.numeric(input$bekr),
                          skjemastatus=as.numeric(input$skjemastatus)
