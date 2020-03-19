@@ -186,7 +186,9 @@ TabLiggetider <- rbind(
                  align = c('l','r','c', 'r','r'),
                  caption='Liggetider og ECMO/respiratorbruk, ferdigstilte opphold. \\
                  IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet.')
-  return(invisible(UtData <- list(Tab=TabLiggetider, utvalgTxt=UtData$utvalgTxt)))
+  return(invisible(UtData <- list(Tab=TabLiggetider,
+                                  utvalgTxt=UtData$utvalgTxt,
+                                  Ntest=N)))
 }
 
 

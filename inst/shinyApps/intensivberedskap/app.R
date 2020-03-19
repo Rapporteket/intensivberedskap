@@ -316,13 +316,15 @@ observe({
   output$utvalgNaa <- renderUI({h5(HTML(paste0(statusNaaTab$utvalgTxt, '<br />'))) })
 
   #Tab ferdigstilte
-  TabLiggetid <- oppsumLiggetiderTab(RegData=CoroData,
+  TabFerdig <- oppsumLiggetiderTab(RegData=CoroData,
                                      valgtRHF=input$valgtRHF,
                                      bekr=as.numeric(input$bekr),
                                      erMann=as.numeric(input$erMann))
 
-  output$tabOppsumLiggetider<- renderTable({TabLiggetid$Tab}, rownames = T, digits=0, spacing="xs")
-  output$utvalgLiggetid <- renderUI({h5(HTML(paste0(TabLiggetid$utvalgTxt, '<br />'))) })
+  output$tabOppsumLiggetider<- if (TabFerdig$Ntest>2){
+    renderTable({TabFerdig$Tab}, rownames = T, digits=0, spacing="xs")}else {
+      renderText('Få registreringer (N<3)')}
+  output$utvalgLiggetid <- renderUI({h5(HTML(paste0(TabFerdig$utvalgTxt, '<br />'))) })
 
   #Tab risiko
   RisikoTab <- RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',
