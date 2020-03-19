@@ -50,13 +50,13 @@ CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
 #Definere utvalgsinnhold
 #sykehusNavn <- sort(c('',unique(CoroData$ShNavn)), index.return=T)
 #sykehusValg <- c(0,unique(CoroData$ReshId))[sykehusNavn$ix]
-rhfNavn <- c('Alle', as.character(sort(unique(CoroData$RHF)))) #, index.return=T)
+rhfNavn <- c('Alle', as.character(sort(unique(CoroData$RHF))))
 hfNavn <- sort(unique(CoroData$HF)) #, index.return=T)
 sykehusNavn <- sort(unique(CoroData$ShNavn), index.return=T)
 sykehusValg <- unique(CoroData$ReshId)[sykehusNavn$ix]
 sykehusValg <- c(0,sykehusValg)
 names(sykehusValg) <- c('Ikke valgt',sykehusNavn$x)
-
+#updateTextInput(session, inputId, label = NULL, value = NULL). Hvis input skal endres som flge av et annet input.
 enhetsNivaa <- c('RHF', 'HF', 'ShNavn')
 names(enhetsNivaa) <- c('RHF', 'HF', 'Sykehus')
 
@@ -87,6 +87,7 @@ ui <- tagList(
               selectInput(inputId = "valgtRHF", label="Velg RHF",
                           choices = rhfNavn
               ),
+
               #br(),
               #h4('Tabellene for intensivopphold, aldersfordeling og risikofaktorer:'),
               selectInput(inputId = "bekr", label="Bekreftet/Mistenkt",
@@ -211,6 +212,14 @@ server <- function(input, output, session) {
   }
 
 
+    if (rolle != 'SC') {
+    updateSelectInput(session, "valgtRHF",
+                      choices = c('Alle', egetRHF))
+                                  #CoroData$RHF[match(reshID, CoroData$ReshId)]))
+    updateSelectInput(session, "valgtRHFabb",
+                        choices = c('Alle', egetRHF))
+                                    #CoroData$RHF[match(reshID, CoroData$ReshId)]))
+    }
 
   # widget
   if (paaServer) {

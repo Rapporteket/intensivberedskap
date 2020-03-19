@@ -2,7 +2,7 @@
 % Please edit documentation in R/NIRtabellerBeredskap.R
 \name{oppsumLiggetiderTab}
 \alias{oppsumLiggetiderTab}
-\title{Liggetider og antall som ar vært i ECMO/respirator}
+\title{Liggetider og antall som har vært i ECMO/respirator}
 \usage{
 oppsumLiggetiderTab(
   RegData,
@@ -25,5 +25,5 @@ oppsumLiggetiderTab(
 
 }
 \description{
-Liggetider og antall som ar vært i ECMO/respirator
+Liggetider og antall som har vært i ECMO/respirator
 }

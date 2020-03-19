@@ -106,6 +106,7 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
     return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
 }
 
+
 #' Antall som er eller har vært i ECMO/respirator
 #'
 #' @param RegData beredskapsskjema
@@ -142,7 +143,7 @@ return(UtData)
 }
 
 
-#' Liggetider og antall som ar vært i ECMO/respirator
+#' Liggetider og antall som har vært i ECMO/respirator
 #'
 #' @param RegData beredskapsskjema
 #' @inheritParams NIRUtvalgBeredsk
@@ -215,7 +216,7 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,dodInt=9,e
 N <- dim(RegData)[1]
 gr <- seq(0, 90, ifelse(N<100, 25, 10) )
 RegData$AldersGr <- cut(RegData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
-grtxt <- if(N<100){c('0-25', '25-50', "50-75", "75+")} else {
+grtxt <- if(N<100){c('0-24', '25-49', "50-74", "75+")} else {
                 c('0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+')}
 #grtxt <- c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))#paste(gr,sep='-')
 levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
