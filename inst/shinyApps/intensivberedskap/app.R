@@ -188,7 +188,7 @@ server <- function(input, output, session) {
   # regData <- getFakeRegData()
 
   #-----------Div serveroppstart------------------
- # raplog::appLogger(session = session, msg = "Starter Corona-app")
+  raplog::appLogger(session = session, msg = "Starter Corona-app")
 
   reshID <- ifelse(paaServer, as.numeric(rapbase::getUserReshId(session)), 0)
   rolle <- ifelse(paaServer, rapbase::getUserRole(shinySession=session), 'SC')
