@@ -37,13 +37,15 @@ NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, minald=0, 
  if(datoFra!=0) {RegData <- subset(RegData, RegData$InnDato >= as.Date(datoFra, tz= 'UTC'))}
  if(datoTil!=0) {RegData <- subset(RegData, RegData$InnDato <= as.Date(datoTil, tz= 'UTC'))}
 
+  N <- dim(RegData)[1]
+
   utvalgTxt <- c(
     if(datoFra!=0 | datoTil!=0) {paste0(
       'Innleggelsesdatoer: ', if (N>0) {min(as.Date(RegData$InnDato), na.rm=T)} else {datoFra},
       ' til ', if (N>0) {max(as.Date(RegData$InnDato), na.rm=T)} else {datoTil})} else {NULL},
-    # if ((minald>0) | (maxald<110)) {
-    #   paste0('Pasienter fra ', if (N>0) {min(RegData$Alder, na.rm=T)} else {minald},
-    #          ' til ', if (N>0) {max(RegData$Alder, na.rm=T)} else {maxald}, ' år')},
+    if ((minald>0) | (maxald<110)) {
+      paste0('Pasienter fra ', if (N>0) {min(RegData$Alder, na.rm=T)} else {minald},
+             ' til ', if (N>0) {max(RegData$Alder, na.rm=T)} else {maxald}, ' år')},
     if (bekr %in% 0:1){paste(c('Mistenkte','Bekreftede')[bekr+1], 'tilfeller')},
     if (skjemastatus %in% 0:5){paste('Skjemastatus:',
                                      c('ingen', 'kladd', 'ferdigstilt', '','slettet', 'returnert')[skjemastatus+1])},
