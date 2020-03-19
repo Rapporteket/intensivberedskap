@@ -2,7 +2,7 @@
 % Please edit documentation in R/NIRtabellerBeredskap.R
 \name{statusECMOrespTab}
 \alias{statusECMOrespTab}
-\title{Antall som er eller har vært i ECMO/respirator}
+\title{Antall som er  i ECMO/respirator}
 \usage{
 statusECMOrespTab(RegData, valgtRHF = "Alle", erMann = 9, bekr = 9)
 }
@@ -13,5 +13,5 @@ statusECMOrespTab(RegData, valgtRHF = "Alle", erMann = 9, bekr = 9)
 
 }
 \description{
-Antall som er eller har vært i ECMO/respirator
+Antall som er  i ECMO/respirator
 }

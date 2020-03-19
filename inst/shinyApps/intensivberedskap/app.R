@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+library(shinyjs)
 library(magrittr)
 library(rapbase)
 library(intensiv)
@@ -67,8 +68,10 @@ ui <- tagList(
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
 
+
     tabPanel("Oversikt",
-             sidebarPanel(
+             useShinyjs(),
+             sidebarPanel(id = 'brukervalgStartside',
                  width = 3,
                  h3('Coronarapport med samling av resultater'),
                  h5('Coronarapporten kan man få regelmessig tilsendt på e-post.
@@ -108,6 +111,8 @@ ui <- tagList(
                           value = c(0, 110),
                           step = 10
               ),
+              br(),
+              actionButton("tilbakestillValg", label="Tilbakestill valg")
 
               # selectInput(inputId = 'enhetsGruppe', label='Enhetgruppe',
               #             choices = c("RHF"=1, "HF"=2, "Sykehus"=3)
@@ -274,6 +279,8 @@ server <- function(input, output, session) {
 
 #skjemastatus, bekr, dodInt
 observe({
+  observeEvent(input$tilbakestillValg, shinyjs::reset("brukervalgStartside"))
+
   AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag', #enhetsNivaa='RHF',
                       valgtRHF= input$valgtRHF,
                       skjemastatus=as.numeric(input$skjemastatus),

@@ -72,6 +72,9 @@ indFerdig <- which(RegData$FormStatus==2)
 antFerdig <- length(indFerdig)
 antSkjema <- dim(RegData)[1]
 N <- antSkjema
+AntDode <- sum(RegData$DischargedIntensivStatus==1)
+DodBekr <- sum(RegData[which(RegData$Bekreftet==1)]$DischargedIntensivStatus==1)
+AntBekr <- sum(RegData$Bekreftet==1)
 @
 
 \begin{document}
@@ -94,14 +97,14 @@ Coronatilfellene er rapportert i eget skjema i registeret, og data fra dette skj
 for denne rapporten.
 \\
 
-\bf{Merk at:}
+%\bf{Merk at:}
 \begin{itemize}
 \item Rapporten baserer seg på antall intensivopphold, ikke antall unike pasienter
 \item Tabellene skiller ikke på om et skjema er ferdigstilt eller ikke. Det er \Sexpr{N-antFerdig}
 av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
 \item Skjema uten spesifikasjon av diagnose, er kategorisert som mistenkte Coronatilfeller.
-%\item Registrering av Coronatilfeller på intensivavdelinger ble innført 12.mars 2020.
-\item Rapporten er basert på alle registreringer gjort inntil 3 timer før rapporten ble lastet ned.
+\item Det er registrert \Sexpr{AntBekr} med bekreftet Corona. Av disse er \Sexpr{DodBekr} døde.
+\item Rapporten er basert på alle registreringer gjort inntil 4 timer før rapporten ble lastet ned.
 \end{itemize}
 
 \end{frame}
