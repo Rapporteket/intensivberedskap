@@ -2,7 +2,7 @@
 % Please edit documentation in R/NIRtabellerBeredskap.R
 \name{RisikofaktorerTab}
 \alias{RisikofaktorerTab}
-\title{Funksjoner for å lage tabeller}
+\title{Tabell med oversikt over tilstander som medfører økt risiko ved Coronasmitte}
 \usage{
 RisikofaktorerTab(
   RegData,

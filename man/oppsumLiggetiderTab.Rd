@@ -2,16 +2,28 @@
 % Please edit documentation in R/NIRtabellerBeredskap.R
 \name{oppsumLiggetiderTab}
 \alias{oppsumLiggetiderTab}
-\title{Antall som er eller har vært i ECMO/respirator}
+\title{Liggetider og antall som ar vært i ECMO/respirator}
 \usage{
-oppsumLiggetiderTab(RegData, valgtRHF = "Alle")
+oppsumLiggetiderTab(
+  RegData,
+  valgtRHF = "Alle",
+  bekr = 9,
+  erMann = 9,
+  dodInt = 9
+)
 }
 \arguments{
 \item{RegData}{beredskapsskjema}
+
+\item{bekr}{1-bekreftet, 0-mistenkt tilfelle}
+
+\item{erMann}{kjønn, 0-kvinne, 1-mann}
+
+\item{dodInt}{død på intensiv 0-nei, 1-ja}
 }
 \value{
 
 }
 \description{
-Antall som er eller har vært i ECMO/respirator
+Liggetider og antall som ar vært i ECMO/respirator
 }

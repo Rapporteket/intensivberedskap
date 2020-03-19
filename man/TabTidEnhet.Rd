@@ -2,7 +2,7 @@
 % Please edit documentation in R/NIRtabellerBeredskap.R
 \name{TabTidEnhet}
 \alias{TabTidEnhet}
-\title{Title}
+\title{Antall tilfeller for valgt tidsenhet og enhetsnivå. Filtreringer kan også gjøres.}
 \usage{
 TabTidEnhet(
   RegData,
@@ -20,11 +20,21 @@ TabTidEnhet(
 
 \item{tidsenhet}{'dag' (standard), 'uke', 'maaned'}
 
+\item{erMann}{kjønn, 0-kvinne, 1-mann}
+
+\item{bekr}{1-bekreftet, 0-mistenkt tilfelle}
+
+\item{skjemastatus}{status på registreringa 0-ingen, 1-kladd, 2-ferdigstilt, 4-slettet, 5-returnert}
+
+\item{dodInt}{død på intensiv 0-nei, 1-ja}
+
+\item{velgAvd}{valgt reshID}
+
 \item{enhetsNivaa}{'RHF', 'HF', 'ShNavn'}
 }
 \value{
 
 }
 \description{
-Title
+Antall tilfeller for valgt tidsenhet og enhetsnivå. Filtreringer kan også gjøres.
 }

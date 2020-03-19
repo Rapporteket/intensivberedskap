@@ -225,8 +225,8 @@ tabAlder <- TabAlder(RegData, valgtRHF='Alle')
 @
 
 De registrerte er mellom \Sexpr{Alder[1]} og \Sexpr{Alder[6]} år med en gjennomsnittsalder på \Sexpr{Alder[4]}.
-For de bekreftede tilfellene er \Sexpr{AlderBekr[1]} og \Sexpr{AlderBekr[6]} år
-med en gjennomsnittsalder på \Sexpr{AlderBekr[4]}.
+For bekreftede tilfeller er alderen mellom \Sexpr{AlderBekr[1]} og \Sexpr{AlderBekr[6]} år
+med en snittsalder på \Sexpr{AlderBekr[4]}.
 
 <<'VisTabAlder', results='asis'>>=
 

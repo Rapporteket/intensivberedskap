@@ -24,7 +24,7 @@ startDato <- '2020-03-01'  #paste0(as.numeric(format(idag-90, "%Y")), '-01-01')
 #AarNaa <- as.numeric(format(idag, "%Y"))
 
 regTitle <- ifelse(paaServer,
-                   'Norsk Intensivregister, Beredskapsregistrering',
+                   paste0('Norsk Intensivregister, Beredskapsregistrering ',ifelse(context=='QA', 'QA','')),
                    'Norsk Intensivregister med FIKTIVE data')
 
 #---------Hente data------------
@@ -61,7 +61,7 @@ enhetsNivaa <- c('RHF', 'HF', 'ShNavn')
 names(enhetsNivaa) <- c('RHF', 'HF', 'Sykehus')
 
 ui <- tagList(
-  navbarPage(
+  navbarPage(id='hovedark',
     title = div(img(src="rap/logo.svg", alt="Rapporteket", height="26px"),
                 regTitle),
     windowTitle = regTitle,
@@ -79,21 +79,21 @@ ui <- tagList(
               br(),
               h3('Gjør filtreringer/utvalg:'),
               #br(),
-              h4('Alle tabeller OG samledokument:'),
+
+              # conditionalPanel(condition = "input.hovedark == 'Nøkkeltall' || input.ark == 'Ant. opphold'",
+              #                  dateInput(inputId = 'sluttDatoReg', label = 'Velg sluttdato', language="nb",
+              #                            value = Sys.Date(), max = Sys.Date())
+              # ),
               selectInput(inputId = "valgtRHF", label="Velg RHF",
                           choices = rhfNavn
               ),
-              # h4('Utvalget gjelder tabellen med antall tifeller. Det anbefales å først filtrere på RHF'),
-              # selectInput(inputId = "velgEnhetsnivaa", label="Velg enhetsnivaa",
-              #             choices = enhetsNivaa
-              # ),
-              br(),
-              h4('Tabellene for intensivopphold, aldersfordeling og risikofaktorer:'),
+              #br(),
+              #h4('Tabellene for intensivopphold, aldersfordeling og risikofaktorer:'),
+              selectInput(inputId = "bekr", label="Bekreftet/Mistenkt",
+                          choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
+              ),
               selectInput(inputId = "skjemastatus", label="Skjemastatus",
                           choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
-              ),
-              selectInput(inputId = "bekrMist", label="Bekreftet/Mistenkt",
-                          choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
               ),
               selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
                           choices = c("Alle"=9, "Død"=1, "Levende"=0)
@@ -102,24 +102,11 @@ ui <- tagList(
                           choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
               )
 
-              # selectInput(inputId = "velgRHF", label="RHF",
-              #             choices = c("Alle"=9, ...)
-              # ),
               # selectInput(inputId = 'enhetsGruppe', label='Enhetgruppe',
               #             choices = c("RHF"=1, "HF"=2, "Sykehus"=3)
               # ),
               # dateRangeInput(inputId = 'datovalg', start = startDato, end = idag,
               #                label = "Tidsperiode", separator="t.o.m.", language="nb" #)
-              # ),
-              # sliderInput(inputId="alder", label = "Alder", min = 0,
-              #             max = 110, value = c(0, 110)
-              # ),
-              # selectInput(inputId = 'velgResh', label='Velg eget Sykehus',
-              #             #selected = 0,
-              #             choices = sykehusValg),
-              # selectInput(inputId = 'enhetsNivaa', label='Enhetsnivå',
-              #             choices = c("Egen enhet"=2, "Hele landet"=0,
-              #                         "Egen sykehustype"=4, "Egen region"=7)
               # ),
               #actionButton("reset_fordValg", label="Tilbakestill valg")
               ),
@@ -135,34 +122,32 @@ ui <- tagList(
                        h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
                       h3('Siden er under utvikling... ', style = "color:red"),
                       br(),
-
                       fluidRow(
-
-                        h3('Kort oversikt'),
-                        column(width=3,
-                               h5('Pågående aktivitet', align='center'),
-                               tableOutput('tabECMOrespirator')),
-                        column(width=5, offset=1,
-                               h5('Ferdigstilte registreringer', align='center'),
-                               tableOutput('tabOppsumLiggetider')
-                        )
-                      ),
-                      br(),
+                        column(width = 3,
+                               h4('Pågående aktivitet'), #, align='center'),
+                               uiOutput('utvalgNaa'),
+                               tableOutput('tabECMOrespirator')
+                        ),
+                      column(width=5, offset=1,
+                             h4('Fullførte registreringer'),
+                             uiOutput('utvalgLiggetid'),
+                             tableOutput('tabOppsumLiggetider')
+                      )),
 
                       h3('Antall intensivopphold'),
-                      h5('Her bør det vel komme en tekst om hvilke utvalg som er gjort'),
-                       tableOutput('tabTidEnhet'),
-                        br(),
+                      uiOutput('utvalgHoved'),
+                      tableOutput('tabTidEnhet'),
+                      br(),
                       fluidRow(
                         column(width=3,
                                h3('Risikofaktorer'),
-                               h5('Tabellen oppsummerer alle opphold.'),
+                               uiOutput('utvalgRisiko'),
                                tableOutput('tabRisikofaktorer')),
                         column(width=5, offset=1,
                                h3('Aldersfordeling'),
-                               h5('Her bør det vel komme en tekst om hvilke utvalg som er gjort'),
-                               tableOutput('tabAlder'))
-                      ),
+                               uiOutput('utvalgAlder'),
+                               tableOutput('tabAlder'),
+                               ))
              ) #main
     ), #tab Tabeller
 
@@ -177,6 +162,9 @@ ui <- tagList(
                                    Ukentlig="Ukentlig-week",
                                    Daglig="Daglig-DSTday"),
                              selected = "Ukentlig-week"),
+                 selectInput(inputId = "valgtRHFabb", label="Velg RHF",
+                             choices = rhfNavn
+                 ),
                  actionButton("subscribe", "Bestill!")
                ),
                 mainPanel(
@@ -224,15 +212,15 @@ server <- function(input, output, session) {
                                            '<br> ReshID: ', reshID) )}
                                            #,'<br> Org: ', egenOrg) )}
 
-  # # User info in widget
-  # userInfo <- rapbase::howWeDealWithPersonalData(session)
-  # observeEvent(input$userInfo, {
-  #   shinyalert::shinyalert("Dette vet Rapporteket om deg:", userInfo,
-  #                          type = "", imageUrl = "rap/logo.svg",
-  #                          closeOnEsc = TRUE, closeOnClickOutside = TRUE,
-  #                          html = TRUE, confirmButtonText = rapbase::noOptOutOk())
-  # })
-  #
+  # User info in widget
+  userInfo <- rapbase::howWeDealWithPersonalData(session)
+  observeEvent(input$userInfo, {
+    shinyalert::shinyalert("Dette vet Rapporteket om deg:", userInfo,
+                           type = "", imageUrl = "rap/logo.svg",
+                           closeOnEsc = TRUE, closeOnClickOutside = TRUE,
+                           html = TRUE, confirmButtonText = rapbase::noOptOutOk())
+  })
+
 
   # Figur og tabell
   ## Figur
@@ -257,60 +245,92 @@ server <- function(input, output, session) {
                           reshID = reshID) #Vurder å ta med tidsinndeling eller startdato
     }
   )
-  # output$samleDok.pdf <- downloadHandler(
-  #   filename = function(){ downloadFilename('Samledokument')},
-  #   content = function(file){
-  #     henteSamlerapporter(file, rnwFil="NGERSamleRapp.Rnw",
-  #                         reshID = reshID,
-  #                         datoFra = input$datovalgSamleDok[1],
-  #                         datoTil = input$datovalgSamleDok[2])
-  #   }
-  # )
 
+  #----------Resultater som tekst--------------
+
+# # output$tittelFord <- renderUI({
+# #   tagList(
+# #     h3(HTML(paste(UtDataFord$tittel, sep='<br />'))),
+# #     h5(HTML(paste0(UtDataFord$utvalgTxt, '<br />')))
+# #   )})
+#   })
   #----------Tabeller----------------------------
 
-#skjemastatus, bekrMist, dodInt
+#skjemastatus, bekr, dodInt
+observe({
+  AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag', #enhetsNivaa='RHF',
+                      valgtRHF= input$valgtRHF,
+                      skjemastatus=as.numeric(input$skjemastatus),
+                      bekr=as.numeric(input$bekr),
+                      dodInt=as.numeric(input$dodInt),
+                      erMann=as.numeric(input$erMann)
+  )
+      UtData <- NIRUtvalgBeredsk(RegData=CoroData,
+                                 valgtRHF= input$valgtRHF,
+                                 skjemastatus=as.numeric(input$skjemastatus),
+                                 bekr=as.numeric(input$bekr),
+                                 dodInt=as.numeric(input$dodInt),
+                                 erMann=as.numeric(input$erMann)
+      )
 
-    output$tabTidEnhet <- renderTable({
-    TabTidEnhet(RegData=CoroData, tidsenhet='dag', #enhetsNivaa='RHF',
-                valgtRHF= input$valgtRHF,
-                skjemastatus=as.numeric(input$skjemastatus),
-                bekr=as.numeric(input$bekrMist),
-                dodInt=as.numeric(input$dodInt),
-                erMann=as.numeric(input$erMann)
-    )}, rownames = T, digits=0, spacing="xs"
+  utvalg <- if (length(UtData$utvalgTxt)>0) {
+    UtData$utvalgTxt
+    } else {'Alle registrerte '}
+  txt <- paste0('Gjennomsnittsalderen er <b>', round(mean(UtData$RegData$Alder, na.rm = T)), '</b> år og ',
+                round(100*mean(UtData$RegData$erMann, na.rm = T)), '% er menn.')
+
+  output$utvalgHoved <- renderUI({
+    UtTekst <- tagList(
+      h5(HTML(paste0(utvalg, '<br />'))),
+      h4(HTML(paste0(txt, '<br />')))
+
+    )})
+
+  output$tabTidEnhet <- renderTable({AntTab$TabTidEnh}, rownames = T, digits=0, spacing="xs"
   )
 
-  output$tabECMOrespirator <- renderTable({
-    statusECMOrespTab(RegData=CoroData, valgtRHF=input$valgtRHF) #, datoTil=Sys.Date(), reshID=0)
-  }, rownames = T, digits=0, spacing="xs"
+#Tab status nå
+  statusNaaTab <- statusECMOrespTab(RegData=CoroData, valgtRHF=input$valgtRHF,
+                                    erMann=as.numeric(input$erMann),
+                                    bekr=as.numeric(input$bekr))
+  output$tabECMOrespirator <- renderTable({statusNaaTab$Tab}, rownames = T, digits=0, spacing="xs")
+  output$utvalgNaa <- renderUI({h5(HTML(paste0(statusNaaTab$utvalgTxt, '<br />'))) })
+
+  #Tab ferdigstilte
+  TabLiggetid <- oppsumLiggetiderTab(RegData=CoroData,
+                                     valgtRHF=input$valgtRHF,
+                                     bekr=as.numeric(input$bekr),
+                                     erMann=as.numeric(input$erMann))
+
+  output$tabOppsumLiggetider<- renderTable({TabLiggetid$Tab}, rownames = T, digits=0, spacing="xs")
+  output$utvalgLiggetid <- renderUI({h5(HTML(paste0(TabLiggetid$utvalgTxt, '<br />'))) })
+
+  #Tab risiko
+  RisikoTab <- RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',
+                                 valgtRHF= input$valgtRHF,
+                                 skjemastatus=as.numeric(input$skjemastatus),
+                                 bekr=as.numeric(input$bekr),
+                                 dodInt=as.numeric(input$dodInt),
+                                 erMann=as.numeric(input$erMann)
   )
 
-  output$tabOppsumLiggetider<- renderTable({
-    oppsumLiggetiderTab(RegData=CoroData, valgtRHF=input$valgtRHF) #, datoTil=Sys.Date(), reshID=0)
-  }, rownames = T, digits=0, spacing="xs"
-  )
+    output$tabRisikofaktorer <- renderTable({RisikoTab$Tab}, rownames = T, digits=0, spacing="xs")
 
+    output$utvalgRisiko <- renderUI({h5(HTML(paste0(RisikoTab$utvalgTxt, '<br />'))) #tagList()
+                         })
 
-    output$tabRisikofaktorer <- renderTable({
-      RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',
-                        valgtRHF= input$valgtRHF,
-                        skjemastatus=as.numeric(input$skjemastatus),
-                        bekr=as.numeric(input$bekrMist),
-                        dodInt=as.numeric(input$dodInt),
-                        erMann=as.numeric(input$erMann)
-      ) #, datoTil=Sys.Date(), reshID=0)
-    }, rownames = T, digits=0, spacing="xs"
+    TabAlder <- TabAlder(RegData=CoroData,
+                         valgtRHF=input$valgtRHF,
+                         dodInt=as.numeric(input$dodInt),
+                         erMann=as.numeric(input$erMann),
+                         bekr=as.numeric(input$bekr),
+                         skjemastatus=as.numeric(input$skjemastatus)
     )
-
-    output$tabAlder<- renderTable({
-      xtable::xtable(TabAlder(RegData=CoroData, valgtRHF=input$valgtRHF,
-                              bekr=as.numeric(input$bekrMist))) #, datoTil=Sys.Date(), reshID=0)
-    }, rownames = T, digits=0, spacing="xs"
-    )
+    output$tabAlder<- renderTable({xtable::xtable(TabAlder$Tab)}, rownames = T, digits=0, spacing="xs")
+    output$utvalgAlder <- renderUI({h5(HTML(paste0(TabAlder$utvalgTxt, '<br />'))) })
 
 
-
+})
 
   #------------- Abonnement----------------
     #------------------ Abonnement ----------------------------------------------
@@ -350,15 +370,13 @@ server <- function(input, output, session) {
         interval = interval
       )
       email <- rapbase::getUserEmail(session)
-      print(input$subscriptionRep)
       if (input$subscriptionRep == "Koronarapport") {
         synopsis <- "NIR-Beredskap/Rapporteket: Coronarapport"
         rnwFil <- "BeredskapCorona.Rnw" #Navn på fila
       }
-print(rnwFil)
       fun <- "abonnementBeredsk"
       paramNames <- c('rnwFil', 'brukernavn', "reshID", "valgtRHF")
-      paramValues <- c(rnwFil, brukernavn, reshID, input$valgtRHF) #input$subscriptionFileFormat)
+      paramValues <- c(rnwFil, brukernavn, reshID, input$valgtRHFabb) #input$subscriptionFileFormat)
 
       #test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
       #                       reshID=105460)

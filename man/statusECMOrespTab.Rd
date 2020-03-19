@@ -4,7 +4,7 @@
 \alias{statusECMOrespTab}
 \title{Antall som er eller har vært i ECMO/respirator}
 \usage{
-statusECMOrespTab(RegData, valgtRHF = "Alle")
+statusECMOrespTab(RegData, valgtRHF = "Alle", erMann = 9, bekr = 9)
 }
 \arguments{
 \item{RegData}{beredskapsskjema}

@@ -1,5 +1,54 @@
-#' Funksjoner for å lage tabeller
+#Fil med samling av funksjoner som lager tabeller for beredskapsskjema
+
+#' Antall tilfeller for valgt tidsenhet og enhetsnivå. Filtreringer kan også gjøres.
 #'
+#' @param RegData dataramme med preprossesserte data
+#' @param tidsenhet 'dag' (standard), 'uke', 'maaned'
+#' @param enhetsNivaa 'RHF', 'HF', 'ShNavn'
+#' @inheritParams NIRUtvalgBeredsk
+#'
+#' @return
+#' @export
+TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
+                        bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
+
+  UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
+                              bekr=bekr, skjemastatus=skjemastatus,
+                              dodInt=dodInt, valgtRHF=valgtRHF) #velgAvd=velgAvd
+RegData <- UtData$RegData
+  TidsVar <- switch (tidsenhet,
+                     dag = 'Dag',
+                     uke = 'UkeNr',
+                     maaned = 'MndAar')
+
+  enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
+
+  RegData$EnhetsNivaaVar <- RegData[ ,enhetsNivaa]
+  #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
+  #TabRHF <- table(CoroData$Dag, CoroData$RHF)
+  #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
+
+  TabTidEnh <- table(RegData[ , c(TidsVar, enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
+
+  navnEnh <- unique(RegData$EnhetsNivaaVar)
+  TabTidEnh <- as.matrix(TabTidEnh)
+  #colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
+
+  TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
+  colnames(TabTidEnh)[ncol(TabTidEnh)] <- switch(enhetsNivaa,
+                                                 RHF = 'Hele landet',
+                                                 HF = paste0(valgtRHF, ', totalt'))
+  #add.to.row <- list(pos = list(-1), command = NULL)
+  #add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
+  TabTidEnh <- xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
+                              caption=paste0('Antall Coronatilfeller.'))
+
+  return(UtData <- list(TabTidEnh=TabTidEnh, UtData$utvalgTxt))
+}
+
+
+
+
 #' Tabell med oversikt over tilstander som medfører økt risiko ved Coronasmitte
 #'
 #' @param RegData data
@@ -14,9 +63,10 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
                               erMann='', bekr=9, skjemastatus=9,
                               dodInt=9, valgtRHF='Alle', velgAvd=0){
 
-  RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
+  UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                               bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
-                              reshID=reshID, valgtRHF=valgtRHF)$RegData #velgAvd=velgAvd
+                              reshID=reshID, valgtRHF=valgtRHF) #velgAvd=velgAvd
+  RegData <- UtData$RegData
 #Kvikk fix: Totalt gir nå totalen for 2020
   Tidsvariabel <- switch(tidsenhet,
     Uke = paste0('uke',RegData$UkeNr),
@@ -48,52 +98,7 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
     #                digits=0,
     #                align = c('l',rep('r',ncol(TabRisiko))),
     #                caption='Risikofaktorer')
-    #return(TabRisiko)
-}
-
-#' Title
-#'
-#' @param RegData dataramme med preprossesserte data
-#' @param tidsenhet 'dag' (standard), 'uke', 'maaned'
-#' @param enhetsNivaa 'RHF', 'HF', 'ShNavn'
-#'
-#' @return
-#' @export
-TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
-                        bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
-
-    RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
-                                bekr=bekr, skjemastatus=skjemastatus,
-                                dodInt=dodInt, valgtRHF=valgtRHF)$RegData #velgAvd=velgAvd
-
-  TidsVar <- switch (tidsenhet,
-    dag = 'Dag',
-    uke = 'UkeNr',
-    maaned = 'MndAar')
-
-  enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
-
-  RegData$EnhetsNivaaVar <- RegData[ ,enhetsNivaa]
-  #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
-  #TabRHF <- table(CoroData$Dag, CoroData$RHF)
-  #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
-
-TabTidEnh <- table(RegData[ , c(TidsVar, enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
-
-navnEnh <- unique(RegData$EnhetsNivaaVar)
-TabTidEnh <- as.matrix(TabTidEnh)
-#colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
-
-TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
-colnames(TabTidEnh)[ncol(TabTidEnh)] <- switch(enhetsNivaa,
-                                               RHF = 'Hele landet',
-                                               HF = paste0(valgtRHF, ', totalt'))
-#add.to.row <- list(pos = list(-1), command = NULL)
-#add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
-TabTidEnh <- xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-               caption=paste0('Antall Coronatilfeller.'))
-
-return(TabTidEnh)
+    return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt))
 }
 
 #' Antall som er eller har vært i ECMO/respirator
@@ -103,13 +108,12 @@ return(TabTidEnh)
 #' @return
 #' @export
 #'
-statusECMOrespTab <- function(RegData, valgtRHF='Alle'){
+statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
 
-  RegData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF)$RegData
-                              # ,  datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
-                              # bekr=bekr, skjemastatus=skjemastatus,
+  UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
+                               erMann=erMann, bekr=bekr)
                               # dodInt=dodInt)$RegData velgAvd=velgAvd
-
+RegData <- UtData$RegData
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
 AntIrespNaa <- sum(!(is.na(RegData$MechanicalRespiratorStart))) -
@@ -128,10 +132,12 @@ xtable::xtable(TabHjelp,
                digits=0,
                align = c('l','r','r'),
                caption='Bruk av Respirator/ECMO.')
+UtData <- list(Tab=TabHjelp, utvalgTxt=UtData$utvalgTxt)
+return(UtData)
 }
 
 
-#' Antall som er eller har vært i ECMO/respirator
+#' Liggetider og antall som ar vært i ECMO/respirator
 #'
 #' @param RegData beredskapsskjema
 #' @inheritParams NIRUtvalgBeredsk
@@ -139,14 +145,12 @@ xtable::xtable(TabHjelp,
 #' @return
 #' @export
 #'
-oppsumLiggetiderTab <- function(RegData, valgtRHF='Alle'){
+oppsumLiggetiderTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, dodInt=9){
 
-  RegData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
-                              skjemastatus=2)$RegData
-  # ,  datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
-  # bekr=bekr,
-  # dodInt=dodInt)$RegData velgAvd=velgAvd
-
+  UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
+                             bekr = bekr,
+                              skjemastatus=2)
+RegData <- UtData$RegData
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
   AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)
@@ -168,7 +172,6 @@ TabLiggetider <- rbind(
     'Respiratortid' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/AntUtInt))),
     'Liggetid' = c(med_IQR(Liggetid),AntUtInt, ''),
     'Alder' = c(med_IQR(Alder),AntUtInt, '')
-    #Median respiratortid'
   )
   colnames(TabLiggetider) <- c('Median', 'IQR', 'Antall', 'Andel')
   TabLiggetider[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabLiggetider[1:2,'Andel'])),'%')
@@ -177,7 +180,11 @@ TabLiggetider <- rbind(
                  align = c('l','r','c', 'r','r'),
                  caption='Liggetider og ECMO/respiratorbruk, ferdigstilte opphold. \\
                  IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet.')
+  return(invisible(UtData <- list(Tab=TabLiggetider, utvalgTxt=UtData$utvalgTxt)))
 }
+
+
+
 
 #' Aldersfordeling, tabell
 #'
@@ -188,12 +195,15 @@ TabLiggetider <- rbind(
 #' @export
 #'
 #' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
-TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9){#enhetsNivaa='RHF'
+TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,dodInt=9,erMann=9){#enhetsNivaa='RHF'
 
-  RegData <- NIRUtvalgBeredsk(RegData=RegData,
+  UtData <- NIRUtvalgBeredsk(RegData=RegData,
                               bekr=bekr,
+                             dodInt = dodInt,
+                             erMann = erMann,
                               skjemastatus=skjemastatus,
-                              valgtRHF=valgtRHF)$RegData
+                              valgtRHF=valgtRHF)
+  RegData <- UtData$RegData
 
   enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
   RegData$EnhetsNivaaVar <- RegData[ , enhetsNivaa]
@@ -209,6 +219,37 @@ TabAlder <- addmargins(TabAlder)
 colnames(TabAlder)[ncol(TabAlder)] <- switch(enhetsNivaa,
                                                RHF = 'Totalt',
                                                HF = paste0(valgtRHF, ', totalt'))
-return(invisible(TabAlder))
+return(invisible(UtData <- list(Tab=TabAlder, utvalgTxt=UtData$utvalgTxt)))
 }
 
+
+#' Nøkkeltalltabell - ikke klar
+#'
+#' @param RegData beredskapsskjema
+#' @inheritParams NIRUtvalgBeredsk
+#'
+#' @return
+#' @export
+#'
+oppsumAldKjTabIkkeKlar <- function(RegData, erMann=9, bekr=9, skjemastatus=9,
+                           dodInt=9, reshID=0, valgtRHF='Alle'){
+
+  RegData <- NIRUtvalgBeredsk(RegData=RegData, erMann=erMann, bekr=bekr,
+                              skjemastatus=skjemastatus, dodInt=dodInt,
+                              reshID=reshID, valgtRHF=reshID)$RegData
+
+  N <- dim(RegData)[1]
+
+
+  TabAldKj <- rbind(
+    'Alder, gjsn.' <- mean(RegData$Alder, na.rm = T),
+    'Andel kvinner' <- 100*mean(RegData$erMann, na.rm=T)
+  )
+  colnames(TabAldKj) <- c('Median', 'IQR', 'Antall', 'Andel')
+  TabLiggetider[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabLiggetider[1:2,'Andel'])),'%')
+  xtable::xtable(TabLiggetider,
+                 digits=0,
+                 align = c('l','r','c', 'r','r'),
+                 caption='Liggetider og ECMO/respiratorbruk, ferdigstilte opphold. \\
+                 IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet.')
+}
