@@ -205,12 +205,13 @@ server <- function(input, output, session) {
     raplog::appLogger(session = session, msg = "Starter Corona-app")}
 
   reshID <- ifelse(paaServer, as.numeric(rapbase::getUserReshId(session)), 0)
+
   rolle <- ifelse(paaServer, rapbase::getUserRole(shinySession=session), 'SC')
   brukernavn <- ifelse(paaServer, rapbase::getUserName(shinySession=session), 'brukernavn')
 
   regEgenResh <- reshID %in% unique(CoroData$ReshId)
   if (regEgenResh) {
-    indREgen <- match(reshID, CoroData$ReshId)
+    indReshEgen <- match(reshID, CoroData$ReshId)
     egetShNavn <- as.character(CoroData$ShNavn[indReshEgen])
     egetRHF <- as.character(CoroData$RHF[indReshEgen])
     egetHF <- as.character(CoroData$HF[indReshEgen])
