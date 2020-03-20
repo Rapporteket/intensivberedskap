@@ -43,7 +43,7 @@ if (!exists('CoroData')){
 #NB: Har benyttet FormDate benyttes som hoveddato. Gjelder også influensa
 RegData <- NIRPreprosessBeredsk(RegData=CoroData)
 enhetsNivaa <- 'RHF'
-RegDataLandet <- RegData
+RegDataAlle <- RegData
 if (valgtRHF!='Alle'){
   RegData <- subset(RegData, RegData$RHF == valgtRHF)
   RegData$RHF <- as.character(RegData$RHF)
@@ -51,6 +51,8 @@ if (valgtRHF!='Alle'){
   }
 datoStart <- '2020-03-01'
 
+tittelRHF <- c('Coronarapportering fra NIR, ',
+               paste0('registreringer fra ', ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)))
   # RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann,
   #                             bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
   #                             reshID=reshID, valgtRHF=valgtRHF)$RegData #velgAvd=velgAvd
@@ -81,7 +83,7 @@ AntBekr <- sum(RegData$Bekreftet==1)
 \begin{document}
 
 \title[Norsk Intensivregister, Corona \\\today] {%\textit{Coronadata, NIR} \\
-Coronarapportering fra NIR}
+\Sexpr{tittelRHF}}
 
 \maketitle
 
@@ -110,7 +112,7 @@ av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
 \end{frame}
 
 
-\begin{frame}[fragile] {Corona i regionene}
+\begin{frame}[fragile] {Corona, antall registreringer}
 
 Registrerte tilfeller per dag og totalt antall tilfeller.
 Registreringer hvor diagnose ikke er angitt, er klassifiserte som mistenkte tilfeller.
@@ -126,12 +128,15 @@ tidsenhet <- 'dag'
     uke = 'UkeNr',
     maaned = 'MndAar')
 
-  RegData$EnhetsNivaaVar <- as.factor(RegData[ ,enhetsNivaa])
-  #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
+  RegDataAlle$EnhetsNivaaVar <- as.factor(RegDataAlle[ ,enhetsNivaa])
+  #RegDataAlle$HF <- factor(RegDataAlle$HF, levels=unique(RegDataAlle$HF))
 
-TabTidEnh <- ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
 
-navnEnh <- levels(RegData$EnhetsNivaaVar) #unique(RegData$EnhetsNivaaVar)
+if (valgtRHF=='Alle'){
+TabTidEnh <- ftable(RegDataAlle[ , c(TidsVar, enhetsNivaa, 'Korona')],
+                    row.vars =TidsVar)
+
+navnEnh <- levels(RegDataAlle$EnhetsNivaaVar) #unique(RegData$EnhetsNivaaVar)
 TabTidEnh <- as.matrix(TabTidEnh)
 colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
 
@@ -147,14 +152,21 @@ print(xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('
 		caption=paste0('Coronatilfeller per dag og region (B - bekreftet, M - mistenkt)')),
  		add.to.row = add.to.row,
 		sanitize.rownames.function = identity)
+} else {
+  RegDataAlle$TidsVar <- as.factor(RegDataAlle[,TidsVar])
+  TabTidEnh <- cbind(
+    table(RegDataAlle[RegDataAlle$RHF==valgtRHF, c('TidsVar', 'Korona')]),
+    'Hele landet' = table(RegDataAlle$TidsVar))
+  TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN=sum, quiet=TRUE)
+  xtable::xtable(TabTidEnh, digits=0,
+		caption='Coronatilfeller per dag i egen region, samt hele landet (B - bekreftet, M - mistenkt)')
+}
+
 @
 \end{frame}
 
 \begin{frame}[fragile] {Corona på respirator/ECMO}
-Oversikt over antall som ligger i respirator/ECMO, samt hvor mange som har vært.
-\\
-Antall som ligger på respirator NÅ, er antall registrert startede
-respiratorer (MechanicalRespiratorStart) - de som har slutttidspunkt for respiratortid (MechanicalRespiratorEnd).
+Oversikt over antall som ligger i respirator/ECMO på intensiv.
 
 <<'RespiratorECMO', results='asis'>>=
 
@@ -164,30 +176,31 @@ xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
                align = c('l','r','r'),
                caption='Bruk av Respirator/ECMO.')
 
-xtable::xtable(oppsumFerdigeRegTab(RegData=CoroData, valgtRHF=valgtRHF)$Tab,
-               digits=0,
-               align = c('l','r','c','r', 'r'),
-               caption='Bekreftede tilfeller, ferdigstilte registreringer.
-               IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet, mens det er 25% som er mindre og 25% som er større.')
+# xtable::xtable(oppsumFerdigeRegTab(RegData=RegData, valgtRHF=valgtRHF)$Tab,
+#                digits=0,
+#                align = c('l','r','c','r', 'r'),
+#                caption='Bekreftede tilfeller, ferdigstilte registreringer.
+#                IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet,
+#                mens det er 25% som er mindre og 25% som er større.')
 @
+
 \end{frame}
 
-
-% \begin{frame}[fragile] {Antall døde}
-% <<'Dod', results='asis'>>=
-% indDod <- which(RegData$DischargedIntensiveStatus==1)
-% TabRHF <- table(RegData$Dag[indDod], RegData$RHF[indDod])
-% if (length(indDod)==0) {
-%   txtDod <- 'Ingen døde'} else {
-%     txtDod <- ""
-% xtable::xtable(addmargins(TabRHF), digits=0,
-%                caption='Antall døde per dag i hvert RHF med mistenkt eller bekreftet Coronasmitte')}
+% \begin{frame}[fragile] {Ferdigstilte registreringer}
+% Oversikt over ferdigstilte registreringer for bekreftede Corona-tilfeller.
 %
+% <<'Ferdigstilte', results='asis'>>=
+%
+% xtable::xtable(oppsumFerdigeRegTab(RegData=RegData, valgtRHF=valgtRHF)$Tab,
+%                digits=0,
+%                align = c('l','r','c','r', 'r'),
+%                caption='Bekreftede tilfeller, ferdigstilte registreringer.
+%                IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet,
+%                mens det er 25% som er mindre og 25% som er større.')
 % @
 %
-% \center{\large{\Sexpr{txtDod}}}
-%
 % \end{frame}
+
 
 
 \begin{frame}[fragile] {Corona, kjønnsfordeling}
@@ -230,21 +243,28 @@ print(xtable::xtable(TabKjonn, digits=0, #method='compact', #align=c('l', rep('r
 Alder <- round(summary(RegData$Alder))
 AlderBekr <- round(summary(RegData$Alder[RegData$Bekreftet==1]))
 
-tabAlder <- TabAlder(RegData, valgtRHF='Alle')
-@
+txtAlle <- if (N>2){paste0('De registrerte er mellom ', Alder[1], ' og ', Alder[6], ' år med en gjennomsnittsalder på ', Alder[4], ' år.')} else {''}
 
-De registrerte er mellom \Sexpr{Alder[1]} og \Sexpr{Alder[6]} år med en gjennomsnittsalder på \Sexpr{Alder[4]}.
-For bekreftede tilfeller er alderen mellom \Sexpr{AlderBekr[1]} og \Sexpr{AlderBekr[6]} år
-med en snittsalder på \Sexpr{AlderBekr[4]}.
+txtBekr <- if (AntBekr>2){paste0('For bekreftede tilfeller er alderen mellom ',
+                           AlderBekr[1], ' og ', AlderBekr[6], ' år med en snittsalder på ',
+                           AlderBekr[4], ' år.')} else {''}
+
+@
+%De registrerte er mellom \Sexpr{Alder[1]} og \Sexpr{Alder[6]} år med en gjennomsnittsalder på \Sexpr{Alder[4]}.
+\Sexpr{txtAlle}
+\Sexpr{txtBekr}
+% For bekreftede tilfeller er alderen mellom \Sexpr{AlderBekr[1]} og \Sexpr{AlderBekr[6]} år
+% med en snittsalder på \Sexpr{AlderBekr[4]}.
 
 <<'VisTabAlder', results='asis'>>=
 
-xtable::xtable(tabAlder$Tab,
+xtable::xtable(TabAlder(RegDataAlle, valgtRHF=valgtRHF)$Tab,
                digits = 0,
                caption='Fordeling i aldersgrupper')
-
-xtable::xtable(TabAlder(RegData=RegData[which(RegData$Bekreftet==1), ]
-                        , valgtRHF='Alle')$Tab,
+#TabAlder(RegData=RegData)$Tab
+xtable::xtable(TabAlder(RegData=RegDataAlle #RegDataAlle[which(RegDataAlle$Bekreftet==1), ]
+                        , bekr = 1
+                        , valgtRHF=valgtRHF)$Tab,
                digits = 0,
                caption='Fordeling i aldersgrupper for bekreftede tilfeller')
 @
@@ -255,13 +275,21 @@ xtable::xtable(TabAlder(RegData=RegData[which(RegData$Bekreftet==1), ]
 \begin{frame}[fragile] {Risikofaktorer}
 
 <<'Risikofaktorer', results='asis'>>=
+if (AntBekr>2) {
+  txtRisiko <- ''
     TabRisiko <- RisikofaktorerTab(RegData=RegData[which(RegData$Korona=='B'), ])$Tab
     xtable::xtable(TabRisiko,
                    digits=0,
                    align = c('l',rep('r',ncol(TabRisiko))),
                    caption='Risikofaktorer, bekreftede tilfeller')
+} else {
+  txtRisiko <- paste0('Det er registrert færre enn 3 bekreftede tilfeller i region ',
+                      valgtRHF, '.')
+}
 
 @
+
+\Sexpr{txtRisiko}
 \end{frame}
 
 

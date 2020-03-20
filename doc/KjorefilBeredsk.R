@@ -39,6 +39,7 @@ tidsenhet='dag'
 velgAvd=0
 
 oppsumFerdigeRegTab(RegData)$Tab
+statusECMOrespTab(RegData)$Tab
 TabAlder(RegData)$Tab
 test <- oppsumFerdigeRegTab(RegData)
 test <- TabAlder(RegData) #, valgtRHF = valgtRHF)

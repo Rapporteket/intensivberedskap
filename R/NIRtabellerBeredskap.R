@@ -210,6 +210,7 @@ TabFerdigeReg <- rbind(
 #' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
 TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,dodInt=9,erMann=9){#enhetsNivaa='RHF'
 
+  RegData$RHF <- as.factor(RegData$RHF)
   UtData <- NIRUtvalgBeredsk(RegData=RegData,
                              #valgtRHF=valgtRHF,
                              bekr=bekr,
