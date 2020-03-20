@@ -37,6 +37,7 @@ valgtRHF <- 'Alle'
 tidsenhet='dag'
 velgAvd=0
 
+TabAlder(RegData)$Tab
 test <- oppsumFerdigeRegTab(RegData)
 test <- TabAlder(RegData) #, valgtRHF = valgtRHF)
 TabTidEnhet(RegData, tidsenhet='dag', valgtRHF =valgtRHF )
