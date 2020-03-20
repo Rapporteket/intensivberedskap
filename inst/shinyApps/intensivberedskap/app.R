@@ -213,15 +213,17 @@ server <- function(input, output, session) {
     egetHF <- as.character(CoroData$HF[indReshEgen])
     egenLokalitet <- c(0, 2, 4, 7)
     names(egenLokalitet) <- c('hele landet', egetShNavn, egetRHF)
+  } else {
+    egetRHF <- 'Alle'
   }
 
 
     if (rolle != 'SC') {
     updateSelectInput(session, "valgtRHF",
-                      choices = c('Alle', egetRHF))
+                      choices = unique(c('Alle', egetRHF)))
                                   #CoroData$RHF[match(reshID, CoroData$ReshId)]))
     updateSelectInput(session, "valgtRHFabb",
-                        choices = c('Alle', egetRHF))
+                        choices = unique(c('Alle', egetRHF)))
                                     #CoroData$RHF[match(reshID, CoroData$ReshId)]))
     }
 
