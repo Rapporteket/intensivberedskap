@@ -232,7 +232,7 @@ server <- function(input, output, session) {
                       choices = unique(c('Alle', egetRHF)))
                                   #CoroData$RHF[match(reshID, CoroData$ReshId)]))
     updateSelectInput(session, "valgtRHFabb",
-                        choices = unique(c('Alle', egetRHF)))
+                        choices = egetRHF) #unique(c('Alle', egetRHF)))
                                     #CoroData$RHF[match(reshID, CoroData$ReshId)]))
     }
 
@@ -270,11 +270,13 @@ server <- function(input, output, session) {
   #-------- Laste ned Samlerapport------------
 
   output$CoroRapp.pdf <- downloadHandler(
+    valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHF)),
     filename = function(){
       paste0('CoronaRapport', Sys.time(), '.pdf')},
     content = function(file){
       henteSamlerapporterBered(file, rnwFil="BeredskapCorona.Rnw",
-                               valgtRHF = as.character(input$valgtRHF),
+                               #rolle = rolle,
+                               valgtRHF = valgtRHF, #as.character(input$valgtRHF),
                           reshID = reshID) #Vurder å ta med tidsinndeling eller startdato
     }
   )
@@ -435,7 +437,8 @@ observe({
       }
       fun <- "abonnementBeredsk"
       paramNames <- c('rnwFil', 'brukernavn', "reshID", "valgtRHF")
-      paramValues <- c(rnwFil, brukernavn, reshID, input$valgtRHFabb) #input$subscriptionFileFormat)
+      #valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHFabb))
+      paramValues <- c(rnwFil, brukernavn, reshID, as.character(input$valgtRHFabb)) #valgtRHF) #
 
       #test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
       #                       reshID=105460)

@@ -12,8 +12,9 @@
 #' @export
 
 henteSamlerapporterBered <- function(filnavn, rnwFil, reshID=0, Rpakke='intensivberedskap',
-                                     valgtRHF = 'Alle',
+                                     valgtRHF = 'Alle', #rolle='LU',
                                 datoFra=Sys.Date()-180, datoTil=Sys.Date()) {
+  #valgtRHF <- ifelse(rolle=='SC', valgtRHF=valgtRHF, }
   tmpFile <- paste0('tmp',rnwFil)
   src <- normalizePath(system.file(rnwFil, package=Rpakke))
   # gå til tempdir. Har ikke skriverettigheter i arbeidskatalog
