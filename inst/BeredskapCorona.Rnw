@@ -163,6 +163,12 @@ xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
                digits=0,
                align = c('l','r','r'),
                caption='Bruk av Respirator/ECMO.')
+
+xtable::xtable(oppsumFerdigeRegTab(RegData=CoroData, valgtRHF=valgtRHF)$Tab,
+               digits=0,
+               align = c('l','r','c','r', 'r'),
+               caption='Bekreftede tilfeller, ferdigstilte registreringer.
+               IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet, mens det er 25% som er mindre og 25% som er større.')
 @
 \end{frame}
 

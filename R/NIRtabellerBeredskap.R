@@ -151,42 +151,47 @@ return(UtData)
 #' @return
 #' @export
 #'
-oppsumLiggetiderTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, dodInt=9){
+oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', erMann=9, dodInt=9){
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
-                             bekr = bekr,
+                             bekr = 1,
                               skjemastatus=2)
 RegData <- UtData$RegData
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
   AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)
   AntBruktECMO <- sum(RegData$ECMOTid>0, na.rm=T)
-  AntUtInt <- sum(RegData$DateDischargedIntensive>0, na.rm=T)
+  #AntUtInt <- sum(RegData$DateDischargedIntensive>0, na.rm=T)
   Liggetid <- summary(RegData$liggetid, na.rm = T)
   RespTid <- summary(RegData$RespTid, na.rm = T)
   ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
   Alder <- summary(RegData$Alder, na.rm = T)
+  AntDod <- sum(RegData$DischargedIntensivStatus==1, na.rm=T)
 
 med_IQR <- function(x){
-  c(sprintf('%.1f',x[3]), paste(sprintf('%.f',x[2]), sprintf('%.1f',x[5]), sep=' - '))}
+  x[is.na(x)]<-0
+  c(sprintf('%.1f',x[3]), paste(sprintf('%.1f',x[2]), sprintf('%.1f',x[5]), sep=' - '))
+  }
 # x <- Liggetid
-# test <- sprintf('%.2f',c(x[2],x[5]))
-#med_IQR(Liggetid)
-
-TabLiggetider <- rbind(
-    'ECMO-tid,' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/AntUtInt))),
-    'Respiratortid' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/AntUtInt))),
-    'Liggetid' = c(med_IQR(Liggetid),AntUtInt, ''),
-    'Alder' = c(med_IQR(Alder),AntUtInt, '')
+#  test <- sprintf('%.2f',c(x[2],x[5]))
+# test <- med_IQR(ECMOtid)
+TabFerdigeReg <- rbind(
+    'ECMO-tid,' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/N))),
+    'Respiratortid' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/N))),
+    'Liggetid' = c(med_IQR(Liggetid), N, ''),
+    'Alder' = c(med_IQR(Alder), N, ''),
+    'Døde' = c('','',AntDod, paste0(sprintf('%.f',100*AntDod/N),'%'))
   )
-  colnames(TabLiggetider) <- c('Median', 'IQR', 'Antall', 'Andel')
-  TabLiggetider[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabLiggetider[1:2,'Andel'])),'%')
-  xtable::xtable(TabLiggetider,
+#TabFerdigeReg[TabFerdigeReg==NA]<-""
+  colnames(TabFerdigeReg) <- c('Median', 'IQR', 'Antall', 'Andel')
+  TabFerdigeReg[c(1:2),'Andel'] <-
+    paste0(sprintf('%.0f', as.numeric(TabFerdigeReg[c(1:2),'Andel'])),'%')
+  xtable::xtable(TabFerdigeReg,
                  digits=0,
                  align = c('l','r','c', 'r','r'),
-                 caption='Liggetider og ECMO/respiratorbruk, ferdigstilte opphold. \\
+                 caption='Liggetider og ECMO/respiratorbruk, ferdigstilte opphold.
                  IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet.')
-  return(invisible(UtData <- list(Tab=TabLiggetider,
+  return(invisible(UtData <- list(Tab=TabFerdigeReg,
                                   utvalgTxt=UtData$utvalgTxt,
                                   Ntest=N)))
 }
@@ -206,15 +211,17 @@ TabLiggetider <- rbind(
 TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,dodInt=9,erMann=9){#enhetsNivaa='RHF'
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData,
-                              bekr=bekr,
+                             #valgtRHF=valgtRHF,
+                             bekr=bekr,
                              dodInt = dodInt,
                              erMann = erMann,
-                              skjemastatus=skjemastatus,
-                              valgtRHF=valgtRHF)
+                              skjemastatus=skjemastatus
+                              )
   RegData <- UtData$RegData
 
-  enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
-  RegData$EnhetsNivaaVar <- RegData[ , enhetsNivaa]
+ # enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'RHF') #'HF')
+ RegData$EnhetsNivaaVar <- RegData$RHF #RegData[ , enhetsNivaa]
+
 N <- dim(RegData)[1]
 gr <- seq(0, 90, ifelse(N<100, 25, 10) )
 RegData$AldersGr <- cut(RegData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
@@ -224,9 +231,9 @@ grtxt <- if(N<100){c('0-24', '25-49', "50-74", "75+")} else {
 levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
 TabAlder <- table(RegData$AldersGr, RegData$EnhetsNivaaVar)
 TabAlder <- addmargins(TabAlder)
-colnames(TabAlder)[ncol(TabAlder)] <- switch(enhetsNivaa,
-                                               RHF = 'Totalt',
-                                               HF = paste0(valgtRHF, ', totalt'))
+colnames(TabAlder)[ncol(TabAlder)] <- 'Hele landet'
+  #switch(enhetsNivaa, RHF = 'Totalt', HF = paste0(valgtRHF, ', totalt'))
+if (valgtRHF != 'Alle') {TabAlder <- TabAlder[,c(valgtRHF, 'Hele landet')]}
 return(invisible(UtData <- list(Tab=TabAlder, utvalgTxt=UtData$utvalgTxt)))
 }
 
@@ -254,8 +261,8 @@ oppsumAldKjTabIkkeKlar <- function(RegData, erMann=9, bekr=9, skjemastatus=9,
     'Andel kvinner' <- 100*mean(RegData$erMann, na.rm=T)
   )
   colnames(TabAldKj) <- c('Median', 'IQR', 'Antall', 'Andel')
-  TabLiggetider[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabLiggetider[1:2,'Andel'])),'%')
-  xtable::xtable(TabLiggetider,
+  TabFerdigeReg[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabFerdigeReg[1:2,'Andel'])),'%')
+  xtable::xtable(TabFerdigeReg,
                  digits=0,
                  align = c('l','r','c', 'r','r'),
                  caption='Liggetider og ECMO/respiratorbruk, ferdigstilte opphold. \\

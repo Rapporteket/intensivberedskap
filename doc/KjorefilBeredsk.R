@@ -19,6 +19,7 @@ knitr::knit2pdf('BeredskapCorona.Rnw') #, encoding = 'UTF-8')
 
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+library(intensivberedskap)
 CoroData <- NIRberedskDataSQL()
 RegData <- NIRPreprosessBeredsk(CoroData)
 CoroData <- RegData
@@ -31,10 +32,12 @@ erMann=9
 bekr=9
 skjemastatus=9
 dodInt=9
-valgtRHF=RegData$RHF[3] #'Alle' #
+valgtRHF <-RegData$RHF[3] #'Alle' #
+valgtRHF <- 'Alle'
 tidsenhet='dag'
 velgAvd=0
 
+test <- oppsumFerdigeRegTab(RegData)
 test <- TabAlder(RegData) #, valgtRHF = valgtRHF)
 TabTidEnhet(RegData, tidsenhet='dag', valgtRHF =valgtRHF )
 

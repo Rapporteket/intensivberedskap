@@ -141,9 +141,9 @@ ui <- tagList(
                                tableOutput('tabECMOrespirator')
                         ),
                       column(width=5, offset=1,
-                             h4('Fullførte registreringer'),
+                             h4('Fullførte registreringer for bekreftede Covid-19'),
                              uiOutput('utvalgLiggetid'),
-                             tableOutput('tabOppsumLiggetider')
+                             tableOutput('tabFerdigeReg')
                       )),
 
                       h3('Antall intensivopphold'),
@@ -180,7 +180,6 @@ ui <- tagList(
                  actionButton("subscribe", "Bestill!")
                ),
                 mainPanel(
-                  #h3('Mulighet for å abonnere på rapport kommer...', style = "color:red"),
                h4('NB: Abonnementet løper til det sies opp. '),
                uiOutput("subscriptionContent")
                 )
@@ -323,15 +322,15 @@ observe({
   output$utvalgNaa <- renderUI({h5(HTML(paste0(statusNaaTab$utvalgTxt, '<br />'))) })
 
   #Tab ferdigstilte
-  TabFerdig <- oppsumLiggetiderTab(RegData=CoroData,
+  TabFerdig <- oppsumFerdigeRegTab(RegData=CoroData,
                                      valgtRHF=input$valgtRHF,
-                                     bekr=as.numeric(input$bekr),
                                      erMann=as.numeric(input$erMann))
 
-  output$tabOppsumLiggetider<- if (TabFerdig$Ntest>2){
+  output$tabFerdigeReg <- if (TabFerdig$Ntest>0){
     renderTable({TabFerdig$Tab}, rownames = T, digits=0, spacing="xs")}else {
       renderText('Få registreringer (N<3)')}
-  output$utvalgLiggetid <- renderUI({h5(HTML(paste0(TabFerdig$utvalgTxt, '<br />'))) })
+
+  output$utvalgFerdigeReg <- renderUI({h5(HTML(paste0(TabFerdig$utvalgTxt, '<br />'))) })
 
   #Tab risiko
   RisikoTab <- RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',
