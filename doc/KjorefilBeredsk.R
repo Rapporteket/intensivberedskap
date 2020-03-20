@@ -37,6 +37,7 @@ valgtRHF <-RegData$RHF[3] #'Alle' #
 valgtRHF <- 'Alle'
 tidsenhet='dag'
 velgAvd=0
+reshID <- 123
 
 oppsumFerdigeRegTab(RegData)$Tab
 statusECMOrespTab(RegData)$Tab

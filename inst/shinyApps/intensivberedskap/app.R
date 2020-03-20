@@ -73,9 +73,10 @@ ui <- tagList(
              useShinyjs(),
              sidebarPanel(id = 'brukervalgStartside',
                  width = 3,
-                 h3('Coronarapport med samling av resultater'),
-                 h5('Coronarapporten kan man få regelmessig tilsendt på e-post.
-                    Gå til fanen "Abonnement" for å bestille dette.'),
+                 uiOutput('CoroRappTxt'),
+                # h3('Coronarapport med samling av resultater'),
+                 # h5('Coronarapporten kan man få regelmessig tilsendt på e-post.
+                 #    Gå til fanen "Abonnement" for å bestille dette.'),
                  downloadButton(outputId = 'CoroRapp.pdf', label='Last ned Coronarapport', class = "butt"),
                  tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                  br(),
@@ -132,7 +133,7 @@ ui <- tagList(
                        h3('Resultater fra intensivregisterets beredskapsskjema for mistenkt/bekreftet
                        Coronasmitte.'),
                        h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
-                      h3('Siden er under utvikling... ', style = "color:red"),
+                      h5('Siden er under utvikling... ', style = "color:red"),
                       br(),
                       fluidRow(
                         column(width = 3,
@@ -166,6 +167,7 @@ ui <- tagList(
 #-----------Abonnement--------------------------------
     tabPanel(p("Abonnement",
              title='Bestill automatisk utsending av rapporter på e-post'),
+             value = 'Abonnement',
              sidebarLayout(
                sidebarPanel(width = 3,
                  selectInput("subscriptionRep", "Dokument:", c("Koronarapport")),
@@ -206,8 +208,9 @@ server <- function(input, output, session) {
   rolle <- ifelse(paaServer, rapbase::getUserRole(shinySession=session), 'SC')
   brukernavn <- ifelse(paaServer, rapbase::getUserName(shinySession=session), 'brukernavn')
 
-  if (reshID %in% unique(CoroData$ReshId)) {
-    indReshEgen <- match(reshID, CoroData$ReshId)
+  regEgenResh <- reshID %in% unique(CoroData$ReshId)
+  if (regEgenResh) {
+    indREgen <- match(reshID, CoroData$ReshId)
     egetShNavn <- as.character(CoroData$ShNavn[indReshEgen])
     egetRHF <- as.character(CoroData$RHF[indReshEgen])
     egetHF <- as.character(CoroData$HF[indReshEgen])
@@ -217,7 +220,12 @@ server <- function(input, output, session) {
     egetRHF <- 'Alle'
   }
 
-
+  observe({if ((rolle != 'SC') & !(regEgenResh)) { #
+    shinyjs::hide(id = 'CoroRapp.pdf')
+    shinyjs::hide(id = 'CoroRappTxt')
+    hideTab(inputId = "hovedark", target = "Abonnement")
+  }
+  })
     if (rolle != 'SC') {
     updateSelectInput(session, "valgtRHF",
                       choices = unique(c('Alle', egetRHF)))
@@ -226,6 +234,8 @@ server <- function(input, output, session) {
                         choices = unique(c('Alle', egetRHF)))
                                     #CoroData$RHF[match(reshID, CoroData$ReshId)]))
     }
+
+
 
   # widget
   if (paaServer) {
@@ -267,6 +277,17 @@ server <- function(input, output, session) {
                           reshID = reshID) #Vurder å ta med tidsinndeling eller startdato
     }
   )
+
+  output$CoroRappTxt <- renderUI(tagList(
+    h3(HTML('Coronarapport med samling av resultater')),
+    h5(HTML('Coronarapporten kan man få regelmessig tilsendt på e-post.
+                    Gå til fanen "Abonnement" for å bestille dette')))
+  )
+
+  #   renderUI(h3('Coronarapport med samling av resultater'))
+  # output$CoroRappTxtL2 <-  renderUI(h5('Coronarapporten kan man få regelmessig tilsendt på e-post.
+  #                   Gå til fanen "Abonnement" for å bestille dette'))
+
 
   #----------Resultater som tekst--------------
 
