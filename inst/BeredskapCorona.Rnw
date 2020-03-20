@@ -43,6 +43,7 @@ if (!exists('CoroData')){
 #NB: Har benyttet FormDate benyttes som hoveddato. Gjelder også influensa
 RegData <- NIRPreprosessBeredsk(RegData=CoroData)
 enhetsNivaa <- 'RHF'
+RegDataLandet <- RegData
 if (valgtRHF!='Alle'){
   RegData <- subset(RegData, RegData$RHF == valgtRHF)
   RegData$RHF <- as.character(RegData$RHF)
@@ -93,8 +94,7 @@ Coronarapportering fra NIR}
 Dette er en automatisk generert rapport fra Norsk Intensivregister (NIR).
 Dokumentet inneholder oppsummering av Coronatilfeller hos pasienter som
 kvalifiserer for rapportering til NIR.
-Coronatilfellene er rapportert i eget skjema i registeret, og data fra dette skjemaet danner grunnlaget
-for denne rapporten.
+Mistenkte og bekreftede Coronatilfeller er rapportert i eget skjema i registeret, og data fra dette skjemaet danner grunnlaget for denne rapporten.
 \\
 
 %\bf{Merk at:}

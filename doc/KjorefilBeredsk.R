@@ -7,13 +7,14 @@ library(intensivberedskap)
 # CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                        stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 CoroData <- NIRberedskDataSQL()
+valgtRHF <- 'Alle'
 valgtRHF <- as.character(NIRPreprosessBeredsk(CoroData)$RHF[3])
 system.file('intensivberedskap::BeredskapCorona.Rnw'
             )
 #setwd('C:/ResultattjenesteGIT/intensivberedskap/')
 #knit('C:/ResultattjenesteGIT/intensivberedskap/inst/BeredskapCorona.Rnw', encoding = 'UTF-8')
 #tools::texi2pdf(file='BeredskapCorona.tex')
-knitr::knit2pdf('BeredskapCorona.Rnw') #, encoding = 'UTF-8')
+knitr::knit2pdf('inst/BeredskapCorona.Rnw') #, encoding = 'UTF-8')
 
 #/home/rstudio/rap_config/autoReport.yml
 
@@ -37,6 +38,7 @@ valgtRHF <- 'Alle'
 tidsenhet='dag'
 velgAvd=0
 
+oppsumFerdigeRegTab(RegData)$Tab
 TabAlder(RegData)$Tab
 test <- oppsumFerdigeRegTab(RegData)
 test <- TabAlder(RegData) #, valgtRHF = valgtRHF)

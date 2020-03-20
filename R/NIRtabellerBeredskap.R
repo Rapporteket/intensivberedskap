@@ -169,7 +169,7 @@ RegData <- UtData$RegData
   AntDod <- sum(RegData$DischargedIntensivStatus==1, na.rm=T)
 
 med_IQR <- function(x){
-  x[is.na(x)]<-0
+  #x[is.na(x)]<-0
   c(sprintf('%.1f',x[3]), paste(sprintf('%.1f',x[2]), sprintf('%.1f',x[5]), sep=' - '))
   }
 # x <- Liggetid
