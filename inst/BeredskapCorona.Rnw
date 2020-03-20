@@ -51,7 +51,7 @@ if (valgtRHF!='Alle'){
   }
 datoStart <- '2020-03-01'
 
-tittelRHF <- c('Coronarapportering fra NIR, ',
+tittelRHF <- paste0('Coronarapportering fra NIR, ',
                paste0('registreringer fra ', ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)))
   # RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann,
   #                             bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,

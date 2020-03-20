@@ -142,7 +142,7 @@ ui <- tagList(
                         ),
                       column(width=5, offset=1,
                              h4('Fullførte registreringer for bekreftede Covid-19'),
-                             uiOutput('utvalgLiggetid'),
+                             uiOutput('utvalgFerdigeReg'),
                              tableOutput('tabFerdigeReg')
                       )),
 
@@ -326,8 +326,8 @@ observe({
                                      valgtRHF=input$valgtRHF,
                                      erMann=as.numeric(input$erMann))
 
-  output$tabFerdigeReg <- if (TabFerdig$Ntest>0){
-    renderTable({TabFerdig$Tab}, rownames = T, digits=0, spacing="xs")}else {
+  output$tabFerdigeReg <- if (TabFerdig$Ntest>2){
+    renderTable({TabFerdig$Tab}, rownames = T, digits=0, spacing="xs")} else {
       renderText('Få registreringer (N<3)')}
 
   output$utvalgFerdigeReg <- renderUI({h5(HTML(paste0(TabFerdig$utvalgTxt, '<br />'))) })
