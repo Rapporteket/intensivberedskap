@@ -15,7 +15,9 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                               bekr=bekr, skjemastatus=skjemastatus,
                               dodInt=dodInt, valgtRHF=valgtRHF) #velgAvd=velgAvd
-RegData <- UtData$RegData
+
+  RegDataAlle <- RegData
+  RegData <- UtData$RegData
   TidsVar <- switch (tidsenhet,
                      dag = 'Dag',
                      uke = 'UkeNr',
@@ -143,7 +145,7 @@ return(UtData)
 }
 
 
-#' Liggetider og antall som har vært i ECMO/respirator
+#' Ferdigstilte registreringer
 #'
 #' @param RegData beredskapsskjema
 #' @inheritParams NIRUtvalgBeredsk
@@ -151,10 +153,11 @@ return(UtData)
 #' @return
 #' @export
 #'
-oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', erMann=9, dodInt=9){
+oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, dodInt=9){
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
-                             bekr = 1,
+                             bekr = bekr,
+                             #erMann = erMann,
                               skjemastatus=2)
 RegData <- UtData$RegData
   N <- dim(RegData)[1]
@@ -176,20 +179,20 @@ med_IQR <- function(x){
 #  test <- sprintf('%.2f',c(x[2],x[5]))
 # test <- med_IQR(ECMOtid)
 TabFerdigeReg <- rbind(
-    'ECMO-tid,' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/N))),
-    'Respiratortid' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/N))),
-    'Liggetid' = c(med_IQR(Liggetid), N, ''),
-    'Alder' = c(med_IQR(Alder), N, ''),
+    'ECMO-tid (døgn)' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/N))),
+    'Respiratortid (døgn)' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/N))),
+    'Liggetid (døgn)' = c(med_IQR(Liggetid), N, ''),
+    'Alder (år)' = c(med_IQR(Alder), N, ''),
     'Døde' = c('','',AntDod, paste0(sprintf('%.f',100*AntDod/N),'%'))
   )
 #TabFerdigeReg[TabFerdigeReg==NA]<-""
-  colnames(TabFerdigeReg) <- c('Median', 'IQR', 'Antall', 'Andel')
-  TabFerdigeReg[c(1:2),'Andel'] <-
-    paste0(sprintf('%.0f', as.numeric(TabFerdigeReg[c(1:2),'Andel'])),'%')
+  colnames(TabFerdigeReg) <- c('Median', 'IQR', 'Antall opphold', 'Andel opphold')
+  TabFerdigeReg[c(1:2),'Andel opphold'] <-
+    paste0(sprintf('%.0f', as.numeric(TabFerdigeReg[c(1:2),'Andel opphold'])),'%')
   xtable::xtable(TabFerdigeReg,
                  digits=0,
                  align = c('l','r','c', 'r','r'),
-                 caption='Liggetider og ECMO/respiratorbruk, ferdigstilte opphold.
+                 caption='Ferdigstilte opphold.
                  IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet.')
   return(invisible(UtData <- list(Tab=TabFerdigeReg,
                                   utvalgTxt=UtData$utvalgTxt,

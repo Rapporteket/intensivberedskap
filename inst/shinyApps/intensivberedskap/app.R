@@ -141,7 +141,7 @@ ui <- tagList(
                                tableOutput('tabECMOrespirator')
                         ),
                       column(width=5, offset=1,
-                             h4('Fullførte registreringer for bekreftede Covid-19'),
+                             h4('Fullførte registreringer '),
                              uiOutput('utvalgFerdigeReg'),
                              tableOutput('tabFerdigeReg')
                       )),
@@ -208,8 +208,8 @@ server <- function(input, output, session) {
   rolle <- ifelse(paaServer, rapbase::getUserRole(shinySession=session), 'SC')
   brukernavn <- ifelse(paaServer, rapbase::getUserName(shinySession=session), 'brukernavn')
 
-  regEgenResh <- reshID %in% unique(CoroData$ReshId)
-  if (regEgenResh) {
+  finnesEgenResh <- reshID %in% unique(CoroData$ReshId)
+  if (finnesEgenResh) {
     indReshEgen <- match(reshID, CoroData$ReshId)
     egetShNavn <- as.character(CoroData$ShNavn[indReshEgen])
     egetRHF <- as.character(CoroData$RHF[indReshEgen])
@@ -217,10 +217,10 @@ server <- function(input, output, session) {
     egenLokalitet <- c(0, 2, 4, 7)
     names(egenLokalitet) <- c('hele landet', egetShNavn, egetRHF)
   } else {
-    egetRHF <- 'Alle'
+    egetRHF <- 'Ukjent'
   }
 
-  observe({if ((rolle != 'SC') & !(regEgenResh)) { #
+  observe({if ((rolle != 'SC') & !(finnesEgenResh)) { #
     shinyjs::hide(id = 'CoroRapp.pdf')
     shinyjs::hide(id = 'CoroRappTxt')
     hideTab(inputId = "hovedark", target = "Abonnement")
@@ -228,7 +228,7 @@ server <- function(input, output, session) {
   })
     if (rolle != 'SC') {
     updateSelectInput(session, "valgtRHF",
-                      choices = unique(c('Alle', egetRHF)))
+                      choices = egetRHF) #unique(c('Alle', egetRHF)))
                                   #CoroData$RHF[match(reshID, CoroData$ReshId)]))
     updateSelectInput(session, "valgtRHFabb",
                         choices = egetRHF) #unique(c('Alle', egetRHF)))
@@ -306,6 +306,7 @@ server <- function(input, output, session) {
 observe({
   observeEvent(input$tilbakestillValg, shinyjs::reset("brukervalgStartside"))
 
+  #if (rolle == 'LU'){valgt$RHF == egetRHF}
   AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag', #enhetsNivaa='RHF',
                       valgtRHF= as.character(input$valgtRHF),
                       skjemastatus=as.numeric(input$skjemastatus),
@@ -350,6 +351,7 @@ observe({
   #Tab ferdigstilte
   TabFerdig <- oppsumFerdigeRegTab(RegData=CoroData,
                                      valgtRHF=input$valgtRHF,
+                                   bekr = input$bekr,
                                      erMann=as.numeric(input$erMann))
 
   output$tabFerdigeReg <- if (TabFerdig$Ntest>2){
@@ -437,7 +439,7 @@ observe({
       }
       fun <- "abonnementBeredsk"
       paramNames <- c('rnwFil', 'brukernavn', "reshID", "valgtRHF")
-      #valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHFabb))
+
       paramValues <- c(rnwFil, brukernavn, reshID, as.character(input$valgtRHFabb)) #valgtRHF) #
 
       #test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
