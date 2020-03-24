@@ -268,10 +268,10 @@ server <- function(input, output, session) {
 
 
   #-------- Laste ned Samlerapport------------
-
+  observe({
+  valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHF))
   output$CoroRapp.pdf <- downloadHandler(
-    valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHF)),
-    filename = function(){
+      filename = function(){
       paste0('CoronaRapport', Sys.time(), '.pdf')},
     content = function(file){
       henteSamlerapporterBered(file, rnwFil="BeredskapCorona.Rnw",
@@ -280,6 +280,7 @@ server <- function(input, output, session) {
                           reshID = reshID) #Vurder å ta med tidsinndeling eller startdato
     }
   )
+})
 
   output$CoroRappTxt <- renderUI(tagList(
     h3(HTML('Coronarapport med samling av resultater')),
@@ -307,14 +308,14 @@ observe({
   observeEvent(input$tilbakestillValg, shinyjs::reset("brukervalgStartside"))
 
   AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag', #enhetsNivaa='RHF',
-                      valgtRHF= input$valgtRHF,
+                      valgtRHF= as.character(input$valgtRHF),
                       skjemastatus=as.numeric(input$skjemastatus),
                       bekr=as.numeric(input$bekr),
                       #dodInt=as.numeric(input$dodInt),
                       erMann=as.numeric(input$erMann)
   )
       UtData <- NIRUtvalgBeredsk(RegData=CoroData,
-                                 valgtRHF= input$valgtRHF,
+                                 valgtRHF= as.character(input$valgtRHF),
                                  skjemastatus=as.numeric(input$skjemastatus),
                                  bekr=as.numeric(input$bekr),
                                  #dodInt=as.numeric(input$dodInt),

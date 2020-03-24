@@ -114,8 +114,8 @@ av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
 
 \begin{frame}[fragile] {Corona, antall registreringer}
 
-Registrerte tilfeller per dag og totalt antall tilfeller.
-Registreringer hvor diagnose ikke er angitt, er klassifiserte som mistenkte tilfeller.
+% Registrerte tilfeller per dag og totalt antall tilfeller.
+% Registreringer hvor diagnose ikke er angitt, er klassifiserte som mistenkte tilfeller.
 
 <<'TabTot', results='asis'>>=
 #TabRHF <- table(RegData$Dag, RegData$RHF)
