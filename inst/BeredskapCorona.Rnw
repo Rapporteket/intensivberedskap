@@ -29,14 +29,14 @@ library(xtable)
 #«ICD-11-kode: J10» (mistenkt Corona),
 context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
 paaServer <- context %in% c("DEV", "TEST", "QA", "PRODUCTION")
-if (!exists('CoroData')){
+#if (!exists('CoroData')){
   if (paaServer) {
     CoroData <- NIRberedskDataSQL()
   # } else {
   #   CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
   #                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
    } #hente data
-}
+#}
 @
 
 <<'tilrettelegg', include=FALSE>>=
@@ -76,7 +76,7 @@ antFerdig <- length(indFerdig)
 antSkjema <- dim(RegData)[1]
 N <- antSkjema
 AntDode <- sum(RegData$DischargedIntensivStatus==1)
-DodBekr <- sum(RegData[which(RegData$Bekreftet==1)]$DischargedIntensivStatus==1)
+DodBekr <- sum(RegData[which(RegData$Bekreftet==1), ]$DischargedIntensivStatus==1)
 AntBekr <- sum(RegData$Bekreftet==1)
 @
 

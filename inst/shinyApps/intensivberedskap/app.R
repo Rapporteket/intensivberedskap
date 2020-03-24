@@ -11,7 +11,6 @@ library(shiny)
 library(shinyjs)
 library(magrittr)
 library(rapbase)
-library(intensiv)
 library(intensivberedskap)
 
 addResourcePath('rap', system.file('www', package='rapbase'))

@@ -9,8 +9,6 @@ library(intensivberedskap)
 CoroData <- NIRberedskDataSQL()
 valgtRHF <- 'Alle'
 valgtRHF <- as.character(NIRPreprosessBeredsk(CoroData)$RHF[3])
-system.file('intensivberedskap::BeredskapCorona.Rnw'
-            )
 #setwd('C:/ResultattjenesteGIT/intensivberedskap/')
 #knit('C:/ResultattjenesteGIT/intensivberedskap/inst/BeredskapCorona.Rnw', encoding = 'UTF-8')
 #tools::texi2pdf(file='BeredskapCorona.tex')
