@@ -236,8 +236,7 @@ print(xtable::xtable(TabKjonn, digits=0, #method='compact', #align=c('l', rep('r
 \end{frame}
 
 
-\begin{frame}[fragile] {Corona, aldersfordeling}
-
+\begin{frame}[fragile] {Corona, aldersfordeling, alle}
 
 <<'TabAlder', results='asis'>>=
 Alder <- round(summary(RegData$Alder))
@@ -252,7 +251,7 @@ txtBekr <- if (AntBekr>2){paste0('For bekreftede tilfeller er alderen mellom ',
 @
 %De registrerte er mellom \Sexpr{Alder[1]} og \Sexpr{Alder[6]} år med en gjennomsnittsalder på \Sexpr{Alder[4]}.
 \Sexpr{txtAlle}
-\Sexpr{txtBekr}
+
 % For bekreftede tilfeller er alderen mellom \Sexpr{AlderBekr[1]} og \Sexpr{AlderBekr[6]} år
 % med en snittsalder på \Sexpr{AlderBekr[4]}.
 
@@ -261,7 +260,15 @@ txtBekr <- if (AntBekr>2){paste0('For bekreftede tilfeller er alderen mellom ',
 xtable::xtable(TabAlder(RegDataAlle, valgtRHF=valgtRHF)$Tab,
                digits = 0,
                caption='Fordeling i aldersgrupper')
-#TabAlder(RegData=RegData)$Tab
+
+@
+\end{frame}
+
+
+\begin{frame}[fragile] {Corona, aldersfordeling, bekreftede}
+\Sexpr{txtBekr}
+<<'TabAlderBekr', results='asis'>>=
+
 xtable::xtable(TabAlder(RegData=RegDataAlle #RegDataAlle[which(RegDataAlle$Bekreftet==1), ]
                         , bekr = 1
                         , valgtRHF=valgtRHF)$Tab,
