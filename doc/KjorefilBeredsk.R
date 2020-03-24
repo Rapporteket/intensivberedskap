@@ -33,16 +33,20 @@ skjemastatus=9
 dodInt=9
 valgtRHF <-RegData$RHF[3] #'Alle' #
 valgtRHF <- 'Alle'
+valgtRHF <- 'Ukjent'
 tidsenhet='dag'
 velgAvd=0
-reshID <- 102090
+reshID <- 123 #102090
+
+
+TabTidEnhet(RegData=RegData, valgtRHF ='Midt-Norge')$Tab
+TabAlder(RegData, valgtRHF='Ukjent')$Tab
 
 oppsumFerdigeRegTab(RegData)$Tab
 statusECMOrespTab(RegData)$Tab
-TabAlder(RegData)$Tab
 test <- oppsumFerdigeRegTab(RegData)
 test <- TabAlder(RegData) #, valgtRHF = valgtRHF)
-TabTidEnhet(RegData, tidsenhet='dag', valgtRHF =valgtRHF )
+
 
 statusECMOrespTab(CoroData)
 RisikofaktorerTab(RegData, erMann = 1)

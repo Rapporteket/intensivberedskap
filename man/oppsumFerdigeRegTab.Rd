@@ -2,12 +2,20 @@
 % Please edit documentation in R/NIRtabellerBeredskap.R
 \name{oppsumFerdigeRegTab}
 \alias{oppsumFerdigeRegTab}
-\title{Liggetider og antall som har vært i ECMO/respirator}
+\title{Ferdigstilte registreringer}
 \usage{
-oppsumFerdigeRegTab(RegData, valgtRHF = "Alle", erMann = 9, dodInt = 9)
+oppsumFerdigeRegTab(
+  RegData,
+  valgtRHF = "Alle",
+  bekr = 9,
+  erMann = 9,
+  dodInt = 9
+)
 }
 \arguments{
 \item{RegData}{beredskapsskjema}
+
+\item{bekr}{1-bekreftet, 0-mistenkt tilfelle}
 
 \item{erMann}{kjønn, 0-kvinne, 1-mann}
 
@@ -17,5 +25,5 @@ oppsumFerdigeRegTab(RegData, valgtRHF = "Alle", erMann = 9, dodInt = 9)
 
 }
 \description{
-Liggetider og antall som har vært i ECMO/respirator
+Ferdigstilte registreringer
 }

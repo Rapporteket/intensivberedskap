@@ -50,7 +50,7 @@ CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
 #Definere utvalgsinnhold
 #sykehusNavn <- sort(c('',unique(CoroData$ShNavn)), index.return=T)
 #sykehusValg <- c(0,unique(CoroData$ReshId))[sykehusNavn$ix]
-rhfNavn <- c('Alle', as.character(sort(unique(CoroData$RHF))))
+rhfNavn <- c('Alle', as.character(sort(unique(CoroData$RHF))), 'Ukjent')
 hfNavn <- sort(unique(CoroData$HF)) #, index.return=T)
 sykehusNavn <- sort(unique(CoroData$ShNavn), index.return=T)
 sykehusValg <- unique(CoroData$ReshId)[sykehusNavn$ix]
@@ -219,6 +219,7 @@ server <- function(input, output, session) {
   } else {
     egetRHF <- 'Ukjent'
   }
+  egetRHF <- ifelse(rolle=='SC', 'Alle', egetRHF)
 
   observe({if ((rolle != 'SC') & !(finnesEgenResh)) { #
     shinyjs::hide(id = 'CoroRapp.pdf')
@@ -228,7 +229,7 @@ server <- function(input, output, session) {
   })
     if (rolle != 'SC') {
     updateSelectInput(session, "valgtRHF",
-                      choices = egetRHF) #unique(c('Alle', egetRHF)))
+                      choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle', egetRHF))))
                                   #CoroData$RHF[match(reshID, CoroData$ReshId)]))
     updateSelectInput(session, "valgtRHFabb",
                         choices = egetRHF) #unique(c('Alle', egetRHF)))
@@ -302,20 +303,21 @@ server <- function(input, output, session) {
 #   })
   #----------Tabeller----------------------------
 
-#skjemastatus, bekr, dodInt
 observe({
   observeEvent(input$tilbakestillValg, shinyjs::reset("brukervalgStartside"))
 
-  #if (rolle == 'LU'){valgt$RHF == egetRHF}
-  AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag', #enhetsNivaa='RHF',
-                      valgtRHF= as.character(input$valgtRHF),
+  valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+
+  AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
+                      valgtRHF= valgtRHF,
                       skjemastatus=as.numeric(input$skjemastatus),
                       bekr=as.numeric(input$bekr),
                       #dodInt=as.numeric(input$dodInt),
                       erMann=as.numeric(input$erMann)
-  )
+                      )
+
       UtData <- NIRUtvalgBeredsk(RegData=CoroData,
-                                 valgtRHF= as.character(input$valgtRHF),
+                                 valgtRHF= ifelse(valgtRHF=='Ukjent','Alle',valgtRHF),
                                  skjemastatus=as.numeric(input$skjemastatus),
                                  bekr=as.numeric(input$bekr),
                                  #dodInt=as.numeric(input$dodInt),
@@ -338,7 +340,7 @@ observe({
 
     )})
 
-  output$tabTidEnhet <- renderTable({AntTab$TabTidEnh}, rownames = T, digits=0, spacing="xs"
+  output$tabTidEnhet <- renderTable({AntTab$Tab}, rownames = T, digits=0, spacing="xs"
   )
 
 #Tab status nå
@@ -383,7 +385,7 @@ observe({
                          })
 
     TabAlder <- TabAlder(RegData=CoroData,
-                         valgtRHF=input$valgtRHF,
+                         valgtRHF= egetRHF, #input$valgtRHF,
                          #dodInt=as.numeric(input$dodInt),
                          erMann=as.numeric(input$erMann),
                          bekr=as.numeric(input$bekr),

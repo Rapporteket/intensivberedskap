@@ -12,40 +12,44 @@
 TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
                         bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
 
-  UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
-                              bekr=bekr, skjemastatus=skjemastatus,
-                              dodInt=dodInt, valgtRHF=valgtRHF) #velgAvd=velgAvd
-
-  RegDataAlle <- RegData
-  RegData <- UtData$RegData
-  TidsVar <- switch (tidsenhet,
+  RegData$TidsVar <- as.factor(RegData[ ,switch (tidsenhet,
                      dag = 'Dag',
                      uke = 'UkeNr',
-                     maaned = 'MndAar')
+                     maaned = 'MndAar')])
 
-  enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
+  UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
+                             bekr=bekr, skjemastatus=skjemastatus,
+                             dodInt=dodInt) #, valgtRHF=valgtRHF) #velgAvd=velgAvd
 
-  RegData$EnhetsNivaaVar <- RegData[ ,enhetsNivaa]
-  #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
-  #TabRHF <- table(CoroData$Dag, CoroData$RHF)
-  #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
+  RegDataAlle <- UtData$RegData
+  RegData <- if(valgtRHF=='Alle') {RegDataAlle} else {RegDataAlle[RegDataAlle$RHF == valgtRHF, ]}
 
-  TabTidEnh <- table(RegData[ , c(TidsVar, enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
+  if (valgtRHF == 'Ukjent'){
+    TabTidEnh <- as.matrix(c(table(RegDataAlle$TidsVar), dim(RegDataAlle)[1]), ncol=1)
+    colnames(TabTidEnh) <- 'Hele landet'
+  } else {
 
-  navnEnh <- unique(RegData$EnhetsNivaaVar)
-  TabTidEnh <- as.matrix(TabTidEnh)
-  #colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
+    enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
 
-  TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
-  colnames(TabTidEnh)[ncol(TabTidEnh)] <- switch(enhetsNivaa,
-                                                 RHF = 'Hele landet',
-                                                 HF = paste0(valgtRHF, ', totalt'))
-  #add.to.row <- list(pos = list(-1), command = NULL)
-  #add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
+    RegData$EnhetsNivaaVar <- RegData[ ,enhetsNivaa]
+    #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
+    #TabRHF <- table(CoroData$Dag, CoroData$RHF)
+    #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
+
+    TabTidEnh <- table(RegData[ , c('TidsVar', enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
+
+    TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
+    colnames(TabTidEnh)[ncol(TabTidEnh)] <- switch(enhetsNivaa,
+                                                   RHF = 'Hele landet',
+                                                   HF = paste0(valgtRHF, ', totalt'))
+    if (valgtRHF != 'Alle'){
+      TabTidEnh <- cbind(TabTidEnh,
+                         'Hele landet'= c(table(RegDataAlle$TidsVar), dim(RegDataAlle)[1]))}
+  }
   TabTidEnh <- xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-                              caption=paste0('Antall Coronatilfeller.'))
+                              caption='Antall Coronatilfeller.')
 
-  return(UtData <- list(TabTidEnh=TabTidEnh, UtData$utvalgTxt))
+  return(UtData <- list(Tab=TabTidEnh, UtData$utvalgTxt))
 }
 
 
@@ -155,6 +159,7 @@ return(UtData)
 #'
 oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, dodInt=9){
 
+  if (valgtRHF == 'Ukjent') {valgtRHF <- 'Alle'}
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
                              bekr = bekr,
                              #erMann = erMann,
@@ -213,6 +218,7 @@ TabFerdigeReg <- rbind(
 #' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
 TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,dodInt=9,erMann=9){#enhetsNivaa='RHF'
 
+  #if (valgtRHF != 'Alle'){RegData$RHF <- factor(RegData$RHF, levels=unique(c(levels(as.factor(RegData$RHF)), valgtRHF)))}
   RegData$RHF <- as.factor(RegData$RHF)
   UtData <- NIRUtvalgBeredsk(RegData=RegData,
                              #valgtRHF=valgtRHF,
@@ -234,41 +240,13 @@ grtxt <- if(N<100){c('0-24', '25-49', "50-74", "75+")} else {
 #grtxt <- c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))#paste(gr,sep='-')
 levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
 TabAlder <- table(RegData$AldersGr, RegData$EnhetsNivaaVar)
-TabAlder <- addmargins(TabAlder)
+TabAlder <- addmargins(TabAlder) #switch(enhetsNivaa, RHF = 'Totalt', HF = paste0(valgtRHF, ', totalt'))
+
+if (valgtRHF == 'Ukjent') {
+  TabAlder <- as.matrix(TabAlder[,ncol(TabAlder)], ncol=1) } else {
+    if (valgtRHF != 'Alle') {TabAlder <- TabAlder[,c(valgtRHF, 'Sum')]}}
 colnames(TabAlder)[ncol(TabAlder)] <- 'Hele landet'
-  #switch(enhetsNivaa, RHF = 'Totalt', HF = paste0(valgtRHF, ', totalt'))
-if (valgtRHF != 'Alle') {TabAlder <- TabAlder[,c(valgtRHF, 'Hele landet')]}
+
 return(invisible(UtData <- list(Tab=TabAlder, utvalgTxt=UtData$utvalgTxt)))
 }
 
-
-#' Nøkkeltalltabell - ikke klar
-#'
-#' @param RegData beredskapsskjema
-#' @inheritParams NIRUtvalgBeredsk
-#'
-#' @return
-#' @export
-#'
-oppsumAldKjTabIkkeKlar <- function(RegData, erMann=9, bekr=9, skjemastatus=9,
-                           dodInt=9, reshID=0, valgtRHF='Alle'){
-
-  RegData <- NIRUtvalgBeredsk(RegData=RegData, erMann=erMann, bekr=bekr,
-                              skjemastatus=skjemastatus, dodInt=dodInt,
-                              reshID=reshID, valgtRHF=reshID)$RegData
-
-  N <- dim(RegData)[1]
-
-
-  TabAldKj <- rbind(
-    'Alder, gjsn.' <- mean(RegData$Alder, na.rm = T),
-    'Andel kvinner' <- 100*mean(RegData$erMann, na.rm=T)
-  )
-  colnames(TabAldKj) <- c('Median', 'IQR', 'Antall', 'Andel')
-  TabFerdigeReg[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabFerdigeReg[1:2,'Andel'])),'%')
-  xtable::xtable(TabFerdigeReg,
-                 digits=0,
-                 align = c('l','r','c', 'r','r'),
-                 caption='Liggetider og ECMO/respiratorbruk, ferdigstilte opphold. \\
-                 IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet.')
-}
