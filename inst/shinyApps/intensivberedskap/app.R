@@ -351,7 +351,7 @@ observe({
   #Tab ferdigstilte
   TabFerdig <- oppsumFerdigeRegTab(RegData=CoroData,
                                      valgtRHF=input$valgtRHF,
-                                   bekr = input$bekr,
+                                   bekr = as.numeric(input$bekr),
                                      erMann=as.numeric(input$erMann))
 
   output$tabFerdigeReg <- if (TabFerdig$Ntest>2){
