@@ -21,21 +21,13 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
       RegData$erMann[RegData$PatientGender == 2] <- 0
       RegData$Kjonn <- factor(RegData$erMann, levels=0:1, labels=c('kvinner','menn'))
 
-      #Riktig navn på regions-variabel:
+      #Diagnoser:
       RegData$Korona <- factor(NA, levels = c('M', 'B'))
       RegData$Korona[which(RegData$Diagnosis %in% c(-1,104:107))] <- 'M'
       RegData$Korona[which(RegData$Diagnosis %in% 100:103)] <- 'B'
       RegData$Bekreftet <- 0
       RegData$Bekreftet[which(RegData$Diagnosis %in% 100:103)] <- 1
 
-      # Enhetsnivånavn
-      RegData$ShNavn <- trimws(as.character(RegData$ShNavn)) #Fjerner mellomrom (før) og etter navn
-      RegData$RHF <- sub('Helse ', '', RegData$RHF) #factor()
-      # RegData$HF <- sub(' universitetssykehus', '', RegData$HF)
-      # RegData$HF <- sub(' sykehus', '', RegData$HF)
-      # RegData$HF <- sub('Sykehuset i', '', RegData$HF)
-      # RegData$HF <- sub('Sykehuset ', '', RegData$HF)
-      # RegData$HF <- sub(' AS', '', RegData$HF)
 
 
       # Endre variabelnavn:
@@ -55,6 +47,20 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
       names(RegData)[
             names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
+      # Enhetsnivånavn
+      RegData$ShNavn <- trimws(as.character(RegData$ShNavn)) #Fjerner mellomrom (før) og etter navn
+      RegData$RHF <- sub('Helse ', '', RegData$RHF) #factor()
+      # Kode om fra Haraldsplass til RHF Vest og Lovisenberg diakonhjemmet til RHF Øst, fra priv
+      RegData$RHF[RegData$ReshId == 100180] <- 'Vest' #Haraldsplass
+      RegData$RHF[RegData$ReshId == 42088921] <- 'Sør-Øst' #Lovisenberg Diakonale
+
+      #unique(RegData[RegData$RHF=='Privat',c("ShNavn", "UnitId", "RHF")])
+
+      # RegData$HF <- sub(' universitetssykehus', '', RegData$HF)
+      # RegData$HF <- sub(' sykehus', '', RegData$HF)
+      # RegData$HF <- sub('Sykehuset i', '', RegData$HF)
+      # RegData$HF <- sub('Sykehuset ', '', RegData$HF)
+      # RegData$HF <- sub(' AS', '', RegData$HF)
 
 
       #Riktig format på datovariable:
