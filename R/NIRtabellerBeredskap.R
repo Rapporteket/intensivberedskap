@@ -201,7 +201,7 @@ TabFerdigeReg <- rbind(
     'Respiratortid (døgn)' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/N))),
     'Liggetid (døgn)' = c(med_IQR(Liggetid), N, ''),
     'Alder (år)' = c(med_IQR(Alder), N, ''),
-    'Døde' = c('','',AntDod, paste0(sprintf('%.f',100*AntDod/N),'%'))
+    'Døde' = c('','','',AntDod, paste0(sprintf('%.f',100*AntDod/N),'%'))
   )
 #TabFerdigeReg[TabFerdigeReg==NA]<-""
   colnames(TabFerdigeReg) <- c('Gj.sn', 'Median', 'IQR', 'Antall opphold', 'Andel opphold')
