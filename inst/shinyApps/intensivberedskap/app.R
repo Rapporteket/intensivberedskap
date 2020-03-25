@@ -353,18 +353,8 @@ observe({
   #Må ha egen funksjon for å få dette på sykehusnivå
   output$RegIlimbo <- renderUI({
     # AntIlibo <- AntTab$Ntest - (TabFerdig$Ntest + sum(is.na(CoroData$DateDischargedIntensive))) #RHF/alle
-    # print(AntIlibo)
     finnBurdeFerdig <- function(RegData) {sum((!(is.na(RegData$DateDischargedIntensive)) & (RegData$FormStatus!=2)))}
-    RegData <- CoroData
-    # valgtRHF <- 'Alle'
-    # egetRHF <- 'Vest'
-    # egetShNavn <- 'Hei'
-    # reshID <- 102090
-    # print(input$valgtRHF)
-    # print(reshID)
-    # print(egetShNavn)
-    # print(egetRHF)
-    # finnesEgenResh <- TRUE
+    #RegData <- CoroData
     valgtRHF <- input$valgtRHF
     tittel <- 'Opphold registrert som utskrevet, uten ferdigstilt skjema: '
       #'Antall opphold registrert som utskrevet, med ikke ferdigstilt skjema',
@@ -372,14 +362,14 @@ observe({
     AntBurdeFerdig <-
       c( #tittel,
         if (rolle=='LU' & finnesEgenResh) {
-          paste0(finnBurdeFerdig(RegData[(which(RegData$ReshId==reshID)), ]),' skjema for ', egetShNavn)},
-          #paste0(egetShNavn, ': ', finnBurdeFerdig(RegData[(which(RegData$ReshId==reshID)), ]), ' skjema ')},
+          paste0(finnBurdeFerdig(CoroData[(which(CoroData$ReshId==reshID)), ]),' skjema for ', egetShNavn)},
+          #paste0(egetShNavn, ': ', finnBurdeFerdig(CoroData[(which(CoroData$ReshId==reshID)), ]), ' skjema ')},
       if (valgtRHF=='Alle') {
-        paste0(finnBurdeFerdig(RegData), ' skjema for hele landet')
-        #paste0('Hele landet: ', finnBurdeFerdig(RegData), ' skjema')
+        paste0(finnBurdeFerdig(CoroData), ' skjema for hele landet')
+        #paste0('Hele landet: ', finnBurdeFerdig(CoroData), ' skjema')
         } else {
-          paste0(finnBurdeFerdig(RegData[RegData$RHF==valgtRHF, ]), ' skjema for ', valgtRHF)}
-          #paste0(valgtRHF, ': ', finnBurdeFerdig(RegData[RegData$RHF==valgtRHF, ]))},
+          paste0(finnBurdeFerdig(CoroData[CoroData$RHF==valgtRHF, ]), ' skjema for ', valgtRHF)}
+          #paste0(valgtRHF, ': ', finnBurdeFerdig(CoroData[CoroData$RHF==valgtRHF, ]))},
       )
     h5(HTML(paste0('&nbsp;&nbsp;&nbsp;', AntBurdeFerdig, '<br />')))
     })

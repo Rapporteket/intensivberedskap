@@ -44,8 +44,9 @@ if (valgtRHF!='Alle'){
   }
 datoStart <- '2020-03-01'
 
+RHFtxt <-ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
 tittelRHF <- paste0('Coronarapportering fra NIR, ',
-               paste0('registreringer fra ', ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)))
+               paste0('registreringer fra ', RHFtxt))
   # RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann,
   #                             bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
   #                             reshID=reshID, valgtRHF=valgtRHF)$RegData #velgAvd=velgAvd
@@ -71,6 +72,11 @@ N <- antSkjema
 AntDode <- sum(RegData$DischargedIntensivStatus==1)
 DodBekr <- sum(RegData[which(RegData$Bekreftet==1), ]$DischargedIntensivStatus==1)
 AntBekr <- sum(RegData$Bekreftet==1)
+
+# Registreringer i limbo
+    AntLimbo <- sum((!(is.na(RegData$DateDischargedIntensive)) & (RegData$FormStatus!=2)))
+    RegILimboTxt <- if (AntLimbo>0) {paste0('\\item Det er ', AntLimbo, ' skjema i ', RHFtxt, ' som mangler ferdigstillelse. Dvs. opphold registrert som utskrevet, uten at skjema er ferdigstilt.')} else {''}
+
 @
 
 \begin{document}
@@ -100,6 +106,7 @@ av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
 \item Skjema uten spesifikasjon av diagnose, er kategorisert som mistenkte Coronatilfeller.
 \item Det er registrert \Sexpr{AntBekr} med bekreftet Corona. Av disse er \Sexpr{DodBekr} døde.
 \item Rapporten er basert på alle registreringer gjort inntil 4 timer før rapporten ble lastet ned.
+\Sexpr{RegILimboTxt}
 \end{itemize}
 
 \end{frame}
