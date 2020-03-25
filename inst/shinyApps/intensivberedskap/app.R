@@ -287,11 +287,13 @@ server <- function(input, output, session) {
 
   #----------Tabeller----------------------------
 
-
-observe({
   observeEvent(input$tilbakestillValg, shinyjs::reset("brukervalgStartside"))
 
+observe({
+
   valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+  print(dim(CoroData)[1])
+        print(valgtRHF)
 
   AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
                       valgtRHF= valgtRHF,

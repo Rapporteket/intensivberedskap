@@ -23,6 +23,7 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
 
   RegDataAlle <- UtData$RegData
   RegData <- if(valgtRHF=='Alle') {RegDataAlle} else {RegDataAlle[RegDataAlle$RHF == valgtRHF, ]}
+Ntest <- dim(RegData)[1]
 
   if (valgtRHF == 'Ukjent'){
     TabTidEnh <- as.matrix(c(table(RegDataAlle$TidsVar), dim(RegDataAlle)[1]), ncol=1)
@@ -35,13 +36,17 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
     #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
     #TabRHF <- table(CoroData$Dag, CoroData$RHF)
     #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
-
-    TabTidEnh <- table(RegData[ , c('TidsVar', enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
-
-    TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
-    colnames(TabTidEnh)[ncol(TabTidEnh)] <- switch(enhetsNivaa,
-                                                   RHF = 'Hele landet',
-                                                   HF = paste0(valgtRHF, ', totalt'))
+    kolNavnSum <- switch(enhetsNivaa,
+                         RHF = 'Hele landet',
+                         HF = paste0(valgtRHF, ', totalt'))
+    if (Ntest==0) {
+      TabTidEnh <- matrix(0, ncol=1, nrow=length(levels(RegData$TidsVar)) + 1,
+                          dimnames = list(c(levels(RegData$TidsVar), 'Totalt'), valgtRHF)) #table(RegData$TidsVar)
+    }else{
+      TabTidEnh <- table(RegData[ , c('TidsVar', enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
+      TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
+      colnames(TabTidEnh)[ncol(TabTidEnh)] <- kolNavnSum
+    }
     if (valgtRHF != 'Alle'){
       TabTidEnh <- cbind(TabTidEnh,
                          'Hele landet'= c(table(RegDataAlle$TidsVar), dim(RegDataAlle)[1]))}
@@ -72,24 +77,27 @@ RegData <- UtData$RegData
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
 inneliggere <- is.na(RegData$DateDischargedIntensive)
 AntPaaIntNaa <- sum(inneliggere) #N - sum(!(is.na(RegData$DateDischargedIntensive)))
-LiggetidNaa <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[inneliggere], units='days')))
+LiggetidNaa <- as.numeric(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[inneliggere], units='days'))
+LiggetidNaaGjsn <- mean(LiggetidNaa[LiggetidNaa < 30], na.rm = T)
 
 respLiggere <- inneliggere & is.na(RegData$MechanicalRespiratorEnd) & !(is.na(RegData$MechanicalRespiratorStart) ) #Har antatt at respiratortid MÅ registreres
 AntIrespNaa <- sum(respLiggere)
-ResptidNaa <- as.numeric(mean(difftime(Sys.Date(), RegData$MechanicalRespiratorStart[respLiggere],
-                                       units='days'))) #, na.rm=T))
+ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStart[respLiggere],
+                       units='days'))
+ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 30], na.rm=T)
 #sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
 
 ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) ) #Har antatt at respiratortid MÅ registreres
 AntIECMONaa <- sum(ECMOLiggere) #sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
-ECMOtidNaa <- ifelse(AntIECMONaa==0, 0,
-                     as.numeric(mean(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
-                                       units='days')))) #, na.rm=T))
+ECMOtidNaa <- as.numeric(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
+         units='days'))
+ECMOtidNaaGjsn <- ifelse(AntIECMONaa==0, 0,
+                     mean(ECMOtidNaa[ECMOtidNaa < 30], na.rm=T))
 
 TabHjelp <- rbind(
-  'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaa),
-  'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaa),
-  'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaa)
+  'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn),
+  'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaaGjsn),
+  'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaaGjsn)
 )
 colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn.)')
 TabHjelp[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
