@@ -128,25 +128,38 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
 RegData <- UtData$RegData
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
-AntIECMONaa <- sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
-AntPaaIntNaa <- N - sum(!(is.na(RegData$DateDischargedIntensive)))
-AntIrespNaa <- min(AntPaaIntNaa, sum(!(is.na(RegData$MechanicalRespiratorStart))) -
-  sum(!(is.na(RegData$MechanicalRespiratorEnd))))
+inneliggere <- is.na(RegData$DateDischargedIntensive)
+AntPaaIntNaa <- sum(inneliggere) #N - sum(!(is.na(RegData$DateDischargedIntensive)))
+LiggetidNaa <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[inneliggere], units='days')))
+
+respLiggere <- inneliggere & is.na(RegData$MechanicalRespiratorEnd) & !(is.na(RegData$MechanicalRespiratorStart) ) #Har antatt at respiratortid MÅ registreres
+AntIrespNaa <- sum(respLiggere)
+ResptidNaa <- as.numeric(mean(difftime(Sys.Date(), RegData$MechanicalRespiratorStart[respLiggere],
+                                       units='days'))) #, na.rm=T))
+#sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
+
+ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) ) #Har antatt at respiratortid MÅ registreres
+AntIECMONaa <- sum(ECMOLiggere) #sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
+ECMOtidNaa <- ifelse(AntIECMONaa==0, 0,
+                     as.numeric(mean(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
+                                       units='days')))) #, na.rm=T))
 
 TabHjelp <- rbind(
-  'På respirator nå' = AntIrespNaa*(c(1, 100/AntPaaIntNaa)),
-  'På ECMO nå' = AntIECMONaa*(c(1, 100/AntPaaIntNaa)),
-  'På intensiv nå' = c(AntPaaIntNaa,'')
+  'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaa),
+  'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaa),
+  'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaa)
 )
-colnames(TabHjelp) <- c('Antall', 'Andel')
+colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn. døgn)')
 TabHjelp[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
+TabHjelp[2:3, 3] <- paste0(sprintf('%.2f', as.numeric(TabHjelp[2:3, 3])))
 xtable::xtable(TabHjelp,
                digits=0,
-               align = c('l','r','r'),
+               align = c('l','r','r','r'),
                caption='Bruk av Respirator/ECMO.')
 UtData <- list(Tab=TabHjelp, utvalgTxt=UtData$utvalgTxt)
 return(UtData)
 }
+
 
 
 #' Ferdigstilte registreringer

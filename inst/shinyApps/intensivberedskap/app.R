@@ -135,13 +135,14 @@ ui <- tagList(
                       h5('Siden er under utvikling... ', style = "color:red"),
                       br(),
                       fluidRow(
-                        column(width = 3,
-                               h4('Pågående aktivitet'), #, align='center'),
+                        column(width = 4,
+                               h4('Opphold uten registrert ut-tid fra intensiv'), #, align='center'),
+                               uiOutput('liggetidNaa'),
                                uiOutput('utvalgNaa'),
                                tableOutput('tabECMOrespirator')
                         ),
                       column(width=5, offset=1,
-                             h4('Fullførte registreringer '),
+                             uiOutput('tittelFerdigeReg'),
                              uiOutput('utvalgFerdigeReg'),
                              tableOutput('tabFerdigeReg')
                       )),
@@ -158,7 +159,7 @@ ui <- tagList(
                         column(width=5, offset=1,
                                h3('Aldersfordeling'),
                                uiOutput('utvalgAlder'),
-                               tableOutput('tabAlder'),
+                               tableOutput('tabAlder')
                                ))
              ) #main
     ), #tab Tabeller
@@ -295,13 +296,11 @@ server <- function(input, output, session) {
 
   #----------Resultater som tekst--------------
 
-# # output$tittelFord <- renderUI({
-# #   tagList(
-# #     h3(HTML(paste(UtDataFord$tittel, sep='<br />'))),
-# #     h5(HTML(paste0(UtDataFord$utvalgTxt, '<br />')))
-# #   )})
-#   })
+  output$liggetidNaa <- renderUI({
+  })
+
   #----------Tabeller----------------------------
+
 
 observe({
   observeEvent(input$tilbakestillValg, shinyjs::reset("brukervalgStartside"))
@@ -361,6 +360,8 @@ observe({
       renderText('Få registreringer (N<3)')}
 
   output$utvalgFerdigeReg <- renderUI({h5(HTML(paste0(TabFerdig$utvalgTxt, '<br />'))) })
+  output$tittelFerdigeReg <- renderUI(
+    h4(paste0('Fullførte registreringer (', TabFerdig$Ntest, ' skjema)')))
 
   #Tab risiko
   RisikoTab <- RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',

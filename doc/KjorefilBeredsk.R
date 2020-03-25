@@ -23,7 +23,7 @@ CoroData <- NIRberedskDataSQL()
 RegData <- NIRPreprosessBeredsk(CoroData)
 CoroData <- RegData
 
-
+statusECMOrespTab(RegData=RegData)
 minald <- 20
 maxald <- 55
 reshID=0
