@@ -151,7 +151,7 @@ TabHjelp <- rbind(
 )
 colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn.)')
 TabHjelp[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
-TabHjelp[2:3, 3] <- paste0(sprintf('%.1f', as.numeric(TabHjelp[2:3, 3])), ' døgn')
+TabHjelp[1:3, 3] <- paste0(sprintf('%.1f', as.numeric(TabHjelp[1:3, 3])), ' døgn')
 xtable::xtable(TabHjelp,
                digits=0,
                align = c('l','r','r','r'),
@@ -191,7 +191,7 @@ RegData <- UtData$RegData
 
 med_IQR <- function(x){
   #x[is.na(x)]<-0
-  c(sprintf('%.1f',x[3]), paste(sprintf('%.1f',x[2]), sprintf('%.1f',x[5]), sep=' - '))
+  c(sprintf('%.1f',x[4]), sprintf('%.1f',x[3]), paste(sprintf('%.1f',x[2]), sprintf('%.1f',x[5]), sep=' - '))
   }
 # x <- Liggetid
 #  test <- sprintf('%.2f',c(x[2],x[5]))
@@ -204,12 +204,12 @@ TabFerdigeReg <- rbind(
     'Døde' = c('','',AntDod, paste0(sprintf('%.f',100*AntDod/N),'%'))
   )
 #TabFerdigeReg[TabFerdigeReg==NA]<-""
-  colnames(TabFerdigeReg) <- c('Median', 'IQR', 'Antall opphold', 'Andel opphold')
+  colnames(TabFerdigeReg) <- c('Gj.sn', 'Median', 'IQR', 'Antall opphold', 'Andel opphold')
   TabFerdigeReg[c(1:2),'Andel opphold'] <-
     paste0(sprintf('%.0f', as.numeric(TabFerdigeReg[c(1:2),'Andel opphold'])),'%')
   xtable::xtable(TabFerdigeReg,
                  digits=0,
-                 align = c('l','r','c', 'r','r'),
+                 align = c('l','r','r','c', 'r','r'),
                  caption='Ferdigstilte opphold.
                  IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet.')
   return(invisible(UtData <- list(Tab=TabFerdigeReg,
