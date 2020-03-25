@@ -132,7 +132,7 @@ ui <- tagList(
                        h3('Resultater fra intensivregisterets beredskapsskjema for mistenkt/bekreftet
                        Coronasmitte.'),
                        h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
-                      h5('Siden er under utvikling... ', style = "color:red"),
+                      #h5('Siden er under utvikling... ', style = "color:red"),
                       br(),
                       fluidRow(
                         column(width = 4,
