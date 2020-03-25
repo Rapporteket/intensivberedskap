@@ -49,68 +49,10 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
   TabTidEnh <- xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
                               caption='Antall Coronatilfeller.')
 
-  return(UtData <- list(Tab=TabTidEnh, UtData$utvalgTxt))
+  return(UtData <- list(Tab=TabTidEnh, utvalTxt=UtData$utvalgTxt, Ntest=dim(RegData)[1]))
 }
 
 
-
-
-#' Tabell med oversikt over tilstander som medfører økt risiko ved Coronasmitte
-#'
-#' @param RegData data
-#' @param datoTil sluttdato
-#' @param reshID enhetens resh
-#' @param tidsenhet 'Dag', 'Uke' (standard)
-#' @param valgtRHF 'Alle' (standard), RHF-navn uten 'Helse '
-#'
-#' @export
-#' @return
-RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), reshID=0,
-                              erMann='', bekr=9, skjemastatus=9,
-                              dodInt=9, valgtRHF='Alle',
-                              minald=0, maxald=110, velgAvd=0){
-
-  UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
-                              bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
-                             minald=minald, maxald=maxald,
-                              reshID=reshID, valgtRHF=valgtRHF) #velgAvd=velgAvd
-  Ntest <- dim(UtData$RegData)[1]
-  RegData <- UtData$RegData
-
-
-#Kvikk fix: Totalt gir nå totalen for 2020
-  Tidsvariabel <- switch(tidsenhet,
-    Uke = paste0('uke',RegData$UkeNr),
-    Dag = RegData$Dag,
-    Totalt = RegData$Aar)
-
-  TabRisiko <- rbind(
-      Kreft = tapply(RegData$Kreft, Tidsvariabel, FUN=sum, na.rm = T),
-      'Nedsatt immunforsvar' = tapply(RegData$IsImpairedImmuneSystemIncludingHivPatient, Tidsvariabel, FUN=sum, na.rm = T),
-      Diabetes	= tapply(RegData$Diabetes, Tidsvariabel, FUN=sum, na.rm = T),
-      Hjertesykdom = tapply(RegData$IsHeartDiseaseIncludingHypertensionPatient, Tidsvariabel, FUN=sum, na.rm = T),
-      'Fedme (KMI>30)' =	tapply(RegData$IsObesePatient, Tidsvariabel, FUN=sum, na.rm = T),
-      Astma	= tapply(RegData$Astma, Tidsvariabel, FUN=sum, na.rm = T),
-      'Kronisk lungesykdom' = tapply(RegData$IsChronicLungDiseasePatient, Tidsvariabel, FUN=sum, na.rm = T),
-      Nyresykdom =	tapply(RegData$IsKidneyDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
-      Leversykdom = tapply(RegData$IsLiverDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
-      'Nevrologisk/nevromusk.' = tapply(RegData$IsChronicNeurologicNeuromuscularPatient, Tidsvariabel, FUN=sum, na.rm = T),
-      Graviditet	= tapply(RegData$Graviditet, Tidsvariabel, FUN=sum, na.rm = T),
-      'Røyker' =	tapply(RegData$IsActivSmoker, Tidsvariabel, FUN=sum, na.rm = T),
-      'Opphold med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
-    )
-  TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
-  if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
-  colnames(TabRisiko) <- 'Sum'}
-  TabRisiko <- cbind(TabRisiko,
-        'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%')
-  )
-    # xtable::xtable(TabRisiko,
-    #                digits=0,
-    #                align = c('l',rep('r',ncol(TabRisiko))),
-    #                caption='Risikofaktorer')
-    return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
-}
 
 
 #' Antall som er  i ECMO/respirator
@@ -156,7 +98,7 @@ xtable::xtable(TabHjelp,
                digits=0,
                align = c('l','r','r','r'),
                caption='Bruk av Respirator/ECMO.')
-UtData <- list(Tab=TabHjelp, utvalgTxt=UtData$utvalgTxt)
+UtData <- list(Tab=TabHjelp, utvalgTxt=UtData$utvalgTxt, PaaIntensivNaa=inneliggere)
 return(UtData)
 }
 
@@ -175,7 +117,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, dodI
   if (valgtRHF == 'Ukjent') {valgtRHF <- 'Alle'}
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
                              bekr = bekr,
-                             #erMann = erMann,
+                             erMann = erMann,
                               skjemastatus=2)
 RegData <- UtData$RegData
   N <- dim(RegData)[1]
@@ -215,6 +157,64 @@ TabFerdigeReg <- rbind(
   return(invisible(UtData <- list(Tab=TabFerdigeReg,
                                   utvalgTxt=UtData$utvalgTxt,
                                   Ntest=N)))
+}
+
+
+
+#' Tabell med oversikt over tilstander som medfører økt risiko ved Coronasmitte
+#'
+#' @param RegData data
+#' @param datoTil sluttdato
+#' @param reshID enhetens resh
+#' @param tidsenhet 'Dag', 'Uke' (standard)
+#' @param valgtRHF 'Alle' (standard), RHF-navn uten 'Helse '
+#'
+#' @export
+#' @return
+RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), reshID=0,
+                              erMann='', bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle',
+                              minald=0, maxald=110, velgAvd=0){
+
+  UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
+                             bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
+                             minald=minald, maxald=maxald,
+                             reshID=reshID, valgtRHF=valgtRHF) #velgAvd=velgAvd
+  Ntest <- dim(UtData$RegData)[1]
+  RegData <- UtData$RegData
+
+
+  #Kvikk fix: Totalt gir nå totalen for 2020
+  Tidsvariabel <- switch(tidsenhet,
+                         Uke = paste0('uke',RegData$UkeNr),
+                         Dag = RegData$Dag,
+                         Totalt = RegData$Aar)
+
+  TabRisiko <- rbind(
+    Kreft = tapply(RegData$Kreft, Tidsvariabel, FUN=sum, na.rm = T),
+    'Nedsatt immunforsvar' = tapply(RegData$IsImpairedImmuneSystemIncludingHivPatient, Tidsvariabel, FUN=sum, na.rm = T),
+    Diabetes	= tapply(RegData$Diabetes, Tidsvariabel, FUN=sum, na.rm = T),
+    Hjertesykdom = tapply(RegData$IsHeartDiseaseIncludingHypertensionPatient, Tidsvariabel, FUN=sum, na.rm = T),
+    'Fedme (KMI>30)' =	tapply(RegData$IsObesePatient, Tidsvariabel, FUN=sum, na.rm = T),
+    Astma	= tapply(RegData$Astma, Tidsvariabel, FUN=sum, na.rm = T),
+    'Kronisk lungesykdom' = tapply(RegData$IsChronicLungDiseasePatient, Tidsvariabel, FUN=sum, na.rm = T),
+    Nyresykdom =	tapply(RegData$IsKidneyDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
+    Leversykdom = tapply(RegData$IsLiverDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
+    'Nevrologisk/nevromusk.' = tapply(RegData$IsChronicNeurologicNeuromuscularPatient, Tidsvariabel, FUN=sum, na.rm = T),
+    Graviditet	= tapply(RegData$Graviditet, Tidsvariabel, FUN=sum, na.rm = T),
+    'Røyker' =	tapply(RegData$IsActivSmoker, Tidsvariabel, FUN=sum, na.rm = T),
+    'Opphold med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
+  )
+  TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
+  if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
+  colnames(TabRisiko) <- 'Sum'}
+  TabRisiko <- cbind(TabRisiko,
+                     'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%')
+  )
+  # xtable::xtable(TabRisiko,
+  #                digits=0,
+  #                align = c('l',rep('r',ncol(TabRisiko))),
+  #                caption='Risikofaktorer')
+  return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
 }
 
 

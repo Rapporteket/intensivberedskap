@@ -50,7 +50,7 @@ CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
 #Definere utvalgsinnhold
 #sykehusNavn <- sort(c('',unique(CoroData$ShNavn)), index.return=T)
 #sykehusValg <- c(0,unique(CoroData$ReshId))[sykehusNavn$ix]
-rhfNavn <- c('Alle', as.character(sort(unique(CoroData$RHF))), 'Ukjent')
+rhfNavn <- c('Alle', as.character(sort(unique(CoroData$RHF))))
 hfNavn <- sort(unique(CoroData$HF)) #, index.return=T)
 sykehusNavn <- sort(unique(CoroData$ShNavn), index.return=T)
 sykehusValg <- unique(CoroData$ReshId)[sykehusNavn$ix]
@@ -92,7 +92,6 @@ ui <- tagList(
               ),
 
               #br(),
-              #h4('Tabellene for intensivopphold, aldersfordeling og risikofaktorer:'),
               selectInput(inputId = "bekr", label="Bekreftet/Mistenkt",
                           choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
               ),
@@ -120,7 +119,6 @@ ui <- tagList(
               # dateRangeInput(inputId = 'datovalg', start = startDato, end = idag,
               #                label = "Tidsperiode", separator="t.o.m.", language="nb" #)
               # ),
-              #actionButton("reset_fordValg", label="Tilbakestill valg")
               ),
              mainPanel(width = 9,
                        shinyalert::useShinyalert(),
@@ -139,7 +137,11 @@ ui <- tagList(
                                h4('Opphold uten registrert ut-tid fra intensiv'), #, align='center'),
                                uiOutput('liggetidNaa'),
                                uiOutput('utvalgNaa'),
-                               tableOutput('tabECMOrespirator')
+                               tableOutput('tabECMOrespirator'),
+                               br(),
+                               h4('Opphold registrert som utskrevet, uten ferdigstilt skjema:'),
+                               #h4('Antall opphold registrert som utskrevet, med ikke ferdigstilt skjema'),
+                               uiOutput('RegIlimbo')
                         ),
                       column(width=5, offset=1,
                              uiOutput('tittelFerdigeReg'),
@@ -256,17 +258,6 @@ server <- function(input, output, session) {
   })
 
 
-  # Figur og tabell
-  ## Figur
-  #output$distPlot <- renderPlot({
-  #  makeHist(df = regData, var = input$var, bins = input$bins)
-  #})
-
-  ## Tabell
-  #output$distTable <- renderTable({
-  #  makeHist(df = regData, var = input$var, bins = input$bins, makeTable = TRUE)
-  #})
-
 
   #-------- Laste ned Samlerapport------------
   observe({
@@ -289,12 +280,7 @@ server <- function(input, output, session) {
                     Gå til fanen "Abonnement" for å bestille dette')))
   )
 
-  #   renderUI(h3('Coronarapport med samling av resultater'))
-  # output$CoroRappTxtL2 <-  renderUI(h5('Coronarapporten kan man få regelmessig tilsendt på e-post.
-  #                   Gå til fanen "Abonnement" for å bestille dette'))
-
-
-  #----------Resultater som tekst--------------
+   #----------Resultater som tekst--------------
 
   output$liggetidNaa <- renderUI({
   })
@@ -363,6 +349,42 @@ observe({
   output$tittelFerdigeReg <- renderUI(
     h4(paste0('Fullførte registreringer (', TabFerdig$Ntest, ' skjema)')))
 
+  #Registreringer i limbo:
+  #Må ha egen funksjon for å få dette på sykehusnivå
+  output$RegIlimbo <- renderUI({
+    # AntIlibo <- AntTab$Ntest - (TabFerdig$Ntest + sum(is.na(CoroData$DateDischargedIntensive))) #RHF/alle
+    # print(AntIlibo)
+    finnBurdeFerdig <- function(RegData) {sum((!(is.na(RegData$DateDischargedIntensive)) & (RegData$FormStatus!=2)))}
+    RegData <- CoroData
+    # valgtRHF <- 'Alle'
+    # egetRHF <- 'Vest'
+    # egetShNavn <- 'Hei'
+    # reshID <- 102090
+    # print(input$valgtRHF)
+    # print(reshID)
+    # print(egetShNavn)
+    # print(egetRHF)
+    # finnesEgenResh <- TRUE
+    valgtRHF <- input$valgtRHF
+    tittel <- 'Opphold registrert som utskrevet, uten ferdigstilt skjema: '
+      #'Antall opphold registrert som utskrevet, med ikke ferdigstilt skjema',
+
+    AntBurdeFerdig <-
+      c( #tittel,
+        if (rolle=='LU' & finnesEgenResh) {
+          paste0(finnBurdeFerdig(RegData[(which(RegData$ReshId==reshID)), ]),' skjema for ', egetShNavn)},
+          #paste0(egetShNavn, ': ', finnBurdeFerdig(RegData[(which(RegData$ReshId==reshID)), ]), ' skjema ')},
+      if (valgtRHF=='Alle') {
+        paste0(finnBurdeFerdig(RegData), ' skjema for hele landet')
+        #paste0('Hele landet: ', finnBurdeFerdig(RegData), ' skjema')
+        } else {
+          paste0(finnBurdeFerdig(RegData[RegData$RHF==valgtRHF, ]), ' skjema for ', valgtRHF)}
+          #paste0(valgtRHF, ': ', finnBurdeFerdig(RegData[RegData$RHF==valgtRHF, ]))},
+      )
+    h5(HTML(paste0('&nbsp;&nbsp;&nbsp;', AntBurdeFerdig, '<br />')))
+    })
+
+
   #Tab risiko
   RisikoTab <- RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',
                                  valgtRHF= input$valgtRHF,
@@ -374,14 +396,9 @@ observe({
                                  maxald=as.numeric(input$alder[2]))
 
 
-    # output$tabRisikofaktorer <- renderTable({
-    #   if (RisikoTab$Ntest>2){ RisikoTab$Tab} else {'Få registreringer (N<3)'}},
-    #   rownames = T, digits=0, spacing="xs")
-
     output$tabRisikofaktorer <- if (RisikoTab$Ntest>2){
       renderTable(RisikoTab$Tab, rownames = T, digits=0, spacing="xs") } else {
         renderText('Få registreringer (N<3)')}
-
     output$utvalgRisiko <- renderUI({h5(HTML(paste0(RisikoTab$utvalgTxt, '<br />'))) #tagList()
                          })
 

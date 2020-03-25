@@ -23,6 +23,8 @@ CoroData <- NIRberedskDataSQL()
 RegData <- NIRPreprosessBeredsk(CoroData)
 CoroData <- RegData
 
+Data <- RegData[!(is.na(RegData$DateDischargedIntensive)), c("FormStatus", "Bekreftet")]
+
 statusECMOrespTab(RegData=RegData)
 minald <- 20
 maxald <- 55
@@ -36,7 +38,7 @@ valgtRHF <- 'Alle'
 valgtRHF <- 'Ukjent'
 tidsenhet='dag'
 velgAvd=0
-reshID <- 123 #102090
+reshID <- 102090
 
 
 TabTidEnhet(RegData=RegData, valgtRHF ='Midt-Norge')$Tab
