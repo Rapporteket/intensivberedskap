@@ -149,9 +149,9 @@ TabHjelp <- rbind(
   'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaa),
   'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaa)
 )
-colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn. døgn)')
+colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn.)')
 TabHjelp[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
-TabHjelp[2:3, 3] <- paste0(sprintf('%.2f', as.numeric(TabHjelp[2:3, 3])))
+TabHjelp[2:3, 3] <- paste0(sprintf('%.1f', as.numeric(TabHjelp[2:3, 3])), ' døgn')
 xtable::xtable(TabHjelp,
                digits=0,
                align = c('l','r','r','r'),
