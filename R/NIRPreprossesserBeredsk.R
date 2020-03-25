@@ -53,6 +53,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
       # Kode om fra Haraldsplass til RHF Vest og Lovisenberg diakonhjemmet til RHF Øst, fra priv
       RegData$RHF[RegData$ReshId == 100180] <- 'Vest' #Haraldsplass
       RegData$RHF[RegData$ReshId == 42088921] <- 'Sør-Øst' #Lovisenberg Diakonale
+      RegData$RHF[RegData$ReshId == 108897] <- 'Sør-Øst' #Diakonhjemmet
 
       #unique(RegData[RegData$RHF=='Privat',c("ShNavn", "UnitId", "RHF")])
 
