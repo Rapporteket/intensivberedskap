@@ -197,6 +197,7 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
                          Dag = RegData$Dag,
                          Totalt = RegData$Aar)
 
+
   TabRisiko <- rbind(
     Kreft = tapply(RegData$Kreft, Tidsvariabel, FUN=sum, na.rm = T),
     'Nedsatt immunforsvar' = tapply(RegData$IsImpairedImmuneSystemIncludingHivPatient, Tidsvariabel, FUN=sum, na.rm = T),
@@ -212,12 +213,15 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
     'Røyker' =	tapply(RegData$IsActivSmoker, Tidsvariabel, FUN=sum, na.rm = T),
     'Opphold med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
   )
+
+  if (Ntest>3){
   TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
   if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
   colnames(TabRisiko) <- 'Sum'}
   TabRisiko <- cbind(TabRisiko,
                      'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%')
   )
+  }
   # xtable::xtable(TabRisiko,
   #                digits=0,
   #                align = c('l',rep('r',ncol(TabRisiko))),
