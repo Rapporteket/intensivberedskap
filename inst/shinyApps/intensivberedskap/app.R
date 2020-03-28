@@ -232,7 +232,8 @@ server <- function(input, output, session) {
   })
     if (rolle != 'SC') {
     updateSelectInput(session, "valgtRHF",
-                      choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle', egetRHF))))
+                      choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
+                                                        egetRHF))))
                                   #CoroData$RHF[match(reshID, CoroData$ReshId)]))
     updateSelectInput(session, "valgtRHFabb",
                         choices = egetRHF) #unique(c('Alle', egetRHF)))

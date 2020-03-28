@@ -241,7 +241,8 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
 #' @export
 #'
 #' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
-TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,dodInt=9,erMann=9){#enhetsNivaa='RHF'
+TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,
+                     dodInt=9,erMann=9){#enhetsNivaa='RHF'
 
   #if (valgtRHF != 'Alle'){RegData$RHF <- factor(RegData$RHF, levels=unique(c(levels(as.factor(RegData$RHF)), valgtRHF)))}
   RegData$RHF <- as.factor(RegData$RHF)

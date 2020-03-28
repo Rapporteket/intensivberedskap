@@ -160,7 +160,7 @@ print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0, #meth
     'Hele landet' = table(RegDataAlle$TidsVar))
   TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN=sum, quiet=TRUE)
   AntRader <- dim(TabTidEnh)[1]
-  xtable::xtable(TabTidEnh[max(1,AntRader-10):AntRader, ], digits=0,
+  xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
 		caption='Coronatilfeller siste 20 dager i egen region, samt hele landet. Totalt er sum fra 10.mars.
 		\\\ (B - bekreftet, M - mistenkt)')
 }
