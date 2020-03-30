@@ -102,7 +102,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
       RegData$Overf[ind] <- 1
 
       #De som har Morsdato før utskriving fra intensiv:
-      ind <- which(as.Date(RegData$Morsdato) <= as.Date(RegData$DateDischargedIntensive))
+      ind <- which(as.Date(RegData$Morsdato, format="%Y-%m-%d %H:%M:%S") <= as.Date(RegData$DateDischargedIntensive))
       RegData$DischargedIntensivStatus[ind] <- 1
 
       #En "overlever": Person som er i live 30 dager etter innleggelse.
