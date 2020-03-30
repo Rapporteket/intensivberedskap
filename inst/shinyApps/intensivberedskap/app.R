@@ -293,8 +293,8 @@ server <- function(input, output, session) {
 observe({
 
   valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-  print(dim(CoroData)[1])
-        print(valgtRHF)
+  # print(dim(CoroData)[1])
+  #       print(valgtRHF)
 
   AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
                       valgtRHF= valgtRHF,
@@ -409,8 +409,7 @@ observe({
 })
 
   #------------- Abonnement----------------
-    #------------------ Abonnement ----------------------------------------------
-    ## reaktive verdier for å holde rede på endringer som skjer mens
+    ## Reaktive verdier for å holde rede på endringer som skjer mens
     ## applikasjonen kjører
     rv <- reactiveValues(
       subscriptionTab = rapbase::makeUserSubscriptionTab(session))
@@ -452,13 +451,14 @@ observe({
       }
       fun <- "abonnementBeredsk"
       paramNames <- c('rnwFil', 'brukernavn', "reshID", "valgtRHF")
-
       paramValues <- c(rnwFil, brukernavn, reshID, as.character(input$valgtRHFabb)) #valgtRHF) #
 
       #test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
-      #                       reshID=105460)
+       #                      valgtRHF =as.character(input$valgtRHFabb) )
+  #     print(test)
+  # print(as.character(input$valgtRHFabb))
 
-      rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
+rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
                                 fun = fun, paramNames = paramNames,
                                 paramValues = paramValues, owner = owner,
                                 email = email, organization = organization,
