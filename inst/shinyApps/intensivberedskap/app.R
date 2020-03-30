@@ -299,8 +299,6 @@ server <- function(input, output, session) {
   observe({
 
     valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-    print(dim(CoroData)[1])
-    print(valgtRHF)
 
     AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
                           valgtRHF= valgtRHF,
@@ -402,12 +400,13 @@ server <- function(input, output, session) {
     })
 
     TabAlder <- TabAlder(RegData=CoroData,
-                         valgtRHF= egetRHF, #input$valgtRHF,
+                         valgtRHF= input$valgtRHF, #egetRHF, #
                          #dodInt=as.numeric(input$dodInt),
                          erMann=as.numeric(input$erMann),
                          bekr=as.numeric(input$bekr),
                          skjemastatus=as.numeric(input$skjemastatus)
     )
+    #print(egetRHF)
     output$tabAlder<- renderTable({xtable::xtable(TabAlder$Tab)}, rownames = T, digits=0, spacing="xs")
     output$utvalgAlder <- renderUI({h5(HTML(paste0(TabAlder$utvalgTxt, '<br />'))) })
 
