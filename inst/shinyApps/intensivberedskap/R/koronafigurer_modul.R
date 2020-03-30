@@ -5,7 +5,6 @@ koronafigurer_UI <- function(id, rhfNavn){
   shiny::sidebarLayout(
     sidebarPanel(id = ns('brukervalgStartside'),
                  width = 3,
-                 # tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                  h3('Gjør filtreringer/utvalg:'),
                  selectInput(inputId = ns("valgtRHF"), label="Velg RHF",
                              choices = rhfNavn
@@ -29,19 +28,77 @@ koronafigurer_UI <- function(id, rhfNavn){
                  actionButton(ns("tilbakestillValg"), label="Tilbakestill valg")
     ),
     mainPanel(
-      h3('Her kommer figur')
+      # h3('Her kommer figur'),
+      # tableOutput(ns('tabTidEnhet')),
+      plotOutput(ns("FigurTidEnhet"), height="auto"),
+      br(),
+      DT::DTOutput(ns("tabTidEnhet_DT"))
               ) #main
   )
 
 }
 
 
-koronafigurer <- function(input, output, session){
+koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF){
 
   observeEvent(input$tilbakestillValg, {
-    shinyjs::reset("id_shus_panel")
+    shinyjs::reset("brukervalgStartside")
   })
 
+  if (rolle != 'SC') {
+    updateSelectInput(session, "valgtRHF",
+                      choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
+                                                        egetRHF))))
+  }
+
+  # observe({
+  #
+  #   valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+  #
+  #   AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
+  #                         valgtRHF= valgtRHF,
+  #                         skjemastatus=as.numeric(input$skjemastatus),
+  #                         bekr=as.numeric(input$bekr),
+  #                         erMann=as.numeric(input$erMann)
+  #   )
+  #
+  #
+  #   output$tabTidEnhet <- renderTable({AntTab$Tab}, rownames = T, digits=0, spacing="xs")
+  #
+  # })
+
+
+  AntTab <- function() {
+    valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+    AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
+                          valgtRHF= valgtRHF,
+                          skjemastatus=as.numeric(input$skjemastatus),
+                          bekr=as.numeric(input$bekr),
+                          erMann=as.numeric(input$erMann)
+    )
+    ant_skjema <- AntTab$Tab_tidy
+    sketch <- htmltools::withTags(table(
+      DT::tableHeader(ant_skjema[-dim(ant_skjema)[1], ]),
+      DT::tableFooter(c('Sum' , as.numeric(ant_skjema[dim(ant_skjema)[1], 2:dim(ant_skjema)[2]])))))
+    # list(ant_skjema=ant_skjema, sketch=sketch)
+    AntTab$ant_skjema <- ant_skjema
+    AntTab$sketch <- sketch
+    AntTab
+  }
+
+  output$tabTidEnhet <- renderTable({AntTab()$Tab}, rownames = T, digits=0, spacing="xs")
+
+  output$tabTidEnhet_DT = DT::renderDT(
+    DT::datatable(AntTab()$ant_skjema[-dim(AntTab()$ant_skjema)[1], ],
+              container = AntTab()$sketch,
+              rownames = F,
+              options = list(pageLength = 40)
+    )
+  )
+
+  output$FigurTidEnhet <- renderPlot({
+    intensivberedskap::FigTidEnhet(AntTab())
+  }, width = 700, height = 700)
 
 
 }

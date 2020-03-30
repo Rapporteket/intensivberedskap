@@ -212,7 +212,7 @@ server <- function(input, output, session) {
   if (context %in% c('QA', 'PRODUCTION')){
     raplog::appLogger(session = session, msg = "Starter Corona-app")}
 
-  reshID <- ifelse(paaServer, as.numeric(rapbase::getUserReshId(session)), 0)
+  reshID <- ifelse(paaServer, as.numeric(rapbase::getUserReshId(session)), 0) # 42088921
 
   rolle <- ifelse(paaServer, rapbase::getUserRole(shinySession=session), 'SC')
   brukernavn <- ifelse(paaServer, rapbase::getUserName(shinySession=session), 'brukernavn')
@@ -482,7 +482,7 @@ server <- function(input, output, session) {
 
   ################# Modul for figurer #################################
 
-  callModule(koronafigurer, "koronafigurer_id")
+  callModule(koronafigurer, "koronafigurer_id", rolle = rolle, CoroData = CoroData, egetRHF = egetRHF)
 
 }
 # Run the application
