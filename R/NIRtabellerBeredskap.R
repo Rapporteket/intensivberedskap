@@ -269,12 +269,27 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,
   levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
   TabAlder <- table(RegData$AldersGr, RegData$EnhetsNivaaVar)
   TabAlder <- addmargins(TabAlder) #switch(enhetsNivaa, RHF = 'Totalt', HF = paste0(valgtRHF, ', totalt'))
+  TabAlderPst <-prop.table(TabAlder[-nrow(TabAlder),],2)*100
+  #paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
 
-  if (valgtRHF == 'Ukjent') {
-    TabAlder <- as.matrix(TabAlder[,ncol(TabAlder)], ncol=1) } else {
-      if (valgtRHF != 'Alle') {TabAlder <- TabAlder[,c(valgtRHF, 'Sum')]}}
-  colnames(TabAlder)[ncol(TabAlder)] <- 'Hele landet'
+     TabAlderAlle <- cbind(
+       'Antall, tot.' = TabAlder[,'Sum'],
+       'Andel, tot.' = paste0(sprintf('%.0f', c(TabAlderPst[,'Sum'], 100)), ' %')
+     )
+     TabAlderUt <-  if (valgtRHF %in% levels(RegData$RHF)){
+       TabAlderUt <- cbind(
+         'Antall, eget' = TabAlder[ ,valgtRHF],
+         'Andel, eget' = paste0(sprintf('%.0f', c(TabAlderPst[ ,valgtRHF], 100)), ' %'),
+         TabAlderAlle)
+       } else {TabAlderAlle}
 
-  return(invisible(UtData <- list(Tab=TabAlder, utvalgTxt=UtData$utvalgTxt)))
+  return(invisible(UtData <-
+                     list(Tab=TabAlderUt,
+                          utvalgTxt=c(UtData$utvalgTxt, paste0('Valgt RHF: ', valgtRHF)))))
 }
+# if (valgtRHF == 'Ukjent') {
+#   TabAlder <- as.matrix(TabAlder[,ncol(TabAlder)], ncol=1)
+# } else {
+#   if (valgtRHF != 'Alle') {TabAlder <- TabAlder[,c(valgtRHF, 'Sum')]}}
+# colnames(TabAlder)[ncol(TabAlder)] <- 'Hele landet'
 

@@ -250,13 +250,12 @@ txtBekr <- if (AntBekr>2){paste0('For bekreftede tilfeller er alderen mellom ',
 %De registrerte er mellom \Sexpr{Alder[1]} og \Sexpr{Alder[6]} år med en gjennomsnittsalder på \Sexpr{Alder[4]}.
 \Sexpr{txtAlle}
 
-% For bekreftede tilfeller er alderen mellom \Sexpr{AlderBekr[1]} og \Sexpr{AlderBekr[6]} år
-% med en snittsalder på \Sexpr{AlderBekr[4]}.
-
 <<'VisTabAlder', results='asis'>>=
+TabAlder <- TabAlder(RegDataAlle, valgtRHF=valgtRHF)$Tab
 
-xtable::xtable(TabAlder(RegDataAlle, valgtRHF=valgtRHF)$Tab,
+xtable::xtable(TabAlder,
                digits = 0,
+               align = c('l', rep('r', dim(TabAlder)[2])),
                caption='Fordeling i aldersgrupper')
 
 @
@@ -266,11 +265,13 @@ xtable::xtable(TabAlder(RegDataAlle, valgtRHF=valgtRHF)$Tab,
 \begin{frame}[fragile] {Corona, aldersfordeling, bekreftede}
 \Sexpr{txtBekr}
 <<'TabAlderBekr', results='asis'>>=
-
-xtable::xtable(TabAlder(RegData=RegDataAlle #RegDataAlle[which(RegDataAlle$Bekreftet==1), ]
+TabAlderBekr <- TabAlder(RegData=RegDataAlle #RegDataAlle[which(RegDataAlle$Bekreftet==1), ]
                         , bekr = 1
-                        , valgtRHF=valgtRHF)$Tab,
+                        , valgtRHF=valgtRHF)$Tab
+
+xtable::xtable(TabAlderBekr,
                digits = 0,
+               align = c('l', rep('r', dim(TabAlderBekr)[2])),
                caption='Fordeling i aldersgrupper for bekreftede tilfeller')
 @
 \end{frame}
