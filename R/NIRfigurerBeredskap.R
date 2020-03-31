@@ -10,7 +10,7 @@ FigTidEnhet <- function(AntTab, outfile=''){
 
   # x11()
   NutvTxt <- length(AntTab$utvalTxt)
-  FigTypUt <- rapFigurer::figtype(outfile=outfile, height=3*800, fargepalett = 'OffAlleFarger')
+  FigTypUt <- rapFigurer::figtype(outfile=outfile, fargepalett = 'OffAlleFarger')
   par('fig'=c(0.05, 1, 0, 1-0.02*(NutvTxt-1)))
   farger <- FigTypUt$farger
   x_labs <- AntTab$Tab_tidy$Dato[-dim(AntTab$Tab_tidy)[1]]
@@ -24,7 +24,8 @@ FigTidEnhet <- function(AntTab, outfile=''){
          bty='n', cex=1, xpd = T, )
 
   mtext(AntTab$utvalTxt, side=3, las=1, cex=0.9, adj=0, line=c(3+0.8*((NutvTxt-1):0)))
-
+  par('fig'=c(0, 1, 0, 1))
+  if ( outfile != '') {dev.off()}
 }
 
 
