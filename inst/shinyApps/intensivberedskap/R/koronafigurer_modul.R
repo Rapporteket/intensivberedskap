@@ -18,12 +18,12 @@ koronafigurer_UI <- function(id, rhfNavn){
                  selectInput(inputId = ns("erMann"), label="Kjønn",
                              choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
                  ),
-                 h4('Kun for risikofaktorer:'),
-                 sliderInput(inputId=ns("alder"), label = "Alder",
-                             min = 0, max = 110,
-                             value = c(0, 110),
-                             step = 10
-                 ),
+                 # h4('Kun for risikofaktorer:'),
+                 # sliderInput(inputId=ns("alder"), label = "Alder",
+                 #             min = 0, max = 110,
+                 #             value = c(0, 110),
+                 #             step = 10
+                 # ),
                  br(),
                  actionButton(ns("tilbakestillValg"), label="Tilbakestill valg")
     ),
@@ -39,7 +39,7 @@ koronafigurer_UI <- function(id, rhfNavn){
 }
 
 
-koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF){
+koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, reshID){
 
   observeEvent(input$tilbakestillValg, {
     shinyjs::reset("brukervalgStartside")
@@ -51,22 +51,6 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF){
                                                         egetRHF))))
   }
 
-  # observe({
-  #
-  #   valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-  #
-  #   AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
-  #                         valgtRHF= valgtRHF,
-  #                         skjemastatus=as.numeric(input$skjemastatus),
-  #                         bekr=as.numeric(input$bekr),
-  #                         erMann=as.numeric(input$erMann)
-  #   )
-  #
-  #
-  #   output$tabTidEnhet <- renderTable({AntTab$Tab}, rownames = T, digits=0, spacing="xs")
-  #
-  # })
-
 
   AntTab <- function() {
     valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
@@ -77,6 +61,7 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF){
                           erMann=as.numeric(input$erMann)
     )
     ant_skjema <- AntTab$Tab_tidy
+    ant_skjema[-dim(ant_skjema)[1], ] <- ant_skjema[rev(1:(dim(ant_skjema)[1]-1)), ]
     sketch <- htmltools::withTags(table(
       DT::tableHeader(ant_skjema[-dim(ant_skjema)[1], ]),
       DT::tableFooter(c('Sum' , as.numeric(ant_skjema[dim(ant_skjema)[1], 2:dim(ant_skjema)[2]])))))
@@ -85,8 +70,6 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF){
     AntTab$sketch <- sketch
     AntTab
   }
-
-  output$tabTidEnhet <- renderTable({AntTab()$Tab}, rownames = T, digits=0, spacing="xs")
 
   output$tabTidEnhet_DT = DT::renderDT(
     DT::datatable(AntTab()$ant_skjema[-dim(AntTab()$ant_skjema)[1], ],
@@ -97,7 +80,11 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF){
   )
 
   output$FigurTidEnhet <- renderPlot({
-    intensivberedskap::FigTidEnhet(AntTab())
+    AntTab <- AntTab()
+    if (rolle != 'SC' | input$valgtRHF != 'Alle') {
+      AntTab$Tab_tidy <- AntTab$Tab_tidy[, -(dim(AntTab$Tab_tidy)[2]-1)]
+    }
+    intensivberedskap::FigTidEnhet(AntTab)
   }, width = 700, height = 700)
 
 

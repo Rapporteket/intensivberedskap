@@ -482,7 +482,7 @@ server <- function(input, output, session) {
 
   ################# Modul for figurer #################################
 
-  callModule(koronafigurer, "koronafigurer_id", rolle = rolle, CoroData = CoroData, egetRHF = egetRHF)
+  callModule(koronafigurer, "koronafigurer_id", rolle = rolle, CoroData = CoroData, egetRHF = egetRHF, reshID=reshID)
 
 }
 # Run the application
