@@ -18,21 +18,18 @@ koronafigurer_UI <- function(id, rhfNavn){
                  selectInput(inputId = ns("erMann"), label="Kjønn",
                              choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
                  ),
-                 # h4('Kun for risikofaktorer:'),
-                 # sliderInput(inputId=ns("alder"), label = "Alder",
-                 #             min = 0, max = 110,
-                 #             value = c(0, 110),
-                 #             step = 10
-                 # ),
+                 selectInput(inputId = ns("bildeformat"), label = "Velg format for nedlastet figur",
+                             choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
                  br(),
                  actionButton(ns("tilbakestillValg"), label="Tilbakestill valg")
     ),
     mainPanel(
-      # h3('Her kommer figur'),
-      # tableOutput(ns('tabTidEnhet')),
       plotOutput(ns("FigurTidEnhet"), height="auto"),
+      downloadButton(ns("LastNedFig"), label = 'Last ned figur'),
       br(),
-      DT::DTOutput(ns("tabTidEnhet_DT"))
+      br(),
+      DT::DTOutput(ns("tabTidEnhet_DT")),
+      downloadButton(ns("lastNed"), "Last ned tabell")
               ) #main
   )
 
@@ -65,7 +62,6 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
     sketch <- htmltools::withTags(table(
       DT::tableHeader(ant_skjema[-dim(ant_skjema)[1], ]),
       DT::tableFooter(c('Sum' , as.numeric(ant_skjema[dim(ant_skjema)[1], 2:dim(ant_skjema)[2]])))))
-    # list(ant_skjema=ant_skjema, sketch=sketch)
     AntTab$ant_skjema <- ant_skjema
     AntTab$sketch <- sketch
     AntTab
@@ -87,6 +83,32 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
     intensivberedskap::FigTidEnhet(AntTab)
   }, width = 700, height = 700)
 
+
+  output$LastNedFig <- downloadHandler(
+    filename = function(){
+      # paste0('KoronaFigur', Sys.time(), '.', input$bildeformat)
+      paste0('KoronaFigur.', input$bildeformat)
+    },
+
+    content = function(file){
+      AntTab <- AntTab()
+      if (rolle != 'SC' | input$valgtRHF != 'Alle') {
+        AntTab$Tab_tidy <- AntTab$Tab_tidy[, -(dim(AntTab$Tab_tidy)[2]-1)]
+      }
+      intensivberedskap::FigTidEnhet(AntTab, outfile = file)
+    }
+  )
+
+  output$lastNed <- downloadHandler(
+    filename = function(){
+      paste0('KoronaTabell', Sys.time(), '.csv')
+    },
+
+    content = function(file){
+      Tabell1 <- AntTab()$Tab_tidy
+      write.csv2(Tabell1, file, row.names = F, fileEncoding = 'latin1')
+    }
+  )
 
 }
 
