@@ -89,11 +89,17 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
       RegData$MndAar <- format(RegData$Innleggelsestidspunkt, '%b%y')
       RegData$Kvartal <- ceiling(RegData$MndNum/3)
       RegData$Halvaar <- ceiling(RegData$MndNum/6)
-      RegData$Aar <- format(RegData$InnDato, '%Y')
-      RegData$UkeNr <- format(RegData$InnDato, '%V')
+      # RegData$Aar <- format(RegData$InnDato, '%Y')
+      RegData$Aar <- factor(format(RegData$InnDato, '%Y'),
+                            levels = min(as.numeric(format(RegData$InnDato, '%Y'))):max(as.numeric(format(RegData$InnDato, '%Y'))))
+      # RegData$UkeNr <- format(RegData$InnDato, '%V')
+      RegData$UkeNr <- factor(format(RegData$InnDato, '%V'),
+                              levels = min(as.numeric(format(RegData$InnDato, '%V'))):max(as.numeric(format(RegData$InnDato, '%V'))))
       #RegData$UkeAar <- format(RegData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
       #RegData$UkeAar <- as.factor(RegData$UkeAar)
-      RegData$Dag <- format(RegData$InnDato, '%d.%B')
+      # RegData$Dag <- format(RegData$InnDato, '%d.%B')
+      RegData$Dag <- factor(format(RegData$InnDato, '%d.%B'),
+                            levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by="day"), '%d.%B'))
 
       ##Kode om  pasienter som er overført til/fra egen avdeling til "ikke-overført"
       #1= ikke overført, 2= overført

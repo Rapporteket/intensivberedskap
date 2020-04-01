@@ -12,10 +12,14 @@
 TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
                         bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
 
-  RegData$TidsVar <- as.factor(RegData[ ,switch (tidsenhet,
-                                                 dag = 'Dag',
-                                                 uke = 'UkeNr',
-                                                 maaned = 'MndAar')])
+  # RegData$TidsVar <- as.factor(RegData[ ,switch (tidsenhet,
+  #                                                dag = 'Dag',
+  #                                                uke = 'UkeNr',
+  #                                                maaned = 'MndAar')])
+  RegData$TidsVar <- RegData[ ,switch (tidsenhet,
+                                       dag = 'Dag',
+                                       uke = 'UkeNr',
+                                       maaned = 'MndAar')]
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                              bekr=bekr, skjemastatus=skjemastatus,
