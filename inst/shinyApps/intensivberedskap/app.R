@@ -405,7 +405,6 @@ server <- function(input, output, session) {
 
   })
 
-  #------------- Abonnement----------------
   #------------------ Abonnement ----------------------------------------------
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
@@ -455,6 +454,7 @@ server <- function(input, output, session) {
     #test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
     #                       reshID=105460)
 
+
     rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
                               fun = fun, paramNames = paramNames,
                               paramValues = paramValues, owner = owner,
@@ -474,6 +474,7 @@ server <- function(input, output, session) {
   ################# Modul for figurer #################################
 
   callModule(koronafigurer, "koronafigurer_id", rolle = rolle, CoroData = CoroData, egetRHF = egetRHF, reshID=reshID)
+
 
 }
 # Run the application
