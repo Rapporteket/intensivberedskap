@@ -12,10 +12,14 @@
 TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
                         bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
 
-  RegData$TidsVar <- as.factor(RegData[ ,switch (tidsenhet,
-                     dag = 'Dag',
-                     uke = 'UkeNr',
-                     maaned = 'MndAar')])
+  # RegData$TidsVar <- as.factor(RegData[ ,switch (tidsenhet,
+  #                                                dag = 'Dag',
+  #                                                uke = 'UkeNr',
+  #                                                maaned = 'MndAar')])
+  RegData$TidsVar <- RegData[ ,switch (tidsenhet,
+                                       dag = 'Dag',
+                                       uke = 'UkeNr',
+                                       maaned = 'MndAar')]
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                              bekr=bekr, skjemastatus=skjemastatus,
@@ -23,7 +27,7 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
 
   RegDataAlle <- UtData$RegData
   RegData <- if(valgtRHF=='Alle') {RegDataAlle} else {RegDataAlle[RegDataAlle$RHF == valgtRHF, ]}
-Ntest <- dim(RegData)[1]
+  Ntest <- dim(RegData)[1]
 
   if (valgtRHF == 'Ukjent'){
     TabTidEnh <- as.matrix(c(table(RegDataAlle$TidsVar), dim(RegDataAlle)[1]), ncol=1)
@@ -51,10 +55,12 @@ Ntest <- dim(RegData)[1]
       TabTidEnh <- cbind(TabTidEnh,
                          'Hele landet'= c(table(RegDataAlle$TidsVar), dim(RegDataAlle)[1]))}
   }
+  TabTidEnh_tidy <- tidyr::as_tibble(as.data.frame.matrix(TabTidEnh), rownames='Dato')
   TabTidEnh <- xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
                               caption='Antall Coronatilfeller.')
 
-  return(UtData <- list(Tab=TabTidEnh, utvalTxt=UtData$utvalgTxt, Ntest=dim(RegData)[1]))
+  return(UtData <- list(Tab=TabTidEnh, utvalTxt=UtData$utvalgTxt, Ntest=dim(RegData)[1],
+                        Tab_tidy=TabTidEnh_tidy))
 }
 
 
@@ -70,44 +76,44 @@ Ntest <- dim(RegData)[1]
 statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
-                               erMann=erMann, bekr=bekr)
-                              # dodInt=dodInt)$RegData velgAvd=velgAvd
-RegData <- UtData$RegData
+                             erMann=erMann, bekr=bekr)
+  # dodInt=dodInt)$RegData velgAvd=velgAvd
+  RegData <- UtData$RegData
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
-inneliggere <- is.na(RegData$DateDischargedIntensive)
-AntPaaIntNaa <- sum(inneliggere) #N - sum(!(is.na(RegData$DateDischargedIntensive)))
-LiggetidNaa <- as.numeric(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[inneliggere], units='days'))
-LiggetidNaaGjsn <- mean(LiggetidNaa[LiggetidNaa < 30], na.rm = T)
+  inneliggere <- is.na(RegData$DateDischargedIntensive)
+  AntPaaIntNaa <- sum(inneliggere) #N - sum(!(is.na(RegData$DateDischargedIntensive)))
+  LiggetidNaa <- as.numeric(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[inneliggere], units='days'))
+  LiggetidNaaGjsn <- mean(LiggetidNaa[LiggetidNaa < 30], na.rm = T)
 
-respLiggere <- inneliggere & is.na(RegData$MechanicalRespiratorEnd) & !(is.na(RegData$MechanicalRespiratorStart) ) #Har antatt at respiratortid MÅ registreres
-AntIrespNaa <- sum(respLiggere)
-ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStart[respLiggere],
-                       units='days'))
-ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 30], na.rm=T)
-#sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
+  respLiggere <- inneliggere & is.na(RegData$MechanicalRespiratorEnd) & !(is.na(RegData$MechanicalRespiratorStart) ) #Har antatt at respiratortid MÅ registreres
+  AntIrespNaa <- sum(respLiggere)
+  ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStart[respLiggere],
+                                    units='days'))
+  ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 30], na.rm=T)
+  #sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
 
-ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) ) #Har antatt at respiratortid MÅ registreres
-AntIECMONaa <- sum(ECMOLiggere) #sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
-ECMOtidNaa <- as.numeric(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
-         units='days'))
-ECMOtidNaaGjsn <- ifelse(AntIECMONaa==0, 0,
-                     mean(ECMOtidNaa[ECMOtidNaa < 30], na.rm=T))
+  ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) ) #Har antatt at respiratortid MÅ registreres
+  AntIECMONaa <- sum(ECMOLiggere) #sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
+  ECMOtidNaa <- as.numeric(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
+                                    units='days'))
+  ECMOtidNaaGjsn <- ifelse(AntIECMONaa==0, 0,
+                           mean(ECMOtidNaa[ECMOtidNaa < 30], na.rm=T))
 
-TabHjelp <- rbind(
-  'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn),
-  'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaaGjsn),
-  'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaaGjsn)
-)
-colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn.)')
-TabHjelp[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
-TabHjelp[1:3, 3] <- paste0(sprintf('%.1f', as.numeric(TabHjelp[1:3, 3])), ' døgn')
-xtable::xtable(TabHjelp,
-               digits=0,
-               align = c('l','r','r','r'),
-               caption='Bruk av Respirator/ECMO.')
-UtData <- list(Tab=TabHjelp, utvalgTxt=UtData$utvalgTxt, PaaIntensivNaa=inneliggere)
-return(UtData)
+  TabHjelp <- rbind(
+    'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn),
+    'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaaGjsn),
+    'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaaGjsn)
+  )
+  colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn.)')
+  TabHjelp[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
+  TabHjelp[1:3, 3] <- paste0(sprintf('%.1f', as.numeric(TabHjelp[1:3, 3])), ' døgn')
+  xtable::xtable(TabHjelp,
+                 digits=0,
+                 align = c('l','r','r','r'),
+                 caption='Bruk av Respirator/ECMO.')
+  UtData <- list(Tab=TabHjelp, utvalgTxt=UtData$utvalgTxt, PaaIntensivNaa=inneliggere)
+  return(UtData)
 }
 
 
@@ -126,8 +132,8 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, dodI
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
                              bekr = bekr,
                              erMann = erMann,
-                              skjemastatus=2)
-RegData <- UtData$RegData
+                             skjemastatus=2)
+  RegData <- UtData$RegData
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
   AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)
@@ -139,21 +145,21 @@ RegData <- UtData$RegData
   Alder <- summary(RegData$Alder, na.rm = T)
   AntDod <- sum(RegData$DischargedIntensivStatus==1, na.rm=T)
 
-med_IQR <- function(x){
-  #x[is.na(x)]<-0
-  c(sprintf('%.1f',x[4]), sprintf('%.1f',x[3]), paste(sprintf('%.1f',x[2]), sprintf('%.1f',x[5]), sep=' - '))
+  med_IQR <- function(x){
+    #x[is.na(x)]<-0
+    c(sprintf('%.1f',x[4]), sprintf('%.1f',x[3]), paste(sprintf('%.1f',x[2]), sprintf('%.1f',x[5]), sep=' - '))
   }
-# x <- Liggetid
-#  test <- sprintf('%.2f',c(x[2],x[5]))
-# test <- med_IQR(ECMOtid)
-TabFerdigeReg <- rbind(
+  # x <- Liggetid
+  #  test <- sprintf('%.2f',c(x[2],x[5]))
+  # test <- med_IQR(ECMOtid)
+  TabFerdigeReg <- rbind(
     'ECMO-tid (døgn)' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/N))),
     'Respiratortid (døgn)' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/N))),
     'Liggetid (døgn)' = c(med_IQR(Liggetid), N, ''),
     'Alder (år)' = c(med_IQR(Alder), N, ''),
     'Døde' = c('','','',AntDod, paste0(sprintf('%.f',100*AntDod/N),'%'))
   )
-#TabFerdigeReg[TabFerdigeReg==NA]<-""
+  #TabFerdigeReg[TabFerdigeReg==NA]<-""
   colnames(TabFerdigeReg) <- c('Gj.sn', 'Median', 'IQR', 'Antall opphold', 'Andel opphold')
   TabFerdigeReg[c(1:2),'Andel opphold'] <-
     paste0(sprintf('%.0f', as.numeric(TabFerdigeReg[c(1:2),'Andel opphold'])),'%')
@@ -215,12 +221,12 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
   )
 
   if (Ntest>3){
-  TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
-  if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
-  colnames(TabRisiko) <- 'Sum'}
-  TabRisiko <- cbind(TabRisiko,
-                     'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%')
-  )
+    TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
+    if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
+    colnames(TabRisiko) <- 'Sum'}
+    TabRisiko <- cbind(TabRisiko,
+                       'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%')
+    )
   }
   # xtable::xtable(TabRisiko,
   #                digits=0,
@@ -251,28 +257,43 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,
                              bekr=bekr,
                              dodInt = dodInt,
                              erMann = erMann,
-                              skjemastatus=skjemastatus
-                              )
+                             skjemastatus=skjemastatus
+  )
   RegData <- UtData$RegData
 
- # enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'RHF') #'HF')
- RegData$EnhetsNivaaVar <- RegData$RHF #RegData[ , enhetsNivaa]
+  # enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'RHF') #'HF')
+  RegData$EnhetsNivaaVar <- RegData$RHF #RegData[ , enhetsNivaa]
 
-N <- dim(RegData)[1]
-gr <- seq(0, 90, ifelse(N<100, 25, 10) )
-RegData$AldersGr <- cut(RegData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
-grtxt <- if(N<100){c('0-24', '25-49', "50-74", "75+")} else {
-                c('0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+')}
-#grtxt <- c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))#paste(gr,sep='-')
-levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
-TabAlder <- table(RegData$AldersGr, RegData$EnhetsNivaaVar)
-TabAlder <- addmargins(TabAlder) #switch(enhetsNivaa, RHF = 'Totalt', HF = paste0(valgtRHF, ', totalt'))
+  N <- dim(RegData)[1]
+  gr <- seq(0, 90, ifelse(N<100, 25, 10) )
+  RegData$AldersGr <- cut(RegData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
+  grtxt <- if(N<100){c('0-24', '25-49', "50-74", "75+")} else {
+    c('0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+')}
+  #grtxt <- c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))#paste(gr,sep='-')
+  levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
+  TabAlder <- table(RegData$AldersGr, RegData$EnhetsNivaaVar)
+  TabAlder <- addmargins(TabAlder) #switch(enhetsNivaa, RHF = 'Totalt', HF = paste0(valgtRHF, ', totalt'))
+  TabAlderPst <-prop.table(TabAlder[-nrow(TabAlder),],2)*100
+  #paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
 
-if (valgtRHF == 'Ukjent') {
-  TabAlder <- as.matrix(TabAlder[,ncol(TabAlder)], ncol=1) } else {
-    if (valgtRHF != 'Alle') {TabAlder <- TabAlder[,c(valgtRHF, 'Sum')]}}
-colnames(TabAlder)[ncol(TabAlder)] <- 'Hele landet'
+     TabAlderAlle <- cbind(
+       'Antall, tot.' = TabAlder[,'Sum'],
+       'Andel, tot.' = paste0(sprintf('%.0f', c(TabAlderPst[,'Sum'], 100)), ' %')
+     )
+     TabAlderUt <-  if (valgtRHF %in% levels(RegData$RHF)){
+       TabAlderUt <- cbind(
+         'Antall, eget' = TabAlder[ ,valgtRHF],
+         'Andel, eget' = paste0(sprintf('%.0f', c(TabAlderPst[ ,valgtRHF], 100)), ' %'),
+         TabAlderAlle)
+       } else {TabAlderAlle}
 
-return(invisible(UtData <- list(Tab=TabAlder, utvalgTxt=UtData$utvalgTxt)))
+  return(invisible(UtData <-
+                     list(Tab=TabAlderUt,
+                          utvalgTxt=c(UtData$utvalgTxt, paste0('Valgt RHF: ', valgtRHF)))))
 }
+# if (valgtRHF == 'Ukjent') {
+#   TabAlder <- as.matrix(TabAlder[,ncol(TabAlder)], ncol=1)
+# } else {
+#   if (valgtRHF != 'Alle') {TabAlder <- TabAlder[,c(valgtRHF, 'Sum')]}}
+# colnames(TabAlder)[ncol(TabAlder)] <- 'Hele landet'
 

@@ -25,23 +25,22 @@ CoroData <- RegData
 
 Data <- RegData[!(is.na(RegData$DateDischargedIntensive)), c("FormStatus", "Bekreftet")]
 
-minald <- 20
-maxald <- 55
+minald <- 0
+maxald <- 110
 reshID=0
 erMann=0
-bekr=1
-skjemastatus=2
+bekr=9
+skjemastatus=9
 dodInt=9
 valgtRHF <-RegData$RHF[3] #'Alle' #
 valgtRHF <- 'Alle'
 valgtRHF <- 'Nord'
 tidsenhet='dag'
-velgAvd=0
 reshID <- 102090
 
 
 TabTidEnhet(RegData=RegData, skjemastatus = 2, erMann=0, valgtRHF ='Nord')$Tab
-TabAlder(RegData, valgtRHF='Ukjent')$Tab
+TabAlder(RegData, valgtRHF=valgtRHF)$Tab
 
 oppsumFerdigeRegTab(RegData)$Tab
 statusECMOrespTab(RegData)$Tab

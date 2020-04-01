@@ -35,7 +35,8 @@ Imports:
     shinyalert,
     shinyjs,
     xtable,
-    zoo
+    zoo,
+    tidyr
 VignetteBuilder: knitr
 Suggests: 
     MASS,
