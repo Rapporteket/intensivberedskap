@@ -4,7 +4,7 @@
 \alias{FigTidEnhet}
 \title{Antall tilfeller for valgt tidsenhet og enhetsnivå. Filtreringer kan også gjøres.}
 \usage{
-FigTidEnhet(AntTab)
+FigTidEnhet(AntTab, outfile = "")
 }
 \arguments{
 \item{AntTab}{Dataramme med nødvendige figurparametre}

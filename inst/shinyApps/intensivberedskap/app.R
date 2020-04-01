@@ -69,7 +69,7 @@ ui <- tagList(
              windowTitle = regTitle,
              theme = "rap/bootstrap.css",
 
-
+#------------Oversiktsside-----------------------------
              tabPanel("Oversikt",
                       useShinyjs(),
                       sidebarPanel(id = 'brukervalgStartside',
@@ -85,11 +85,7 @@ ui <- tagList(
                                    h3('Gjør filtreringer/utvalg:'),
                                    #br(),
 
-                                   # conditionalPanel(condition = "input.hovedark == 'Nøkkeltall' || input.ark == 'Ant. opphold'",
-                                   #                  dateInput(inputId = 'sluttDatoReg', label = 'Velg sluttdato', language="nb",
-                                   #                            value = Sys.Date(), max = Sys.Date())
-                                   # ),
-                                   selectInput(inputId = "valgtRHF", label="Velg RHF",
+                                    selectInput(inputId = "valgtRHF", label="Velg RHF",
                                                choices = rhfNavn
                                    ),
 
@@ -100,9 +96,9 @@ ui <- tagList(
                                    selectInput(inputId = "skjemastatus", label="Skjemastatus",
                                                choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
                                    ),
-                                   # selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
-                                   #             choices = c("Alle"=9, "Død"=1, "Levende"=0)
-                                   # ),
+                                   selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
+                                               choices = c("Alle"=9, "Død"=1, "Levende"=0)
+                                   ),
                                    selectInput(inputId = "erMann", label="Kjønn",
                                                choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
                                    ),
@@ -151,7 +147,7 @@ ui <- tagList(
                                          tableOutput('tabFerdigeReg')
                                   )),
 
-                                h3('Antall intensivopphold'),
+                                h3('Antall intensivopphold, siste 10 dager'),
                                 uiOutput('utvalgHoved'),
                                 tableOutput('tabTidEnhet'),
                                 br(),
@@ -168,7 +164,12 @@ ui <- tagList(
                       ) #main
              ), #tab Tabeller
 
-             #-----------Abonnement--------------------------------
+#------------Figurer-----------------------------------
+tabPanel("Antall intensivopphold",
+         koronafigurer_UI(id = "koronafigurer_id", rhfNavn=rhfNavn)
+),
+
+#-----------Abonnement--------------------------------
              tabPanel(p("Abonnement",
                         title='Bestill automatisk utsending av rapporter på e-post'),
                       value = 'Abonnement',
@@ -190,12 +191,7 @@ ui <- tagList(
                           uiOutput("subscriptionContent")
                         )
                       )
-             ), #tab abonnement
-             #------------Figurer-----------------------------------
-             tabPanel("Figurer",
-                      koronafigurer_UI(id = "koronafigurer_id", rhfNavn=rhfNavn)
-             )
-
+             ) #tab abonnement
 
   ) # navbarPage
 ) # tagList
@@ -287,10 +283,6 @@ server <- function(input, output, session) {
                     Gå til fanen "Abonnement" for å bestille dette')))
   )
 
-  #----------Resultater som tekst--------------
-
-  output$liggetidNaa <- renderUI({
-  })
 
   #----------Tabeller----------------------------
 
@@ -304,7 +296,7 @@ server <- function(input, output, session) {
                           valgtRHF= valgtRHF,
                           skjemastatus=as.numeric(input$skjemastatus),
                           bekr=as.numeric(input$bekr),
-                          #dodInt=as.numeric(input$dodInt),
+                          dodInt=as.numeric(input$dodInt),
                           erMann=as.numeric(input$erMann)
     )
 
@@ -312,7 +304,7 @@ server <- function(input, output, session) {
                                valgtRHF= ifelse(valgtRHF=='Ukjent','Alle',valgtRHF),
                                skjemastatus=as.numeric(input$skjemastatus),
                                bekr=as.numeric(input$bekr),
-                               #dodInt=as.numeric(input$dodInt),
+                               dodInt=as.numeric(input$dodInt),
                                erMann=as.numeric(input$erMann)
     )
 
@@ -332,7 +324,8 @@ server <- function(input, output, session) {
 
       )})
 
-    output$tabTidEnhet <- renderTable({AntTab$Tab}, rownames = T, digits=0, spacing="xs"
+    visNdager <- nrow(AntTab$Tab)
+    output$tabTidEnhet <- renderTable({AntTab$Tab[(visNdager-10):visNdager,]}, rownames = T, digits=0, spacing="xs"
     )
 
     #Tab status nå
@@ -387,7 +380,7 @@ server <- function(input, output, session) {
                                    valgtRHF= input$valgtRHF,
                                    skjemastatus=as.numeric(input$skjemastatus),
                                    bekr=as.numeric(input$bekr),
-                                   #dodInt=as.numeric(input$dodInt),
+                                   dodInt=as.numeric(input$dodInt),
                                    erMann=as.numeric(input$erMann),
                                    minald=as.numeric(input$alder[1]),
                                    maxald=as.numeric(input$alder[2]))
@@ -401,7 +394,7 @@ server <- function(input, output, session) {
 
     TabAlder <- TabAlder(RegData=CoroData,
                          valgtRHF= input$valgtRHF, #egetRHF, #
-                         #dodInt=as.numeric(input$dodInt),
+                         dodInt=as.numeric(input$dodInt),
                          erMann=as.numeric(input$erMann),
                          bekr=as.numeric(input$bekr),
                          skjemastatus=as.numeric(input$skjemastatus)
