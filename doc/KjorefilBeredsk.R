@@ -89,15 +89,20 @@ library(lubridate)
 library(tidyverse)
 
 RegData <- NIRberedskDataSQL()
+test <- RegData[3:4,
+  c("MechanicalRespiratorStart", "MechanicalRespiratorEnd")]
 
+Ut <-
+
+#RegData$PatientInRegistryGuid %in% c('013F0C5E-7B6E-EA11-A96B-00155D0B4F09','03254625-EF73-EA11-A96B-00155D0B4F09'),
+
+min(test[2:4])
 RegData$Tid <- factor(format(RegData$FormDate, "%Y-%m-%d %H:%M:%S"),
                       levels = format(seq(min(RegData$FormDate), max(RegData$FormDate), by="min"), "%Y-%m-%d %H:%M:%S"))
 min(RegData$Tid)
 RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$FormDate, tz= 'UTC',
                                             format="%Y-%m-%d %H:%M:%S" )
 sort(RegData$Innleggelsestidspunkt)
-# test <- lubridate::ymd_hms(RegData$DateDischargedIntensive)
-#
 RegDataRed <- RegData %>% group_by(PatientInRegistryGuid) %>%
   summarise(sort(DateDischargedIntensive)[1])
 
@@ -105,12 +110,12 @@ testData <- NIRberedskDataSQL()
 
 RegDataRed <- testData %>% group_by(PatientInRegistryGuid) %>%
   summarise(min(format.Date(DateDischargedIntensive, tz='UTC'), na.rm = T))
-I
 summarise(DateDischargedIntensive = max(ymd_hms(DateDischargedIntensive), na.rm = T))
 
-#sm <- function(x){first(x, order_by = InnDato)}
-
-
-
-
+RegData <- NIRberedskDataSQL()
+antPer <- table(RegData$PatientInRegistryGuid)
+PID <- names(antPer[antPer==2])
+test <- RegData[RegData$PatientInRegistryGuid %in% PID,
+                c('PatientInRegistryGuid', 'FormDate',"DateDischargedIntensive",
+                  "MechanicalRespiratorStart", "MechanicalRespiratorEnd", 'AgeAdmitted')]
 

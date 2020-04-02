@@ -149,7 +149,8 @@ ui <- tagList(
                                          tableOutput('tabFerdigeReg')
                                   )),
 
-                                h3('Antall intensivpasienter, siste 10 dager'),
+                                h3('Antall ny-innlagte pasienter, siste 10 dager'),
+                                h4('NB: Inkluderer ikke overføringer mellom intensivenheter'),
                                 uiOutput('utvalgHoved'),
                                 tableOutput('tabTidEnhet'),
                                 br(),
@@ -349,7 +350,7 @@ server <- function(input, output, session) {
 
     output$utvalgFerdigeReg <- renderUI({h5(HTML(paste0(TabFerdig$utvalgTxt, '<br />'))) })
     output$tittelFerdigeReg <- renderUI(
-      h4(paste0('Fullførte registreringer (', TabFerdig$Ntest, ' skjema)')))
+      h4(paste0('Ferdigstilte forløp (', TabFerdig$Ntest, ' forløp)')))
 
     #Registreringer i limbo:
     #Må ha egen funksjon for å få dette på sykehusnivå

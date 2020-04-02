@@ -14,14 +14,13 @@
 #'
 NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 {
+   #RegData <- NIRberedskDataSQL()
    # Endre variabelnavn:
    #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
    names(RegData)[which(names(RegData) == 'AgeAdmitted')] <- 'Alder' #PatientAge
-   #	names(RegData)[which(names(RegData) == 'ReAdmitted')] <- 'Reinn'
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
    names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId'
-   #Avvik ml. test og prod-data:
    names(RegData)[
       names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
@@ -47,20 +46,27 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
 
 #------SLÅ SAMMEN TIL PER PASIENT
-#NB: Tidspunkt endres til en time før selv om velger tz='UTC'
-   #options(warn = -1)
+#NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først
+#  På respirator antar man at hvis de ligger på respirator når de overflyttes
    RegDataRed <- RegData %>% group_by(PasientID) %>%
       summarise(Alder = Alder[1],
                 PatientGender = PatientGender[1],
-                FormDate = sort(FormDate)[1], #ymd_hms(Innleggelsestidspunkt, tz='UTC')
-                DateDischargedIntensive = sort(DateDischargedIntensive, decreasing = T)[1],
-                EcmoEnd = sort(EcmoEnd, decreasing = T)[1],
-                EcmoStart = sort(EcmoStart)[1],
-                MechanicalRespiratorEnd = sort(MechanicalRespiratorEnd, decreasing = T)[1],
+                FormDate = sort(FormDate)[1],
                 MechanicalRespiratorStart = sort(MechanicalRespiratorStart)[1],
+                EcmoStart = sort(EcmoStart)[1],
+                DateDischargedIntensive = max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
+                MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
+                   #sort(MechanicalRespiratorEnd, decreasing = T)[1],
+                #ifelse(is.na(MechanicalRespiratorStart),NA, )
+                # RespTid = as.numeric(difftime(max(MechanicalRespiratorEnd,
+                #                                           MechanicalRespiratorStart,
+                #                                           units = 'days')),
+                EcmoEnd = max(EcmoEnd), #sort(EcmoEnd, decreasing = T)[1],
                 Morsdato = sort(Morsdato)[1],
                 FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
                 DischargedIntensivStatus = max(DischargedIntensivStatus, na.rm = T), #0-levende, 1-død
+                MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
+                Overf = max(Overf),
                 Graviditet = sum(Graviditet)>0,
                 Astma  = sum(Astma)>0,
                 Diabetes = sum(Diabetes)>0,
@@ -74,8 +80,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 IsObesePatient = sum(IsObesePatient)>0,
                 IsRiskFactor = sum(IsRiskFactor)>0,
                 Kreft = sum(Kreft)>0,
-                MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
-                Overf = max(Overf),
                 Bekreftet = max(Bekreftet),
                 ReshId = first(ReshId, order_by = FormDate),
                 RHF=RHF[1],
