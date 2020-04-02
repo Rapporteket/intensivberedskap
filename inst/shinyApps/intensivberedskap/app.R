@@ -10,6 +10,8 @@
 library(shiny)
 library(shinyjs)
 library(magrittr)
+library(tidyverse)
+library(lubridate)
 library(rapbase)
 library(intensivberedskap)
 
@@ -35,11 +37,11 @@ if (paaServer) {
   CoroData <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } else {
-  CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-04-01 12-36-02.txt', sep=';',
+  CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-04-03 11-02-00.txt', sep=';',
                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 } #hente data
 
-
+#Bruk resh før preprosesserer
 CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
 #CoroData <- preprosessBeredVar(RegData = CoroData)
 
@@ -132,12 +134,12 @@ ui <- tagList(
                                 br(),
                                 fluidRow(
                                   column(width = 4,
-                                         h4('Opphold uten registrert ut-tid fra intensiv'), #, align='center'),
+                                         h4('Forløp uten registrert ut-tid fra intensiv'), #, align='center'),
                                          uiOutput('liggetidNaa'),
                                          uiOutput('utvalgNaa'),
                                          tableOutput('tabECMOrespirator'),
                                          br(),
-                                         h4('Opphold registrert som utskrevet, uten ferdigstilt skjema:'),
+                                         h4('Forløp registrert som utskrevet, uten ferdigstilt skjema:'),
                                          #h4('Antall opphold registrert som utskrevet, med ikke ferdigstilt skjema'),
                                          uiOutput('RegIlimbo')
                                   ),
@@ -147,7 +149,8 @@ ui <- tagList(
                                          tableOutput('tabFerdigeReg')
                                   )),
 
-                                h3('Antall intensivopphold, siste 10 dager'),
+                                h3('Antall ny-innlagte pasienter, siste 10 dager'),
+                                h4('NB: Inkluderer ikke overføringer mellom intensivenheter'),
                                 uiOutput('utvalgHoved'),
                                 tableOutput('tabTidEnhet'),
                                 br(),
@@ -165,7 +168,7 @@ ui <- tagList(
              ), #tab Tabeller
 
 #------------Figurer-----------------------------------
-tabPanel("Antall intensivopphold",
+tabPanel("Antall intensivpasienter",
          koronafigurer_UI(id = "koronafigurer_id", rhfNavn=rhfNavn)
 ),
 
@@ -312,7 +315,7 @@ server <- function(input, output, session) {
       UtData$utvalgTxt
     } else {'Alle registrerte '}
     txt <- if(dim(UtData$RegData)[1]>2) {
-      paste0('Gjennomsnittsalderen er <b>', round(mean(UtData$RegData$Alder, na.rm = T)), '</b> år og ',
+      paste0('For innlagte f.o.m. 10.mars, er gjennomsnittsalderen <b>', round(mean(UtData$RegData$Alder, na.rm = T)), '</b> år og ',
              round(100*mean(UtData$RegData$erMann, na.rm = T)), '% er menn. Antall døde: ',
              sum(UtData$RegData$DischargedIntensivStatus==1))
     } else {''}
@@ -347,7 +350,7 @@ server <- function(input, output, session) {
 
     output$utvalgFerdigeReg <- renderUI({h5(HTML(paste0(TabFerdig$utvalgTxt, '<br />'))) })
     output$tittelFerdigeReg <- renderUI(
-      h4(paste0('Fullførte registreringer (', TabFerdig$Ntest, ' skjema)')))
+      h4(paste0('Ferdigstilte forløp (', TabFerdig$Ntest, ' forløp)')))
 
     #Registreringer i limbo:
     #Må ha egen funksjon for å få dette på sykehusnivå
@@ -356,7 +359,7 @@ server <- function(input, output, session) {
       finnBurdeFerdig <- function(RegData) {sum((!(is.na(RegData$DateDischargedIntensive)) & (RegData$FormStatus!=2)))}
       #RegData <- CoroData
       valgtRHF <- input$valgtRHF
-      tittel <- 'Opphold registrert som utskrevet, uten ferdigstilt skjema: '
+      tittel <- 'Forløp registrert som utskrevet, uten ferdigstilt skjema: '
       #'Antall opphold registrert som utskrevet, med ikke ferdigstilt skjema',
 
       AntBurdeFerdig <-

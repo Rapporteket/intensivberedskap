@@ -6,9 +6,9 @@ koronafigurer_UI <- function(id, rhfNavn){
     sidebarPanel(id = ns('brukervalgStartside'),
                  width = 3,
                  h3('Gjør filtreringer/utvalg:'),
-                 # selectInput(inputId = ns("valgtRHF"), label="Velg RHF",
-                 #             choices = rhfNavn
-                 # ),
+                 selectInput(inputId = ns("valgtRHF"), label="Velg RHF",
+                             choices = rhfNavn
+                 ),
                  selectInput(inputId = ns("bekr"), label="Bekreftet/Mistenkt",
                              choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
                  ),

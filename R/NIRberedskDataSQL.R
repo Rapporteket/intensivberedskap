@@ -55,7 +55,7 @@ NIRberedskDataSQL <- function() { #datoFra = '2020-03-01', datoTil = Sys.Date()
 ,MechanicalRespiratorStart
 ,MinorVersion
 ,MoreThan24Hours
--- ,Morsdato
+,Morsdato
 ,MorsdatoOppdatert
 ,MovedPatientToAnotherIntensivDuring24Hours
 ,Municipal
