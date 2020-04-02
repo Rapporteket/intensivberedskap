@@ -24,6 +24,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
    names(RegData)[
       names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
+
    #Diagnoser:
    RegData$Bekreftet <- 0
    RegData$Bekreftet[which(RegData$Diagnosis %in% 100:103)] <- 1
@@ -44,18 +45,17 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
    RegData <- TilLogiskeVar(RegData)
 
-
+   last(RegData$DateDischargedIntensive, order_by = RegData$FormDate)
 #------SLÅ SAMMEN TIL PER PASIENT
 #NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først
 #  På respirator antar man at hvis de ligger på respirator når de overflyttes
    RegDataRed <- RegData %>% group_by(PasientID) %>%
       summarise(Alder = Alder[1],
                 PatientGender = PatientGender[1],
-                FormDate = sort(FormDate)[1],
                 MechanicalRespiratorStart = sort(MechanicalRespiratorStart)[1],
                 EcmoStart = sort(EcmoStart)[1],
-                DateDischargedIntensive = max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
-                MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
+                DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
+                MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate, default = NA),
                    #sort(MechanicalRespiratorEnd, decreasing = T)[1],
                 #ifelse(is.na(MechanicalRespiratorStart),NA, )
                 # RespTid = as.numeric(difftime(max(MechanicalRespiratorEnd,
@@ -84,7 +84,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 ReshId = first(ReshId, order_by = FormDate),
                 RHF=RHF[1],
                 HF=HF[1],
-                ShNavn=ShNavn[1])
+                ShNavn=ShNavn[1],
+                FormDate = sort(FormDate)[1])
 
 
 #----------------------------

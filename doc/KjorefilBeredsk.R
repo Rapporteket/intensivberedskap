@@ -58,8 +58,10 @@ ut <- TabTidEnhet(RegData=CoroData, tidsenhet='uke', enhetsNivaa='HF')
 
 #--------------------Overføringer-------------------------
 library(intensivberedskap)
-CoroData <- NIRberedskDataSQL()
-RegData <- NIRPreprosessBeredsk(CoroData)
+library(tidyverse)
+library(lubridate)
+RegData <- NIRberedskDataSQL()
+RegData <- NIRPreprosessBeredsk(RegData)
 
 Nopph <- dim(RegData)[1]
 Npas <- length(unique(RegData$PasientID))
