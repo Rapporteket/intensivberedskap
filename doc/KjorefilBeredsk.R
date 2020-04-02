@@ -53,3 +53,67 @@ statusECMOrespTab(CoroData)
 RisikofaktorerTab(RegData, erMann = 1)
 
 ut <- TabTidEnhet(RegData=CoroData, tidsenhet='uke', enhetsNivaa='HF')
+
+
+#--------------------Overføringer-------------------------
+library(intensivberedskap)
+CoroData <- NIRberedskDataSQL()
+RegData <- NIRPreprosessBeredsk(CoroData)
+
+Nopph <- dim(RegData)[1]
+Npas <- length(unique(RegData$PasientID))
+AntOpphPas <- table(RegData$PasientID)
+AntOpphPas[AntOpphPas>1]
+EkstraOpph <- Nopph-Npas
+
+#"liggetid", #"DeadPatientDuring24Hours" "MoreThan24Hours" "MovedPatientToAnotherIntensivDuring24Hours"
+#[41] "Municipal"                                  "MunicipalNumber"#"Diagnosis"
+#"LastUpdate" "Dod30" "Dod90" [53] "Korona"
+#[57] "ECMOTid"                                    "RespTid"
+"AgeAdmitted"
+"Astma"
+"DateAdmittedIntensive"
+"DateDischargedIntensive"
+"Diabetes"
+"DischargedIntensivStatus"
+[11] "EcmoEnd"
+"EcmoStart"
+[13] "FormDate"
+"FormStatus"
+[15] "FormTypeId"
+"Graviditet"
+[17] "Helseenhet"
+"HelseenhetKortnavn"
+[19] "HF"
+"HovedskjemaGUID"
+[21] "IsActivSmoker"                              "IsChronicLungDiseasePatient"
+[23] "IsChronicNeurologicNeuromuscularPatient"    "IsEcmoTreatmentAdministered"
+[25] "IsHeartDiseaseIncludingHypertensionPatient" "IsImpairedImmuneSystemIncludingHivPatient"
+[27] "IsKidneyDiseaseIncludingFailurePatient"     "IsLiverDiseaseIncludingFailurePatient"
+[29] "IsObesePatient"                             "IsRiskFactor"
+[31] "Kreft"
+[33] "MajorVersion"                               "MechanicalRespirator"
+[35] "MechanicalRespiratorEnd"                    "MechanicalRespiratorStart"
+[37] "MinorVersion"
+[39] "MorsdatoOppdatert"
+[43] "Alder"                                      "PatientGender"
+[45] "PasientID"                                  "RHF"
+[47] "ShNavn"                                     "Sykehus"
+[49] "Overf"                                      "ReshId"
+[51] "erMann"                                     "Kjonn"
+ "Bekreftet"
+
+ Følger innleggelsestidspunkt:
+
+[55] "InnDato"
+[59] "MndNum"                                     "MndAar"
+[61] "Kvartal"                                    "Halvaar"
+[63] "Aar"                                        "UkeNr"
+[65] "Dag"
+
+
+ RegData <- korona::KoronaPreprosesser(korona::KoronaDataSQL())
+
+ RegData$Vekt
+
+
