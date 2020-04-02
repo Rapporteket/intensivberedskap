@@ -16,15 +16,19 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 {
    # Endre variabelnavn:
    #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
-   names(RegData)[which(names(RegData) == 'PatientAge')] <- 'Alder'
+   names(RegData)[which(names(RegData) == 'AgeAdmitted')] <- 'Alder' #PatientAge
    #	names(RegData)[which(names(RegData) == 'ReAdmitted')] <- 'Reinn'
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
-   #names(RegData)[which(names(RegData) == 'ReshID')] <- 'ReshId'
    names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId'
    #Avvik ml. test og prod-data:
    names(RegData)[
       names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
+
+   #Diagnoser:
+   RegData$Bekreftet <- 0
+   RegData$Bekreftet[which(RegData$Diagnosis %in% 100:103)] <- 1
+
 
    #Konvertere boolske variable fra tekst til boolske variable...
    TilLogiskeVar <- function(Skjema){
@@ -42,25 +46,21 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
    RegData <- TilLogiskeVar(RegData)
 
 
-   #Diagnoser:
-   RegData$Bekreftet <- 0
-   RegData$Bekreftet[which(RegData$Diagnosis %in% 100:103)] <- 1
-
 #------SLÅ SAMMEN TIL PER PASIENT
 #NB: Tidspunkt endres til en time før selv om velger tz='UTC'
    #options(warn = -1)
    RegDataRed <- RegData %>% group_by(PasientID) %>%
-      summarise(Alder = median(Alder),
+      summarise(Alder = Alder[1],
                 PatientGender = PatientGender[1],
                 FormDate = sort(FormDate)[1], #ymd_hms(Innleggelsestidspunkt, tz='UTC')
-                DischargedIntensivStatus = max(DischargedIntensivStatus, na.rm = T), #0-levende, 1-død
                 DateDischargedIntensive = sort(DateDischargedIntensive, decreasing = T)[1],
                 EcmoEnd = sort(EcmoEnd, decreasing = T)[1],
                 EcmoStart = sort(EcmoStart)[1],
                 MechanicalRespiratorEnd = sort(MechanicalRespiratorEnd, decreasing = T)[1],
-                MechanicalRespiratorStart = sort(MechanicalRespiratorStart, decreasing = T)[1],
+                MechanicalRespiratorStart = sort(MechanicalRespiratorStart)[1],
                 Morsdato = sort(Morsdato)[1],
                 FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
+                DischargedIntensivStatus = max(DischargedIntensivStatus, na.rm = T), #0-levende, 1-død
                 Graviditet = sum(Graviditet)>0,
                 Astma  = sum(Astma)>0,
                 Diabetes = sum(Diabetes)>0,
