@@ -38,6 +38,7 @@ valgtRHF <- 'Nord'
 tidsenhet='dag'
 reshID <- 102090
 
+oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, dodInt=9)
 
 TabTidEnhet(RegData=RegData, skjemastatus = 2, erMann=0, valgtRHF ='Nord')$Tab
 TabAlder(RegData, valgtRHF=valgtRHF)$Tab
@@ -66,54 +67,43 @@ AntOpphPas <- table(RegData$PasientID)
 AntOpphPas[AntOpphPas>1]
 EkstraOpph <- Nopph-Npas
 
-#"liggetid", #"DeadPatientDuring24Hours" "MoreThan24Hours" "MovedPatientToAnotherIntensivDuring24Hours"
-#[41] "Municipal"                                  "MunicipalNumber"#"Diagnosis"
-#"LastUpdate" "Dod30" "Dod90" [53] "Korona"
-#[57] "ECMOTid"                                    "RespTid"
-"AgeAdmitted"
-"Astma"
-"DateAdmittedIntensive"
-"DateDischargedIntensive"
-"Diabetes"
-"DischargedIntensivStatus"
-[11] "EcmoEnd"
-"EcmoStart"
-[13] "FormDate"
-"FormStatus"
-[15] "FormTypeId"
-"Graviditet"
-[17] "Helseenhet"
-"HelseenhetKortnavn"
-[19] "HF"
-"HovedskjemaGUID"
-[21] "IsActivSmoker"                              "IsChronicLungDiseasePatient"
-[23] "IsChronicNeurologicNeuromuscularPatient"    "IsEcmoTreatmentAdministered"
-[25] "IsHeartDiseaseIncludingHypertensionPatient" "IsImpairedImmuneSystemIncludingHivPatient"
-[27] "IsKidneyDiseaseIncludingFailurePatient"     "IsLiverDiseaseIncludingFailurePatient"
-[29] "IsObesePatient"                             "IsRiskFactor"
-[31] "Kreft"
-[33] "MajorVersion"                               "MechanicalRespirator"
-[35] "MechanicalRespiratorEnd"                    "MechanicalRespiratorStart"
-[37] "MinorVersion"
-[39] "MorsdatoOppdatert"
-[43] "Alder"                                      "PatientGender"
-[45] "PasientID"                                  "RHF"
-[47] "ShNavn"                                     "Sykehus"
-[49] "Overf"                                      "ReshId"
-[51] "erMann"                                     "Kjonn"
- "Bekreftet"
-
- Følger innleggelsestidspunkt:
-
-[55] "InnDato"
-[59] "MndNum"                                     "MndAar"
-[61] "Kvartal"                                    "Halvaar"
-[63] "Aar"                                        "UkeNr"
-[65] "Dag"
+#liggetid, #DeadPatientDuring24Hours MoreThan24Hours MovedPatientToAnotherIntensivDuring24Hours
+#[41] Municipal                                  MunicipalNumber#Diagnosis
+#LastUpdate Dod30 Dod90 [53] Korona
+#[57] ECMOTid                                    RespTid
+#IsEcmoTreatmentAdministered
 
 
- RegData <- korona::KoronaPreprosesser(korona::KoronaDataSQL())
+#Eksempel på bruk av gruppering I dplyr (tidyverse).
+library(tidyverse)
+#Kan slå sammen hver enkelt variabel:
+tmp <- RegData %>% group_by(PasientID) %>% summarise(mindato = min(InnDato), maxdato = max(InnDato), N=n())
 
- RegData$Vekt
+#Jeg lagde forresten denne lille snutten for å ramse opp variablene som har mer enn 1 verdi på samme pasientID:
+lengde_unik <- function(x){length(unique(x))}
+aux <- RegData %>% group_by(PasientID) %>% summarise_all(lengde_unik)
+names(colSums(aux[, -1])[colSums(aux[, -1]) > dim(aux)[1]])
+
+library(intensivberedskap)
+library(lubridate)
+library(tidyverse)
+RegData <- NIRberedskDataSQL()
+
+
+# test <- lubridate::ymd_hms(RegData$DateDischargedIntensive)
+#
+RegDataRed <- RegData %>% group_by(PatientInRegistryGuid) %>%
+  summarise(min(format.Date(DateDischargedIntensive, tz='UTC'), na.rm = T))
+testData <- NIRberedskDataSQL()
+
+RegDataRed <- testData %>% group_by(PatientInRegistryGuid) %>%
+  summarise(min(format.Date(DateDischargedIntensive, tz='UTC'), na.rm = T))
+
+summarise(DateDischargedIntensive = max(ymd_hms(DateDischargedIntensive), na.rm = T))
+
+#sm <- function(x){first(x, order_by = InnDato)}
+
+
+
 
 

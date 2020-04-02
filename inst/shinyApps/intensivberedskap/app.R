@@ -10,6 +10,8 @@
 library(shiny)
 library(shinyjs)
 library(magrittr)
+library(tidyverse)
+library(lubridate)
 library(rapbase)
 library(intensivberedskap)
 
@@ -39,7 +41,7 @@ if (paaServer) {
                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 } #hente data
 
-
+#Bruk resh før preprosesserer
 CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
 #CoroData <- preprosessBeredVar(RegData = CoroData)
 
