@@ -45,10 +45,10 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
                          HF = paste0(valgtRHF, ', totalt'))
     if (Ntest==0) {
       TabTidEnh <- matrix(0, ncol=1, nrow=length(levels(RegData$TidsVar)) + 1,
-                          dimnames = list(c(levels(RegData$TidsVar), 'Totalt'), valgtRHF)) #table(RegData$TidsVar)
+                          dimnames = list(c(levels(RegData$TidsVar), 'Totalt (fra 10.mars)'), valgtRHF)) #table(RegData$TidsVar)
     }else{
       TabTidEnh <- table(RegData[ , c('TidsVar', enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
-      TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
+      TabTidEnh <- addmargins(TabTidEnh, FUN=list('Totalt fra 10.mars'=sum, 'Hele landet' = sum), quiet=TRUE)
       colnames(TabTidEnh)[ncol(TabTidEnh)] <- kolNavnSum
     }
     if (valgtRHF != 'Alle'){
