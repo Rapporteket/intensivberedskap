@@ -62,6 +62,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
 #------SLÅ SAMMEN TIL PER PASIENT
 #NB: Tidspunkt endres til en time før selv om velger tz='UTC'
+   options(warn = -1)
    RegDataRed <- RegData %>% group_by(PasientID) %>%
       summarise(Alder = median(Alder),
                 PatientGender = PatientGender[1],
@@ -85,6 +86,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 IsKidneyDiseaseIncludingFailurePatient  = sum(IsKidneyDiseaseIncludingFailurePatient)>0,
                 IsLiverDiseaseIncludingFailurePatient = sum(IsLiverDiseaseIncludingFailurePatient)>0,
                 IsObesePatient = sum(IsObesePatient)>0,
+                IsRiskFactor = sum(IsRiskFactor)>0,
                 Kreft = sum(Kreft)>0,
                 MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
                 Overf = max(Overf),
@@ -93,6 +95,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 RHF=RHF[1],
                 HF=HF[1],
                 ShNavn=ShNavn[1])
+
+
 #----------------------------
 RegData <- data.frame(RegDataRed)
    RegData$Korona <- factor(RegData$Bekreftet, levels= 0:1, labels= c('M', 'B'))
