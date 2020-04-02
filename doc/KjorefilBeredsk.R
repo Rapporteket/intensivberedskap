@@ -87,18 +87,25 @@ names(colSums(aux[, -1])[colSums(aux[, -1]) > dim(aux)[1]])
 library(intensivberedskap)
 library(lubridate)
 library(tidyverse)
+
 RegData <- NIRberedskDataSQL()
 
-
+RegData$Tid <- factor(format(RegData$FormDate, "%Y-%m-%d %H:%M:%S"),
+                      levels = format(seq(min(RegData$FormDate), max(RegData$FormDate), by="min"), "%Y-%m-%d %H:%M:%S"))
+min(RegData$Tid)
+RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$FormDate, tz= 'UTC',
+                                            format="%Y-%m-%d %H:%M:%S" )
+sort(RegData$Innleggelsestidspunkt)
 # test <- lubridate::ymd_hms(RegData$DateDischargedIntensive)
 #
 RegDataRed <- RegData %>% group_by(PatientInRegistryGuid) %>%
-  summarise(min(format.Date(DateDischargedIntensive, tz='UTC'), na.rm = T))
+  summarise(sort(DateDischargedIntensive)[1])
+
 testData <- NIRberedskDataSQL()
 
 RegDataRed <- testData %>% group_by(PatientInRegistryGuid) %>%
   summarise(min(format.Date(DateDischargedIntensive, tz='UTC'), na.rm = T))
-
+I
 summarise(DateDischargedIntensive = max(ymd_hms(DateDischargedIntensive), na.rm = T))
 
 #sm <- function(x){first(x, order_by = InnDato)}

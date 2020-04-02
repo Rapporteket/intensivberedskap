@@ -15,7 +15,7 @@
 NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 {
    # Endre variabelnavn:
-   names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
+   #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
    names(RegData)[which(names(RegData) == 'PatientAge')] <- 'Alder'
    #	names(RegData)[which(names(RegData) == 'ReAdmitted')] <- 'Reinn'
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
@@ -41,20 +41,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
    RegData <- TilLogiskeVar(RegData)
 
-   #Riktig format på datovariable:
-   #Benytter FormDate i stedet for DateAdmitted. De er like men FormDate er alltid utfylt.
-   RegData$InnDato <- as.Date(RegData$FormDate, tz= 'UTC', format="%Y-%m-%d") #DateAdmittedIntensive
-   RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$FormDate, tz= 'UTC',
-                                               format="%Y-%m-%d %H:%M:%S" ) #DateAdmittedIntensive
-   RegData$DateDischargedIntensive <- as.POSIXlt(RegData$DateDischargedIntensive, tz= 'UTC',
-                                                 format="%Y-%m-%d %H:%M:%S" )
-   RegData$MechanicalRespiratorStart <- as.POSIXlt(RegData$MechanicalRespiratorStart,
-                                                   tz= 'UTC', format="%Y-%m-%d %H:%M:%S")
-   RegData$MechanicalRespiratorEnd <- as.POSIXlt(RegData$MechanicalRespiratorEnd,
-                                                 tz= 'UTC', format="%Y-%m-%d %H:%M:%S")
-   #De som har Morsdato før utskriving fra intensiv:
-   ind <- which(as.Date(RegData$Morsdato, format="%Y-%m-%d %H:%M:%S") <= as.Date(RegData$DateDischargedIntensive))
-   RegData$DischargedIntensivStatus[ind] <- 1
 
    #Diagnoser:
    RegData$Bekreftet <- 0
@@ -62,18 +48,18 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
 #------SLÅ SAMMEN TIL PER PASIENT
 #NB: Tidspunkt endres til en time før selv om velger tz='UTC'
-   options(warn = -1)
+   #options(warn = -1)
    RegDataRed <- RegData %>% group_by(PasientID) %>%
       summarise(Alder = median(Alder),
                 PatientGender = PatientGender[1],
-                InnDato = min(InnDato),
-                Innleggelsestidspunkt = min(format.Date(Innleggelsestidspunkt, tz='UTC'), na.rm = T), #ymd_hms(Innleggelsestidspunkt, tz='UTC')
+                FormDate = sort(FormDate)[1], #ymd_hms(Innleggelsestidspunkt, tz='UTC')
                 DischargedIntensivStatus = max(DischargedIntensivStatus, na.rm = T), #0-levende, 1-død
-                DateDischargedIntensive = max(ymd_hms(DateDischargedIntensive), na.rm = T),
-                EcmoEnd = max(ymd_hms(EcmoEnd), na.rm = T),
-                EcmoStart = min(ymd_hms(EcmoStart), na.rm = T),
-                MechanicalRespiratorEnd = max(ymd_hms(MechanicalRespiratorEnd)),
-                MechanicalRespiratorStart = min(ymd_hms(MechanicalRespiratorStart)),
+                DateDischargedIntensive = sort(DateDischargedIntensive, decreasing = T)[1],
+                EcmoEnd = sort(EcmoEnd, decreasing = T)[1],
+                EcmoStart = sort(EcmoStart)[1],
+                MechanicalRespiratorEnd = sort(MechanicalRespiratorEnd, decreasing = T)[1],
+                MechanicalRespiratorStart = sort(MechanicalRespiratorStart, decreasing = T)[1],
+                Morsdato = sort(Morsdato)[1],
                 FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
                 Graviditet = sum(Graviditet)>0,
                 Astma  = sum(Astma)>0,
@@ -91,7 +77,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
                 Overf = max(Overf),
                 Bekreftet = max(Bekreftet),
-                ReshId = first(ReshId, order_by = InnDato),
+                ReshId = first(ReshId, order_by = FormDate),
                 RHF=RHF[1],
                 HF=HF[1],
                 ShNavn=ShNavn[1])
@@ -118,6 +104,20 @@ RegData <- data.frame(RegDataRed)
 
       #unique(RegData[RegData$RHF=='Privat',c("ShNavn", "UnitId", "RHF")])
 
+      #Riktig format på datovariable:
+      #Benytter FormDate i stedet for DateAdmitted. De er like men FormDate er alltid utfylt.
+      RegData$InnDato <- as.Date(RegData$FormDate, tz= 'UTC', format="%Y-%m-%d") #DateAdmittedIntensive
+      RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$FormDate, tz= 'UTC',
+                                                  format="%Y-%m-%d %H:%M:%S" ) #DateAdmittedIntensive
+      RegData$DateDischargedIntensive <- as.POSIXlt(RegData$DateDischargedIntensive, tz= 'UTC',
+                                                    format="%Y-%m-%d %H:%M:%S" )
+      RegData$MechanicalRespiratorStart <- as.POSIXlt(RegData$MechanicalRespiratorStart,
+                                                      tz= 'UTC', format="%Y-%m-%d %H:%M:%S")
+      RegData$MechanicalRespiratorEnd <- as.POSIXlt(RegData$MechanicalRespiratorEnd,
+                                                    tz= 'UTC', format="%Y-%m-%d %H:%M:%S")
+      #De som har Morsdato før utskriving fra intensiv:
+      ind <- which(as.Date(RegData$Morsdato, format="%Y-%m-%d %H:%M:%S") <= as.Date(RegData$DateDischargedIntensive))
+      RegData$DischargedIntensivStatus[ind] <- 1
 
 
       #Liggetider
