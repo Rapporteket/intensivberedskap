@@ -14,8 +14,6 @@ library(tidyverse)
 library(lubridate)
 library(rapbase)
 library(intensivberedskap)
-library(tidyverse)
-library(lubridate)
 
 addResourcePath('rap', system.file('www', package='rapbase'))
 context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
