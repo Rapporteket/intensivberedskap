@@ -37,12 +37,12 @@ if (paaServer) {
   CoroData <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } else {
-  CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-04-03 11-02-00.txt', sep=';',
+  CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-04-03 16-38-35.txt', sep=';',
                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 } #hente data
 
 #Bruk resh før preprosesserer
-CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
+CoroData <- NIRPreprosessBeredsk_v2(RegData = CoroData)
 #CoroData <- preprosessBeredVar(RegData = CoroData)
 
 
