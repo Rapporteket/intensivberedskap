@@ -10,6 +10,8 @@
 library(shiny)
 library(shinyjs)
 library(magrittr)
+library(tidyverse)
+library(lubridate)
 library(rapbase)
 library(intensivberedskap)
 library(tidyverse)
@@ -41,7 +43,7 @@ if (paaServer) {
                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 } #hente data
 
-
+#Bruk resh før preprosesserer
 CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
 #CoroData <- preprosessBeredVar(RegData = CoroData)
 
@@ -134,12 +136,12 @@ ui <- tagList(
                                 br(),
                                 fluidRow(
                                   column(width = 4,
-                                         h4('Opphold uten registrert ut-tid fra intensiv'), #, align='center'),
+                                         h4('Forløp uten registrert ut-tid fra intensiv'), #, align='center'),
                                          uiOutput('liggetidNaa'),
                                          uiOutput('utvalgNaa'),
                                          tableOutput('tabECMOrespirator'),
                                          br(),
-                                         h4('Opphold registrert som utskrevet, uten ferdigstilt skjema:'),
+                                         h4('Forløp registrert som utskrevet, uten ferdigstilt skjema:'),
                                          #h4('Antall opphold registrert som utskrevet, med ikke ferdigstilt skjema'),
                                          uiOutput('RegIlimbo')
                                   ),
@@ -149,7 +151,7 @@ ui <- tagList(
                                          tableOutput('tabFerdigeReg')
                                   )),
 
-                                h3('Antall intensivopphold, siste 10 dager'),
+                                h3('Antall intensivpasienter, siste 10 dager'),
                                 uiOutput('utvalgHoved'),
                                 tableOutput('tabTidEnhet'),
                                 br(),
@@ -167,7 +169,7 @@ ui <- tagList(
              ), #tab Tabeller
 
 #------------Figurer-----------------------------------
-tabPanel("Antall intensivopphold",
+tabPanel("Antall intensivpasienter",
          koronafigurer_UI(id = "koronafigurer_id", rhfNavn=rhfNavn)
 ),
 
@@ -358,7 +360,7 @@ server <- function(input, output, session) {
       finnBurdeFerdig <- function(RegData) {sum((!(is.na(RegData$DateDischargedIntensive)) & (RegData$FormStatus!=2)))}
       #RegData <- CoroData
       valgtRHF <- input$valgtRHF
-      tittel <- 'Opphold registrert som utskrevet, uten ferdigstilt skjema: '
+      tittel <- 'Forløp registrert som utskrevet, uten ferdigstilt skjema: '
       #'Antall opphold registrert som utskrevet, med ikke ferdigstilt skjema',
 
       AntBurdeFerdig <-
