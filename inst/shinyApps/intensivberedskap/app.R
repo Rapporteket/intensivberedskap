@@ -42,7 +42,7 @@ if (paaServer) {
 } #hente data
 
 #Bruk resh før preprosesserer
-CoroData <- NIRPreprosessBeredsk_v2(RegData = CoroData)
+CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
 #CoroData <- preprosessBeredVar(RegData = CoroData)
 
 
