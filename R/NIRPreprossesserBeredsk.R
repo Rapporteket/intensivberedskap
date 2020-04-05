@@ -53,7 +53,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
       summarise(Alder = Alder[1],
                 PatientGender = PatientGender[1],
                 MechanicalRespiratorStart = sort(MechanicalRespiratorStart)[1],
-                # EcmoStart = sort(EcmoStart)[1],
+                EcmoStart = sort(EcmoStart)[1],
                 DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
                 MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate, default = NA),
                 #sort(MechanicalRespiratorEnd, decreasing = T)[1],
@@ -61,7 +61,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 # RespTid = as.numeric(difftime(max(MechanicalRespiratorEnd,
                 #                                           MechanicalRespiratorStart,
                 #                                           units = 'days')),
-                # EcmoEnd = max(EcmoEnd), #sort(EcmoEnd, decreasing = T)[1],
+                EcmoEnd = sort(EcmoEnd, decreasing = T)[1], # max(EcmoEnd),
                 Morsdato = sort(Morsdato)[1],
                 FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
                 DischargedIntensivStatus = max(DischargedIntensivStatus, na.rm = T), #0-levende, 1-død
@@ -90,8 +90,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
    #----------------------------
    RegData <- data.frame(RegDataRed)
-   RegData$EcmoStart <- NA
-   RegData$EcmoEnd <- NA
    RegData$Korona <- factor(RegData$Bekreftet, levels= 0:1, labels= c('M', 'B'))
 
    #Kjønn
@@ -129,7 +127,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
    #Liggetider
    #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
-   # RegData$ECMOTid <- NA
    RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
                                           RegData$EcmoStart,
                                           units = 'days'))
