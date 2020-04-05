@@ -23,14 +23,20 @@ koronafigurer_UI <- function(id, rhfNavn){
                  br(),
                  actionButton(ns("tilbakestillValg"), label="Tilbakestill valg")
     ),
-    mainPanel(
-      plotOutput(ns("FigurTidEnhet"), height="auto"),
-      downloadButton(ns("LastNedFig"), label = 'Last ned figur'),
-      br(),
-      br(),
-      DT::DTOutput(ns("tabTidEnhet_DT")),
-      downloadButton(ns("lastNed"), "Last ned tabell")
-              ) #main
+    mainPanel(tabsetPanel(id=ns("figurer"),
+                          tabPanel("Antall pasienter",
+                                   plotOutput(ns("FigurTidEnhet"), height="auto"),
+                                   downloadButton(ns("LastNedFig"), label = 'Last ned figur'),
+                                   br(),
+                                   br(),
+                                   DT::DTOutput(ns("tabTidEnhet_DT")),
+                                   downloadButton(ns("lastNed"), "Last ned tabell")
+                          ),
+                          tabPanel("Aldersfordeling, kjønnsdelt",
+                                   plotOutput(ns("FigurAldersfordeling"), height="auto")
+                          )
+    )
+    )
   )
 
 }
@@ -110,6 +116,14 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
     }
   )
 
+
+  output$FigurAldersfordeling <- renderPlot({
+    intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
+                                              valgtRHF= valgtRHF,
+                                              skjemastatus=as.numeric(input$skjemastatus),
+                                              bekr=as.numeric(input$bekr),
+                                              erMann=as.numeric(input$erMann))
+  }, width = 700, height = 700)
 }
 
 
