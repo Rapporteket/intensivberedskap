@@ -29,47 +29,82 @@ FigTidEnhet <- function(AntTab, outfile=''){
 }
 
 
+#' Aldersfordeling, kjønnsdelt.
+#'
+#' Kan gereraliseres til andre variabler og grupperingsvar.
+#'
+#' @param TabAlder Dataramme med nødvendige figurparametre
+#'
+#' @return
+#' @export
+FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', valgtRHF='Alle', bekr=9, skjemastatus=9,
+                     dodInt=9,erMann=9, grvar='PatientGender', outfile=''){#enhetsNivaa='RHF'
 
-# FigAlderKjonn <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,
-#                      dodInt=9,erMann=9){#enhetsNivaa='RHF'
-#
-#   #if (valgtRHF != 'Alle'){RegData$RHF <- factor(RegData$RHF, levels=unique(c(levels(as.factor(RegData$RHF)), valgtRHF)))}
-#   RegData$RHF <- as.factor(RegData$RHF)
-#   UtData <- NIRUtvalgBeredsk(RegData=RegData,
-#                              #valgtRHF=valgtRHF,
-#                              bekr=bekr,
-#                              dodInt = dodInt,
-#                              erMann = erMann,
-#                              skjemastatus=skjemastatus
-#   )
-#   RegData <- UtData$RegData
-#   RegData$EnhetsNivaaVar <- RegData$RHF #RegData[ , enhetsNivaa]
-#
-#   N <- dim(RegData)[1]
-#   gr <- seq(0, 90, ifelse(N<100, 25, 10) )
-#   RegData$AldersGr <- cut(RegData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
-#   grtxt <- if(N<100){c('0-24', '25-49', "50-74", "75+")} else {
-#     c('0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+')}
-#   levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
-#   TabAlder <- table(RegData$AldersGr, RegData$EnhetsNivaaVar)
-#   TabAlder <- addmargins(TabAlder) #switch(enhetsNivaa, RHF = 'Totalt', HF = paste0(valgtRHF, ', totalt'))
-#   TabAlderPst <-prop.table(TabAlder[-nrow(TabAlder),],2)*100
-#
-#   TabAlderAlle <- cbind(
-#     'Antall, tot.' = TabAlder[,'Sum'],
-#     'Andel, tot.' = paste0(sprintf('%.0f', c(TabAlderPst[,'Sum'], 100)), ' %')
-#   )
-#   TabAlderUt <-  if (valgtRHF %in% levels(RegData$RHF)){
-#     TabAlderUt <- cbind(
-#       'Antall, eget' = TabAlder[ ,valgtRHF],
-#       'Andel, eget' = paste0(sprintf('%.0f', c(TabAlderPst[ ,valgtRHF], 100)), ' %'),
-#       TabAlderAlle)
-#   } else {TabAlderAlle}
-#
-#   return(invisible(UtData <-
-#                      list(Tab=TabAlderUt,
-#                           utvalgTxt=c(UtData$utvalgTxt, paste0('Valgt RHF: ', valgtRHF)))))
-# }
+  #if (valgtRHF != 'Alle'){RegData$RHF <- factor(RegData$RHF, levels=unique(c(levels(as.factor(RegData$RHF)), valgtRHF)))}
+  # RegData$RHF <- as.factor(RegData$RHF)
+  RegData$PatientGender <- factor(RegData$PatientGender, levels = 1:2, labels = c("Menn", "Kvinner"))
+  UtData <- NIRUtvalgBeredsk(RegData=RegData,
+                             #valgtRHF=valgtRHF,
+                             bekr=bekr,
+                             dodInt = dodInt,
+                             erMann = erMann,
+                             skjemastatus=skjemastatus
+  )
+  RegData <- UtData$RegData
+  utvalgTxt <- UtData$utvalgTxt
+  RegData$EnhetsNivaaVar <- RegData$RHF #RegData[ , enhetsNivaa]
+
+  N <- dim(RegData)[1]
+  if (valgtVar=='Alder') {
+    gr <- seq(0, 90, ifelse(N<100, 25, 10) )
+    RegData$Gr <- cut(RegData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
+    grtxt <- if(N<100){c('0-24', '25-49', "50-74", "75+")} else {
+      c('0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+')}
+    levels(RegData$Gr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
+  }
+
+  AntHoved <- table(RegData[, c("PatientGender", "Gr")])
+  NHoved <- rowSums(AntHoved)
+
+  tittel <- "Aldersfordeling";
+  FigTypUt <- rapFigurer::figtype(outfile=outfile, pointsizePDF=12)
+  retn <- 'V'; cexgr<-1
+
+  if (min(NHoved) < 5) {
+    farger <- FigTypUt$farger
+    plot.new()
+    # title(tittel)	#, line=-6)
+    legend('topleft',utvalgTxt, bty='n', cex=0.9, text.col=farger[1])
+    text(0.5, 0.6, 'Færre enn 5 registreringer i egen- eller sammenlikningsgruppa', cex=1.2)
+    if ( outfile != '') {dev.off()}
+  } else {
+    NutvTxt <- length(utvalgTxt)
+    vmarg <- switch(retn, V=0, H=max(0, strwidth(grtxt, units='figure', cex=cexgr)*0.7))
+    par('fig'=c(vmarg, 1, 0, 1-0.02*(NutvTxt-1+length(tittel)-1)))	#Har alltid datoutvalg med
+
+    farger <- FigTypUt$farger
+    ymax <- max(c(AntHoved),na.rm=T)*1.25
+    pos <- barplot(AntHoved, beside=TRUE, las=1, ylab="Antall pasienter",
+                   cex.axis=cexgr, cex.sub=cexgr,	cex.lab=cexgr, # ,	names.arg=grtxt, cex.names=cexgr,sub=subtxt,
+                   col=farger[c(1,2)], border='white', ylim=c(0, ymax), xaxt='n')
+    mtext(at=colMeans(pos), grtxt, side=1, las=1, cex=cexgr, adj=0.5, line=0.5)
+
+    legend('topright', paste0(levels(RegData[,grvar]), ', N=', NHoved), bty='n',
+           fill=farger[c(1,2)], border=NA, ncol=1, cex=1)
+    # mtext(at=colMeans(pos), grtxt2, side=1, las=1, cex=cexgr, adj=0.5, line=1.5)
+  }
+
+
+  krymp <- .9
+  title(main = tittel, line=1, font.main=1, cex.main=1.3*cexgr)
+  mtext(utvalgTxt, side=3, las=1, cex=krymp*cexgr, adj=0, col=FigTypUt$farger[1], line=c(3+0.8*((length(utvalgTxt) -1):0)))
+
+  par('fig'=c(0, 1, 0, 1))
+
+  if ( outfile != '') {dev.off()}
+
+
+}
 #
 #
 # Fiks_duplikater <- function(RegData) {
