@@ -2,7 +2,6 @@
 
 export(FigTidEnhet)
 export(NIRPreprosessBeredsk)
-export(NIRPreprosessBeredsk_v2)
 export(NIRUtvalgBeredsk)
 export(NIRberedskDataSQL)
 export(RisikofaktorerTab)
