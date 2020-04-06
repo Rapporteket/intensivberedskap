@@ -44,7 +44,7 @@ FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', valgtRHF='Alle', b
   # RegData$RHF <- as.factor(RegData$RHF)
   RegData$PatientGender <- factor(RegData$PatientGender, levels = 1:2, labels = c("Menn", "Kvinner"))
   UtData <- NIRUtvalgBeredsk(RegData=RegData,
-                             #valgtRHF=valgtRHF,
+                             valgtRHF=valgtRHF,
                              bekr=bekr,
                              dodInt = dodInt,
                              erMann = erMann,
@@ -64,20 +64,21 @@ FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', valgtRHF='Alle', b
   }
 
   AntHoved <- table(RegData[, c("PatientGender", "Gr")])
+  AntHovedTab <- tidyr::as_tibble(as.data.frame.matrix(addmargins(table(RegData[, c("Gr", "PatientGender")]))), rownames=valgtVar)
   NHoved <- rowSums(AntHoved)
 
   tittel <- "Aldersfordeling";
   FigTypUt <- rapFigurer::figtype(outfile=outfile, pointsizePDF=12)
   retn <- 'V'; cexgr<-1
 
-  if (min(NHoved) < 5) {
-    farger <- FigTypUt$farger
-    plot.new()
-    # title(tittel)	#, line=-6)
-    legend('topleft',utvalgTxt, bty='n', cex=0.9, text.col=farger[1])
-    text(0.5, 0.6, 'Færre enn 5 registreringer i egen- eller sammenlikningsgruppa', cex=1.2)
-    if ( outfile != '') {dev.off()}
-  } else {
+  # if (min(NHoved) < 5) {
+  #   farger <- FigTypUt$farger
+  #   plot.new()
+  #   # title(tittel)	#, line=-6)
+  #   legend('topleft',utvalgTxt, bty='n', cex=0.9, text.col=farger[1])
+  #   text(0.5, 0.6, 'Færre enn 5 registreringer i egen- eller sammenlikningsgruppa', cex=1.2)
+  #   if ( outfile != '') {dev.off()}
+  # } else {
     NutvTxt <- length(utvalgTxt)
     vmarg <- switch(retn, V=0, H=max(0, strwidth(grtxt, units='figure', cex=cexgr)*0.7))
     par('fig'=c(vmarg, 1, 0, 1-0.02*(NutvTxt-1+length(tittel)-1)))	#Har alltid datoutvalg med
@@ -92,7 +93,7 @@ FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', valgtRHF='Alle', b
     legend('topright', paste0(levels(RegData[,grvar]), ', N=', NHoved), bty='n',
            fill=farger[c(1,2)], border=NA, ncol=1, cex=1)
     # mtext(at=colMeans(pos), grtxt2, side=1, las=1, cex=cexgr, adj=0.5, line=1.5)
-  }
+  # }
 
 
   krymp <- .9
@@ -103,7 +104,12 @@ FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', valgtRHF='Alle', b
 
   if ( outfile != '') {dev.off()}
 
+  AntHovedTab$Andel <- paste0(round(AntHovedTab$Sum/AntHovedTab$Sum[dim(AntHovedTab)[1]]*100), ' %')
+  names(AntHovedTab)[(dim(AntHovedTab)[2]-1):dim(AntHovedTab)[2]] <- c("Antall", "Andel")
+  # names(AntHovedTab)[2:(dim(AntHovedTab)[2]-2)] <- paste0("Ant. ", names(AntHovedTab)[2:(dim(AntHovedTab)[2]-2)])
+  # xtable::xtable(AntHovedTab)
 
+  return(AntHovedTab)
 }
 #
 #
