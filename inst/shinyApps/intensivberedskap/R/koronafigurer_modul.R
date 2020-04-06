@@ -15,8 +15,10 @@ koronafigurer_UI <- function(id, rhfNavn){
                  selectInput(inputId = ns("skjemastatus"), label="Skjemastatus",
                              choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
                  ),
-                 selectInput(inputId = ns("erMann"), label="Kjønn",
-                             choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+                 conditionalPanel(condition = paste0("input['", ns("figurer"), "'] == 'id_antpas'"),
+                                  selectInput(inputId = ns("erMann"), label="Kjønn",
+                                              choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+                                  )
                  ),
                  selectInput(inputId = ns("bildeformat"), label = "Velg format for nedlastet figur",
                              choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
@@ -24,7 +26,7 @@ koronafigurer_UI <- function(id, rhfNavn){
                  actionButton(ns("tilbakestillValg"), label="Tilbakestill valg")
     ),
     mainPanel(tabsetPanel(id=ns("figurer"),
-                          tabPanel("Antall pasienter",
+                          tabPanel("Antall pasienter", value = "id_antpas",
                                    plotOutput(ns("FigurTidEnhet"), height="auto"),
                                    downloadButton(ns("LastNedFig"), label = 'Last ned figur'),
                                    br(),
