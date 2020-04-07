@@ -495,7 +495,7 @@ server <- function(input, output, session) {
   #################### Alders- og kjønnsfordeling - Inn i varmen #####################
   output$FigurAldersfordeling <- renderPlot({
     valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-    intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
+    intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', resp=as.numeric(input$resp),
                                               valgtRHF= valgtRHF, dodInt=as.numeric(input$dodInt),
                                               skjemastatus=as.numeric(input$skjemastatus),
                                               bekr=as.numeric(input$bekr))
@@ -509,7 +509,7 @@ server <- function(input, output, session) {
     content = function(file){
       intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', dodInt=as.numeric(input$dodInt),
                                                 valgtRHF= ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
-                                                skjemastatus=as.numeric(input$skjemastatus),
+                                                skjemastatus=as.numeric(input$skjemastatus), resp=as.numeric(input$resp),
                                                 bekr=as.numeric(input$bekr), outfile = file)
     }
   )
@@ -519,7 +519,7 @@ server <- function(input, output, session) {
 
   output$tabAlder <- function() {
     valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-    Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
+    Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', resp=as.numeric(input$resp),
                                                         valgtRHF= valgtRHF, dodInt=as.numeric(input$dodInt),
                                                         skjemastatus=as.numeric(input$skjemastatus),
                                                         bekr=as.numeric(input$bekr))
@@ -535,7 +535,7 @@ server <- function(input, output, session) {
     },
 
     content = function(file){
-      Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
+      Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', resp=as.numeric(input$resp),
                                                           valgtRHF= valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
                                                           skjemastatus=as.numeric(input$skjemastatus), dodInt=as.numeric(input$dodInt),
                                                           bekr=as.numeric(input$bekr))

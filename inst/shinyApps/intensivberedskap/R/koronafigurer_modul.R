@@ -15,6 +15,12 @@ koronafigurer_UI <- function(id, rhfNavn){
                  selectInput(inputId = ns("skjemastatus"), label="Skjemastatus",
                              choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
                  ),
+                 selectInput(inputId = ns("resp"), label="Respiratorbehandlet",
+                             choices = c("Alle"=9, "Ja"=1, "Nei"=2)
+                 ),
+                 selectInput(inputId = ns("dodInt"), label="Tilstand ut fra intensiv",
+                             choices = c("Alle"=9, "Død"=1, "Levende"=0)
+                 ),
                  conditionalPanel(condition = paste0("input['", ns("figurer"), "'] == 'id_antpas'"),
                                   selectInput(inputId = ns("erMann"), label="Kjønn",
                                               choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
@@ -67,6 +73,8 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
     AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
                           valgtRHF= valgtRHF,
                           skjemastatus=as.numeric(input$skjemastatus),
+                          resp=as.numeric(input$resp),
+                          dodInt = as.numeric(input$dodInt),
                           bekr=as.numeric(input$bekr),
                           erMann=as.numeric(input$erMann)
     )

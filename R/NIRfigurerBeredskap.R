@@ -37,7 +37,7 @@ FigTidEnhet <- function(AntTab, outfile=''){
 #'
 #' @return
 #' @export
-FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', valgtRHF='Alle', bekr=9, skjemastatus=9,
+FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', valgtRHF='Alle', bekr=9, skjemastatus=9, resp=9,
                      dodInt=9,erMann=9, grvar='PatientGender', outfile=''){#enhetsNivaa='RHF'
 
   #if (valgtRHF != 'Alle'){RegData$RHF <- factor(RegData$RHF, levels=unique(c(levels(as.factor(RegData$RHF)), valgtRHF)))}
@@ -46,6 +46,7 @@ FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', valgtRHF='Alle', b
   UtData <- NIRUtvalgBeredsk(RegData=RegData,
                              valgtRHF=valgtRHF,
                              bekr=bekr,
+                             resp=resp,
                              dodInt = dodInt,
                              erMann = erMann,
                              skjemastatus=skjemastatus
