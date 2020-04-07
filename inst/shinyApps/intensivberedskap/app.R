@@ -543,7 +543,7 @@ server <- function(input, output, session) {
     }
   )
 
-
+#git
 
   ################# Modul for figurer #################################
 
