@@ -165,13 +165,14 @@ ui <- tagList(
                                          tableOutput('tabRisikofaktorer')),
                                   column(width=5, offset=1,
                                          h3('Aldersfordeling'),
-                                         uiOutput('utvalgAlder'),
-                                         tableOutput("tabAlder"),
-                                         downloadButton("lastNedAldKj", "Last ned tabell"),
-                                         br(),
-                                         br(),
+                                         # uiOutput('utvalgAlder'),
+                                         # tableOutput("tabAlder"),
                                          plotOutput("FigurAldersfordeling", height="auto"),
-                                         downloadButton("LastNedFigAldKj", "Last ned figur")
+                                         br(),
+                                         downloadButton("LastNedFigAldKj", "Last ned figur"),
+                                         br(),
+                                         br(),
+                                         downloadButton("lastNedAldKj", "Last ned tabell")
 
                                   ))
                       ) #main
@@ -498,7 +499,7 @@ server <- function(input, output, session) {
                                               valgtRHF= valgtRHF,
                                               skjemastatus=as.numeric(input$skjemastatus),
                                               bekr=as.numeric(input$bekr))
-  }, width = 700, height = 700)
+  }, width = 500, height = 500)
 
   output$LastNedFigAldKj <- downloadHandler(
     filename = function(){
