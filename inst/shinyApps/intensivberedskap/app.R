@@ -168,9 +168,9 @@ ui <- tagList(
                                          # uiOutput('utvalgAlder'),
                                          # tableOutput("tabAlder"),
                                          plotOutput("FigurAldersfordeling", height="auto"),
-                                         br(),
-                                         downloadButton("LastNedFigAldKj", "Last ned figur"),
-                                         br(),
+                                         # br(),
+                                         # downloadButton("LastNedFigAldKj", "Last ned figur"),
+                                         # br(),
                                          br(),
                                          downloadButton("lastNedAldKj", "Last ned tabell")
 
