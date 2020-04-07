@@ -10,6 +10,7 @@ FigFordelingKjonnsdelt(
   valgtRHF = "Alle",
   bekr = 9,
   skjemastatus = 9,
+  resp = 9,
   dodInt = 9,
   erMann = 9,
   grvar = "PatientGender",
