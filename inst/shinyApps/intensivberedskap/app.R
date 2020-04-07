@@ -496,7 +496,7 @@ server <- function(input, output, session) {
   output$FigurAldersfordeling <- renderPlot({
     valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
     intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
-                                              valgtRHF= valgtRHF,
+                                              valgtRHF= valgtRHF, dodInt=as.numeric(input$dodInt),
                                               skjemastatus=as.numeric(input$skjemastatus),
                                               bekr=as.numeric(input$bekr))
   }, width = 500, height = 500)
@@ -507,7 +507,7 @@ server <- function(input, output, session) {
     },
 
     content = function(file){
-      intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
+      intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', dodInt=as.numeric(input$dodInt),
                                                 valgtRHF= ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
                                                 skjemastatus=as.numeric(input$skjemastatus),
                                                 bekr=as.numeric(input$bekr), outfile = file)
@@ -520,7 +520,7 @@ server <- function(input, output, session) {
   output$tabAlder <- function() {
     valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
     Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
-                                                        valgtRHF= valgtRHF,
+                                                        valgtRHF= valgtRHF, dodInt=as.numeric(input$dodInt),
                                                         skjemastatus=as.numeric(input$skjemastatus),
                                                         bekr=as.numeric(input$bekr))
     Tabell %>% knitr::kable("html", digits = 0) %>%
@@ -537,7 +537,7 @@ server <- function(input, output, session) {
     content = function(file){
       Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
                                                           valgtRHF= valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
-                                                          skjemastatus=as.numeric(input$skjemastatus),
+                                                          skjemastatus=as.numeric(input$skjemastatus), dodInt=as.numeric(input$dodInt),
                                                           bekr=as.numeric(input$bekr))
       write.csv2(Tabell, file, row.names = F, fileEncoding = 'latin1')
     }
