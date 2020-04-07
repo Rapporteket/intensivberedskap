@@ -13,6 +13,7 @@ NIRUtvalgBeredsk(
   maxald = 110,
   bekr = 9,
   skjemastatus = 9,
+  resp = 9,
   dodInt = 9,
   reshID = 0,
   valgtRHF = "Alle",
@@ -31,6 +32,8 @@ NIRUtvalgBeredsk(
 \item{bekr}{1-bekreftet, 0-mistenkt tilfelle}
 
 \item{skjemastatus}{status på registreringa 0-ingen, 1-kladd, 2-ferdigstilt, 4-slettet, 5-returnert}
+
+\item{resp}{Fått respiratorbehandling: 1-ja, 2-nei}
 
 \item{dodInt}{død på intensiv 0-nei, 1-ja}
 

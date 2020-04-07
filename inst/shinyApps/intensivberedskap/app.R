@@ -99,6 +99,9 @@ ui <- tagList(
                                    selectInput(inputId = "skjemastatus", label="Skjemastatus",
                                                choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
                                    ),
+                                   selectInput(inputId = "resp", label="Respiratorbehandlet",
+                                               choices = c("Alle"=9, "Ja"=1, "Nei"=2)
+                                   ),
                                    selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
                                                choices = c("Alle"=9, "Død"=1, "Levende"=0)
                                    ),
@@ -305,6 +308,7 @@ server <- function(input, output, session) {
     AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
                           valgtRHF= valgtRHF,
                           skjemastatus=as.numeric(input$skjemastatus),
+                          resp=as.numeric(input$resp),
                           bekr=as.numeric(input$bekr),
                           dodInt=as.numeric(input$dodInt),
                           erMann=as.numeric(input$erMann)
@@ -313,6 +317,7 @@ server <- function(input, output, session) {
     UtData <- NIRUtvalgBeredsk(RegData=CoroData,
                                valgtRHF= ifelse(valgtRHF=='Ukjent','Alle',valgtRHF),
                                skjemastatus=as.numeric(input$skjemastatus),
+                               resp=as.numeric(input$resp),
                                bekr=as.numeric(input$bekr),
                                dodInt=as.numeric(input$dodInt),
                                erMann=as.numeric(input$erMann)
@@ -349,6 +354,8 @@ server <- function(input, output, session) {
     TabFerdig <- oppsumFerdigeRegTab(RegData=CoroData,
                                      valgtRHF=input$valgtRHF,
                                      bekr = as.numeric(input$bekr),
+                                     resp=as.numeric(input$resp),
+                                     dodInt=as.numeric(input$dodInt),
                                      erMann=as.numeric(input$erMann))
 
     output$tabFerdigeReg <- if (TabFerdig$Ntest>2){
@@ -390,6 +397,7 @@ server <- function(input, output, session) {
                                    valgtRHF= input$valgtRHF,
                                    skjemastatus=as.numeric(input$skjemastatus),
                                    bekr=as.numeric(input$bekr),
+                                   resp=as.numeric(input$resp),
                                    dodInt=as.numeric(input$dodInt),
                                    erMann=as.numeric(input$erMann),
                                    minald=as.numeric(input$alder[1]),
@@ -405,6 +413,7 @@ server <- function(input, output, session) {
     TabAlder <- TabAlder(RegData=CoroData,
                          valgtRHF= input$valgtRHF, #egetRHF, #
                          dodInt=as.numeric(input$dodInt),
+                         resp=as.numeric(input$resp),
                          erMann=as.numeric(input$erMann),
                          bekr=as.numeric(input$bekr),
                          skjemastatus=as.numeric(input$skjemastatus)

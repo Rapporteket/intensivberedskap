@@ -9,6 +9,7 @@ oppsumFerdigeRegTab(
   valgtRHF = "Alle",
   bekr = 9,
   erMann = 9,
+  resp = 9,
   dodInt = 9
 )
 }
@@ -18,6 +19,8 @@ oppsumFerdigeRegTab(
 \item{bekr}{1-bekreftet, 0-mistenkt tilfelle}
 
 \item{erMann}{kjønn, 0-kvinne, 1-mann}
+
+\item{resp}{Fått respiratorbehandling: 1-ja, 2-nei}
 
 \item{dodInt}{død på intensiv 0-nei, 1-ja}
 }

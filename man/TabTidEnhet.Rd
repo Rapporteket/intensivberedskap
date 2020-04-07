@@ -8,6 +8,7 @@ TabTidEnhet(
   RegData,
   tidsenhet = "dag",
   erMann = 9,
+  resp = 9,
   bekr = 9,
   skjemastatus = 9,
   dodInt = 9,
@@ -21,6 +22,8 @@ TabTidEnhet(
 \item{tidsenhet}{'dag' (standard), 'uke', 'maaned'}
 
 \item{erMann}{kjønn, 0-kvinne, 1-mann}
+
+\item{resp}{Fått respiratorbehandling: 1-ja, 2-nei}
 
 \item{bekr}{1-bekreftet, 0-mistenkt tilfelle}
 
