@@ -226,8 +226,12 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
     if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
     colnames(TabRisiko) <- 'Sum'}
     TabRisiko <- cbind(TabRisiko,
-                       'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%')
-    )
+                       'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%'))
+
+
+    TabRisiko <- rbind(TabRisiko,
+                       'Tot. antall (N)' = c(dim(RegData)[1], ''))
+
   }
   # xtable::xtable(TabRisiko,
   #                digits=0,
