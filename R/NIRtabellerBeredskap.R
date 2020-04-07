@@ -9,7 +9,7 @@
 #'
 #' @return
 #' @export
-TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
+TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, #enhetsNivaa='RHF',
                         bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
 
   # RegData$TidsVar <- as.factor(RegData[ ,switch (tidsenhet,
@@ -22,7 +22,7 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, #enhetsNivaa='RHF',
                                        maaned = 'MndAar')]
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
-                             bekr=bekr, skjemastatus=skjemastatus,
+                             bekr=bekr, skjemastatus=skjemastatus, resp=resp,
                              dodInt=dodInt) #, valgtRHF=valgtRHF) #velgAvd=velgAvd
 
   RegDataAlle <- UtData$RegData
@@ -126,11 +126,13 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
 #' @return
 #' @export
 #'
-oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, dodInt=9){
+oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, resp=9, dodInt=9){
 
   if (valgtRHF == 'Ukjent') {valgtRHF <- 'Alle'}
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
                              bekr = bekr,
+                             dodInt = dodInt,
+                             resp=resp,
                              erMann = erMann,
                              skjemastatus=2)
   RegData <- UtData$RegData
@@ -139,9 +141,9 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, dodI
   AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)
   AntBruktECMO <- sum(RegData$ECMOTid>0, na.rm=T)
   #AntUtInt <- sum(RegData$DateDischargedIntensive>0, na.rm=T)
-  Liggetid <- summary(RegData$liggetid[RegData$liggetid < 30], na.rm = T)
-  RespTid <- summary(RegData$RespTid[RegData$RespTid < 30], na.rm = T)
-  ECMOtid <- summary(RegData$ECMOTid[RegData$ECMOTid < 30], na.rm = T)
+  Liggetid <- summary(RegData$liggetid[RegData$liggetid < 40], na.rm = T)
+  RespTid <- summary(RegData$RespTid[RegData$RespTid < 40], na.rm = T)
+  ECMOtid <- summary(RegData$ECMOTid[RegData$ECMOTid < 40], na.rm = T)
   Alder <- summary(RegData$Alder, na.rm = T)
   AntDod <- sum(RegData$DischargedIntensivStatus==1, na.rm=T)
 
@@ -187,11 +189,11 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, dodI
 #' @return
 RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), reshID=0,
                               erMann='', bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle',
-                              minald=0, maxald=110, velgAvd=0){
+                              resp=9, minald=0, maxald=110, velgAvd=0){
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                              bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
-                             minald=minald, maxald=maxald,
+                             minald=minald, maxald=maxald, resp=resp,
                              reshID=reshID, valgtRHF=valgtRHF) #velgAvd=velgAvd
   Ntest <- dim(UtData$RegData)[1]
   RegData <- UtData$RegData
@@ -225,8 +227,12 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
     if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
     colnames(TabRisiko) <- 'Sum'}
     TabRisiko <- cbind(TabRisiko,
-                       'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%')
-    )
+                       'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%'))
+
+
+    TabRisiko <- rbind(TabRisiko,
+                       'Tot. antall (N)' = c(dim(RegData)[1], ''))
+
   }
   # xtable::xtable(TabRisiko,
   #                digits=0,
@@ -247,13 +253,14 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
 #' @export
 #'
 #' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
-TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,
+TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,resp=9,
                      dodInt=9,erMann=9){#enhetsNivaa='RHF'
 
   #if (valgtRHF != 'Alle'){RegData$RHF <- factor(RegData$RHF, levels=unique(c(levels(as.factor(RegData$RHF)), valgtRHF)))}
   RegData$RHF <- as.factor(RegData$RHF)
   UtData <- NIRUtvalgBeredsk(RegData=RegData,
                              #valgtRHF=valgtRHF,
+                             resp=resp,
                              bekr=bekr,
                              dodInt = dodInt,
                              erMann = erMann,

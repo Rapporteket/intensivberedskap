@@ -15,22 +15,41 @@ koronafigurer_UI <- function(id, rhfNavn){
                  selectInput(inputId = ns("skjemastatus"), label="Skjemastatus",
                              choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
                  ),
-                 selectInput(inputId = ns("erMann"), label="Kjønn",
-                             choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+                 selectInput(inputId = ns("resp"), label="Respiratorbehandlet",
+                             choices = c("Alle"=9, "Ja"=1, "Nei"=2)
+                 ),
+                 selectInput(inputId = ns("dodInt"), label="Tilstand ut fra intensiv",
+                             choices = c("Alle"=9, "Død"=1, "Levende"=0)
+                 ),
+                 conditionalPanel(condition = paste0("input['", ns("figurer"), "'] == 'id_antpas'"),
+                                  selectInput(inputId = ns("erMann"), label="Kjønn",
+                                              choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+                                  )
                  ),
                  selectInput(inputId = ns("bildeformat"), label = "Velg format for nedlastet figur",
                              choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')),
                  br(),
                  actionButton(ns("tilbakestillValg"), label="Tilbakestill valg")
     ),
-    mainPanel(
-      plotOutput(ns("FigurTidEnhet"), height="auto"),
-      downloadButton(ns("LastNedFig"), label = 'Last ned figur'),
-      br(),
-      br(),
-      DT::DTOutput(ns("tabTidEnhet_DT")),
-      downloadButton(ns("lastNed"), "Last ned tabell")
-              ) #main
+    mainPanel(tabsetPanel(id=ns("figurer"),
+                          tabPanel("Antall pasienter", value = "id_antpas",
+                                   plotOutput(ns("FigurTidEnhet"), height="auto"),
+                                   downloadButton(ns("LastNedFig"), label = 'Last ned figur'),
+                                   br(),
+                                   br(),
+                                   DT::DTOutput(ns("tabTidEnhet_DT")),
+                                   downloadButton(ns("lastNed"), "Last ned tabell")
+                          )#,
+                          # tabPanel("Aldersfordeling, kjønnsdelt",
+                          #          plotOutput(ns("FigurAldersfordeling"), height="auto"),
+                          #          downloadButton(ns("LastNedFigAldKj"), "Last ned figur"),
+                          #          br(),
+                          #          br(),
+                          #          tableOutput(ns("tabAlder")),
+                          #          downloadButton(ns("lastNedAldKj"), "Last ned tabell")
+                          # )
+    )
+    )
   )
 
 }
@@ -54,6 +73,8 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
     AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
                           valgtRHF= valgtRHF,
                           skjemastatus=as.numeric(input$skjemastatus),
+                          resp=as.numeric(input$resp),
+                          dodInt = as.numeric(input$dodInt),
                           bekr=as.numeric(input$bekr),
                           erMann=as.numeric(input$erMann)
     )
@@ -86,8 +107,7 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
 
   output$LastNedFig <- downloadHandler(
     filename = function(){
-      # paste0('KoronaFigur', Sys.time(), '.', input$bildeformat)
-      paste0('KoronaFigur.', input$bildeformat)
+      paste0('KoronaFigur', Sys.time(), '.', input$bildeformat)
     },
 
     content = function(file){
@@ -109,6 +129,59 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
       write.csv2(Tabell1, file, row.names = F, fileEncoding = 'latin1')
     }
   )
+
+
+  # output$FigurAldersfordeling <- renderPlot({
+  #   valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+  #   intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
+  #                                             valgtRHF= valgtRHF,
+  #                                             skjemastatus=as.numeric(input$skjemastatus),
+  #                                             bekr=as.numeric(input$bekr))
+  # }, width = 700, height = 700)
+  #
+  # output$LastNedFigAldKj <- downloadHandler(
+  #   filename = function(){
+  #     paste0('AldKjFig', Sys.time(), '.', input$bildeformat)
+  #   },
+  #
+  #   content = function(file){
+  #     intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
+  #                                               valgtRHF= ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
+  #                                               skjemastatus=as.numeric(input$skjemastatus),
+  #                                               bekr=as.numeric(input$bekr), outfile = file)
+  #   }
+  # )
+  #
+  #
+  # # output$tabAlder<- renderTable({xtable::xtable()}, rownames = F, digits=0, spacing="xs")
+  #
+  # output$tabAlder <- function() {
+  #   valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+  #   Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
+  #                                                       valgtRHF= valgtRHF,
+  #                                                       skjemastatus=as.numeric(input$skjemastatus),
+  #                                                       bekr=as.numeric(input$bekr))
+  #   Tabell %>% knitr::kable("html", digits = 0) %>%
+  #     kable_styling("hover", full_width = F) %>%
+  #     add_header_above(c("Kategori", "Antall" = (dim(Tabell)[2]-3), "Totalt" = 2))
+  # }
+  #
+  #
+  # output$lastNedAldKj <- downloadHandler(
+  #   filename = function(){
+  #     paste0('AldKjTabell', Sys.time(), '.csv')
+  #   },
+  #
+  #   content = function(file){
+  #     Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
+  #                                                         valgtRHF= valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
+  #                                                         skjemastatus=as.numeric(input$skjemastatus),
+  #                                                         bekr=as.numeric(input$bekr))
+  #     write.csv2(Tabell, file, row.names = F, fileEncoding = 'latin1')
+  #   }
+  # )
+
+
 
 }
 

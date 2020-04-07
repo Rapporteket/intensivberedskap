@@ -36,7 +36,6 @@ Imports:
     tidyverse,
     xtable,
     zoo,
-    tidyr
 VignetteBuilder: knitr
 Suggests: 
     MASS,

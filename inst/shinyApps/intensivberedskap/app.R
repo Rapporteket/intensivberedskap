@@ -14,6 +14,7 @@ library(tidyverse)
 library(lubridate)
 library(rapbase)
 library(intensivberedskap)
+library(kableExtra)
 
 addResourcePath('rap', system.file('www', package='rapbase'))
 context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
@@ -37,7 +38,7 @@ if (paaServer) {
   CoroData <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } else {
-  CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-04-03 11-02-00.txt', sep=';',
+  CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-04-03 16-38-35.txt', sep=';',
                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 } #hente data
 
@@ -97,6 +98,9 @@ ui <- tagList(
                                    ),
                                    selectInput(inputId = "skjemastatus", label="Skjemastatus",
                                                choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
+                                   ),
+                                   selectInput(inputId = "resp", label="Respiratorbehandlet",
+                                               choices = c("Alle"=9, "Ja"=1, "Nei"=2)
                                    ),
                                    selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
                                                choices = c("Alle"=9, "Død"=1, "Levende"=0)
@@ -161,8 +165,15 @@ ui <- tagList(
                                          tableOutput('tabRisikofaktorer')),
                                   column(width=5, offset=1,
                                          h3('Aldersfordeling'),
-                                         uiOutput('utvalgAlder'),
-                                         tableOutput('tabAlder')
+                                         # uiOutput('utvalgAlder'),
+                                         # tableOutput("tabAlder"),
+                                         plotOutput("FigurAldersfordeling", height="auto"),
+                                         br(),
+                                         downloadButton("LastNedFigAldKj", "Last ned figur"),
+                                         br(),
+                                         br(),
+                                         downloadButton("lastNedAldKj", "Last ned tabell")
+
                                   ))
                       ) #main
              ), #tab Tabeller
@@ -298,6 +309,7 @@ server <- function(input, output, session) {
     AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
                           valgtRHF= valgtRHF,
                           skjemastatus=as.numeric(input$skjemastatus),
+                          resp=as.numeric(input$resp),
                           bekr=as.numeric(input$bekr),
                           dodInt=as.numeric(input$dodInt),
                           erMann=as.numeric(input$erMann)
@@ -306,6 +318,7 @@ server <- function(input, output, session) {
     UtData <- NIRUtvalgBeredsk(RegData=CoroData,
                                valgtRHF= ifelse(valgtRHF=='Ukjent','Alle',valgtRHF),
                                skjemastatus=as.numeric(input$skjemastatus),
+                               resp=as.numeric(input$resp),
                                bekr=as.numeric(input$bekr),
                                dodInt=as.numeric(input$dodInt),
                                erMann=as.numeric(input$erMann)
@@ -342,6 +355,8 @@ server <- function(input, output, session) {
     TabFerdig <- oppsumFerdigeRegTab(RegData=CoroData,
                                      valgtRHF=input$valgtRHF,
                                      bekr = as.numeric(input$bekr),
+                                     resp=as.numeric(input$resp),
+                                     dodInt=as.numeric(input$dodInt),
                                      erMann=as.numeric(input$erMann))
 
     output$tabFerdigeReg <- if (TabFerdig$Ntest>2){
@@ -383,6 +398,7 @@ server <- function(input, output, session) {
                                    valgtRHF= input$valgtRHF,
                                    skjemastatus=as.numeric(input$skjemastatus),
                                    bekr=as.numeric(input$bekr),
+                                   resp=as.numeric(input$resp),
                                    dodInt=as.numeric(input$dodInt),
                                    erMann=as.numeric(input$erMann),
                                    minald=as.numeric(input$alder[1]),
@@ -398,11 +414,12 @@ server <- function(input, output, session) {
     TabAlder <- TabAlder(RegData=CoroData,
                          valgtRHF= input$valgtRHF, #egetRHF, #
                          dodInt=as.numeric(input$dodInt),
+                         resp=as.numeric(input$resp),
                          erMann=as.numeric(input$erMann),
                          bekr=as.numeric(input$bekr),
                          skjemastatus=as.numeric(input$skjemastatus)
     )
-    output$tabAlder<- renderTable({xtable::xtable(TabAlder$Tab)}, rownames = T, digits=0, spacing="xs")
+    # output$tabAlder<- renderTable({xtable::xtable(TabAlder$Tab)}, rownames = T, digits=0, spacing="xs")
     output$utvalgAlder <- renderUI({h5(HTML(paste0(TabAlder$utvalgTxt, '<br />'))) })
 
 
@@ -473,6 +490,60 @@ server <- function(input, output, session) {
     rapbase::deleteAutoReport(selectedRepId)
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
+
+
+  #################### Alders- og kjønnsfordeling - Inn i varmen #####################
+  output$FigurAldersfordeling <- renderPlot({
+    valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+    intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', resp=as.numeric(input$resp),
+                                              valgtRHF= valgtRHF, dodInt=as.numeric(input$dodInt),
+                                              skjemastatus=as.numeric(input$skjemastatus),
+                                              bekr=as.numeric(input$bekr))
+  }, width = 500, height = 500)
+
+  output$LastNedFigAldKj <- downloadHandler(
+    filename = function(){
+      paste0('AldKjFig', Sys.time(), '.', input$bildeformat)
+    },
+
+    content = function(file){
+      intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', dodInt=as.numeric(input$dodInt),
+                                                valgtRHF= ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
+                                                skjemastatus=as.numeric(input$skjemastatus), resp=as.numeric(input$resp),
+                                                bekr=as.numeric(input$bekr), outfile = file)
+    }
+  )
+
+
+  # output$tabAlder<- renderTable({xtable::xtable()}, rownames = F, digits=0, spacing="xs")
+
+  output$tabAlder <- function() {
+    valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+    Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', resp=as.numeric(input$resp),
+                                                        valgtRHF= valgtRHF, dodInt=as.numeric(input$dodInt),
+                                                        skjemastatus=as.numeric(input$skjemastatus),
+                                                        bekr=as.numeric(input$bekr))
+    Tabell %>% knitr::kable("html", digits = 0) %>%
+      kable_styling("hover", full_width = F) %>%
+      add_header_above(c("Kategori", "Antall" = (dim(Tabell)[2]-3), "Totalt" = 2))
+  }
+
+
+  output$lastNedAldKj <- downloadHandler(
+    filename = function(){
+      paste0('AldKjTabell', Sys.time(), '.csv')
+    },
+
+    content = function(file){
+      Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', resp=as.numeric(input$resp),
+                                                          valgtRHF= valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
+                                                          skjemastatus=as.numeric(input$skjemastatus), dodInt=as.numeric(input$dodInt),
+                                                          bekr=as.numeric(input$bekr))
+      write.csv2(Tabell, file, row.names = F, fileEncoding = 'latin1')
+    }
+  )
+
+#git
 
   ################# Modul for figurer #################################
 
