@@ -131,6 +131,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, resp
   if (valgtRHF == 'Ukjent') {valgtRHF <- 'Alle'}
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
                              bekr = bekr,
+                             dodInt = dodInt,
                              resp=resp,
                              erMann = erMann,
                              skjemastatus=2)
