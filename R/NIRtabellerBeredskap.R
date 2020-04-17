@@ -84,13 +84,13 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
   inneliggere <- is.na(RegData$DateDischargedIntensive)
   AntPaaIntNaa <- sum(inneliggere) #N - sum(!(is.na(RegData$DateDischargedIntensive)))
   LiggetidNaa <- as.numeric(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[inneliggere], units='days'))
-  LiggetidNaaGjsn <- mean(LiggetidNaa[LiggetidNaa < 30], na.rm = T)
+  LiggetidNaaGjsn <- mean(LiggetidNaa[LiggetidNaa < 60], na.rm = T)
 
   respLiggere <- inneliggere & is.na(RegData$MechanicalRespiratorEnd) & !(is.na(RegData$MechanicalRespiratorStart) ) #Har antatt at respiratortid MÅ registreres
   AntIrespNaa <- sum(respLiggere)
   ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStart[respLiggere],
                                     units='days'))
-  ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 30], na.rm=T)
+  ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 60], na.rm=T)
   #sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
 
   ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) ) #Har antatt at respiratortid MÅ registreres
@@ -98,7 +98,7 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
   ECMOtidNaa <- as.numeric(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
                                     units='days'))
   ECMOtidNaaGjsn <- ifelse(AntIECMONaa==0, 0,
-                           mean(ECMOtidNaa[ECMOtidNaa < 30], na.rm=T))
+                           mean(ECMOtidNaa[ECMOtidNaa < 60], na.rm=T))
 
   TabHjelp <- rbind(
     'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn),
@@ -141,9 +141,9 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, resp
   AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)
   AntBruktECMO <- sum(RegData$ECMOTid>0, na.rm=T)
   #AntUtInt <- sum(RegData$DateDischargedIntensive>0, na.rm=T)
-  Liggetid <- summary(RegData$liggetid[RegData$liggetid < 40], na.rm = T)
-  RespTid <- summary(RegData$RespTid[RegData$RespTid < 40], na.rm = T)
-  ECMOtid <- summary(RegData$ECMOTid[RegData$ECMOTid < 40], na.rm = T)
+  Liggetid <- summary(RegData$liggetid[RegData$liggetid < 60], na.rm = T)
+  RespTid <- summary(RegData$RespTid[RegData$RespTid < 60], na.rm = T)
+  ECMOtid <- summary(RegData$ECMOTid[RegData$ECMOTid < 60], na.rm = T)
   Alder <- summary(RegData$Alder, na.rm = T)
   AntDod <- sum(RegData$DischargedIntensivStatus==1, na.rm=T)
 
