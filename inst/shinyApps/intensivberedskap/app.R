@@ -453,7 +453,6 @@ server <- function(input, output, session) {
 
   ## nye abonnement
   observeEvent (input$subscribe, { #MÅ HA
-    #package <- "intensiv"
     owner <- rapbase::getUserName(session)
     interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
     intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
@@ -462,18 +461,28 @@ server <- function(input, output, session) {
       interval = interval
     )
     email <- rapbase::getUserEmail(session)
+
+    # if (input$subscriptionRep == "Koronarapport") {
+    #   synopsis <- "Rapporteket-Pandemi: Koronarapport"
+    #   rnwFil <- "KoronaRapport.Rnw" #Navn på fila
+    # }
+    # fun <- "abonnementKorona"
+    # paramNames <- c('rnwFil', 'brukernavn', "reshID") #, "valgtEnhet")
+    # paramValues <- c(rnwFil, brukernavn, reshID) #, as.character(input$valgtEnhetabb))
+
+
     if (input$subscriptionRep == "Koronarapport") {
       synopsis <- "NIR-Beredskap/Rapporteket: Coronarapport"
       rnwFil <- "BeredskapCorona.Rnw" #Navn på fila
     }
     fun <- "abonnementBeredsk"
     paramNames <- c('rnwFil', 'brukernavn', "reshID", "valgtRHF")
-
     paramValues <- c(rnwFil, brukernavn, reshID, as.character(input$valgtRHFabb)) #valgtRHF) #
 
-    #test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
-    #                       reshID=105460)
-
+    # test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
+    #                       reshID=105460, valgtRHF = as.character(input$valgtRHFabb))
+    # print(input$valgtRHFabb)
+    # print(test)
 
     rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
                               fun = fun, paramNames = paramNames,
