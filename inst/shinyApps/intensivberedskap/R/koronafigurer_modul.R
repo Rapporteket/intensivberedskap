@@ -39,15 +39,7 @@ koronafigurer_UI <- function(id, rhfNavn){
                                    br(),
                                    DT::DTOutput(ns("tabTidEnhet_DT")),
                                    downloadButton(ns("lastNed"), "Last ned tabell")
-                          )#,
-                          # tabPanel("Aldersfordeling, kjønnsdelt",
-                          #          plotOutput(ns("FigurAldersfordeling"), height="auto"),
-                          #          downloadButton(ns("LastNedFigAldKj"), "Last ned figur"),
-                          #          br(),
-                          #          br(),
-                          #          tableOutput(ns("tabAlder")),
-                          #          downloadButton(ns("lastNedAldKj"), "Last ned tabell")
-                          # )
+                          )
     )
     )
   )
@@ -129,59 +121,6 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
       write.csv2(Tabell1, file, row.names = F, fileEncoding = 'latin1')
     }
   )
-
-
-  # output$FigurAldersfordeling <- renderPlot({
-  #   valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-  #   intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
-  #                                             valgtRHF= valgtRHF,
-  #                                             skjemastatus=as.numeric(input$skjemastatus),
-  #                                             bekr=as.numeric(input$bekr))
-  # }, width = 700, height = 700)
-  #
-  # output$LastNedFigAldKj <- downloadHandler(
-  #   filename = function(){
-  #     paste0('AldKjFig', Sys.time(), '.', input$bildeformat)
-  #   },
-  #
-  #   content = function(file){
-  #     intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
-  #                                               valgtRHF= ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
-  #                                               skjemastatus=as.numeric(input$skjemastatus),
-  #                                               bekr=as.numeric(input$bekr), outfile = file)
-  #   }
-  # )
-  #
-  #
-  # # output$tabAlder<- renderTable({xtable::xtable()}, rownames = F, digits=0, spacing="xs")
-  #
-  # output$tabAlder <- function() {
-  #   valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-  #   Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
-  #                                                       valgtRHF= valgtRHF,
-  #                                                       skjemastatus=as.numeric(input$skjemastatus),
-  #                                                       bekr=as.numeric(input$bekr))
-  #   Tabell %>% knitr::kable("html", digits = 0) %>%
-  #     kable_styling("hover", full_width = F) %>%
-  #     add_header_above(c("Kategori", "Antall" = (dim(Tabell)[2]-3), "Totalt" = 2))
-  # }
-  #
-  #
-  # output$lastNedAldKj <- downloadHandler(
-  #   filename = function(){
-  #     paste0('AldKjTabell', Sys.time(), '.csv')
-  #   },
-  #
-  #   content = function(file){
-  #     Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
-  #                                                         valgtRHF= valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
-  #                                                         skjemastatus=as.numeric(input$skjemastatus),
-  #                                                         bekr=as.numeric(input$bekr))
-  #     write.csv2(Tabell, file, row.names = F, fileEncoding = 'latin1')
-  #   }
-  # )
-
-
 
 }
 
