@@ -141,9 +141,9 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, resp
   AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)
   AntBruktECMO <- sum(RegData$ECMOTid>0, na.rm=T)
   #AntUtInt <- sum(RegData$DateDischargedIntensive>0, na.rm=T)
-  Liggetid <- summary(RegData$liggetid[RegData$liggetid < 60], na.rm = T)
-  RespTid <- summary(RegData$RespTid[RegData$RespTid < 60], na.rm = T)
-  ECMOtid <- summary(RegData$ECMOTid[RegData$ECMOTid < 60], na.rm = T)
+  Liggetid <- summary(RegData$liggetid, na.rm = T)
+  RespTid <- summary(RegData$RespTid, na.rm = T)
+  ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
   Alder <- summary(RegData$Alder, na.rm = T)
   AntDod <- sum(RegData$DischargedIntensivStatus==1, na.rm=T)
 
