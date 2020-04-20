@@ -37,6 +37,17 @@ valgtRHF <- 'Alle'
 valgtRHF <- 'Nord'
 tidsenhet='dag'
 reshID <- 102090
+library(tidyverse)
+#risikofaktorer per aldersgruppe
+RegData <- NIRberedskDataSQL()
+RegData <- NIRPreprosessBeredsk()
+RegData <- NIRUtvalgBeredsk(RegData = RegData, bekr = 1)$RegData
+gr <- c(0, 30,40,50,60,70,80) #seq(30, 90, 10))
+RegData$AldersGr <- cut(RegData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
+grtxt <- if(N<100){c('0-24', '25-49', "50-74", "75+")} else {
+  c('0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+')}
+ftable(RegData[ ,c("AldersGr", 'IsRiskFactor')])
+ftable(RegData[ ,c("AldersGr", 'erMann')])
 
 oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, dodInt=9)
 

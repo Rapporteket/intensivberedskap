@@ -17,7 +17,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
    #RegData <- NIRberedskDataSQL()
    # Endre variabelnavn:
    #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
-   names(RegData)[which(names(RegData) == 'AgeAdmitted')] <- 'Alder' #PatientAge
+   RegData$Alder <- lubridate::time_length(difftime(as.Date(RegData$FormDate), as.Date(RegData$Birthdate)), "years")
+   #names(RegData)[which(names(RegData) == 'AgeAdmitted')] <- 'Alder' #PatientAge
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
    names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId'
@@ -98,6 +99,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
    RegData$erMann[RegData$PatientGender == 2] <- 0
    #RegData$erMann <- factor(RegData$PatientGender, levels=1:2, labels=1:0)
    RegData$Kjonn <- factor(RegData$erMann, levels=0:1, labels=c('kvinner','menn'))
+
 
    # Enhetsnivånavn
    RegData$ShNavn <- trimws(as.character(RegData$ShNavn)) #Fjerner mellomrom (før) og etter navn
