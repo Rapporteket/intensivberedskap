@@ -40,6 +40,8 @@ if (paaServer) {
 } else {
   CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-04-23 11-23-37.txt', sep=';',
                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+  CoroData$EcmoEnd[CoroData$EcmoEnd == ""] <- NA
+  CoroData$EcmoStart[CoroData$EcmoStart == ""] <- NA
 } #hente data
 
 #Bruk resh før preprosesserer
