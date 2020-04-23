@@ -15,7 +15,7 @@ antallTidUtskrevneNIRberedskap <- function(RegData, tidsenhet='dag', erMann=9, r
                              dodInt=dodInt) # Kun døde på intensiv telles
 
   RegDataAlle <- UtData$RegData
-  RegDataAlle$UtDato <- as.Date(RegDataAlle$DateDischargedIntensive)
+  RegDataAlle$UtDato <- as.Date(RegDataAlle$DateDischargedIntensive, tz= 'UTC', format="%Y-%m-%d")
 
   if (datoFra != 0) {RegDataAlle <- RegDataAlle[which(RegDataAlle$UtDato >= datoFra), ]} # filtrerer på dato
 
@@ -125,11 +125,11 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
                              dodInt=dodInt) # Kun døde på intensiv telles
 
   RegDataAlle <- UtData$RegData
-  RegDataAlle$UtDato <- as.Date(RegDataAlle$DateDischargedIntensive)
+  RegDataAlle$UtDato <- as.Date(RegDataAlle$DateDischargedIntensive, tz= 'UTC', format="%Y-%m-%d")
 
   if (datoFra != 0) {RegDataAlle <- RegDataAlle[RegDataAlle$UtDato >= datoFra | is.na(RegDataAlle$UtDato), ]} # filtrerer på dato
 
-  datoer <- seq(if (datoFra!=0) as.Date(datoFra) else min(RegDataAlle$InnDato), today(), by="day")
+  datoer <- seq(if (datoFra!=0) as.Date(datoFra, tz= 'UTC', format="%Y-%m-%d") else min(RegDataAlle$InnDato), today(), by="day")
 
   if (tidsenhet=='dag') {
     names(datoer) <- format(datoer, '%d.%B')

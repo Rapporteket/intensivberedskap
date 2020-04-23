@@ -37,8 +37,6 @@ antallTidInneliggendeBeredskap(
 \item{dodInt}{død på intensiv 0-nei, 1-ja}
 
 \item{velgAvd}{valgt reshID}
-
-\item{valgtEnhet}{NULL for SC-bruker, ellers eget RHF/HF}
 }
 \value{
 

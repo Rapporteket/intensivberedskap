@@ -224,7 +224,7 @@ server <- function(input, output, session) {
 
   reshID <- ifelse(paaServer, as.numeric(rapbase::getUserReshId(session)), 42088921) # 42088921
 
-  rolle <- ifelse(paaServer, rapbase::getUserRole(shinySession=session), 'LU')
+  rolle <- ifelse(paaServer, rapbase::getUserRole(shinySession=session), 'SC')
   brukernavn <- ifelse(paaServer, rapbase::getUserName(shinySession=session), 'brukernavn')
 
   finnesEgenResh <- reshID %in% unique(CoroData$ReshId)
