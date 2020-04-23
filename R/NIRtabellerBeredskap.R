@@ -5,27 +5,36 @@
 #' @param RegData dataramme med preprossesserte data
 #' @param tidsenhet 'dag' (standard), 'uke', 'maaned'
 #' @param enhetsNivaa 'RHF', 'HF', 'ShNavn'
+#' @param datoFra Vis hendelser fra og med dato
 #' @inheritParams NIRUtvalgBeredsk
 #'
 #' @return
 #' @export
-TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, #enhetsNivaa='RHF',
+TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
                         bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
 
-  # RegData$TidsVar <- as.factor(RegData[ ,switch (tidsenhet,
-  #                                                dag = 'Dag',
-  #                                                uke = 'UkeNr',
-  #                                                maaned = 'MndAar')])
-  RegData$TidsVar <- RegData[ ,switch (tidsenhet,
-                                       dag = 'Dag',
-                                       uke = 'UkeNr',
-                                       maaned = 'MndAar')]
+  # RegData$TidsVar <- RegData[ ,switch (tidsenhet,
+  #                                      dag = 'Dag',
+  #                                      uke = 'UkeNr',
+  #                                      maaned = 'MndAar')]
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                              bekr=bekr, skjemastatus=skjemastatus, resp=resp,
                              dodInt=dodInt) #, valgtRHF=valgtRHF) #velgAvd=velgAvd
 
   RegDataAlle <- UtData$RegData
+  if (datoFra != 0) {RegDataAlle <- RegDataAlle[which(RegDataAlle$InnDato >= datoFra), ]}
+  RegDataAlle$TidsVar <- switch (tidsenhet,
+                                 dag = factor(format(RegDataAlle$InnDato, '%d.%B'),
+                                              levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
+                                                                      by=paste0('-1 day'))), '%d.%B')),
+                                 uke = factor(paste0('Uke ', format(RegDataAlle$InnDato, '%V')),
+                                              levels = paste0('Uke ', format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
+                                                                                     by=paste0('-1 week'))), '%V'))),
+                                 maaned = factor(format(RegDataAlle$InnDato, '%b.%Y'),
+                                                 levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
+                                                                         by=paste0('-1 month'))), '%b.%Y')))
+  RegDataAlle <- RegDataAlle[!is.na(RegDataAlle$TidsVar), ]
   RegData <- if(valgtRHF=='Alle') {RegDataAlle} else {RegDataAlle[RegDataAlle$RHF == valgtRHF, ]}
   Ntest <- dim(RegData)[1]
 
@@ -37,9 +46,6 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, #enhetsNivaa
     enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
 
     RegData$EnhetsNivaaVar <- RegData[ ,enhetsNivaa]
-    #RegData$HF <- factor(RegData$HF, levels=unique(RegData$HF))
-    #TabRHF <- table(CoroData$Dag, CoroData$RHF)
-    #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
     kolNavnSum <- switch(enhetsNivaa,
                          RHF = 'Hele landet',
                          HF = paste0(valgtRHF, ', totalt'))
@@ -48,18 +54,18 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, #enhetsNivaa
                           dimnames = list(c(levels(RegData$TidsVar), 'Totalt (fra 10.mars)'), valgtRHF)) #table(RegData$TidsVar)
     }else{
       TabTidEnh <- table(RegData[ , c('TidsVar', enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
-      TabTidEnh <- addmargins(TabTidEnh, FUN=list('Totalt fra 10.mars'=sum, 'Hele landet' = sum), quiet=TRUE)
+      TabTidEnh <- addmargins(TabTidEnh, FUN=list('Totalt'=sum, 'Hele landet' = sum), quiet=TRUE)
       colnames(TabTidEnh)[ncol(TabTidEnh)] <- kolNavnSum
     }
     if (valgtRHF != 'Alle'){
       TabTidEnh <- cbind(TabTidEnh,
                          'Hele landet'= c(table(RegDataAlle$TidsVar), dim(RegDataAlle)[1]))}
   }
-  TabTidEnh_tidy <- tidyr::as_tibble(as.data.frame.matrix(TabTidEnh), rownames='Dato')
+  TabTidEnh_tidy <- tidyr::as_tibble(as.data.frame.matrix(TabTidEnh), rownames='Tid')
   TabTidEnh <- xtable::xtable(TabTidEnh, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
                               caption='Antall Coronatilfeller.')
 
-  return(UtData <- list(Tab=TabTidEnh, utvalTxt=UtData$utvalgTxt, Ntest=dim(RegData)[1],
+  return(UtData <- list(Tab=TabTidEnh, utvalgTxt=UtData$utvalgTxt, Ntest=dim(RegData)[1],
                         Tab_tidy=TabTidEnh_tidy))
 }
 

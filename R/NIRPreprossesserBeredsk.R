@@ -46,6 +46,9 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
    RegData <- TilLogiskeVar(RegData)
 
+   RegData$EcmoEnd[RegData$EcmoEnd == ""] <- NA
+   RegData$EcmoStart[RegData$EcmoStart == ""] <- NA
+
    last(RegData$DateDischargedIntensive, order_by = RegData$FormDate)
    #------SLÅ SAMMEN TIL PER PASIENT
    #NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først

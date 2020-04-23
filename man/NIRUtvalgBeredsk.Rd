@@ -14,6 +14,7 @@ NIRUtvalgBeredsk(
   bekr = 9,
   skjemastatus = 9,
   resp = 9,
+  datovar = "InnDato",
   dodInt = 9,
   reshID = 0,
   valgtRHF = "Alle",
