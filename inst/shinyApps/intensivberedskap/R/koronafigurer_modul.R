@@ -9,6 +9,16 @@ koronafigurer_UI <- function(id, rhfNavn){
                  selectInput(inputId = ns("valgtRHF"), label="Velg RHF",
                              choices = rhfNavn
                  ),
+                 selectInput(inputId = ns('valgtVar'), label='Velg variabel',
+                             choices = c('Antall innleggelser'='antreg',
+                                         # 'Antall døde'='antdod',
+                                         'Antall utskrivinger'= 'antut',
+                                         'Antall inneliggende'='antinn')
+                 ),
+                 selectInput(inputId = ns("velgTidsenhet"), label="Velg tidsenhet",
+                             choices = c("Dag"="dag", "Uke"="uke", "Måned"="maaned")),
+                 selectInput(inputId = ns("velgAntVisning"), label="Velg antall dager",
+                             choices = c(10, 20, 30, 50, 100, 200), selected = 30),
                  selectInput(inputId = ns("bekr"), label="Bekreftet/Mistenkt",
                              choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
                  ),
@@ -37,17 +47,10 @@ koronafigurer_UI <- function(id, rhfNavn){
                                    downloadButton(ns("LastNedFig"), label = 'Last ned figur'),
                                    br(),
                                    br(),
-                                   DT::DTOutput(ns("tabTidEnhet_DT")),
+                                   # DT::DTOutput(ns("tabTidEnhet_DT")),
+                                   tableOutput(ns("tabTidEnhet_plain")),
                                    downloadButton(ns("lastNed"), "Last ned tabell")
-                          )#,
-                          # tabPanel("Aldersfordeling, kjønnsdelt",
-                          #          plotOutput(ns("FigurAldersfordeling"), height="auto"),
-                          #          downloadButton(ns("LastNedFigAldKj"), "Last ned figur"),
-                          #          br(),
-                          #          br(),
-                          #          tableOutput(ns("tabAlder")),
-                          #          downloadButton(ns("lastNedAldKj"), "Last ned tabell")
-                          # )
+                          )
     )
     )
   )
@@ -67,17 +70,72 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
                                                         egetRHF))))
   }
 
+  observe(
+    switch (input$velgTidsenhet,
+            "dag" = updateSelectInput(session, "velgAntVisning", label="Velg antall dager",
+                                      choices = c(10, 20, 30, 50, 100, 200), selected = 30),
+            "uke" = updateSelectInput(session, "velgAntVisning", label="Velg antall uker",
+                                      choices = c(4, 8, 12, 20, 40, 100), selected = 8),
+            "maaned" = updateSelectInput(session, "velgAntVisning", label="Velg antall måneder",
+                                         choices = c(2, 4, 8, 12, 20), selected = 4)
+    )
+  )
+
+  datoFra <- reactive(datoFra <- switch (input$velgTidsenhet,
+                                         "dag" = Sys.Date() - days(as.numeric(input$velgAntVisning)-1),
+                                         "uke" = floor_date(Sys.Date() - weeks(as.numeric(input$velgAntVisning)-1), unit = 'week', week_start = 1),
+                                         "maaned" = floor_date(Sys.Date() - months(as.numeric(input$velgAntVisning)-1), unit = 'month')
+  )
+  )
 
   AntTab <- function() {
     valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-    AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
-                          valgtRHF= valgtRHF,
-                          skjemastatus=as.numeric(input$skjemastatus),
-                          resp=as.numeric(input$resp),
-                          dodInt = as.numeric(input$dodInt),
-                          bekr=as.numeric(input$bekr),
-                          erMann=as.numeric(input$erMann)
+    # AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
+    #                       valgtRHF= valgtRHF,
+    #                       skjemastatus=as.numeric(input$skjemastatus),
+    #                       resp=as.numeric(input$resp),
+    #                       dodInt = as.numeric(input$dodInt),
+    #                       bekr=as.numeric(input$bekr),
+    #                       erMann=as.numeric(input$erMann)
+    # )
+    AntTab <- switch(input$valgtVar,
+                     'antreg'= TabTidEnhet(RegData=CoroData,
+                                           tidsenhet=input$velgTidsenhet,
+                                           datoFra=datoFra(),
+                                           valgtRHF= valgtRHF,
+                                           skjemastatus=as.numeric(input$skjemastatus),
+                                           resp=as.numeric(input$resp),
+                                           dodInt = as.numeric(input$dodInt),
+                                           bekr=as.numeric(input$bekr),
+                                           erMann=as.numeric(input$erMann)),
+                     'antut'= antallTidUtskrevneNIRberedskap(RegData=CoroData,
+                                                           tidsenhet=input$velgTidsenhet,
+                                                           datoFra=datoFra(),
+                                                           valgtRHF= valgtRHF,
+                                                           skjemastatus=as.numeric(input$skjemastatus),
+                                                           resp=as.numeric(input$resp),
+                                                           dodInt = as.numeric(input$dodInt),
+                                                           bekr=as.numeric(input$bekr),
+                                                           erMann=as.numeric(input$erMann)),
+                     # 'antut'=antallTidUtskrevne(RegData=KoroData, tilgangsNivaa=rolle,
+                     #                            valgtEnhet= egenEnhet, #nivå avgjort av rolle
+                     #                            tidsenhet=input$velgTidsenhet,
+                     #                            datoFra=datoFra(),
+                     #                            aarsakInn = as.numeric(input$aarsakInnRes),
+                     #                            skjemastatusInn=as.numeric(input$skjemastatusInnRes),
+                     #                            erMann=as.numeric(input$erMannRes)),
+                     'antinn'= antallTidInneliggendeBeredskap(RegData=CoroData,
+                                                              tidsenhet=input$velgTidsenhet,
+                                                              datoFra=datoFra(),
+                                                              valgtRHF= valgtRHF,
+                                                              skjemastatus=as.numeric(input$skjemastatus),
+                                                              resp=as.numeric(input$resp),
+                                                              dodInt = as.numeric(input$dodInt),
+                                                              bekr=as.numeric(input$bekr),
+                                                              erMann=as.numeric(input$erMann))
     )
+
+
     ant_skjema <- AntTab$Tab_tidy
     ant_skjema[-dim(ant_skjema)[1], ] <- ant_skjema[rev(1:(dim(ant_skjema)[1]-1)), ]
     sketch <- htmltools::withTags(table(
@@ -90,10 +148,15 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
 
   output$tabTidEnhet_DT = DT::renderDT(
     DT::datatable(AntTab()$ant_skjema[-dim(AntTab()$ant_skjema)[1], ],
-              container = AntTab()$sketch,
-              rownames = F,
-              options = list(pageLength = 40)
+                  container = AntTab()$sketch,
+                  rownames = F,
+                  options = list(pageLength = 40)
     )
+  )
+
+  output$tabTidEnhet_plain = renderTable(
+    AntTab()$ant_skjema,
+    digits = 0
   )
 
   output$FigurTidEnhet <- renderPlot({
@@ -129,59 +192,6 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
       write.csv2(Tabell1, file, row.names = F, fileEncoding = 'latin1')
     }
   )
-
-
-  # output$FigurAldersfordeling <- renderPlot({
-  #   valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-  #   intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
-  #                                             valgtRHF= valgtRHF,
-  #                                             skjemastatus=as.numeric(input$skjemastatus),
-  #                                             bekr=as.numeric(input$bekr))
-  # }, width = 700, height = 700)
-  #
-  # output$LastNedFigAldKj <- downloadHandler(
-  #   filename = function(){
-  #     paste0('AldKjFig', Sys.time(), '.', input$bildeformat)
-  #   },
-  #
-  #   content = function(file){
-  #     intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
-  #                                               valgtRHF= ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
-  #                                               skjemastatus=as.numeric(input$skjemastatus),
-  #                                               bekr=as.numeric(input$bekr), outfile = file)
-  #   }
-  # )
-  #
-  #
-  # # output$tabAlder<- renderTable({xtable::xtable()}, rownames = F, digits=0, spacing="xs")
-  #
-  # output$tabAlder <- function() {
-  #   valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-  #   Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
-  #                                                       valgtRHF= valgtRHF,
-  #                                                       skjemastatus=as.numeric(input$skjemastatus),
-  #                                                       bekr=as.numeric(input$bekr))
-  #   Tabell %>% knitr::kable("html", digits = 0) %>%
-  #     kable_styling("hover", full_width = F) %>%
-  #     add_header_above(c("Kategori", "Antall" = (dim(Tabell)[2]-3), "Totalt" = 2))
-  # }
-  #
-  #
-  # output$lastNedAldKj <- downloadHandler(
-  #   filename = function(){
-  #     paste0('AldKjTabell', Sys.time(), '.csv')
-  #   },
-  #
-  #   content = function(file){
-  #     Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder',
-  #                                                         valgtRHF= valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
-  #                                                         skjemastatus=as.numeric(input$skjemastatus),
-  #                                                         bekr=as.numeric(input$bekr))
-  #     write.csv2(Tabell, file, row.names = F, fileEncoding = 'latin1')
-  #   }
-  # )
-
-
 
 }
 

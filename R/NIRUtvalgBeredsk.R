@@ -16,28 +16,25 @@
 #'
 #' @return
 #' @export
-#'
 NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, minald=0, maxald=110, #enhetsUtvalg=0,
-                             bekr=9, skjemastatus=9, resp=9,
-                         dodInt=9, reshID=0, valgtRHF='Alle', velgAvd=0) {
-
-#RHF <- unique(RegData$RHF)
+                             bekr=9, skjemastatus=9, resp=9, datovar='InnDato',
+                             dodInt=9, reshID=0, valgtRHF='Alle', velgAvd=0) {
 
 
- if (bekr %in% 0:1){RegData <- subset(RegData, RegData$Bekreftet==bekr)}
- if (skjemastatus %in% 1:2){RegData <- subset(RegData, RegData$FormStatus==skjemastatus)}
-if (resp %in% 1:2){RegData <- subset(RegData, RegData$MechanicalRespirator==resp)}
- if (dodInt %in% 0:1){RegData <- subset(RegData, RegData$DischargedIntensivStatus==dodInt)}
- if (erMann %in% 0:1){
-   vec <- (RegData$erMann == erMann)
-   RegData <- subset(RegData, vec)}
+  if (bekr %in% 0:1){RegData <- subset(RegData, RegData$Bekreftet==bekr)}
+  if (skjemastatus %in% 1:2){RegData <- subset(RegData, RegData$FormStatus==skjemastatus)}
+  if (resp %in% 1:2){RegData <- subset(RegData, RegData$MechanicalRespirator==resp)}
+  if (dodInt %in% 0:1){RegData <- subset(RegData, RegData$DischargedIntensivStatus==dodInt)}
+  if (erMann %in% 0:1){
+    vec <- (RegData$erMann == erMann)
+    RegData <- subset(RegData, vec)}
   if (valgtRHF != 'Alle'){RegData <- subset(RegData, RegData$RHF == valgtRHF)}
 
   if(minald>0 | maxald<110) {RegData <- subset(RegData,
                                                RegData$Alder >= minald & RegData$Alder <= maxald)}
 
- if(datoFra!=0) {RegData <- subset(RegData, RegData$InnDato >= as.Date(datoFra, tz= 'UTC'))}
- if(datoTil!=0) {RegData <- subset(RegData, RegData$InnDato <= as.Date(datoTil, tz= 'UTC'))}
+  if(datoFra!=0) {RegData <- subset(RegData, RegData[,datovar] >= as.Date(datoFra, tz= 'UTC'))}
+  if(datoTil!=0) {RegData <- subset(RegData, RegData[,datovar] <= as.Date(datoTil, tz= 'UTC'))}
 
   N <- dim(RegData)[1]
 
@@ -45,8 +42,8 @@ if (resp %in% 1:2){RegData <- subset(RegData, RegData$MechanicalRespirator==resp
     if (bekr %in% 0:1){paste(c('Mistenkte','Bekreftede')[bekr+1], 'tilfeller')
     } else {'Alle registrerte (mistenkte og bekreftede)'},
     if(datoFra!=0 | datoTil!=0) {paste0(
-      'Innleggelsesdatoer: ', if (N>0) {min(as.Date(RegData$InnDato), na.rm=T)} else {datoFra},
-      ' til ', if (N>0) {max(as.Date(RegData$InnDato), na.rm=T)} else {datoTil})} else {NULL},
+      'Innleggelsesdatoer: ', if (N>0) {min(as.Date(RegData[,datovar]), na.rm=T)} else {datoFra},
+      ' til ', if (N>0) {max(as.Date(RegData[,datovar]), na.rm=T)} else {datoTil})} else {NULL},
     if ((minald>0) | (maxald<110)) {
       paste0('Pasienter fra ', if (N>0) {min(RegData$Alder, na.rm=T)} else {minald},
              ' til ', if (N>0) {max(RegData$Alder, na.rm=T)} else {maxald}, ' år')},
@@ -59,7 +56,7 @@ if (resp %in% 1:2){RegData <- subset(RegData, RegData$MechanicalRespirator==resp
     if (velgAvd[1] != 0 & reshID==0) {'Viser valgte sykehus'}
   )
 
- UtData <- list(RegData=RegData, utvalgTxt=utvalgTxt) #ind=ind, medSml=medSml, smltxt=smltxt, hovedgrTxt=hovedgrTxt, grTypeTxt=grTypeTxt,
+  UtData <- list(RegData=RegData, utvalgTxt=utvalgTxt)
 
- return(invisible(UtData))
+  return(invisible(UtData))
 }

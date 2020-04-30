@@ -16,7 +16,7 @@ NIRberedskDataSQL <- function() { #datoFra = '2020-03-01', datoTil = Sys.Date()
 -- ,AddressQuality
 ,AgeAdmitted
 ,Astma
--- ,Birthdate
+,Birthdate
 -- ,CurrentMunicipalNumber
 ,DateAdmittedIntensive
 ,DateDischargedIntensive

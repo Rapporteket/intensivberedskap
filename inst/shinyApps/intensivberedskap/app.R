@@ -38,8 +38,10 @@ if (paaServer) {
   CoroData <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } else {
-  CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-04-03 16-38-35.txt', sep=';',
+  CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-04-23 11-23-37.txt', sep=';',
                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+  CoroData$EcmoEnd[CoroData$EcmoEnd == ""] <- NA
+  CoroData$EcmoStart[CoroData$EcmoStart == ""] <- NA
 } #hente data
 
 #Bruk resh før preprosesserer
@@ -222,7 +224,7 @@ server <- function(input, output, session) {
   if (context %in% c('QA', 'PRODUCTION')){
     raplog::appLogger(session = session, msg = "Starter Corona-app")}
 
-  reshID <- ifelse(paaServer, as.numeric(rapbase::getUserReshId(session)), 0) # 42088921
+  reshID <- ifelse(paaServer, as.numeric(rapbase::getUserReshId(session)), 42088921) # 42088921
 
   rolle <- ifelse(paaServer, rapbase::getUserRole(shinySession=session), 'SC')
   brukernavn <- ifelse(paaServer, rapbase::getUserName(shinySession=session), 'brukernavn')
