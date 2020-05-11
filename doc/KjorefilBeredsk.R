@@ -19,9 +19,15 @@ knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'U
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 library(intensivberedskap)
+library(tidyverse)
 CoroData <- NIRberedskDataSQL()
 RegData <- NIRPreprosessBeredsk(CoroData)
-CoroData <- RegData
+
+sort(RegData$RespReinnTid)
+pas <- RegData$PasientID[which(RegData$ReinnTid > 25)] #ReinnTid< -10 =dobbeltregistrering
+RegData$AntRegPas[which(RegData$PasientID %in% pas)]
+data <- CoroData[which(CoroData$PatientInRegistryGuid %in% pas), ]
+data[order(data$PatientInRegistryGuid, data$DateAdmittedIntensive),]
 
 Data <- RegData[!(is.na(RegData$DateDischargedIntensive)), c("FormStatus", "Bekreftet")]
 
