@@ -23,6 +23,16 @@ library(tidyverse)
 CoroData <- NIRberedskDataSQL()
 RegData <- NIRPreprosessBeredsk(CoroData)
 
+dato <- NIRUtvalgBeredsk(RegData=RegData, datoTil = '2020-03-31')$RegData
+inne <- sum(is.na(dato$DateDischargedIntensive))
+range(RegData$Liggetid, na.rm = T)
+
+inneliggere <- is.na(RegData$DateDischargedIntensive)
+bekr <- RegData$Bekreftet==1
+min(RegData$FormDate[inneliggere & bekr], na.rm=T)
+min(RegData$FormDate, na.rm=T)
+test <- RegData[inneliggere & bekr, ]
+
 sort(RegData$RespReinnTid)
 pas <- RegData$PasientID[which(RegData$ReinnTid > 25)] #ReinnTid< -10 =dobbeltregistrering
 RegData$AntRegPas[which(RegData$PasientID %in% pas)]

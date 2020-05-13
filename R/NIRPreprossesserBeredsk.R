@@ -77,6 +77,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                                                 units = "hours"), decreasing = T)[1],
                                   0),
                 Reinn = ifelse(ReinnTid > 24, 1, 0),
+                ReinnNaar = ifelse(Reinn==0, 0, #0-nei, 1-ja
+                                   max(which(difftime(sort(FormDate)[2:AntRegPas],
+                                                      DateDischargedIntensive[order(FormDate)][1:(AntRegPas-1)],
+                                                      units = "hours") > 24))),
                 AntRespPas = sum(MechanicalRespirator==1, na.rm=T),
                 MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
                 RespReinnTid = ifelse((AntRespPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
@@ -84,6 +88,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                                                 MechanicalRespiratorEnd[order(FormDate)][1:(AntRespPas-1)],
                                                 units = "hours"), decreasing = T)[1],
                                   0),
+                MechanicalRespiratorStartSiste = first(MechanicalRespiratorStart, order_by = FormDate),
                 MechanicalRespiratorStart = first(MechanicalRespiratorStart, order_by = FormDate),
                 EcmoStart = first(EcmoStart, order_by = FormDate),
                 DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
@@ -93,9 +98,9 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 RHF = first(RHF, order_by = FormDate),
                 HF = first(HF, order_by = FormDate),
                 ShNavnUt = last(ShNavn, order_by = FormDate),
-                ShNavn=first(ShNavn, order_by = FormDate),
-                FormDateSiste = last(FormDate, order_by = FormDate),
-                FormDate = sort(FormDate)[1],
+                ShNavn = first(ShNavn, order_by = FormDate),
+                FormDateSiste = nth(FormDate, ReinnNaar+1, order_by = FormDate),
+                FormData = first(FormDate, order_by = FormDate),
                 RespTid = ifelse(RespReinnTid >24 ,
                                   difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = "days"),
                                   difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = "days") - RespReinnTid/24),
