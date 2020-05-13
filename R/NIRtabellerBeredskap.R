@@ -89,17 +89,17 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
   inneliggere <- is.na(RegData$DateDischargedIntensive)
   AntPaaIntNaa <- sum(inneliggere) #N - sum(!(is.na(RegData$DateDischargedIntensive)))
-  LiggetidNaa <- as.numeric(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[inneliggere], units='days'))
+  LiggetidNaa <- as.numeric(difftime(Sys.Date(), RegData$FormDateSiste[inneliggere], units='days'))
   LiggetidNaaGjsn <- mean(LiggetidNaa[LiggetidNaa < 60], na.rm = T)
 
   respLiggere <- inneliggere & is.na(RegData$MechanicalRespiratorEnd) & !(is.na(RegData$MechanicalRespiratorStart) ) #Har antatt at respiratortid MÅ registreres
   AntIrespNaa <- sum(respLiggere)
-  ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStart[respLiggere],
+  ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStartSiste[respLiggere],
                                     units='days'))
   ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 60], na.rm=T)
   #sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
 
-  ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) ) #Har antatt at respiratortid MÅ registreres
+  ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) )
   AntIECMONaa <- sum(ECMOLiggere) #sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
   ECMOtidNaa <- as.numeric(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
                                     units='days'))

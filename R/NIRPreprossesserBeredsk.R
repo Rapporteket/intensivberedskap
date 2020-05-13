@@ -70,6 +70,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 Kreft = sum(Kreft)>0,
                 Bekreftet = max(Bekreftet),
                 FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
+         #Justering av liggetid mht. reinnleggelse:
                 AntRegPas = n(),
                 ReinnTid = ifelse((AntRegPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
                                   sort(difftime(sort(FormDate)[2:AntRegPas], #sort hopper over NA
@@ -80,30 +81,36 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 ReinnNaar = ifelse(Reinn==0, 0, #0-nei, 1-ja
                                    max(which(difftime(sort(FormDate)[2:AntRegPas],
                                                       DateDischargedIntensive[order(FormDate)][1:(AntRegPas-1)],
-                                                      units = "hours") > 24))),
-                AntRespPas = sum(MechanicalRespirator==1, na.rm=T),
-                MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
-                RespReinnTid = ifelse((AntRespPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
-                                  sort(difftime(MechanicalRespiratorStart[order(FormDate)][2:AntRespPas], #sort hopper over NA
-                                                MechanicalRespiratorEnd[order(FormDate)][1:(AntRespPas-1)],
+                                                      units = "hours") > 24))), #Hvilke opphold som er reinnleggelse
+                FormDateSiste = nth(FormDate, ReinnNaar+1, order_by = FormDate),
+         #Justering av respiratortid mht. reinnleggelse. NB: Kan være reinnlagt på respirator selv om ikke reinnlagt på intensiv.
+                 AntRespPas = sum(MechanicalRespirator==1, na.rm=T),
+                ReinnRespTid = ifelse((AntRespPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
+                                  sort(difftime(MechanicalRespiratorStart[order(MechanicalRespiratorStart)][2:AntRespPas], #sort hopper over NA
+                                                MechanicalRespiratorEnd[order(MechanicalRespiratorStart)][1:(AntRespPas-1)],
                                                 units = "hours"), decreasing = T)[1],
                                   0),
-                MechanicalRespiratorStartSiste = first(MechanicalRespiratorStart, order_by = FormDate),
-                MechanicalRespiratorStart = first(MechanicalRespiratorStart, order_by = FormDate),
-                EcmoStart = first(EcmoStart, order_by = FormDate),
+                ReinnResp = ifelse(ReinnRespTid > 24, 1, 0),
+                ReinnRespNaar = ifelse(ReinnResp==0, 0, #0-nei, 1-ja
+                                   max(which(difftime(MechanicalRespiratorStart[order(MechanicalRespiratorStart)][2:AntRespPas],
+                                                      MechanicalRespiratorEnd[order(MechanicalRespiratorStart)][1:(AntRespPas-1)],
+                                                      units = "hours") > 24))), #Hvilket opphold som er siste reinnleggelse på respirator
+                MechanicalRespiratorStartSiste = nth(MechanicalRespiratorStart, ReinnRespNaar+1, order_by = MechanicalRespiratorStart),
+                MechanicalRespiratorStart = first(MechanicalRespiratorStart, order_by = MechanicalRespiratorStart),
+                MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
+                EcmoStart = sort(EcmoStart)[1],
                 DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
-                MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate, default = NA),
-                EcmoEnd = last(EcmoEnd, order_by = FormDate), # max(EcmoEnd),
+                MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
+                EcmoEnd = sort(EcmoEnd, decreasing = T)[1], #sort(NA) gir tom, men sort(NA)[1] gir NA
                 ReshId = first(ReshId, order_by = FormDate),
                 RHF = first(RHF, order_by = FormDate),
                 HF = first(HF, order_by = FormDate),
                 ShNavnUt = last(ShNavn, order_by = FormDate),
                 ShNavn = first(ShNavn, order_by = FormDate),
-                FormDateSiste = nth(FormDate, ReinnNaar+1, order_by = FormDate),
-                FormData = first(FormDate, order_by = FormDate),
-                RespTid = ifelse(RespReinnTid >24 ,
+                FormDate = first(FormDate, order_by = FormDate),
+                RespTid = ifelse(ReinnResp==0 ,
                                   difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = "days"),
-                                  difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = "days") - RespReinnTid/24),
+                                  difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = "days") - ReinnRespTid/24),
                 Liggetid = ifelse(Reinn==0,
                                   difftime(DateDischargedIntensive, FormDate, units = "days"),
                                   difftime(DateDischargedIntensive, FormDate, units = "days") - ReinnTid/24)
