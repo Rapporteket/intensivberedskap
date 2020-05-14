@@ -25,7 +25,7 @@ RegData <- NIRPreprosessBeredsk(CoroData)
 
 dato <- NIRUtvalgBeredsk(RegData=RegData, datoTil = '2020-03-31')$RegData
 inne <- sum(is.na(dato$DateDischargedIntensive))
-range(RegData$Liggetid, na.rm = T)
+range(dato$Liggetid, na.rm = T)
 
 inneliggere <- is.na(RegData$DateDischargedIntensive)
 bekr <- RegData$Bekreftet==1
