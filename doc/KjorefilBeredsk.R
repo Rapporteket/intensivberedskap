@@ -23,11 +23,22 @@ library(tidyverse)
 CoroData <- NIRberedskDataSQL()
 RegData <- NIRPreprosessBeredsk(CoroData)
 
-dato <- NIRUtvalgBeredsk(RegData=RegData, datoTil = '2020-03-31')$RegData
-inne <- sum(is.na(dato$DateDischargedIntensive))
-range(dato$Liggetid, na.rm = T)
+data <- NIRUtvalgBeredsk(RegData=RegData, datoTil = '2020-04-01')$RegData
+inneliggere <- is.na(data$DateDischargedIntensive)
+inne <- sum(inneliggere)
+range(data$Liggetid, na.rm = T)
+data[inneliggere, c('FormDate', "PasientID", "ShNavnUt")]
 
-inneliggere <- is.na(RegData$DateDischargedIntensive)
+pas <- data$PasientID[inneliggere]
+sjekkSkjema <- CoroData[which(CoroData$PatientInRegistryGuid %in% pas),
+                        c("HelseenhetKortnavn", 'PatientInRegistryGuid', "FormDate", "DateDischargedIntensive","SkjemaGUID")]
+sjekkSkjema[order(sjekkSkjema$HelseenhetKortnavn, sjekkSkjema$PatientInRegistryGuid, sjekkSkjema$FormDate),]
+
+# sjekkSkjema <- CoroData[which(is.na(CoroData$DateDischargedIntensive) & as.Date(CoroData$FormDate)<'2020-04-01'),
+#                         c("HelseenhetKortnavn","PatientInRegistryGuid", "FormDate", "SkjemaGUID")]
+# sjekkSkjema[order(sjekkSkjema$HelseenhetKortnavn, sjekkSkjema$PatientInRegistryGuid, sjekkSkjema$FormDate),]
+
+
 bekr <- RegData$Bekreftet==1
 min(RegData$FormDate[inneliggere & bekr], na.rm=T)
 min(RegData$FormDate, na.rm=T)
