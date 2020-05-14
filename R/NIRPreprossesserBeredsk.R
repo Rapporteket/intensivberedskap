@@ -46,27 +46,14 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
 
    RegData <- TilLogiskeVar(RegData)
 
-   last(RegData$DateDischargedIntensive, order_by = RegData$FormDate)
    #------SLÅ SAMMEN TIL PER PASIENT
    #NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først
    #  På respirator antar man at hvis de ligger på respirator når de overflyttes
    RegDataRed <- RegData %>% group_by(PasientID) %>%
       summarise(Alder = Alder[1],
                 PatientGender = PatientGender[1],
-                MechanicalRespiratorStart = sort(MechanicalRespiratorStart)[1],
-                EcmoStart = sort(EcmoStart)[1],
-                DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
-                MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate, default = NA),
-                #sort(MechanicalRespiratorEnd, decreasing = T)[1],
-                #ifelse(is.na(MechanicalRespiratorStart),NA, )
-                # RespTid = as.numeric(difftime(max(MechanicalRespiratorEnd,
-                #                                           MechanicalRespiratorStart,
-                #                                           units = 'days')),
-                EcmoEnd = sort(EcmoEnd, decreasing = T)[1], # max(EcmoEnd),
                 Morsdato = sort(Morsdato)[1],
-                FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
                 DischargedIntensivStatus = max(DischargedIntensivStatus, na.rm = T), #0-levende, 1-død
-                MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
                 Overf = max(Overf),
                 Graviditet = sum(Graviditet)>0,
                 Astma  = sum(Astma)>0,
@@ -82,11 +69,52 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 IsRiskFactor = sum(IsRiskFactor)>0,
                 Kreft = sum(Kreft)>0,
                 Bekreftet = max(Bekreftet),
+                FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
+         #Justering av liggetid mht. reinnleggelse:
+                AntRegPas = n(),
+                ReinnTid = ifelse((AntRegPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
+                                  sort(difftime(sort(FormDate)[2:AntRegPas], #sort hopper over NA
+                                                DateDischargedIntensive[order(FormDate)][1:(AntRegPas-1)],
+                                                units = "hours"), decreasing = T)[1],
+                                  0),
+                Reinn = ifelse(ReinnTid > 24, 1, 0),
+                ReinnNaar = ifelse(Reinn==0, 0, #0-nei, 1-ja
+                                   max(which(difftime(sort(FormDate)[2:AntRegPas],
+                                                      DateDischargedIntensive[order(FormDate)][1:(AntRegPas-1)],
+                                                      units = "hours") > 24))), #Hvilke opphold som er reinnleggelse
+                FormDateSiste = nth(FormDate, ReinnNaar+1, order_by = FormDate),
+         #Justering av respiratortid mht. reinnleggelse. NB: Kan være reinnlagt på respirator selv om ikke reinnlagt på intensiv.
+                 AntRespPas = sum(MechanicalRespirator==1, na.rm=T),
+                ReinnRespTid = ifelse((AntRespPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
+                                  sort(difftime(MechanicalRespiratorStart[order(MechanicalRespiratorStart)][2:AntRespPas], #sort hopper over NA
+                                                MechanicalRespiratorEnd[order(MechanicalRespiratorStart)][1:(AntRespPas-1)],
+                                                units = "hours"), decreasing = T)[1],
+                                  0),
+                ReinnResp = ifelse(ReinnRespTid > 24, 1, 0),
+                ReinnRespNaar = ifelse(ReinnResp==0, 0, #0-nei, 1-ja
+                                   max(which(difftime(MechanicalRespiratorStart[order(MechanicalRespiratorStart)][2:AntRespPas],
+                                                      MechanicalRespiratorEnd[order(MechanicalRespiratorStart)][1:(AntRespPas-1)],
+                                                      units = "hours") > 24))), #Hvilket opphold som er siste reinnleggelse på respirator
+                MechanicalRespiratorStartSiste = nth(MechanicalRespiratorStart, ReinnRespNaar+1, order_by = MechanicalRespiratorStart),
+                MechanicalRespiratorStart = first(MechanicalRespiratorStart, order_by = MechanicalRespiratorStart),
+                MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
+                EcmoStart = sort(EcmoStart)[1],
+                DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
+                MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
+                EcmoEnd = sort(EcmoEnd, decreasing = T)[1], #sort(NA) gir tom, men sort(NA)[1] gir NA
                 ReshId = first(ReshId, order_by = FormDate),
-                RHF=RHF[1],
-                HF=HF[1],
-                ShNavn=ShNavn[1],
-                FormDate = sort(FormDate)[1])
+                RHF = first(RHF, order_by = FormDate),
+                HF = first(HF, order_by = FormDate),
+                ShNavnUt = last(ShNavn, order_by = FormDate),
+                ShNavn = first(ShNavn, order_by = FormDate),
+                FormDate = first(FormDate, order_by = FormDate),
+                RespTid = ifelse(ReinnResp==0 ,
+                                  difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = "days"),
+                                  difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = "days") - ReinnRespTid/24),
+                Liggetid = ifelse(Reinn==0,
+                                  difftime(DateDischargedIntensive, FormDate, units = "days"),
+                                  difftime(DateDischargedIntensive, FormDate, units = "days") - ReinnTid/24)
+                )
 
 
    #----------------------------
@@ -132,12 +160,12 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
    RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
                                           RegData$EcmoStart,
                                           units = 'days'))
-   RegData$RespTid <- as.numeric(difftime(RegData$MechanicalRespiratorEnd,
-                                          RegData$MechanicalRespiratorStart,
-                                          units = 'days'))
-   RegData$liggetid <- as.numeric(difftime(RegData$DateDischargedIntensive,
-                                           RegData$Innleggelsestidspunkt,
-                                           units = 'days'))
+   # RegData$RespTid <- as.numeric(difftime(RegData$MechanicalRespiratorEnd,
+   #                                        RegData$MechanicalRespiratorStart,
+   #                                        units = 'days'))
+   # RegData$Liggetid <- as.numeric(difftime(RegData$DateDischargedIntensive,
+   #                                         RegData$Innleggelsestidspunkt,
+   #                                         units = 'days'))
 
    # Nye tidsvariable:
    RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$Innleggelsestidspunkt, tz= 'UTC',
