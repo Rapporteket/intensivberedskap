@@ -9,7 +9,7 @@
 #' @export
 #'
 #'
-NIRberedskDataSQL <- function() { #datoFra = '2020-03-01', datoTil = Sys.Date()
+NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date() ) {
 
 
   varBeredsk <- c("UPPER(SkjemaGUID) AS SkjemaGUID
@@ -36,7 +36,7 @@ NIRberedskDataSQL <- function() { #datoFra = '2020-03-01', datoTil = Sys.Date()
 -- ,HelseenhetID
 ,HelseenhetKortnavn
 ,HF
-,HovedskjemaGUID
+,UPPER(HovedskjemaGUID) AS HovedskjemaGUID
 ,IsActivSmoker
 ,IsChronicLungDiseasePatient
 ,IsChronicNeurologicNeuromuscularPatient
@@ -66,7 +66,6 @@ NIRberedskDataSQL <- function() { #datoFra = '2020-03-01', datoTil = Sys.Date()
 -- ,PostalCode
 ,RHF
 ,ShNavn
--- ,SkjemaGUID
 ,Sykehus
 ,TransferredStatus
 ,UnitId")
@@ -74,10 +73,10 @@ NIRberedskDataSQL <- function() { #datoFra = '2020-03-01', datoTil = Sys.Date()
 
       query <- paste0('SELECT ',
                       varBeredsk,
-                      ' FROM ReadinessFormDataContract Q')
-                      #WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
+                      ' FROM ReadinessFormDataContract Q
+                      WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
 
-
+#query <- 'select * from ReadinessFormDataContract'
       RegData <- rapbase::LoadRegData(registryName="nir", query=query, dbType="mysql")
       return(RegData)
 }
