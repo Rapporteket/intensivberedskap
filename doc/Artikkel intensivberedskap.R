@@ -18,19 +18,23 @@ DataBeredskapRaa <- DataBeredskapRaa[which(DataBeredskapRaa$FormStatus == 2), ]
 
 #kor mange av dei ferdigstilte «beredskapsopphalda» i perioden 10.mars-10.mai som også har ferdigstilt ordinær NIR-registrering?
   length(which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID))
-  #Sjekk om noen skjema har samme HovedskjemaGUID:
-  sort(table(DataBeredskapRaa$HovedskjemaGUID))
+  186
+  #Dobbeltregistrering av beredskapsskjema (har samme HovedskjemaGUID):
+  tab <- table(DataBeredskapRaa$HovedskjemaGUID)
+  dbl <- names(tab[tab>1])
+  tabdbl <- DataBeredskapRaa[which(DataBeredskapRaa$HovedskjemaGUID %in% dbl), c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID", "HovedskjemaGUID")]
+  tabdbl[order(tabdbl$HovedskjemaGUID, tabdbl$ShNavn), ]
   #Sende meg ei liste over dei avdelingane som enno har ikkje-ferdigstilte NIR-skjema for desse pasientane?
 ManglerIntOpph <- DataBeredskapRaa[-which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID),
-                                   c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID")]
+                                   c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID", "HovedskjemaGUID", 'PatientInRegistryGuid')]
 ManglerIntOpph[order(ManglerIntOpph$ShNavn, ManglerIntOpph$DateAdmittedIntensive), ]
 
 #Kan du også sjekke kor mange av desse vi kan oppgje 30-dagarsmortalitet på den 1. juni?
 #Dvs. utskrevet innen 1.mai
+length(which(as.Date(DataBeredskapRaa$DateDischargedIntensive)<='2020-05-01')) #224
+sum(as.Date(DataBeredskapRaa$DateDischargedIntensive)>'2020-05-01' & DataBeredskapRaa$DischargedIntensivStatus==1) #3
+table(DataBeredskapRaa$DischargedIntensivStatus)
 
-
-#Ser ut til å være dobbeltregistreringer...
-  #Må inkludere datavask
 
 Intensivdata <- merge(DataBeredskapRaa, DataNIRraa, suffixes = c('','NIR'),
                      by.x = 'SkjemaGUID', by.y = 'HovedskjemaGUID', all.x = T, all.y=F)
