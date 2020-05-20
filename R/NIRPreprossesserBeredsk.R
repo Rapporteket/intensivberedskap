@@ -77,11 +77,11 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                                                 DateDischargedIntensive[order(FormDate)][1:(AntRegPas-1)],
                                                 units = "hours"), decreasing = T)[1],
                                   0),
-                Reinn = ifelse(ReinnTid > 24, 1, 0),
+                Reinn = ifelse(ReinnTid > 12, 1, 0),
                 ReinnNaar = ifelse(Reinn==0, 0, #0-nei, 1-ja
                                    max(which(difftime(sort(FormDate)[2:AntRegPas],
                                                       DateDischargedIntensive[order(FormDate)][1:(AntRegPas-1)],
-                                                      units = "hours") > 24))), #Hvilke opphold som er reinnleggelse
+                                                      units = "hours") > 12))), #Hvilke opphold som er reinnleggelse
                 FormDateSiste = nth(FormDate, ReinnNaar+1, order_by = FormDate),
          #Justering av respiratortid mht. reinnleggelse. NB: Kan være reinnlagt på respirator selv om ikke reinnlagt på intensiv.
                  AntRespPas = sum(MechanicalRespirator==1, na.rm=T),
@@ -90,11 +90,11 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                                                 MechanicalRespiratorEnd[order(MechanicalRespiratorStart)][1:(AntRespPas-1)],
                                                 units = "hours"), decreasing = T)[1],
                                   0),
-                ReinnResp = ifelse(ReinnRespTid > 24, 1, 0),
+                ReinnResp = ifelse(ReinnRespTid > 12, 1, 0),
                 ReinnRespNaar = ifelse(ReinnResp==0, 0, #0-nei, 1-ja
                                    max(which(difftime(MechanicalRespiratorStart[order(MechanicalRespiratorStart)][2:AntRespPas],
                                                       MechanicalRespiratorEnd[order(MechanicalRespiratorStart)][1:(AntRespPas-1)],
-                                                      units = "hours") > 24))), #Hvilket opphold som er siste reinnleggelse på respirator
+                                                      units = "hours") > 12))), #Hvilket opphold som er siste reinnleggelse på respirator
                 MechanicalRespiratorStartSiste = nth(MechanicalRespiratorStart, ReinnRespNaar+1, order_by = MechanicalRespiratorStart),
                 MechanicalRespiratorStart = first(MechanicalRespiratorStart, order_by = MechanicalRespiratorStart),
                 MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
@@ -102,6 +102,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
                 MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
                 EcmoEnd = sort(EcmoEnd, decreasing = T)[1], #sort(NA) gir tom, men sort(NA)[1] gir NA
+                Municipal = first(ReshId, order_by = FormDate),
                 ReshId = first(ReshId, order_by = FormDate),
                 RHF = first(RHF, order_by = FormDate),
                 HF = first(HF, order_by = FormDate),
