@@ -24,7 +24,11 @@ DataBeredskapRaa <- DataBeredskapRaa[which(DataBeredskapRaa$FormStatus == 2), ]
   dbl <- names(tab[tab>1])
   tabdbl <- DataBeredskapRaa[which(DataBeredskapRaa$HovedskjemaGUID %in% dbl), c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID", "HovedskjemaGUID")]
   tabdbl[order(tabdbl$HovedskjemaGUID, tabdbl$ShNavn), ]
+
   #Sende meg ei liste over dei avdelingane som enno har ikkje-ferdigstilte NIR-skjema for desse pasientane?
+  DataNIRraa <- NIRRegDataSQL(datoFra = '2020-03-01') #Kun ferdigstilte intensivopphold sendes til Rapporteket
+  DataBeredskapRaa <- NIRberedskDataSQL()
+  DataBeredskapRaa <- DataBeredskapRaa[which(DataBeredskapRaa$FormStatus == 2), ]
 ManglerIntOpph <- DataBeredskapRaa[-which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID),
                                    c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID", "HovedskjemaGUID", 'PatientInRegistryGuid')]
 ManglerIntOpph[order(ManglerIntOpph$ShNavn, ManglerIntOpph$DateAdmittedIntensive), ]

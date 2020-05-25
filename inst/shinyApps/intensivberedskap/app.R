@@ -146,7 +146,6 @@ ui <- tagList(
                                          tableOutput('tabECMOrespirator'),
                                          br(),
                                          h4('Forløp registrert som utskrevet, uten ferdigstilt skjema:'),
-                                         #h4('Antall opphold registrert som utskrevet, med ikke ferdigstilt skjema'),
                                          uiOutput('RegIlimbo')
                                   ),
                                   column(width=5, offset=1,
@@ -184,6 +183,27 @@ ui <- tagList(
 tabPanel("Antall intensivpasienter",
          koronafigurer_UI(id = "koronafigurer_id", rhfNavn=rhfNavn)
 ),
+
+#---------Datakvalitet-----------------
+tabPanel(#p('Tilhørende intensivskjema som mangler ferdigstillelse'),
+         title = 'Datakvalitet',
+         value = 'Datakvalitet',
+         sidebarLayout(
+           sidebarPanel(width = 3
+                        ),
+           mainPanel(
+             h4('Beredskapsskjema som mangler ferdigstillelse av tilhørende intensivskjema'),
+             br(),
+                h5(tags$b('SkjemaGUID'),' er beredskapsskjemaets skjemaID'),
+                h5(tags$b('HovedskjemaGUID'),' er intensivskjemaes skjemaID'),
+             br(),
+             downloadButton(outputId = 'lastNed_ManglerIntSkjema', label='Last ned tabell'),
+             h5('Datoformatet er lesbart i den nedlastede tabellen'),
+             br(),
+             uiOutput("tabManglerIntSkjema")
+           )
+         )
+         ), #tab Datakvalitet
 
 #-----------Abonnement--------------------------------
              tabPanel(p("Abonnement",
@@ -374,22 +394,17 @@ server <- function(input, output, session) {
     output$RegIlimbo <- renderUI({
       # AntIlibo <- AntTab$Ntest - (TabFerdig$Ntest + sum(is.na(CoroData$DateDischargedIntensive))) #RHF/alle
       finnBurdeFerdig <- function(RegData) {sum((!(is.na(RegData$DateDischargedIntensive)) & (RegData$FormStatus!=2)))}
-      #RegData <- CoroData
       valgtRHF <- input$valgtRHF
       tittel <- 'Forløp registrert som utskrevet, uten ferdigstilt skjema: '
-      #'Antall opphold registrert som utskrevet, med ikke ferdigstilt skjema',
 
       AntBurdeFerdig <-
         c( #tittel,
           if (rolle=='LU' & finnesEgenResh) {
             paste0(finnBurdeFerdig(CoroData[(which(CoroData$ReshId==reshID)), ]),' skjema for ', egetShNavn)},
-          #paste0(egetShNavn, ': ', finnBurdeFerdig(CoroData[(which(CoroData$ReshId==reshID)), ]), ' skjema ')},
           if (valgtRHF=='Alle') {
             paste0(finnBurdeFerdig(CoroData), ' skjema for hele landet')
-            #paste0('Hele landet: ', finnBurdeFerdig(CoroData), ' skjema')
           } else {
             paste0(finnBurdeFerdig(CoroData[CoroData$RHF==valgtRHF, ]), ' skjema for ', valgtRHF)}
-          #paste0(valgtRHF, ': ', finnBurdeFerdig(CoroData[CoroData$RHF==valgtRHF, ]))},
         )
       h5(HTML(paste0('&nbsp;&nbsp;&nbsp;', AntBurdeFerdig, '<br />')))
     })
@@ -426,6 +441,23 @@ server <- function(input, output, session) {
 
 
   })
+
+  #------------------Datakvalitet-----------------------
+  #Ferdigstilte beredskapsskjema uten ferdigstilt intensivskjema:
+  #reshSe <- ifelse(rolle == 'SC', 0, reshID)
+  ManglerIntSkjemaTab <- ManglerIntSkjema(reshID = ifelse(rolle == 'SC', 0, reshID))
+
+  output$tabManglerIntSkjema <- if (dim(ManglerIntSkjemaTab)[1]>0){
+    renderTable(ManglerIntSkjemaTab, rownames = F, digits=0, spacing="xs") } else {
+      renderText('Alle intensivskjema ferdigstilt')}
+
+  output$lastNed_ManglerIntSkjema <- downloadHandler(
+    filename = function(){
+      paste0('ManglerIntSkjema.csv')
+    },
+    content = function(file, filename){
+      write.csv2(ManglerIntSkjemaTab, file, row.names = F, na = '')
+    })
 
   #------------------ Abonnement ----------------------------------------------
   ## reaktive verdier for å holde rede på endringer som skjer mens

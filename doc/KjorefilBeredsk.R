@@ -112,11 +112,6 @@ AntOpphPas <- table(RegData$PasientID)
 AntOpphPas[AntOpphPas>1]
 EkstraOpph <- Nopph-Npas
 
-#liggetid, #DeadPatientDuring24Hours MoreThan24Hours MovedPatientToAnotherIntensivDuring24Hours
-#[41] Municipal                                  MunicipalNumber#Diagnosis
-#LastUpdate Dod30 Dod90 [53] Korona
-#[57] ECMOTid                                    RespTid
-#IsEcmoTreatmentAdministered
 
 
 #Eksempel på bruk av gruppering I dplyr (tidyverse).

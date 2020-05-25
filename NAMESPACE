@@ -2,6 +2,7 @@
 
 export(FigFordelingKjonnsdelt)
 export(FigTidEnhet)
+export(ManglerIntSkjema)
 export(NIRPreprosessBeredsk)
 export(NIRUtvalgBeredsk)
 export(NIRberedskDataSQL)
