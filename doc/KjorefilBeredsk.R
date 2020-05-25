@@ -23,6 +23,11 @@ library(tidyverse)
 CoroData <- NIRberedskDataSQL()
 RegData <- NIRPreprosessBeredsk(CoroData)
 
+data <- RegData[(RegData$Reinn==1) | (RegData$ReinnGml==1) ,c("PasientID", "ShNavn", "ShNavnUt", "FormDate", "DateDischargedIntensive", "Reinn", "ReinnGml", "ReinnNaar", "ReinnTid")]
+pas <- RegData$PasientID[RegData$Reinn==1 | RegData$ReinnGml==1]
+dataRaa <- CoroData[CoroData$PatientInRegistryGuid %in% pas ,c("PatientInRegistryGuid", "FormDate", "HelseenhetKortnavn", "DateDischargedIntensive")]
+dataRaa <- dataRaa[order(dataRaa$PatientInRegistryGuid, dataRaa$FormDate), ]
+
 data <- NIRUtvalgBeredsk(RegData=RegData, datoTil = '2020-04-01')$RegData
 inneliggere <- is.na(data$DateDischargedIntensive)
 inne <- sum(inneliggere)

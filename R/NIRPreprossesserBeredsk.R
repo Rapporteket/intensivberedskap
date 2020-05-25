@@ -77,12 +77,17 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                                                 DateDischargedIntensive[order(FormDate)][1:(AntRegPas-1)],
                                                 units = "hours"), decreasing = T)[1],
                                   0),
-                Reinn = ifelse(ReinnTid > 12, 1, 0),
-                ReinnNaar = ifelse(Reinn==0, 0, #0-nei, 1-ja
-                                   max(which(difftime(sort(FormDate)[2:AntRegPas],
-                                                      DateDischargedIntensive[order(FormDate)][1:(AntRegPas-1)],
-                                                      units = "hours") > 12))), #Hvilke opphold som er reinnleggelse
-                FormDateSiste = nth(FormDate, ReinnNaar+1, order_by = FormDate),
+                InnSmResh = ifelse(AntRegPas > 1,
+                                   sum(ReshId[order(FormDate)][2:AntRegPas] == ReshId[order(FormDate)][1:AntRegPas-1]),
+                                   0),
+               Reinn = ifelse((InnSmResh > 0) & (ReinnTid < 72 & ReinnTid > 0),  1, 0),
+               ReinnGml = ifelse(ReinnTid > 12,  1, 0),
+               ReinnNaar = ifelse(Reinn==0, 0, #0-nei, 1-ja
+                                  max(which(ReshId[order(FormDate)][2:AntRegPas] == ReshId[order(FormDate)][1:AntRegPas-1]))+1), #Hvilke opphold som er reinnleggelse# ReinnNaar = ifelse(Reinn==0, 0, #0-nei, 1-ja
+               #                     max(which(difftime(sort(FormDate)[2:AntRegPas],
+               #                                        DateDischargedIntensive[order(FormDate)][1:(AntRegPas-1)],
+               #                                        units = "hours") > 12))), #Hvilke opphold som er reinnleggelse
+                FormDateSiste = nth(FormDate, ReinnNaar, order_by = FormDate),
          #Justering av respiratortid mht. reinnleggelse. NB: Kan være reinnlagt på respirator selv om ikke reinnlagt på intensiv.
                  AntRespPas = sum(MechanicalRespirator==1, na.rm=T),
                 ReinnRespTid = ifelse((AntRespPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
@@ -106,8 +111,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 ReshId = first(ReshId, order_by = FormDate),
                 RHF = first(RHF, order_by = FormDate),
                 HF = first(HF, order_by = FormDate),
-                ShNavnUt = last(ShNavn, order_by = FormDate),
-                ShNavn = first(ShNavn, order_by = FormDate),
+                ShNavnUt = last(HelseenhetKortnavn, order_by = FormDate),
+                ShNavn = first(HelseenhetKortnavn, order_by = FormDate),
                 FormDate = first(FormDate, order_by = FormDate),
                 RespTid = ifelse(ReinnResp==0 ,
                                   difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = "days"),
