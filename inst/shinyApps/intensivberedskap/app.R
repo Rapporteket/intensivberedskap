@@ -13,6 +13,7 @@ library(magrittr)
 library(tidyverse)
 library(lubridate)
 library(rapbase)
+library(intensiv)
 library(intensivberedskap)
 library(kableExtra)
 
@@ -35,17 +36,18 @@ regTitle <- ifelse(paaServer,
 if (paaServer) {
   #CoroData <- NIRRegDataSQL(datoFra='2011-01-01', skjema=4) #, session = session) #datoFra = datoFra, datoTil = datoTil)
   qCoro <- 'SELECT *  from ReadinessFormDataContract'
-  CoroData <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
+  CoroDataRaa <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
+  CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } else {
-  CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-04-23 11-23-37.txt', sep=';',
+  CoroDataRaa <- read.table('I:/nir/ReadinessFormDataContract2020-04-23 11-23-37.txt', sep=';',
                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
-  CoroData$EcmoEnd[CoroData$EcmoEnd == ""] <- NA
-  CoroData$EcmoStart[CoroData$EcmoStart == ""] <- NA
+  CoroDataRaa$EcmoEnd[CoroData$EcmoEnd == ""] <- NA
+  CoroDataRaa$EcmoStart[CoroData$EcmoStart == ""] <- NA
 } #hente data
 
 #Bruk resh før preprosesserer
-CoroData <- NIRPreprosessBeredsk(RegData = CoroData)
+CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
 #CoroData <- preprosessBeredVar(RegData = CoroData)
 
 
@@ -189,16 +191,16 @@ tabPanel(#p('Tilhørende intensivskjema som mangler ferdigstillelse'),
          title = 'Datakvalitet',
          value = 'Datakvalitet',
          sidebarLayout(
-           sidebarPanel(width = 3
+           sidebarPanel(width = 2
                         ),
            mainPanel(
-             h4('Beredskapsskjema som mangler ferdigstillelse av tilhørende intensivskjema'),
+             h4('Ferdistilte beredskapsskjema som mangler ferdigstillelse av tilhørende intensivskjema'),
              br(),
                 h5(tags$b('SkjemaGUID'),' er beredskapsskjemaets skjemaID'),
                 h5(tags$b('HovedskjemaGUID'),' er intensivskjemaes skjemaID'),
              br(),
              downloadButton(outputId = 'lastNed_ManglerIntSkjema', label='Last ned tabell'),
-             h5('Datoformatet er lesbart i den nedlastede tabellen'),
+             #h5('Datoformatet er lesbart i den nedlastede tabellen'),
              br(),
              uiOutput("tabManglerIntSkjema")
            )
@@ -227,10 +229,29 @@ tabPanel(#p('Tilhørende intensivskjema som mangler ferdigstillelse'),
                           uiOutput("subscriptionContent")
                         )
                       )
-             ) #tab abonnement
+             ), #tab abonnement
 
-  ) # navbarPage
+#-----------Artikkelarbeid------------
+tabPanel(p("Artikkelarbeid",
+           title='Data til artikkel'),
+         value = 'Artikkelarbeid',
+         sidebarLayout(
+           sidebarPanel(width = 3,
+                        h4('Koblet datatsett: Covid-opphold og tilhørende intensivskjema'),
+                        downloadButton(outputId = 'lastNed_dataBeredNIR', label='Last ned rådata'),
+           ),
+           mainPanel(
+           )
+         )
+) #tab artikkelarb
+
+
+) # navbarPage
 ) # tagList
+
+
+
+
 #----------Slutt ui-del--------------
 
 
@@ -267,6 +288,9 @@ server <- function(input, output, session) {
     shinyjs::hide(id = 'CoroRappTxt')
     hideTab(inputId = "hovedark", target = "Abonnement")
   }
+    if ((rolle != 'SC') & (reshID != 112044)) { # !(brukernavn %in% c('lenaro', 'reidar')
+      hideTab(inputId = "hovedark", target = "Abonnement")
+    }
   })
   if (rolle != 'SC') {
     updateSelectInput(session, "valgtRHF",
@@ -446,6 +470,7 @@ server <- function(input, output, session) {
   #Ferdigstilte beredskapsskjema uten ferdigstilt intensivskjema:
   #reshSe <- ifelse(rolle == 'SC', 0, reshID)
   ManglerIntSkjemaTab <- ManglerIntSkjema(reshID = ifelse(rolle == 'SC', 0, reshID))
+  ManglerIntSkjemaTab$FormDate <- as.character(ManglerIntSkjemaTab$FormDate)
 
   output$tabManglerIntSkjema <- if (dim(ManglerIntSkjemaTab)[1]>0){
     renderTable(ManglerIntSkjemaTab, rownames = F, digits=0, spacing="xs") } else {
@@ -592,7 +617,22 @@ server <- function(input, output, session) {
 
   callModule(koronafigurer, "koronafigurer_id", rolle = rolle, CoroData = CoroData, egetRHF = egetRHF, reshID=reshID)
 
+  #-----------Artikkelarbeid------------
 
+  forsteReg <- min(as.Date(CoroDataRaa$FormDate))
+  IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg)
+  varInt <- names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
+  BeredIntRaa <- merge(CoroDataRaa, IntDataRaa[,varInt], suffixes = c('','Int'),
+                       by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = T, all.y=F)
+  BeredIntRaa <- BeredIntRaa[ ,sort(names(BeredIntRaa))]
+
+  output$lastNed_dataBeredNIR <- downloadHandler(
+    filename = function(){
+      paste0('DataCovidIntensivRaa.csv')
+    },
+    content = function(file, filename){
+      write.csv2(BeredIntRaa, file, row.names = F, na = '')
+    })
 }
 # Run the application
 shinyApp(ui = ui, server = server)

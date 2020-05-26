@@ -324,6 +324,7 @@ ManglerIntSkjema <- function(reshID=0){
   }
   DataBeredskapRaa <- DataBeredskapRaa[which(DataBeredskapRaa$FormStatus == 2), ]
   ManglerIntOpph <- DataBeredskapRaa[-which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID),
-                                     c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID", "HovedskjemaGUID", 'PatientInRegistryGuid')]
-  ManglerIntOpph[order(ManglerIntOpph$ShNavn, ManglerIntOpph$DateAdmittedIntensive), ]
+                                     c("ShNavn", "FormDate", "SkjemaGUID", "HovedskjemaGUID", 'PatientInRegistryGuid')]
+  ManglerIntOpph$FormDate <- as.Date(ManglerIntOpph$FormDate)
+  ManglerIntOpph[order(ManglerIntOpph$ShNavn, ManglerIntOpph$FormDate), ]
 }
