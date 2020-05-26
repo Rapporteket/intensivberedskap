@@ -283,14 +283,16 @@ server <- function(input, output, session) {
   }
   egetRHF <- ifelse(rolle=='SC', 'Alle', egetRHF)
 
-  observe({if ((rolle != 'SC') & !(finnesEgenResh)) { #
+  observe({
+    if ((rolle != 'SC') & !(finnesEgenResh)) { #
     shinyjs::hide(id = 'CoroRapp.pdf')
     shinyjs::hide(id = 'CoroRappTxt')
     hideTab(inputId = "hovedark", target = "Abonnement")
   }
-    if ((rolle != 'SC') & (reshID != 112044)) { # !(brukernavn %in% c('lenaro', 'reidar')
-      hideTab(inputId = "hovedark", target = "Abonnement")
+    if ((rolle != 'SC') | !(brukernavn %in% c('lenaro', 'Reidar'))) { #
+      hideTab(inputId = "hovedark", target = "Artikkelarbeid")
     }
+    print(brukernavn)
   })
   if (rolle != 'SC') {
     updateSelectInput(session, "valgtRHF",
