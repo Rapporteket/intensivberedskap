@@ -289,10 +289,10 @@ server <- function(input, output, session) {
     shinyjs::hide(id = 'CoroRappTxt')
     hideTab(inputId = "hovedark", target = "Abonnement")
   }
-    if ((rolle != 'SC') | !(brukernavn %in% c('lenaro', 'Reidar'))) { #
+    if ((rolle != 'SC') | !(brukernavn %in% c('lenaro', 'Reidar', 'eabu'))) { #
       hideTab(inputId = "hovedark", target = "Artikkelarbeid")
     }
-    print(brukernavn)
+    #print(brukernavn)
   })
   if (rolle != 'SC') {
     updateSelectInput(session, "valgtRHF",
@@ -620,13 +620,44 @@ server <- function(input, output, session) {
   callModule(koronafigurer, "koronafigurer_id", rolle = rolle, CoroData = CoroData, egetRHF = egetRHF, reshID=reshID)
 
   #-----------Artikkelarbeid------------
-
+#CoroDataRaa <- NIRberedskDataSQL()
   forsteReg <- min(as.Date(CoroDataRaa$FormDate))
   IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg)
-  varInt <- names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
-  BeredIntRaa <- merge(CoroDataRaa, IntDataRaa[,varInt], suffixes = c('','Int'),
+  #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
+  varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmittedIntensiv',
+              'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF',	'ShNavn',	'TransferredStatus',
+              'VasoactiveInfusion',	'FormStatus',	'MoreThan24Hours',	'Morsdato',
+              'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
+              'PatientInRegistryGuid',
+              'UnitId')
+  BeredRaa <- CoroDataRaa[ ,-which(names(CoroDataRaa) %in% varFellesInt)]
+    #names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
+  #varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
+  BeredIntRaa <- merge(BeredRaa, IntDataRaa, suffixes = c('','Int'),
                        by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = T, all.y=F)
-  BeredIntRaa <- BeredIntRaa[ ,sort(names(BeredIntRaa))]
+  #intvar <- names(BeredIntRaa)[grep('Int', names(BeredIntRaa))]
+  varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamage',
+              'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis', 'DischargedIntensivStatus',
+              'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
+              'Glasgow', 'Graviditet', 'Hco3', 'HeartRate',
+              'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
+              'InvasivVentilation', 'IsActivSmoker', 'IsChronicLungDiseasePatient',
+              'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
+              'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
+              'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
+              'IsObesePatient', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
+              'Kontinuerlig', 'KontinuerligDays', 'Kreft', 'Leukocytes', 'MechanicalRespirator',
+              'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'MvOrCpap', 'Nems',
+              'NonInvasivVentilation', 'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',
+              'PatientTransferredToHospital', 'PatientTransferredToHospitalName', 'Potassium',
+              'PrimaryReasonAdmitted', 'ReshID', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
+              'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
+              'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput', 'ShNavn',
+              'PatientInRegistryGuid') #'Helseenhet', 'HelseenhetID',
+  beregnVar <- c('FormDate')
+  BeredIntRaa <- BeredIntRaa[ ,c(varMed, varFellesInt, beregnVar)]
+
+  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa)
 
   output$lastNed_dataBeredNIR <- downloadHandler(
     filename = function(){

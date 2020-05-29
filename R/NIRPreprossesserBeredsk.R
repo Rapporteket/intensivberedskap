@@ -12,7 +12,7 @@
 #'
 #' @export
 #'
-NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
+NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
 {
    #RegData <- NIRberedskDataSQL()
    # Endre variabelnavn:
@@ -122,7 +122,13 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                                   difftime(DateDischargedIntensive, FormDate, units = "days") - ReinnTid/24)
                 )
 
+if (kobletInt==1){
+   RegDataRedEkstra <- RegData %>% group_by(PasientID) %>%
+      summarise(Alder = Alder[1],
+                PatientGender = PatientGender[1]
+      )
 
+}
    #----------------------------
    RegData <- data.frame(RegDataRed)
    RegData$Korona <- factor(RegData$Bekreftet, levels= 0:1, labels= c('M', 'B'))
