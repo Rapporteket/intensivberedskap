@@ -125,7 +125,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
 if (kobletInt==1){
    RegDataRedEkstra <- RegData %>% group_by(PasientID) %>%
       summarise(Alder = Alder[1],
-                PatientGender = PatientGender[1]
+                Saps
       )
 
 }

@@ -17,8 +17,7 @@ DataBeredskapRaa <- NIRberedskDataSQL(datoTil = '2020-05-10')
 DataBeredskapRaa <- DataBeredskapRaa[which(DataBeredskapRaa$FormStatus == 2), ]
 
 #kor mange av dei ferdigstilte «beredskapsopphalda» i perioden 10.mars-10.mai som også har ferdigstilt ordinær NIR-registrering?
-  length(which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID))
-  186
+  length(which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID)) #  186
   #Dobbeltregistrering av beredskapsskjema (har samme HovedskjemaGUID):
   tab <- table(DataBeredskapRaa$HovedskjemaGUID)
   dbl <- names(tab[tab>1])
@@ -35,12 +34,13 @@ ManglerIntOpph[order(ManglerIntOpph$ShNavn, ManglerIntOpph$DateAdmittedIntensive
 
 #Kan du også sjekke kor mange av desse vi kan oppgje 30-dagarsmortalitet på den 1. juni?
 #Dvs. utskrevet innen 1.mai
+#ENDRE TIL innleggelsestidspunkt
 length(which(as.Date(DataBeredskapRaa$DateDischargedIntensive)<='2020-05-01')) #224
 sum(as.Date(DataBeredskapRaa$DateDischargedIntensive)>'2020-05-01' & DataBeredskapRaa$DischargedIntensivStatus==1) #3
 table(DataBeredskapRaa$DischargedIntensivStatus)
 
 
-Intensivdata <- merge(DataBeredskapRaa, DataNIRraa, suffixes = c('','NIR'),
+IntCoviddata <- merge(DataBeredskapRaa, DataNIRraa, suffixes = c('','NIR'),
                      by.x = 'SkjemaGUID', by.y = 'HovedskjemaGUID', all.x = T, all.y=F)
 
 
@@ -48,6 +48,7 @@ Elles forslår eg at vi presenterer:
   Alderfordeling
 Kjønnsfordeling
 SAPS II-skåre
+summary()
 Primærårsak til innlegging på intensiv
 NEMS-skåre (truleg mykje høgare enn for andre grupper intensivpasientar – her har vi kontrollar i eige materiale)
 Liggjetider
