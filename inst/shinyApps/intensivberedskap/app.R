@@ -681,6 +681,22 @@ server <- function(input, output, session) {
     content = function(file, filename){
       write.csv2(BeredIntPas, file, row.names = F, na = '')
     })
+
+  # names(BeredIntPas)
+  # var <- c("Alder","DischargedIntensivStatus","Graviditet", "Astma", "Diabetes" , "IsActivSmoker",
+  #          "IsChronicLungDiseasePatient", "IsChronicNeurologicNeuromuscularPatient",
+  #          "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
+  #          "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
+  #          "IsObesePatient", "IsRiskFactor", "Kreft", "Bekreftet", "ReinnKval", "Reinn",
+  #          "ReinnResp", "MechanicalRespirator", "MechanicalRespiratorEnd", "RespTid", "Liggetid",
+  #          "ExtendedHemodynamicMonitoring", "Bilirubin", "BrainDamage", "Bukleie", "ChronicDiseases",
+  #          "Diagnosis", "FrailtyIndex", "Glasgow", "Hco3", "HeartRate", "Impella", "Leukocytes",
+  #          "MvOrCpap", "Nems", "NonInvasivVentilation", "Potassium", "Saps2Score", "Saps2ScoreNumber",
+  #          "SerumUreaOrBun", "Sodium", "SystolicBloodPressure", "Temperature", "Trakeostomi", "UrineOutput",
+  #          "VasoactiveInfusion", "erMann", "ECMOTid", "Dod30")
+  #  summary(BeredIntPas[ ,var])
+  # test <- t(summary(BeredIntPas[,var]))
+
 }
 # Run the application
 shinyApp(ui = ui, server = server)
