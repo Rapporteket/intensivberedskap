@@ -237,8 +237,11 @@ tabPanel(p("Artikkelarbeid",
          value = 'Artikkelarbeid',
          sidebarLayout(
            sidebarPanel(width = 3,
-                        h4('Koblet datatsett: Covid-opphold og tilhørende intensivskjema'),
-                        downloadButton(outputId = 'lastNed_dataBeredNIR', label='Last ned rådata'),
+                        h4('Koblet RÅdatatsett: Covid-opphold og tilhørende intensivskjema'),
+                        downloadButton(outputId = 'lastNed_dataBeredNIRraa', label='Last ned rådata'),
+                        br(),
+                        h4('Koblet datatsett: Covid-pasienter'),
+                        downloadButton(outputId = 'lastNed_dataBeredNIR', label='Last ned data'),
            ),
            mainPanel(
            )
@@ -625,16 +628,16 @@ server <- function(input, output, session) {
   IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg)
   #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
   varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmittedIntensiv',
-              'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF',	'ShNavn',	'TransferredStatus',
+              'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
               'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
               'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
-              #'PatientInRegistryGuid', 'FormStatus',
+              #'PatientInRegistryGuid', 'FormStatus', 'ShNavn',
               'UnitId')
   BeredRaa <- CoroDataRaa[ ,-which(names(CoroDataRaa) %in% varFellesInt)]
     #names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
   #varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
-  BeredIntRaa <- merge(BeredRaa, IntDataRaa, suffixes = c('','Int'),
-                       by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = T, all.y=F)
+  BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, suffixes = c('','Int'),
+                       by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = F, all.y=F)
   #intvar <- names(BeredIntRaa)[grep('Int', names(BeredIntRaa))]
   varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamage',
               'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis', 'DischargedIntensivStatus',
@@ -652,20 +655,31 @@ server <- function(input, output, session) {
               'PatientTransferredToHospital', 'PatientTransferredToHospitalName', 'Potassium',
               'PrimaryReasonAdmitted', 'ReshID', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
               'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
-              'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput', 'ShNavn',
-              'PatientInRegistryGuid') #'Helseenhet', 'HelseenhetID',
-  beregnVar <- c('Birthdate', 'FormDate', 'FormStatus')
-  BeredIntRaa <- BeredIntRaa[ ,c(varMed, varFellesInt, beregnVar)]
+              'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
+              'PatientInRegistryGuid') #'Helseenhet', 'HelseenhetID','ShNavn',
+  beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')
+  BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
   #RegData <- BeredIntRaa
+  #sum(is.na(BeredIntRaa$FormStatus))
 
-#  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa)
+  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobletInt = 1)
+  #setdiff(c(varMed, varFellesInt), names(BeredIntPas)  )
 
-  output$lastNed_dataBeredNIR <- downloadHandler(
+
+  output$lastNed_dataBeredNIRraa <- downloadHandler(
     filename = function(){
-      paste0('DataCovidIntensivRaa.csv')
+      paste0('DataCovidIntensivRaa.', Sys.Date(), '.csv')
     },
     content = function(file, filename){
       write.csv2(BeredIntRaa, file, row.names = F, na = '')
+    })
+
+  output$lastNed_dataBeredNIR <- downloadHandler(
+    filename = function(){
+      paste0('BeredIntPas', Sys.Date(), '.csv')
+    },
+    content = function(file, filename){
+      write.csv2(BeredIntPas, file, row.names = F, na = '')
     })
 }
 # Run the application
