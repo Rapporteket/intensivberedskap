@@ -626,9 +626,9 @@ server <- function(input, output, session) {
   #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
   varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmittedIntensiv',
               'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF',	'ShNavn',	'TransferredStatus',
-              'VasoactiveInfusion',	'FormStatus',	'MoreThan24Hours',	'Morsdato',
+              'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
               'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
-              'PatientInRegistryGuid',
+              #'PatientInRegistryGuid', 'FormStatus',
               'UnitId')
   BeredRaa <- CoroDataRaa[ ,-which(names(CoroDataRaa) %in% varFellesInt)]
     #names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
@@ -654,10 +654,11 @@ server <- function(input, output, session) {
               'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
               'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput', 'ShNavn',
               'PatientInRegistryGuid') #'Helseenhet', 'HelseenhetID',
-  beregnVar <- c('FormDate')
+  beregnVar <- c('Birthdate', 'FormDate', 'FormStatus')
   BeredIntRaa <- BeredIntRaa[ ,c(varMed, varFellesInt, beregnVar)]
+  #RegData <- BeredIntRaa
 
-  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa)
+#  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa)
 
   output$lastNed_dataBeredNIR <- downloadHandler(
     filename = function(){
