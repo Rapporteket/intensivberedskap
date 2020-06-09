@@ -47,6 +47,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
    RegData <- TilLogiskeVar(RegData)
 
    #------SLÅ SAMMEN TIL PER PASIENT
+   #Respiratortider skal hentes fra intensivskjema
 
    if (kobletInt==1){
       RegDataRedEkstra <- RegData %>% group_by(PasientID) %>%
@@ -71,7 +72,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    KontinuerligDays = first(KontinuerligDays, order_by=FormDate),
                    Leukocytes = first(Leukocytes, order_by=FormDate),
                    MvOrCpap = first(MvOrCpap, order_by=FormDate),
-                   Nems = first(Nems, order_by=FormDate),
+                   Nems = sum(Nems),
                    NonInvasivVentilation = first(NonInvasivVentilation, order_by=FormDate),
                    Potassium = first(Potassium, order_by=FormDate),
                    PrimaryReasonAdmitted = first(PrimaryReasonAdmitted, order_by=FormDate),
@@ -129,7 +130,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                                    0),
                ReinnKval = ifelse((InnSmResh > 0) & (ReinnTid < 72 & ReinnTid > 0),  1, 0),
                Reinn = ifelse(ReinnTid > 12,  1, 0),
-               ReinnNaar = ifelse(Reinn==0, 0, #0-nei, 1-ja
+               ReinnNaar = ifelse(Reinn==0, 1, #0-nei, 1-ja
                                   max(which(ReshId[order(FormDate)][2:AntRegPrPas] ==
                                                ReshId[order(FormDate)][1:AntRegPrPas-1]))+1), #Hvilke opphold som er reinnleggelse# ReinnNaar = ifelse(Reinn==0, 0, #0-nei, 1-ja
                #                     max(which(difftime(sort(FormDate)[2:AntRegPrPas],

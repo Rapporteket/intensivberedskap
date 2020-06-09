@@ -16,6 +16,40 @@ DataNIRraa <- NIRRegDataSQL(datoFra = '2020-03-01') #Kun ferdigstilte intensivop
 DataBeredskapRaa <- NIRberedskDataSQL(datoTil = '2020-05-10')
 DataBeredskapRaa <- DataBeredskapRaa[which(DataBeredskapRaa$FormStatus == 2), ]
 
+#-----------------iNNLEDENDE OVERSIKT, PER 10.JUNI------------
+# Samla liggjetid og samla respiratortid
+# Liggjetid på intensiv for heile forløpet (for overflytta pas. frå inntid fyrste avdeling til utskriving siste avdeling)
+
+6.       Respirarortid for heile covid-opphaldet (all non-invasiv, all invasiv + samla all non-invasiv + invasiv)
+
+
+#Om pasienten er overført eller ikkje under intensivforløpet med covid-19-sjukdom
+#Antregpas >0
+#Alder i år, kjønn
+
+#Helseregion (Sør-Øst, Vest, Midt Nord)
+
+7.       SAPS II-skåre (fyrste skåre (på fyrste avdeling) for overflytta pasientar)
+
+8.       Samla NEMS-skåre for forløpet
+
+9.       Intensivmortalitet og 30-dagars mortalitet
+
+10.   Trakeostomi +/- under intensivopphaldet
+
+11.   ECMO-tid
+
+12.   Nyreerstattande behandling (tal på dagar med kontinuerleg, intermitterande)
+
+13.   Kontinuerleg vasoaktiv medikasjon +/- under opphaldet
+
+14.   Risikofaktorar registrerte
+
+15.   Hovudårsak til intensivinnlegging
+
+16.   Om det er registrert diagnosen ARDS på opphaldet
+
+#-----------INNLEDENDE SPØRSMÅL----------------------
 #kor mange av dei ferdigstilte «beredskapsopphalda» i perioden 10.mars-10.mai som også har ferdigstilt ordinær NIR-registrering?
   length(which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID)) #  186
   #Dobbeltregistrering av beredskapsskjema (har samme HovedskjemaGUID):
