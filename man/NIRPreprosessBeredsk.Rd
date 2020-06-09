@@ -4,7 +4,7 @@
 \alias{NIRPreprosessBeredsk}
 \title{Preprosesser data fra Intensivregisteret}
 \usage{
-NIRPreprosessBeredsk(RegData = RegData)
+NIRPreprosessBeredsk(RegData = RegData, kobletInt = 0)
 }
 \arguments{
 \item{RegData}{Beredskapsskjema}
@@ -17,6 +17,6 @@ Data En liste med det filtrerte datasettet (og sykehusnavnet som tilsvarer reshI
 }
 \description{
 Denne funksjonen navner om variabler og beregner evt. nye.
-Funksjonen lager også et "offentlig" datasett som kan benyttes til beregning
+Funksjonen lager også et offentlig datasett som kan benyttes til beregning
 av kvalitetsindikatorer og som kan legges ved pakken
 }
