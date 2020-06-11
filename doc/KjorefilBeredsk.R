@@ -19,9 +19,44 @@ knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'U
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 library(intensivberedskap)
+library(tidyverse)
 CoroData <- NIRberedskDataSQL()
 RegData <- NIRPreprosessBeredsk(CoroData)
-CoroData <- RegData
+
+statusECMOrespTab(RegData)$Tab
+
+
+data <- RegData[(RegData$Reinn==1) | (RegData$ReinnGml==1) ,c("PasientID", "ShNavn", "ShNavnUt", "FormDate", "DateDischargedIntensive", "Reinn", "ReinnGml", "ReinnNaar", "ReinnTid")]
+pas <- RegData$PasientID[RegData$Reinn==1 | RegData$ReinnGml==1]
+dataRaa <- CoroData[CoroData$PatientInRegistryGuid %in% pas ,c("PatientInRegistryGuid", "FormDate", "HelseenhetKortnavn", "DateDischargedIntensive")]
+dataRaa <- dataRaa[order(dataRaa$PatientInRegistryGuid, dataRaa$FormDate), ]
+
+data <- NIRUtvalgBeredsk(RegData=RegData, datoTil = '2020-04-01')$RegData
+inneliggere <- is.na(data$DateDischargedIntensive)
+inne <- sum(inneliggere)
+range(data$Liggetid, na.rm = T)
+data[inneliggere, c('FormDate', "PasientID", "ShNavnUt")]
+
+pas <- data$PasientID[inneliggere]
+sjekkSkjema <- CoroData[which(CoroData$PatientInRegistryGuid %in% pas),
+                        c("HelseenhetKortnavn", 'PatientInRegistryGuid', "FormDate", "DateDischargedIntensive","SkjemaGUID")]
+sjekkSkjema[order(sjekkSkjema$HelseenhetKortnavn, sjekkSkjema$PatientInRegistryGuid, sjekkSkjema$FormDate),]
+
+# sjekkSkjema <- CoroData[which(is.na(CoroData$DateDischargedIntensive) & as.Date(CoroData$FormDate)<'2020-04-01'),
+#                         c("HelseenhetKortnavn","PatientInRegistryGuid", "FormDate", "SkjemaGUID")]
+# sjekkSkjema[order(sjekkSkjema$HelseenhetKortnavn, sjekkSkjema$PatientInRegistryGuid, sjekkSkjema$FormDate),]
+
+
+bekr <- RegData$Bekreftet==1
+min(RegData$FormDate[inneliggere & bekr], na.rm=T)
+min(RegData$FormDate, na.rm=T)
+test <- RegData[inneliggere & bekr, ]
+
+sort(RegData$RespReinnTid)
+pas <- RegData$PasientID[which(RegData$ReinnTid > 25)] #ReinnTid< -10 =dobbeltregistrering
+RegData$AntRegPas[which(RegData$PasientID %in% pas)]
+data <- CoroData[which(CoroData$PatientInRegistryGuid %in% pas), ]
+data[order(data$PatientInRegistryGuid, data$DateAdmittedIntensive),]
 
 Data <- RegData[!(is.na(RegData$DateDischargedIntensive)), c("FormStatus", "Bekreftet")]
 
@@ -80,11 +115,6 @@ AntOpphPas <- table(RegData$PasientID)
 AntOpphPas[AntOpphPas>1]
 EkstraOpph <- Nopph-Npas
 
-#liggetid, #DeadPatientDuring24Hours MoreThan24Hours MovedPatientToAnotherIntensivDuring24Hours
-#[41] Municipal                                  MunicipalNumber#Diagnosis
-#LastUpdate Dod30 Dod90 [53] Korona
-#[57] ECMOTid                                    RespTid
-#IsEcmoTreatmentAdministered
 
 
 #Eksempel på bruk av gruppering I dplyr (tidyverse).

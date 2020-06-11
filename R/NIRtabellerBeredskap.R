@@ -89,22 +89,22 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
   inneliggere <- is.na(RegData$DateDischargedIntensive)
   AntPaaIntNaa <- sum(inneliggere) #N - sum(!(is.na(RegData$DateDischargedIntensive)))
-  LiggetidNaa <- as.numeric(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[inneliggere], units='days'))
-  LiggetidNaaGjsn <- mean(LiggetidNaa[LiggetidNaa < 60], na.rm = T)
+  LiggetidNaa <- as.numeric(difftime(Sys.Date(), RegData$FormDateSiste[inneliggere], units='days'))
+  LiggetidNaaGjsn <- mean(LiggetidNaa[LiggetidNaa < 90], na.rm = T)
 
   respLiggere <- inneliggere & is.na(RegData$MechanicalRespiratorEnd) & !(is.na(RegData$MechanicalRespiratorStart) ) #Har antatt at respiratortid MÅ registreres
   AntIrespNaa <- sum(respLiggere)
-  ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStart[respLiggere],
+  ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStartSiste[respLiggere],
                                     units='days'))
-  ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 60], na.rm=T)
+  ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < +0], na.rm=T)
   #sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
 
-  ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) ) #Har antatt at respiratortid MÅ registreres
+  ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) )
   AntIECMONaa <- sum(ECMOLiggere) #sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
   ECMOtidNaa <- as.numeric(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
                                     units='days'))
   ECMOtidNaaGjsn <- ifelse(AntIECMONaa==0, 0,
-                           mean(ECMOtidNaa[ECMOtidNaa < 60], na.rm=T))
+                           mean(ECMOtidNaa[ECMOtidNaa < 90], na.rm=T))
 
   TabHjelp <- rbind(
     'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn),
@@ -147,7 +147,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, resp
   AntBruktResp <- sum(RegData$MechanicalRespirator==1, na.rm=T)
   AntBruktECMO <- sum(RegData$ECMOTid>0, na.rm=T)
   #AntUtInt <- sum(RegData$DateDischargedIntensive>0, na.rm=T)
-  Liggetid <- summary(RegData$liggetid, na.rm = T)
+  Liggetid <- summary(RegData$Liggetid, na.rm = T)
   RespTid <- summary(RegData$RespTid, na.rm = T)
   ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
   Alder <- summary(RegData$Alder, na.rm = T)
@@ -168,14 +168,14 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, resp
     'Døde' = c('','','',AntDod, paste0(sprintf('%.f',100*AntDod/N),'%'))
   )
   #TabFerdigeReg[TabFerdigeReg==NA]<-""
-  colnames(TabFerdigeReg) <- c('Gj.sn', 'Median', 'IQR', 'Antall opphold', 'Andel opphold')
-  TabFerdigeReg[c(1:2),'Andel opphold'] <-
-    paste0(sprintf('%.0f', as.numeric(TabFerdigeReg[c(1:2),'Andel opphold'])),'%')
+  colnames(TabFerdigeReg) <- c('Gj.sn', 'Median', 'IQR', 'Antall pasienter', 'Andel pasienter')
+  TabFerdigeReg[c(1:2),'Andel pasienter'] <-
+    paste0(sprintf('%.0f', as.numeric(TabFerdigeReg[c(1:2),'Andel pasienter'])),'%')
   xtable::xtable(TabFerdigeReg,
                  digits=0,
                  align = c('l','r','r','c', 'r','r'),
-                 caption='Ferdigstilte opphold.
-                 IQR (Inter quartile range) - 50% av oppholdene er i dette intervallet.')
+                 caption='Ferdigstilte pasienter
+                 IQR (Inter quartile range) - 50% av pasientene er i dette intervallet.')
   return(invisible(UtData <- list(Tab=TabFerdigeReg,
                                   utvalgTxt=UtData$utvalgTxt,
                                   Ntest=N)))
@@ -225,7 +225,7 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
     'Nevrologisk/nevromusk.' = tapply(RegData$IsChronicNeurologicNeuromuscularPatient, Tidsvariabel, FUN=sum, na.rm = T),
     Graviditet	= tapply(RegData$Graviditet, Tidsvariabel, FUN=sum, na.rm = T),
     'Røyker' =	tapply(RegData$IsActivSmoker, Tidsvariabel, FUN=sum, na.rm = T),
-    'Opphold med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
+    'Pasienter med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
   )
 
   if (Ntest>3){
@@ -310,3 +310,21 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,resp=9,
 #   if (valgtRHF != 'Alle') {TabAlder <- TabAlder[,c(valgtRHF, 'Sum')]}}
 # colnames(TabAlder)[ncol(TabAlder)] <- 'Hele landet'
 
+
+#' Avdelingar som enno har ikkje-ferdigstilte NIR-skjema
+#' @param reshID Avdelingas resh-id
+#' @return
+#' @export
+ManglerIntSkjema <- function(reshID=0){
+  DataNIRraa <- intensiv::NIRRegDataSQL(datoFra = '2020-03-01') #Kun ferdigstilte intensivopphold sendes til Rapporteket
+  DataBeredskapRaa <- NIRberedskDataSQL()
+  if (reshID !=0) {
+    DataNIRraa <- DataNIRraa[DataNIRraa$ReshID == reshID, ]
+    DataBeredskapRaa <- DataBeredskapRaa[DataBeredskapRaa$UnitId == reshID, ]
+  }
+  DataBeredskapRaa <- DataBeredskapRaa[which(DataBeredskapRaa$FormStatus == 2), ]
+  ManglerIntOpph <- DataBeredskapRaa[-which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID),
+                                     c("ShNavn", "FormDate", "SkjemaGUID", "HovedskjemaGUID", 'PatientInRegistryGuid')]
+  ManglerIntOpph$FormDate <- as.Date(ManglerIntOpph$FormDate)
+  ManglerIntOpph[order(ManglerIntOpph$ShNavn, ManglerIntOpph$FormDate), ]
+}

@@ -1,0 +1,247 @@
+\documentclass [norsk,a4paper,twoside]{article}
+\addtolength{\hoffset}{-0.5cm}
+\addtolength{\textwidth}{1cm}
+\addtolength{\voffset}{-1cm}
+\addtolength{\textheight}{2cm}
+
+
+%for nice looking tabs
+\usepackage{booktabs}
+
+\usepackage[norsk]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{textcomp}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage{amsmath}
+\usepackage{rotating} %add rotating for plain tables
+\usepackage{pdflscape} %add rotating/landcape for pdf
+
+%add rotating for plain tables
+\usepackage{rotating}
+
+%add rotating/landcape for pdf
+\usepackage{pdflscape}
+
+%bytte font
+\renewcommand{\familydefault}{\sfdefault}
+
+%setter grå skrift fremfort sort
+\usepackage{xcolor}
+\usepackage{graphicx}
+
+%Offentliggjøringsfargene 1-6, lys-mørk, benytter 2-5
+\definecolor{OffBlaa2}{rgb}{0.42, 0.68, 0.84}	%107/255, 174/255, 214/255}
+\definecolor{OffBlaa3}{rgb}{0.26, 0.57, 0.78}	%66/255, 146/255, 198/255}
+\definecolor{OffBlaa4}{rgb}{ 0.13 0.44 0.71}	%33/255, 113/255, 181/255}
+\definecolor{OffBlaa5}{rgb}{0.03 0.27 0.58}		%8/255,  69/255, 148/255}
+%\definecolor{SKDE}{rgb}{0,0.32,0.61}
+%\definecolor{moerkgraa}{rgb}{0.25,0.25,0.25}
+%\color{moerkgraa}
+
+\usepackage[pdftex, colorlinks, linkcolor=OffBlaa3, urlcolor=OffBlaa3]{hyperref}
+
+%bytte overskrifter
+\usepackage[compact]{titlesec}
+\titleformat{\section} {\vspace*{10pt}\color{OffBlaa5}\normalfont\Large\bfseries} {\thesection}{}{}
+\titleformat{\subsection} {\color{OffBlaa3}\normalfont\large\bfseries} {\thesection}{}{}
+
+%topptekst og vertikal sidenummer
+\fancyhead{}\fancyfoot{}  % clear all fields
+\fancyheadoffset[LO, RE]{3cm}
+\fancyfootoffset[LO]{1.5cm}
+\fancyfootoffset[RE]{1.5cm}
+%Stripe øverst på sida med registerets navn
+\fancyhead[LO]{\colorbox{OffBlaa5}{\textcolor{white}{\hspace*{2cm}\scshape\small Norsk Intensivregister}}} %Lengde på stripa
+\fancyfoot[LO]{\colorbox{OffBlaa5}{\textcolor{white}{\scshape\small\thepage}}}
+\fancyfoot[RE]{\colorbox{OffBlaa5}{\textcolor{white}{\scshape\small\thepage}}}
+\renewcommand{\headrulewidth}{0pt} %\iffloatpage{0pt}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+%evt. horisontal sidenummer
+\fancyfoot[LO]{\colorbox{OffBlaa5}{\textcolor{white}{\hspace*{2cm} \small \thepage}}} \fancyfootoffset[LO]{4.4cm}
+\fancyfoot[RE]{\hspace*{2cm}\colorbox{OffBlaa5}{\textcolor{white}{\small \thepage \hspace*{3cm}}}}  \fancyfootoffset[RE]{5.3cm}
+\setcounter{secnumdepth}{-1}
+
+
+\begin{document}
+
+<<setup, include=FALSE, cache=FALSE>>=
+  # this is equivalent to \SweaveOpts{...}
+  knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
+knitr::opts_chunk$set()	#Settes også i rapbase
+knitr::opts_knit$set(root.dir = './')	#Settes også i rapbase
+knitr::opts_chunk$set(fig.align='center', fig.show='hold', out.width='.8\\textwidth', cache=FALSE)
+options(replace.assign=TRUE, width=90) #, warnings=FALSE, echo=FALSE, fig.align='center', fig.show='hold', out.width='.8\\textwidth', cache=FALSE)
+#system.file("logoNIR.jpg", package = "intensiv")
+@
+
+  \begin{titlepage}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
+\center % Center everything on the page
+%	TITLE SECTION
+\HRule \\[0.4cm]
+{ \huge \bfseries Samlerapport for data rapportert til Norsk Intensivregister (NIR)}\\[0.4cm] % Title of your document
+\HRule \\[1.5cm]
+
+%	AUTHOR SECTION
+%\author{NIR og SKDE}
+%\Large \emph{Author:}\\
+\Large Utarbeidet av: \\
+\huge{NIR og SKDE}\\[3cm] % Your name
+
+%	DATE SECTION
+{\Large \today}\\[2cm] % Date, change the \today to a set date if you want to be precise
+
+\vspace{7cm}
+
+% LOGO, Include a department/university logo - this will require the graphicx package
+\includegraphics[height=2cm]{\Sexpr{system.file(file='logoNIR.jpg', package='intensiv')}}
+%\\[1cm]
+% \includegraphics[height=2cm]{../logoNIR.jpg}\\[1cm]
+% \includepdf[fitpaper]{\Sexpr{system.file(file='ForsideV1logo.pdf', package='norgast')}}
+% \vfill % Fill the rest of the page with whitespace
+\end{titlepage}
+
+
+%\maketitle
+\tableofcontents
+%\newpage
+\listoffigures
+\listoftables
+\newpage
+
+
+
+%\section{Informasjonsgrunnlag og ansvarsforhold}
+\section*{Bakgrunn}
+
+Denne rapporten inneholder samling av resultater og oppsummeringer fra koronapasienter
+registert i norsk Intensivregister.
+\textbf{Data er ikke kvalitetssikret}
+
+
+<<LasteData, echo=FALSE, eval=T>>=
+  library(xtable)
+library(intensiv)
+library(intensivberedskap)
+library(tidyverse)
+BeredIntDataRaa <- BeredskIntensivData()
+BeredIntDataRaa <- BeredIntDataRaa[BeredIntDataRaa$FormStatus==2,]
+#Aggregerer per pasient
+ BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntDataRaa, kobletInt = 1)
+
+ DataBeredskapRaa <- NIRberedskDataSQL()
+@
+
+  <<FellesParam, echo=FALSE>>=
+@
+
+\subsection{Innledende undersøkelser}
+  <<FellesParam, echo=FALSE>>=
+  #Dobbeltregistrering av beredskapsskjema (har samme HovedskjemaGUID):
+  tab <- table(DataBeredskapRaa$HovedskjemaGUID)
+  dbl <- names(tab[tab>1])
+  tabdbl <- DataBeredskapRaa[which(DataBeredskapRaa$HovedskjemaGUID %in% dbl), c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID", "HovedskjemaGUID")]
+
+xtable(tabdbl[order(tabdbl$HovedskjemaGUID, tabdbl$ShNavn), ],
+  title= 'Dobbeltregistrering av beredskapsskjema (beredskapsskjema med som tilhører samme intensivskjema')
+@
+
+
+
+  #Sende meg ei liste over dei avdelingane som enno har ikkje-ferdigstilte NIR-skjema for desse pasientane?
+  DataNIRraa <- NIRRegDataSQL(datoFra = '2020-03-01') #Kun ferdigstilte intensivopphold sendes til Rapporteket
+  DataBeredskapRaa <- NIRberedskDataSQL()
+  DataBeredskapRaa <- DataBeredskapRaa[which(DataBeredskapRaa$FormStatus == 2), ]
+ManglerIntOpph <- DataBeredskapRaa[-which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID),
+                                   c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID", "HovedskjemaGUID", 'PatientInRegistryGuid')]
+ManglerIntOpph[order(ManglerIntOpph$ShNavn, ManglerIntOpph$DateAdmittedIntensive), ]
+
+#Kan du også sjekke kor mange av desse vi kan oppgje 30-dagarsmortalitet på den 1. juni?
+#Dvs. utskrevet innen 1.mai
+#ENDRE TIL innleggelsestidspunkt
+length(which(as.Date(DataBeredskapRaa$DateDischargedIntensive)<='2020-05-01')) #224
+sum(as.Date(DataBeredskapRaa$DateDischargedIntensive)>'2020-05-01' & DataBeredskapRaa$DischargedIntensivStatus==1) #3
+table(DataBeredskapRaa$DischargedIntensivStatus)
+
+
+
+#-----------------iNNLEDENDE OVERSIKT, PER 10.JUNI------------
+# Samla liggjetid og samla respiratortid
+#5. Liggjetid på intensiv for heile forløpet (for overflytta pas. frå inntid fyrste avdeling til utskriving siste avdeling)
+#6.       Respirarortid for heile covid-opphaldet (all non-invasiv, all invasiv + samla all non-invasiv + invasiv)
+
+
+#2. Om pasienten er overført eller ikkje under intensivforløpet med covid-19-sjukdom
+#Antregpas >0
+#3. Alder i år, kjønn
+
+#4. Helseregion (Sør-Øst, Vest, Midt Nord)
+
+#7.       SAPS II-skåre (fyrste skåre (på fyrste avdeling) for overflytta pasientar)
+
+#8.       Samla NEMS-skåre for forløpet
+
+#9.       Intensivmortalitet og 30-dagars mortalitet
+
+#10.   Trakeostomi +/- under intensivopphaldet
+
+#11.   ECMO-tid
+
+#12.   Nyreerstattande behandling (tal på dagar med kontinuerleg, intermitterande)
+
+#13.   Kontinuerleg vasoaktiv medikasjon +/- under opphaldet
+
+#14.   Risikofaktorar registrerte
+
+#15.   Hovudårsak til intensivinnlegging
+
+#16.   Om det er registrert diagnosen ARDS på opphaldet
+
+#-----------INNLEDENDE SPØRSMÅL----------------------
+#kor mange av dei ferdigstilte «beredskapsopphalda» i perioden 10.mars-10.mai som også har ferdigstilt ordinær NIR-registrering?
+  length(which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID)) #  186
+  #Dobbeltregistrering av beredskapsskjema (har samme HovedskjemaGUID):
+  tab <- table(DataBeredskapRaa$HovedskjemaGUID)
+  dbl <- names(tab[tab>1])
+  tabdbl <- DataBeredskapRaa[which(DataBeredskapRaa$HovedskjemaGUID %in% dbl), c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID", "HovedskjemaGUID")]
+  tabdbl[order(tabdbl$HovedskjemaGUID, tabdbl$ShNavn), ]
+
+  #Sende meg ei liste over dei avdelingane som enno har ikkje-ferdigstilte NIR-skjema for desse pasientane?
+  DataNIRraa <- NIRRegDataSQL(datoFra = '2020-03-01') #Kun ferdigstilte intensivopphold sendes til Rapporteket
+  DataBeredskapRaa <- NIRberedskDataSQL()
+  DataBeredskapRaa <- DataBeredskapRaa[which(DataBeredskapRaa$FormStatus == 2), ]
+ManglerIntOpph <- DataBeredskapRaa[-which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID),
+                                   c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID", "HovedskjemaGUID", 'PatientInRegistryGuid')]
+ManglerIntOpph[order(ManglerIntOpph$ShNavn, ManglerIntOpph$DateAdmittedIntensive), ]
+
+#Kan du også sjekke kor mange av desse vi kan oppgje 30-dagarsmortalitet på den 1. juni?
+#Dvs. utskrevet innen 1.mai
+#ENDRE TIL innleggelsestidspunkt
+length(which(as.Date(DataBeredskapRaa$DateDischargedIntensive)<='2020-05-01')) #224
+sum(as.Date(DataBeredskapRaa$DateDischargedIntensive)>'2020-05-01' & DataBeredskapRaa$DischargedIntensivStatus==1) #3
+table(DataBeredskapRaa$DischargedIntensivStatus)
+
+
+IntCoviddata <- merge(DataBeredskapRaa, DataNIRraa, suffixes = c('','NIR'),
+                     by.x = 'SkjemaGUID', by.y = 'HovedskjemaGUID', all.x = T, all.y=F)
+
+
+Elles forslår eg at vi presenterer:
+  Alderfordeling
+Kjønnsfordeling
+SAPS II-skåre
+summary()
+Primærårsak til innlegging på intensiv
+NEMS-skåre (truleg mykje høgare enn for andre grupper intensivpasientar – her har vi kontrollar i eige materiale)
+Liggjetider
+Respiratortider (invasiv/non-invasiv)
+Bruk av trakeostomi
+Bruk av nyreerstattande behandling
+Bruk av vasoaktiv medikasjon
+Bruk av ecmo
+Tal på covid-pasientar som er overflytta under pågåande intensivbehandling
+Intensivmortalitet, 30-dagars mortalitet og SMR
+Tal på pasientar som har fått ARDS-diagnosen (obs. dette er ikkje obligatorisk, men noko alle NIR-avsnitta er oppmoda om å registrere)
+
+\end{document}
