@@ -66,12 +66,14 @@ NIRPreprosessBeredsk <- function(RegData=RegData)	#, reshID=reshID)
                 Morsdato = sort(Morsdato)[1],
                 FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
                 DischargedIntensivStatus = max(DischargedIntensivStatus, na.rm = T), #0-levende, 1-død
+                # DischargedIntensivStatus = max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død
                 MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
                 Overf = max(Overf),
                 Graviditet = sum(Graviditet)>0,
                 Astma  = sum(Astma)>0,
                 Diabetes = sum(Diabetes)>0,
                 IsActivSmoker  = sum(IsActivSmoker)>0,
+                # IsActivSmoker  = sum(IsActiveSmoker)>0,
                 IsChronicLungDiseasePatient = sum(IsChronicLungDiseasePatient)>0,
                 IsChronicNeurologicNeuromuscularPatient = sum(IsChronicNeurologicNeuromuscularPatient)>0,
                 IsHeartDiseaseIncludingHypertensionPatient  = sum(IsHeartDiseaseIncludingHypertensionPatient)>0,

@@ -38,7 +38,7 @@ if (paaServer) {
   CoroData <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } else {
-  CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-04-23 11-23-37.txt', sep=';',
+  CoroData <- read.table('I:/nir/ReadinessFormDataContract2020-06-11 09-31-13.txt', sep=';',
                          stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
   CoroData$EcmoEnd[CoroData$EcmoEnd == ""] <- NA
   CoroData$EcmoStart[CoroData$EcmoStart == ""] <- NA
