@@ -156,7 +156,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                 DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
                 MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
                 EcmoEnd = sort(EcmoEnd, decreasing = T)[1], #sort(NA) gir tom, men sort(NA)[1] gir NA
-                Municipal = first(ReshId, order_by = FormDate),
+                Municipal = first(Municipal, order_by = FormDate),
                 ReshId = first(ReshId, order_by = FormDate),
                 RHF = first(RHF, order_by = FormDate),
                 HF = first(HF, order_by = FormDate),
