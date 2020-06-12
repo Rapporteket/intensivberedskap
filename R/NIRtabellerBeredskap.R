@@ -316,8 +316,15 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,resp=9,
 #' @return
 #' @export
 ManglerIntSkjema <- function(reshID=0){
-  DataNIRraa <- intensiv::NIRRegDataSQL(datoFra = '2020-03-01') #Kun ferdigstilte intensivopphold sendes til Rapporteket
-  DataBeredskapRaa <- NIRberedskDataSQL()
+  if (rapbase::isRapContext()) {
+    DataNIRraa <- intensiv::NIRRegDataSQL(datoFra = '2020-03-01') #Kun ferdigstilte intensivopphold sendes til Rapporteket
+    DataBeredskapRaa <- NIRberedskDataSQL()
+  } else {
+    DataNIRraa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= '2020-03-01', ]
+    DataBeredskapRaa <- CoroDataRaa
+  }
+
+
   if (reshID !=0) {
     DataNIRraa <- DataNIRraa[DataNIRraa$ReshID == reshID, ]
     DataBeredskapRaa <- DataBeredskapRaa[DataBeredskapRaa$UnitId == reshID, ]

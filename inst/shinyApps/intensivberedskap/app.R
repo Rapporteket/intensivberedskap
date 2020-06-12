@@ -40,10 +40,15 @@ if (paaServer) {
   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } else {
-  CoroDataRaa <- read.table('I:/nir/ReadinessFormDataContract2020-04-23 11-23-37.txt', sep=';',
+  CoroDataRaa <<- read.table('I:/nir/ReadinessFormDataContract2020-06-11 09-31-13.txt', sep=';',
                             stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
-  CoroDataRaa$EcmoEnd[CoroData$EcmoEnd == ""] <- NA
-  CoroDataRaa$EcmoStart[CoroData$EcmoStart == ""] <- NA
+  CoroDataRaa$EcmoEnd[CoroDataRaa$EcmoEnd == ""] <- NA
+  CoroDataRaa$EcmoStart[CoroDataRaa$EcmoStart == ""] <- NA
+  CoroDataRaa$MechanicalRespiratorStart[CoroDataRaa$MechanicalRespiratorStart == ""] <- NA
+  CoroDataRaa$MechanicalRespiratorEnd[CoroDataRaa$MechanicalRespiratorEnd == ""] <- NA
+  CoroDataRaa$DateDischargedIntensive[CoroDataRaa$DateDischargedIntensive==""] <- NA
+  NIRraa <- read.table('I:/nir/MainFormDataContract2020-06-12 12-36-21.txt', sep=';',
+                       stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 } #hente data
 
 #Bruk resh før preprosesserer
@@ -625,7 +630,12 @@ server <- function(input, output, session) {
   #-----------Artikkelarbeid------------
   #CoroDataRaa <- NIRberedskDataSQL()
   forsteReg <- min(as.Date(CoroDataRaa$FormDate))
-  IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg)
+  if (rapbase::isRapContext()) {
+    IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg)
+  } else {
+    IntDataRaa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= forsteReg, ]
+  }
+
   #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
   varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmittedIntensiv',
                     'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
@@ -653,7 +663,7 @@ server <- function(input, output, session) {
               'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'MvOrCpap', 'Nems',
               'NonInvasivVentilation', 'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',
               'PatientTransferredToHospital', 'PatientTransferredToHospitalName', 'Potassium',
-              'PrimaryReasonAdmitted', 'ReshID', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
+              'PrimaryReasonAdmitted', 'ReshId', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
               'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
               'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
               'PatientInRegistryGuid') #'Helseenhet', 'HelseenhetID','ShNavn',
@@ -662,7 +672,10 @@ server <- function(input, output, session) {
   #RegData <- BeredIntRaa
   #sum(is.na(BeredIntRaa$FormStatus))
 
-  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobletInt = 1)
+  if (dim(BeredIntRaa)[1]>0) {
+    BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobletInt = 1)
+  }
+
   #setdiff(c(varMed, varFellesInt), names(BeredIntPas)  )
 
 
