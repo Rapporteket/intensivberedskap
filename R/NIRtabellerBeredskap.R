@@ -96,7 +96,7 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
   AntIrespNaa <- sum(respLiggere)
   ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStartSiste[respLiggere],
                                     units='days'))
-  ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < +0], na.rm=T)
+  ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 90], na.rm=T)
   #sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
 
   ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) )

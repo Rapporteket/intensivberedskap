@@ -14,7 +14,8 @@ Encoding: UTF-8
 LazyData: true
 Depends:
     R (>= 3.5.0),
-    rapbase (>= 1.0.0)
+    rapbase (>= 1.0.0),
+    tidyverse
 Remotes: 
       Rapporteket/rapbase,
       Rapporteket/rapFigurer,

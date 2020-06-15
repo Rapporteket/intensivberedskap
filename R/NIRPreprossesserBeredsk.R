@@ -72,7 +72,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    KontinuerligDays = first(KontinuerligDays, order_by=FormDate),
                    Leukocytes = first(Leukocytes, order_by=FormDate),
                    MvOrCpap = first(MvOrCpap, order_by=FormDate),
-                   Nems = sum(Nems),
+                   NEMS = sum(Nems),
                    NonInvasivVentilation = first(NonInvasivVentilation, order_by=FormDate),
                    Potassium = first(Potassium, order_by=FormDate),
                    PrimaryReasonAdmitted = first(PrimaryReasonAdmitted, order_by=FormDate),
