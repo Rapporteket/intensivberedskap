@@ -246,9 +246,12 @@ ui <- tagList(
                                      downloadButton(outputId = 'lastNed_dataBeredNIRraa', label='Last ned rådata'),
                                      br(),
                                      h4('Koblet datatsett: Covid-pasienter'),
-                                     downloadButton(outputId = 'lastNed_dataBeredNIR', label='Last ned data'),
+                                     downloadButton(outputId = 'lastNed_dataBeredNIR', label='Last ned data')
                         ),
                         mainPanel(
+                          h3('Last ned oppsummeringsdata'),
+                          h3('Si fra hvilke av disse du ønsker å ha med, så koder jeg om og lager "ekte" andeler for 0/1-variabler'),
+                          downloadButton(outputId = 'lastNed_BeredIntOppsumTab', label = 'Last ned oppsummeringstall')
                         )
                       )
              ) #tab artikkelarb
@@ -698,19 +701,31 @@ server <- function(input, output, session) {
     })
 
   # names(BeredIntPas)
-  # var <- c("Alder","DischargedIntensivStatus","Graviditet", "Astma", "Diabetes" , "IsActivSmoker",
-  #          "IsChronicLungDiseasePatient", "IsChronicNeurologicNeuromuscularPatient",
-  #          "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-  #          "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-  #          "IsObesePatient", "IsRiskFactor", "Kreft", "Bekreftet", "ReinnKval", "Reinn",
-  #          "ReinnResp", "MechanicalRespirator", "MechanicalRespiratorEnd", "RespTid", "Liggetid",
-  #          "ExtendedHemodynamicMonitoring", "Bilirubin", "BrainDamage", "Bukleie", "ChronicDiseases",
-  #          "Diagnosis", "FrailtyIndex", "Glasgow", "Hco3", "HeartRate", "Impella", "Leukocytes",
-  #          "MvOrCpap", "Nems", "NonInvasivVentilation", "Potassium", "Saps2Score", "Saps2ScoreNumber",
-  #          "SerumUreaOrBun", "Sodium", "SystolicBloodPressure", "Temperature", "Trakeostomi", "UrineOutput",
-  #          "VasoactiveInfusion", "erMann", "ECMOTid", "Dod30")
-  #  summary(BeredIntPas[ ,var])
-  # test <- t(summary(BeredIntPas[,var]))
+  var <- c("Alder","DischargedIntensivStatus","Graviditet", "Astma", "Diabetes" , "IsActivSmoker",
+           "IsChronicLungDiseasePatient", "IsChronicNeurologicNeuromuscularPatient",
+           "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
+           "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
+           "IsObesePatient", "IsRiskFactor", "Kreft", "Bekreftet", "ReinnKval", "Reinn",
+           "ReinnResp", "MechanicalRespirator", "MechanicalRespiratorEnd", "RespTid", "Liggetid",
+           "ExtendedHemodynamicMonitoring", "Bilirubin", "BrainDamage", "Bukleie", "ChronicDiseases",
+           "Diagnosis", "FrailtyIndex", "Glasgow", "Hco3", "HeartRate", "Impella", "Leukocytes",
+           "MvOrCpap", "Nems", "NonInvasivVentilation", "Potassium", "Saps2Score", "Saps2ScoreNumber",
+           "SerumUreaOrBun", "Sodium", "SystolicBloodPressure", "Temperature", "Trakeostomi", "UrineOutput",
+           "VasoactiveInfusion", "erMann", "ECMOTid", "Dod30")
+  # summary(BeredIntPas[ ,var])
+  OppsumTab <- t(summary(BeredIntPas[,var]))
+  #write.csv2(OppsumTab,file='test.csv', row.names = F)
+
+  output$lastNed_BeredIntOppsumTab <- downloadHandler(
+    filename = function(){
+      paste0('OppsumTab', Sys.Date(), '.csv')
+    },
+    content = function(file, filename){
+      write.csv2(OppsumTab, file, row.names = F, na='')
+    })
+
+
+
 
 }
 # Run the application
