@@ -24,8 +24,8 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date() ) {
 ,DeadPatientDuring24Hours
 ,Diabetes
 ,Diagnosis
-# ,DischargedIntensivStatus
-,DischargedIntensiveStatus
+,DischargedIntensivStatus
+-- ,DischargedIntensiveStatus
 -- ,DistrictCode
 ,EcmoEnd
 ,EcmoStart

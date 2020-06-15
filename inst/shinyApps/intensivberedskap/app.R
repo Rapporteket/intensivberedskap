@@ -630,7 +630,7 @@ server <- function(input, output, session) {
   #-----------Artikkelarbeid------------
   #CoroDataRaa <- NIRberedskDataSQL()
   forsteReg <- min(as.Date(CoroDataRaa$FormDate))
-  if (rapbase::isRapContext()) {
+  if (paaServer) {
     IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg)
   } else {
     IntDataRaa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= forsteReg, ]
@@ -660,15 +660,17 @@ server <- function(input, output, session) {
               'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
               'IsObesePatient', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
               'Kontinuerlig', 'KontinuerligDays', 'Kreft', 'Leukocytes', 'MechanicalRespirator',
-              'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'MvOrCpap', 'Nems',
-              'NonInvasivVentilation', 'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',
+              'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'Municipal','MunicipalNumber',
+              'MvOrCpap', 'Nems', 'NonInvasivVentilation',
+              'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',
               'PatientTransferredToHospital', 'PatientTransferredToHospitalName', 'Potassium',
-              'PrimaryReasonAdmitted', 'ReshId', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
+              'PrimaryReasonAdmitted', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
               'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
               'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
-              'PatientInRegistryGuid') #'Helseenhet', 'HelseenhetID','ShNavn',
+              'PatientInRegistryGuid') #'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
   beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')
   BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
+  #setdiff(sort(c(varMed, varFellesInt, beregnVar)), sort(names(BeredIntRaa1)))
   #RegData <- BeredIntRaa
   #sum(is.na(BeredIntRaa$FormStatus))
 
