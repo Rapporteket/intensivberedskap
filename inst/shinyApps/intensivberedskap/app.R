@@ -250,7 +250,7 @@ ui <- tagList(
                         ),
                         mainPanel(
                           h3('Last ned oppsummeringsdata'),
-                          h3('Si fra hvilke av disse du ønsker å ha med, så koder jeg om og lager "ekte" andeler for 0/1-variabler'),
+                          h4('Si fra hvilke av disse du ønsker å ha med, så koder jeg om og lager "ekte" andeler for 0/1-variabler'),
                           downloadButton(outputId = 'lastNed_BeredIntOppsumTab', label = 'Last ned oppsummeringstall')
                         )
                       )
@@ -721,7 +721,7 @@ server <- function(input, output, session) {
       paste0('OppsumTab', Sys.Date(), '.csv')
     },
     content = function(file, filename){
-      write.csv2(OppsumTab, file, row.names = F, na='')
+      write.csv2(OppsumTab, file, row.names = T, na='')
     })
 
 
