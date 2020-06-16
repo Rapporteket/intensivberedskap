@@ -530,7 +530,6 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
       if (valgtVar == 'spesTiltak' ) {   # Andeler
             #SpecialMeasures
             tittel <- 'Spesielle tiltak/intervensjoner'
-            RegData <- RegData[which(RegData$InnDato>=as.Date('2016-01-01', tz='UTC')), ]
             sortAvtagende <- T
             retn <- 'H'
             flerevar <- 1

@@ -95,7 +95,9 @@ varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamag
             'PrimaryReasonAdmitted', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
             'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
             'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
-            'PatientInRegistryGuid') #'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
+            'PatientInRegistryGuid',
+            'TerapetiskHypotermi',  'Iabp', 'Icp', 'Oscillator', 'No', 'Leverdialyse', 'Hyperbar', 'Eeg')
+#'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
 beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')
 BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
 
@@ -248,7 +250,7 @@ ui <- tagList(
                           inputId = "valgtVar", label="Velg variabel",
                           choices = c('Alder' = 'alder',
                                        'Bukleie' = 'bukleie',
-                                      # 'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring',
+                                       'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring',
                                        'Frailty index' = 'frailtyIndex',
                                       # 'Inklusjonskriterier' = 'inklKrit',
                                        'Isolasjon, type' = 'isolering',
@@ -260,17 +262,18 @@ ui <- tagList(
                                       # 'Nyreerstattende beh., varighet' = 'nyreBehTid',
                                       # 'Potensielle donorer, årsak ikke påvist opph. sirkulasjon' = 'CerebralCirculationAbolishedReasonForNo',
                                        'Primærårsak' = 'PrimaryReasonAdmitted',
-                                       'Respiratortid, intensiv' = 'RespiratortidInt',
+                                       'Respiratortid, totalt' = 'RespiratortidInt',
                                        'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
                                        'Respiratortid, invasiv' = 'respiratortidInv',
-                                       'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber'
-                                      # 'Spesielle tiltak' = 'spesTiltak',
+                                       'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber',
+                                       'Spesielle tiltak' = 'spesTiltak'
+                                      #? UrineOutput
                                       )
                           ),
                         dateRangeInput(inputId = 'datovalg', start = startDato, end = '2020-05-10',
                             label = "Tidsperiode", separator="t.o.m.", language="nb"
                             ),
-                        selectInput(inputId = "erMann", label="Kjønn",
+                        selectInput(inputId = "erMannFord", label="Kjønn",
                                     choices = c("Begge"=2, "Menn"=1, "Kvinner"=0)
                         )
                         ),
@@ -332,7 +335,7 @@ ui <- tagList(
                         title='Data til artikkel'),
                       value = 'Artikkelarbeid',
                       sidebarLayout(
-                        sidebarPanel(width = 3,
+                        sidebarPanel(width = 4,
                                      h3('Covidpasienter med innleggelsesdato t.o.m. 10.mai 2020'),
                                      h4('Koblet RÅdatatsett: Covid-opphold og tilhørende intensivskjema'),
                                      downloadButton(outputId = 'lastNed_dataBeredNIRraa', label='Last ned rådata'),
@@ -341,12 +344,22 @@ ui <- tagList(
                                      downloadButton(outputId = 'lastNed_dataBeredNIR', label='Last ned data'),
                                      br(),
                                      br(),
-                                     h3('Last ned oppsummeringsdata'),
-                                     h4('P.t. ikke så pen tabell...'),
-                                     downloadButton(outputId = 'lastNed_BeredIntOppsumTab', label = 'Last ned oppsummeringstall')
+                                     h4('Gjør utvalg av data'),
+                                     selectInput(inputId = "erMannArt", label="Kjønn",
+                                                 choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+                                     ),
+
                         ),
                         mainPanel(
-
+                          h3('Last ned oppsummeringsdata'),
+                          h4('P.t. ikke så pen tabell...'),
+                          downloadButton(outputId = 'lastNed_BeredIntOppsumTab', label = 'Last ned oppsummeringstall'),
+                          br(),
+                          br(),
+                          h4('Div andeler...'),
+                          tableOutput('tabAndeler'),
+                          br()
+                          #tableOutput('tabSentralmaal')
                         )
                       )
              ) #tab artikkelarb
@@ -732,7 +745,7 @@ server <- function(input, output, session) {
                   # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
                   datoFra=input$datovalg[1], datoTil=input$datovalg[2],
                   # minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
-                  erMann=as.numeric(input$erMann), session = session
+                  erMann=as.numeric(input$erMannFord), session = session
                   )
   }, height=800, width=800 #height = function() {session$clientData$output_fordelinger_width}
   )
@@ -822,8 +835,12 @@ server <- function(input, output, session) {
       write.csv2(OppsumTab, file, row.names = T, na='')
     })
 
+  observe({
+    AndelerTab <- AndelerTab(RegData=BeredIntPasArt,
+                         erMann=input$erMannArt, valgtRHF='Alle') #,bekr=9, dodInt=9, resp=9, minald=0, maxald=110)
 
-
+output$tabAndeler <- renderTable(AndelerTab$Tab, rownames = T, digits=0, spacing="xs")
+  })
 
 }
 # Run the application

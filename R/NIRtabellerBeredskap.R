@@ -334,20 +334,69 @@ ManglerIntSkjema <- function(reshID=0){
 }
 
 
+
+#' Antall som er  i ECMO/respirator
+#'
+#' @param RegData beredskapsskjema
+#'
+#' @return
+#' @export
+#'
+statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
+
+  UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
+                             erMann=erMann, bekr=bekr)
+  # dodInt=dodInt)$RegData velgAvd=velgAvd
+  RegData <- UtData$RegData
+  N <- dim(RegData)[1]
+  ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
+  inneliggere <- is.na(RegData$DateDischargedIntensive)
+  AntPaaIntNaa <- sum(inneliggere) #N - sum(!(is.na(RegData$DateDischargedIntensive)))
+  LiggetidNaa <- as.numeric(difftime(Sys.Date(), RegData$FormDateSiste[inneliggere], units='days'))
+  LiggetidNaaGjsn <- mean(LiggetidNaa[LiggetidNaa < 90], na.rm = T)
+
+  respLiggere <- inneliggere & is.na(RegData$MechanicalRespiratorEnd) & !(is.na(RegData$MechanicalRespiratorStart) ) #Har antatt at respiratortid MÅ registreres
+  AntIrespNaa <- sum(respLiggere)
+  ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStartSiste[respLiggere],
+                                    units='days'))
+  ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 90], na.rm=T)
+  #sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
+
+  ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) )
+  AntIECMONaa <- sum(ECMOLiggere) #sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
+  ECMOtidNaa <- as.numeric(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
+                                    units='days'))
+  ECMOtidNaaGjsn <- ifelse(AntIECMONaa==0, 0,
+                           mean(ECMOtidNaa[ECMOtidNaa < 90], na.rm=T))
+
+  TabHjelp <- rbind(
+    'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn),
+    'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaaGjsn),
+    'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaaGjsn)
+  )
+  colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn.)')
+  TabHjelp[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
+  TabHjelp[1:3, 3] <- paste0(sprintf('%.1f', as.numeric(TabHjelp[1:3, 3])), ' døgn')
+  xtable::xtable(TabHjelp,
+                 digits=0,
+                 align = c('l','r','r','r'),
+                 caption='Bruk av Respirator/ECMO.')
+  UtData <- list(Tab=TabHjelp, utvalgTxt=UtData$utvalgTxt, PaaIntensivNaa=inneliggere)
+  return(UtData)
+}
+
+
 #' Tabell med andel av div. variabler for koblet datasett (intensiv+beredskap)
 #' Kun ferdigstilte registreringer
 #'
-#' @param RegData data
-#' @param datoTil sluttdato
-#' @param reshID enhetens resh
-#' @param tidsenhet 'Dag', 'Uke' (standard)
+#' @inheritParams NIRUtvalgBeredsk
 #' @param valgtRHF 'Alle' (standard), RHF-navn uten 'Helse '
 #'
 #' @export
 #' @return
 AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
-                              erMann='', bekr=9, dodInt=9, valgtRHF='Alle',
-                              resp=9, minald=0, maxald=110, velgAvd=0){
+                       erMann='', bekr=9, dodInt=9, valgtRHF='Alle',
+                       resp=9, minald=0, maxald=110){
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=datoFra, datoTil=datoTil, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                              bekr=bekr, dodInt=dodInt,
@@ -355,9 +404,6 @@ AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
                              valgtRHF=valgtRHF) #velgAvd=velgAvd
   Ntest <- dim(UtData$RegData)[1]
   RegData <- UtData$RegData
-
-
-  SMR
   #?Tal på pasientar som har fått ARDS-diagnosen
 
   AntAndel <- function(var, N){
@@ -367,29 +413,80 @@ AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
   }
 
   TabAndeler <- rbind(
+    'Menn' = AntAndel(var = RegData$erMann, N=Ntest),
     'Trakeostomi' = AntAndel(var = (RegData$InvasivVentilation>0), N=Ntest),
     'Nyreestattende behandling' = AntAndel(var = (RegData$KidneyReplacingTreatment==1), N=Ntest),
     'Vasoaktiv medikasjon' =  AntAndel(var = (RegData$VasoactiveInfusion==1), N=Ntest),
     'ECMO-bruk' = AntAndel(var = (RegData$ECMOTid>0), N=Ntest),
     'Bukleie' =  AntAndel(var = (RegData$Bukleie>0), N=Ntest),
+    'Temperatur mer enn 39gr.' =  AntAndel(var = (RegData$Temperature==3), N=Ntest),
+    'Dødelig hjerneskade' = AntAndel(var = (RegData$BrainDamage==1), N=sum(RegData$BrainDamage %in% 1:2)),
     'Overflyttet' = AntAndel(var = (RegData$AntRegPrPas>1), N=Ntest),
     'Død på intensiv' = AntAndel(var = (RegData$DischargedIntensivStatus==1), N=Ntest),
-    'Død innen 30 dager' = AntAndel(var = RegData$Dod30, N=Ntest)
+    'Død innen 30 dager' = AntAndel(var = RegData$Dod30, N=Ntest),
+    'Respirator (int)' = AntAndel(var = (RegData$MechanicalRespirator==1), N=Ntest)
+    #ReinnKval, Reinn, ReinnInt
   )
 
-  if (Ntest>3){
-    TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
-    if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
-    colnames(TabRisiko) <- 'Sum'}
-    TabRisiko <- cbind(TabRisiko,
-                       'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%'))
+  return(UtData <- list(Tab=TabAndeler, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
+}
 
+#' Tabell med sentralmål, min,maks IQR
+#'
+#' @param RegData beredskapsskjema
+#' @inheritParams NIRUtvalgBeredsk
+#'
+#' @return
+#' @export
+#'
+SentralmaalTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', datoTil=Sys.Date(),
+                                bekr=9, erMann=9, resp=9, dodInt=9){
 
-    TabRisiko <- rbind(TabRisiko,
-                       'Tot. antall (N)' = c(dim(RegData)[1], ''))
+  if (valgtRHF == 'Ukjent') {valgtRHF <- 'Alle'}
+  UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
+                             datoFra = datoFra,
+                             datoTil = datoTil,
+                             bekr = bekr,
+                             dodInt = dodInt,
+                             resp=resp,
+                             erMann = erMann)
+  RegData <- UtData$RegData
+  N <- dim(RegData)[1]
+  Liggetid <- summary(RegData$Liggetid, na.rm = T)
+  RespTid <- summary(RegData$RespTid, na.rm = T)
+  ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
+  Alder <- summary(RegData$Alder, na.rm = T)
 
+  med_IQR <- function(x){
+    #x[is.na(x)]<-0
+    c(sprintf('%.1f',x[4]), sprintf('%.1f',x[3]), paste(sprintf('%.1f',x[2]), sprintf('%.1f',x[5]), sep=' - '))
   }
-  return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
+  # x <- Liggetid
+  #  test <- sprintf('%.2f',c(x[2],x[5]))
+  # test <- med_IQR(ECMOtid)
+  # SentralmaalTab <- rbind(
+  #   'Alder (år)' = c(med_IQR(Alder), N, ''),
+  #   'ECMO-tid (døgn)' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/N))),
+  #   'Respiratortid (døgn)' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/N))),
+  #   'NonInvasivVentilation',
+  #   'InvasivVentilation',
+  #   'Liggetid (døgn)' = c(med_IQR(Liggetid), N, ''),
+  #   # 'Liggetid (b-skjema)' =
+  #   #   'SAPSII-skåre' = Saps2scoreNumber
+  #   #   'NEMS'
+  #
+  #   )
+  #
+  # colnames(TabFerdigeReg) <- c('Gj.sn', 'Median', 'IQR', 'Antall pasienter')
+
+  # xtable::xtable(TabFerdigeReg,
+  #                digits=0,
+  #                align = c('l','r','r','c', 'r','r'),
+  #                caption='Ferdigstilte pasienter
+  #                IQR (Inter quartile range) - 50% av pasientene er i dette intervallet.')
+  return(invisible(UtData <- list(Tab=TabFerdigeReg,
+                                  utvalgTxt=UtData$utvalgTxt,
+                                  Ntest=N)))
 }
 
 
