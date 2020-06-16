@@ -428,6 +428,8 @@ AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
     #ReinnKval, Reinn, ReinnInt
   )
 
+  colnames(TabAndeler) <- c('Antall', 'Andel')
+
   return(UtData <- list(Tab=TabAndeler, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
 }
 
@@ -452,39 +454,39 @@ SentralmaalTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', datoT
                              erMann = erMann)
   RegData <- UtData$RegData
   N <- dim(RegData)[1]
-  Liggetid <- summary(RegData$Liggetid, na.rm = T)
-  RespTid <- summary(RegData$RespTid, na.rm = T)
-  ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
-  Alder <- summary(RegData$Alder, na.rm = T)
 
-  med_IQR <- function(x){
-    #x[is.na(x)]<-0
-    c(sprintf('%.1f',x[4]), sprintf('%.1f',x[3]), paste(sprintf('%.1f',x[2]), sprintf('%.1f',x[5]), sep=' - '))
-  }
-  # x <- Liggetid
-  #  test <- sprintf('%.2f',c(x[2],x[5]))
-  # test <- med_IQR(ECMOtid)
-  # SentralmaalTab <- rbind(
-  #   'Alder (år)' = c(med_IQR(Alder), N, ''),
-  #   'ECMO-tid (døgn)' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/N))),
-  #   'Respiratortid (døgn)' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/N))),
-  #   'NonInvasivVentilation',
-  #   'InvasivVentilation',
-  #   'Liggetid (døgn)' = c(med_IQR(Liggetid), N, ''),
-  #   # 'Liggetid (b-skjema)' =
-  #   #   'SAPSII-skåre' = Saps2scoreNumber
-  #   #   'NEMS'
-  #
-  #   )
-  #
-  # colnames(TabFerdigeReg) <- c('Gj.sn', 'Median', 'IQR', 'Antall pasienter')
+  fun <- function(x){
+    x[is.na(x)] <- 0
+    Tall <- round(summary(x[x>0]), 1)
+    Ut <- c(Tall[1:6], sum(x>0))
+    names(Ut)[7] <- 'N'
+    Ut}
+
+  # med_IQR <- function(x){
+  #   #x[is.na(x)]<-0
+  #   c(sprintf('%.1f',x[4]), sprintf('%.1f',x[3]), paste(sprintf('%.1f',x[2]), sprintf('%.1f',x[5]), sep=' - '))
+  # }
+
+  SentralmaalTab <- rbind(
+    'Alder (år)' = fun(RegData$Alder),
+    'ECMO-tid (døgn)' = fun(RegData$ECMOTid),
+    'Respiratortid (døgn)' = fun(RegData$RespTid),
+    'NonInvasivVentilation' = fun(RegData$NonInvasivVentilation),
+    'InvasivVentilation' = fun(RegData$InvasivVentilation),
+    'Liggetid (døgn)' = fun(RegData$Liggetid)
+    # 'Liggetid (b-skjema)' =
+    #   'SAPSII-skåre' = Saps2scoreNumber
+    #   'NEMS'
+
+    )
+  #colnames(TabFerdigeReg) <- c('Gj.sn', 'Median', 'IQR', 'Antall pasienter')
 
   # xtable::xtable(TabFerdigeReg,
   #                digits=0,
   #                align = c('l','r','r','c', 'r','r'),
   #                caption='Ferdigstilte pasienter
   #                IQR (Inter quartile range) - 50% av pasientene er i dette intervallet.')
-  return(invisible(UtData <- list(Tab=TabFerdigeReg,
+  return(invisible(UtData <- list(Tab=SentralmaalTab,
                                   utvalgTxt=UtData$utvalgTxt,
                                   Ntest=N)))
 }

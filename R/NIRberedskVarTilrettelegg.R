@@ -338,8 +338,7 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
             sortAvtagende <- TRUE      #Rekkefølge
       }
       if (valgtVar == 'respiratortidNonInv') { #andeler, gjsnGrVar, GjsnTid
-            RegData <- RegData[which(RegData$NonInvasivVentilation>0) %i%
-                                     which(RegData$InnDato>=as.Date('2015-01-01', tz='UTC')), ]
+            RegData <- RegData[which(RegData$NonInvasivVentilation>0), ]
             tittel <- 'Non-invasiv ventilasjon/maskeventilasjon'
             RegData$Variabel  <- as.numeric(RegData$NonInvasivVentilation)
             if (figurtype %in% c('gjsnGrVar', 'gjsnTid')) {
