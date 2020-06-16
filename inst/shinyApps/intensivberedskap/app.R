@@ -70,6 +70,7 @@ varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmit
                   'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
                   #'PatientInRegistryGuid', 'FormStatus', 'ShNavn',
                   'UnitId')
+
 BeredRaa <- CoroDataRaa[ ,-which(names(CoroDataRaa) %in% varFellesInt)]
 #names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
 #varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
@@ -85,7 +86,7 @@ varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamag
             'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
             'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
             'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
-            'IsObesePatient', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
+            'IsObesePatient', 'Isolation', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
             'Kontinuerlig', 'KontinuerligDays', 'Kreft', 'Leukocytes', 'MechanicalRespirator',
             'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'Municipal','MunicipalNumber',
             'MvOrCpap', 'Nems', 'NonInvasivVentilation',
@@ -147,8 +148,6 @@ ui <- tagList(
                                    selectInput(inputId = "valgtRHF", label="Velg RHF",
                                                choices = rhfNavn
                                    ),
-
-                                   #br(),
                                    selectInput(inputId = "bekr", label="Bekreftet/Mistenkt",
                                                choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
                                    ),
@@ -163,6 +162,9 @@ ui <- tagList(
                                    ),
                                    selectInput(inputId = "erMann", label="Kjønn",
                                                choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+                                   ),
+                                   dateRangeInput(inputId = 'datovalgStart', start = startDato, end = '2020-05-10',
+                                                  label = "Tidsperiode", separator="t.o.m.", language="nb"
                                    ),
                                    h4('Kun for risikofaktorer:'),
                                    sliderInput(inputId="alder", label = "Alder",
@@ -245,11 +247,11 @@ ui <- tagList(
                         selectInput(
                           inputId = "valgtVar", label="Velg variabel",
                           choices = c('Alder' = 'alder',
-                                      # 'Bukleie' = 'bukleie',
+                                       'Bukleie' = 'bukleie',
                                       # 'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring',
-                                      # 'Frailty index' = 'frailtyIndex',
+                                       'Frailty index' = 'frailtyIndex',
                                       # 'Inklusjonskriterier' = 'inklKrit',
-                                      # 'Isolasjon, type' = 'isolering',
+                                       'Isolasjon, type' = 'isolering',
                                       # 'Isolasjon, varighet' = 'isoleringDogn',
                                        'Liggetid' = 'liggetid',
                                       # 'Nas-skår (sykepleierakt.)' = 'Nas24',
@@ -258,10 +260,9 @@ ui <- tagList(
                                       # 'Nyreerstattende beh., varighet' = 'nyreBehTid',
                                       # 'Potensielle donorer, årsak ikke påvist opph. sirkulasjon' = 'CerebralCirculationAbolishedReasonForNo',
                                        'Primærårsak' = 'PrimaryReasonAdmitted',
-                                      # 'Respiratortid' = 'respiratortid',
-                                      # 'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
-                                      # 'Respiratortid, invasiv m/overf.' = 'respiratortidInvMoverf',
-                                      # 'Respiratortid, invasiv u/overf.' = 'respiratortidInvUoverf',
+                                       'Respiratortid, intensiv' = 'RespiratortidInt',
+                                       'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
+                                       'Respiratortid, invasiv' = 'respiratortidInv',
                                        'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber'
                                       # 'Spesielle tiltak' = 'spesTiltak',
                                       )
@@ -274,7 +275,7 @@ ui <- tagList(
                         )
                         ),
                       mainPanel(
-                      h2('Fordelingsfigurer for variabler registrert under intensivoppholdene'),
+                      #h2('Fordelingsfigurer for variabler registrert under intensivoppholdene'),
                       h3('Data er aggregerte til pasientnivå'),
                         plotOutput('fordelinger'),
                       br()
@@ -505,12 +506,14 @@ server <- function(input, output, session) {
     #Tab ferdigstilte
     TabFerdig <- oppsumFerdigeRegTab(RegData=CoroData,
                                      valgtRHF=input$valgtRHF,
+                                     datoFra = input$datovalgStart[1],
+                                     datoTil = input$datovalgStart[2],
                                      bekr = as.numeric(input$bekr),
                                      resp=as.numeric(input$resp),
                                      dodInt=as.numeric(input$dodInt),
                                      erMann=as.numeric(input$erMann))
 
-    output$tabFerdigeReg <- if (TabFerdig$Ntest>2){
+    output$tabFerdigeReg <- if (TabFerdig$Ntest > 2){
       renderTable({TabFerdig$Tab}, rownames = T, digits=0, spacing="xs")} else {
         renderText('Få registreringer (N<3)')}
 

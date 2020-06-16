@@ -132,10 +132,12 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
 #' @return
 #' @export
 #'
-oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, resp=9, dodInt=9){
+oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', datoTil=Sys.Date(), bekr=9, erMann=9, resp=9, dodInt=9){
 
   if (valgtRHF == 'Ukjent') {valgtRHF <- 'Alle'}
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
+                             datoFra = datoFra,
+                             datoTil = datoTil,
                              bekr = bekr,
                              dodInt = dodInt,
                              resp=resp,
@@ -193,11 +195,11 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', bekr=9, erMann=9, resp
 #'
 #' @export
 #' @return
-RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), reshID=0,
+RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoFra='2020-01-01', datoTil=Sys.Date(), reshID=0,
                               erMann='', bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle',
                               resp=9, minald=0, maxald=110, velgAvd=0){
 
-  UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
+  UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=datoFra, datoTil=datoTil, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                              bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
                              minald=minald, maxald=maxald, resp=resp,
                              reshID=reshID, valgtRHF=valgtRHF) #velgAvd=velgAvd
@@ -210,7 +212,6 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
                          Uke = paste0('uke',RegData$UkeNr),
                          Dag = RegData$Dag,
                          Totalt = RegData$Aar)
-
 
   TabRisiko <- rbind(
     Kreft = tapply(RegData$Kreft, Tidsvariabel, FUN=sum, na.rm = T),
@@ -240,10 +241,6 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoTil=Sys.Date(), r
                        'Tot. antall (N)' = c(dim(RegData)[1], ''))
 
   }
-  # xtable::xtable(TabRisiko,
-  #                digits=0,
-  #                align = c('l',rep('r',ncol(TabRisiko))),
-  #                caption='Risikofaktorer')
   return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
 }
 
@@ -335,3 +332,65 @@ ManglerIntSkjema <- function(reshID=0){
   ManglerIntOpph$FormDate <- as.Date(ManglerIntOpph$FormDate)
   ManglerIntOpph[order(ManglerIntOpph$ShNavn, ManglerIntOpph$FormDate), ]
 }
+
+
+#' Tabell med andel av div. variabler for koblet datasett (intensiv+beredskap)
+#' Kun ferdigstilte registreringer
+#'
+#' @param RegData data
+#' @param datoTil sluttdato
+#' @param reshID enhetens resh
+#' @param tidsenhet 'Dag', 'Uke' (standard)
+#' @param valgtRHF 'Alle' (standard), RHF-navn uten 'Helse '
+#'
+#' @export
+#' @return
+AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
+                              erMann='', bekr=9, dodInt=9, valgtRHF='Alle',
+                              resp=9, minald=0, maxald=110, velgAvd=0){
+
+  UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=datoFra, datoTil=datoTil, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
+                             bekr=bekr, dodInt=dodInt,
+                             minald=minald, maxald=maxald, resp=resp,
+                             valgtRHF=valgtRHF) #velgAvd=velgAvd
+  Ntest <- dim(UtData$RegData)[1]
+  RegData <- UtData$RegData
+
+
+  SMR
+  #?Tal på pasientar som har fått ARDS-diagnosen
+
+  AntAndel <- function(var, N){
+    Ant <- sum(var, na.rm = T)
+    Andel <- paste0(sprintf('%.1f', 100*Ant/dim(RegData)[1]),'%')
+    c(Ant, Andel)
+  }
+
+  TabAndeler <- rbind(
+    'Trakeostomi' = AntAndel(var = (RegData$InvasivVentilation>0), N=Ntest),
+    'Nyreestattende behandling' = AntAndel(var = (RegData$KidneyReplacingTreatment==1), N=Ntest),
+    'Vasoaktiv medikasjon' =  AntAndel(var = (RegData$VasoactiveInfusion==1), N=Ntest),
+    'ECMO-bruk' = AntAndel(var = (RegData$ECMOTid>0), N=Ntest),
+    'Bukleie' =  AntAndel(var = (RegData$Bukleie>0), N=Ntest),
+    'Overflyttet' = AntAndel(var = (RegData$AntRegPrPas>1), N=Ntest),
+    'Død på intensiv' = AntAndel(var = (RegData$DischargedIntensivStatus==1), N=Ntest),
+    'Død innen 30 dager' = AntAndel(var = RegData$Dod30, N=Ntest)
+  )
+
+  if (Ntest>3){
+    TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
+    if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
+    colnames(TabRisiko) <- 'Sum'}
+    TabRisiko <- cbind(TabRisiko,
+                       'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%'))
+
+
+    TabRisiko <- rbind(TabRisiko,
+                       'Tot. antall (N)' = c(dim(RegData)[1], ''))
+
+  }
+  return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
+}
+
+
+
