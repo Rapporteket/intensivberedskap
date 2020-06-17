@@ -24,7 +24,8 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date() ) {
 ,DeadPatientDuring24Hours
 ,Diabetes
 ,Diagnosis
-,DischargedIntensivStatus
+-- ,DischargedIntensivStatus
+,DischargedIntensiveStatus
 -- ,DistrictCode
 ,EcmoEnd
 ,EcmoStart
@@ -37,7 +38,8 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date() ) {
 ,HelseenhetKortnavn
 ,HF
 ,UPPER(HovedskjemaGUID) AS HovedskjemaGUID
-,IsActivSmoker
+-- ,IsActivSmoker
+,IsActiveSmoker
 ,IsChronicLungDiseasePatient
 ,IsChronicNeurologicNeuromuscularPatient
 ,IsEcmoTreatmentAdministered
@@ -62,6 +64,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date() ) {
 ,MunicipalNumber
 ,PatientAge
 ,PatientGender
+-- ,PasientGUID
 ,PatientInRegistryGuid
 -- ,PostalCode
 ,RHF

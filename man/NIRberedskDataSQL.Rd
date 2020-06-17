@@ -5,7 +5,7 @@
 \title{Henter data fra pårørendeskjema registrert for Intensiv og kobler til
 noen variabler fra hovedskjema.}
 \usage{
-NIRberedskDataSQL()
+NIRberedskDataSQL(datoFra = "2020-03-01", datoTil = Sys.Date())
 }
 \arguments{
 \item{medH}{kobler på variabler fra hovedskjema}

@@ -23,6 +23,14 @@ library(tidyverse)
 CoroData <- NIRberedskDataSQL()
 RegData <- NIRPreprosessBeredsk(CoroData)
 
+statusECMOrespTab(RegData)$Tab
+
+
+data <- RegData[(RegData$Reinn==1) | (RegData$ReinnGml==1) ,c("PasientID", "ShNavn", "ShNavnUt", "FormDate", "DateDischargedIntensive", "Reinn", "ReinnGml", "ReinnNaar", "ReinnTid")]
+pas <- RegData$PasientID[RegData$Reinn==1 | RegData$ReinnGml==1]
+dataRaa <- CoroData[CoroData$PatientInRegistryGuid %in% pas ,c("PatientInRegistryGuid", "FormDate", "HelseenhetKortnavn", "DateDischargedIntensive")]
+dataRaa <- dataRaa[order(dataRaa$PatientInRegistryGuid, dataRaa$FormDate), ]
+
 data <- NIRUtvalgBeredsk(RegData=RegData, datoTil = '2020-04-01')$RegData
 inneliggere <- is.na(data$DateDischargedIntensive)
 inne <- sum(inneliggere)
@@ -107,11 +115,6 @@ AntOpphPas <- table(RegData$PasientID)
 AntOpphPas[AntOpphPas>1]
 EkstraOpph <- Nopph-Npas
 
-#liggetid, #DeadPatientDuring24Hours MoreThan24Hours MovedPatientToAnotherIntensivDuring24Hours
-#[41] Municipal                                  MunicipalNumber#Diagnosis
-#LastUpdate Dod30 Dod90 [53] Korona
-#[57] ECMOTid                                    RespTid
-#IsEcmoTreatmentAdministered
 
 
 #Eksempel på bruk av gruppering I dplyr (tidyverse).

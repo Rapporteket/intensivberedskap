@@ -38,6 +38,7 @@ NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, minald=0, 
 
   N <- dim(RegData)[1]
 
+  RegData$Alder <- round(RegData$Alder,1)
   utvalgTxt <- c(
     if (bekr %in% 0:1){paste(c('Mistenkte','Bekreftede')[bekr+1], 'tilfeller')
     } else {'Alle registrerte (mistenkte og bekreftede)'},

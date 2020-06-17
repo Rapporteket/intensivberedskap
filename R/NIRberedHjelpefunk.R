@@ -71,3 +71,49 @@ valgtRHF <- valgtRHF[[1]]
                     msg = paste("Leverer: ", utfil))
   return(utfil)
 }
+
+
+#' Koble med intensivdata. Ferdigstilte intensivdata. Kan inneholdeberedskapsdata i kladd
+#'
+#' @return
+#' @export
+BeredskIntensivData <- function(){
+
+BeredskRaa <- NIRberedskDataSQL()
+forsteReg <- min(as.Date(BeredskRaa$FormDate))
+IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg) #Kun ferdigstilte intensivdata på Rapporteket
+#Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
+varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmittedIntensiv',
+                  'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
+                  'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
+                  'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
+                  'UnitId') # PatientInRegistryGuid', 'FormStatus', 'ShNavn',
+BeredRaa <- BeredskRaa[ ,-which(names(BeredskRaa) %in% varFellesInt)]
+#names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
+#varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
+BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, suffixes = c('','Int'),
+                      by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = F, all.y=F)
+#intvar <- names(BeredIntRaa)[grep('Int', names(BeredIntRaa))]
+varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamage',
+            'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis', 'DischargedIntensivStatus',
+            'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
+            'Glasgow', 'Graviditet', 'Hco3', 'HeartRate',
+            'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
+            'InvasivVentilation', 'IsActivSmoker', 'IsChronicLungDiseasePatient',
+            'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
+            'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
+            'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
+            'IsObesePatient', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
+            'Kontinuerlig', 'KontinuerligDays', 'Kreft', 'Leukocytes', 'MechanicalRespirator',
+            'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'MvOrCpap', 'Nems',
+            'NonInvasivVentilation', 'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',
+            'PatientTransferredToHospital', 'PatientTransferredToHospitalName', 'Potassium',
+            'PrimaryReasonAdmitted', 'ReshID', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
+            'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
+            'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
+            'PatientInRegistryGuid') #'Helseenhet', 'HelseenhetID','ShNavn',
+beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')
+BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
+
+return(UtData <- BeredIntRaa)
+}
