@@ -65,24 +65,25 @@ if (paaServer) {
 
 #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
 varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmittedIntensiv',
+                  'DischargedIntensiveStatus',
                   'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
                   'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
                   'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
                   #'PatientInRegistryGuid', 'FormStatus', 'ShNavn',
                   'UnitId')
 
-BeredRaa <- CoroDataRaa[ ,-which(names(CoroDataRaa) %in% varFellesInt)]
+BeredRaa <- CoroDataRaa[ ,-which(names(CoroDataRaa) %in% c(varFellesInt, 'DischargedIntensiveStatus'))]
 #names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
 #varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
 BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, suffixes = c('','Int'),
                       by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = F, all.y=F)
 #intvar <- names(BeredIntRaa)[grep('Int', names(BeredIntRaa))]
 varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamage',
-            'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis', 'DischargedIntensivStatus',
+            'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis',
             'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
             'Glasgow', 'Graviditet', 'Hco3', 'HeartRate',
             'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
-            'InvasivVentilation', 'IsActivSmoker', 'IsChronicLungDiseasePatient',
+            'InvasivVentilation', 'IsActiveSmoker', 'IsChronicLungDiseasePatient',
             'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
             'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
             'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
@@ -100,7 +101,7 @@ varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamag
 #'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
 beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')
 BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
-
+setdiff(c(varMed, varFellesInt, beregnVar), names(BeredIntRaa1))
 if (dim(BeredIntRaa)[1]>0) {
   BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobletInt = 1)
 }
@@ -409,7 +410,7 @@ server <- function(input, output, session) {
     }
     if ((rolle != 'SC') | !(brukernavn %in% c('lenaro', 'Reidar', 'eabu'))) { #
       hideTab(inputId = "hovedark", target = "Artikkelarbeid")
-      hideTab(inputId = "hovedark", target = "Fordelingsfigurer")
+      #hideTab(inputId = "hovedark", target = "Fordelingsfigurer")
     }
     #print(brukernavn)
   })
