@@ -165,7 +165,7 @@ ui <- tagList(
                                    selectInput(inputId = "erMann", label="Kjønn",
                                                choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
                                    ),
-                                   dateRangeInput(inputId = 'datovalgStart', start = startDato, end = '2020-05-10',
+                                   dateRangeInput(inputId = 'datovalgStart', start = startDato, end = idag, #'2020-05-10',
                                                   label = "Tidsperiode", separator="t.o.m.", language="nb"
                                    ),
                                    h4('Kun for risikofaktorer:'),
@@ -351,15 +351,17 @@ ui <- tagList(
 
                         ),
                         mainPanel(
-                          h3('Last ned oppsummeringsdata'),
-                          h4('P.t. ikke så pen tabell...'),
+                          h3('Covidpasienter med innleggelsesdato t.o.m. 10.mai 2020, div resultater'),
+                          br(),
+                          h4('Last ned oppsummeringsdata. Ikke så pen tabell...'),
                           downloadButton(outputId = 'lastNed_BeredIntOppsumTab', label = 'Last ned oppsummeringstall'),
                           br(),
                           br(),
                           h4('Div andeler...'),
                           tableOutput('tabAndeler'),
-                          br()
-                          #tableOutput('tabSentralmaal')
+                          br(),
+                          h4('Div. sentralmål...'),
+                          tableOutput('tabSentralmaal')
                         )
                       )
              ) #tab artikkelarb
@@ -562,6 +564,8 @@ server <- function(input, output, session) {
                                    bekr=as.numeric(input$bekr),
                                    resp=as.numeric(input$resp),
                                    dodInt=as.numeric(input$dodInt),
+                                   datoFra = input$datovalgStart[1],
+                                   datoTil = input$datovalgStart[2],
                                    erMann=as.numeric(input$erMann),
                                    minald=as.numeric(input$alder[1]),
                                    maxald=as.numeric(input$alder[2]))
@@ -840,7 +844,12 @@ server <- function(input, output, session) {
                          erMann=input$erMannArt, valgtRHF='Alle') #,bekr=9, dodInt=9, resp=9, minald=0, maxald=110)
 
 output$tabAndeler <- renderTable(AndelerTab$Tab, rownames = T, digits=0, spacing="xs")
-  })
+
+SentralmaalTab <- SentralmaalTab(RegData=BeredIntPasArt,
+                         erMann=input$erMannArt, valgtRHF='Alle')
+output$tabSentralmaal <- renderTable(SentralmaalTab$Tab, rownames = T, digits=1, spacing="xs") #
+
+})
 
 }
 # Run the application

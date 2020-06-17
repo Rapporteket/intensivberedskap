@@ -414,7 +414,7 @@ AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
 
   TabAndeler <- rbind(
     'Menn' = AntAndel(var = RegData$erMann, N=Ntest),
-    'Trakeostomi' = AntAndel(var = (RegData$InvasivVentilation>0), N=Ntest),
+    'Trakeostomi' = AntAndel(var = (RegData$Trakeostomi %in% 2:3), N=Ntest),
     'Nyreestattende behandling' = AntAndel(var = (RegData$KidneyReplacingTreatment==1), N=Ntest),
     'Vasoaktiv medikasjon' =  AntAndel(var = (RegData$VasoactiveInfusion==1), N=Ntest),
     'ECMO-bruk' = AntAndel(var = (RegData$ECMOTid>0), N=Ntest),
