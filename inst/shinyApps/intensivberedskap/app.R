@@ -34,9 +34,9 @@ regTitle <- ifelse(paaServer,
 #---------Hente data------------
 
 if (paaServer) {
-  #CoroData <- NIRRegDataSQL(datoFra='2011-01-01', skjema=4) #, session = session) #datoFra = datoFra, datoTil = datoTil)
-  qCoro <- 'SELECT *  from ReadinessFormDataContract'
-  CoroDataRaa <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
+  CoroDataRaa <- NIRberedskDataSQL()
+  #qCoro <- 'SELECT *  from ReadinessFormDataContract'
+  #CoroDataRaa <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } else {
@@ -83,7 +83,7 @@ varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamag
             'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
             'Glasgow', 'Graviditet', 'Hco3', 'HeartRate',
             'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
-            'InvasivVentilation', 'IsActiveSmoker', 'IsChronicLungDiseasePatient',
+            'InvasivVentilation', 'IsActivSmoker', 'IsChronicLungDiseasePatient',
             'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
             'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
             'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
@@ -101,7 +101,7 @@ varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamag
 #'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
 beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')
 BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
-setdiff(c(varMed, varFellesInt, beregnVar), names(BeredIntRaa1))
+#setdiff(c(varMed, varFellesInt, beregnVar), names(BeredIntRaa1))
 if (dim(BeredIntRaa)[1]>0) {
   BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobletInt = 1)
 }

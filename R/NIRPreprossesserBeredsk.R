@@ -116,7 +116,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                 Graviditet = sum(Graviditet)>0,
                 Astma  = sum(Astma)>0,
                 Diabetes = sum(Diabetes)>0,
-                IsActivSmoker  = sum(IsActiveSmoker)>0, #Opprinnelig navn fra MRS: IsActivSmoker
+                IsActivSmoker  = sum(IsActivSmoker)>0, #Opprinnelig navn fra MRS: IsActivSmoker
                 IsChronicLungDiseasePatient = sum(IsChronicLungDiseasePatient)>0,
                 IsChronicNeurologicNeuromuscularPatient = sum(IsChronicNeurologicNeuromuscularPatient)>0,
                 IsHeartDiseaseIncludingHypertensionPatient  = sum(IsHeartDiseaseIncludingHypertensionPatient)>0,

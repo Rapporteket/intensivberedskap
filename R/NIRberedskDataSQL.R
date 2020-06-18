@@ -38,8 +38,8 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date() ) {
 ,HelseenhetKortnavn
 ,HF
 ,UPPER(HovedskjemaGUID) AS HovedskjemaGUID
--- ,IsActivSmoker
-,IsActiveSmoker
+-- ,IsActivSmoker Endret fra MRS oppdatering 12.juni 2020
+,IsActiveSmoker AS IsActivSmoker
 ,IsChronicLungDiseasePatient
 ,IsChronicNeurologicNeuromuscularPatient
 ,IsEcmoTreatmentAdministered
