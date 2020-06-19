@@ -845,12 +845,12 @@ server <- function(input, output, session) {
 
   observe({
     AndelerTab <- AndelerTab(RegData=BeredIntPasArt,
-                         erMann=input$erMannArt, valgtRHF='Alle') #,bekr=9, dodInt=9, resp=9, minald=0, maxald=110)
+                         erMann=as.numeric(input$erMannArt), valgtRHF='Alle') #,bekr=9, dodInt=9, resp=9, minald=0, maxald=110)
 
 output$tabAndeler <- renderTable(AndelerTab$Tab, rownames = T, digits=0, spacing="xs")
 
 SentralmaalTab <- SentralmaalTab(RegData=BeredIntPasArt,
-                         erMann=input$erMannArt, valgtRHF='Alle')
+                         erMann=as.numeric(input$erMannArt), valgtRHF='Alle')
 output$tabSentralmaal <- renderTable(SentralmaalTab$Tab, rownames = T, digits=1, spacing="xs") #
 
 })
