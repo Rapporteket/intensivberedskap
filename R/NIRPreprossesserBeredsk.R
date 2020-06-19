@@ -54,7 +54,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
          summarise(ExtendedHemodynamicMonitoring = first(ExtendedHemodynamicMonitoring, order_by=FormDate),
                    Bilirubin = first(Bilirubin, order_by=FormDate),
                    BrainDamage = first(BrainDamage, order_by=FormDate),
-                   Bukleie = first(Bukleie, order_by=FormDate),
+                   Bukleie = sum(Bukleie, na.rm=T),
                    ChronicDiseases = first(ChronicDiseases, order_by=FormDate),
                    Diagnosis = first(Diagnosis, order_by=FormDate),
                    EcmoEcla = first(EcmoEcla, order_by=FormDate),
