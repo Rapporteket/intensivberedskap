@@ -271,6 +271,9 @@ ui <- tagList(
                                       #? UrineOutput
                                       )
                           ),
+                        selectInput(inputId = "bekrFord", label="Bekreftet/Mistenkt",
+                                    choices = c("Bekreftet"=1, "Alle"=9, "Mistenkt"=0)
+                        ),
                         dateRangeInput(inputId = 'datovalg', start = startDato, end = '2020-05-10',
                             label = "Tidsperiode", separator="t.o.m.", language="nb"
                             ),
@@ -748,6 +751,7 @@ server <- function(input, output, session) {
     NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0, valgtVar=input$valgtVar,
                   # reshID=reshID,
                   # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
+                  bekr=as.numeric(input$bekrFord),
                   datoFra=input$datovalg[1], datoTil=input$datovalg[2],
                   # minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
                   erMann=as.numeric(input$erMannFord), session = session
