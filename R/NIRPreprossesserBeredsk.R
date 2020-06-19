@@ -57,32 +57,31 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    Bukleie = sum(Bukleie, na.rm=T),
                    ChronicDiseases = first(ChronicDiseases, order_by=FormDate),
                    Diagnosis = first(Diagnosis, order_by=FormDate),
-                   EcmoEcla = first(EcmoEcla, order_by=FormDate),
-                   Eeg = first(Eeg, order_by=FormDate),
-                   FrailtyIndex = first(FrailtyIndex, order_by=FormDate),
+                   Eeg = first(Eeg, order_by=FormDate), #Fjernes fra datadump
+                   FrailtyIndex = mean(FrailtyIndex, na.rm = T),
                    Glasgow = first(Glasgow, order_by=FormDate),
                    Hco3 = first(Hco3, order_by=FormDate),
                    Iabp = first(Iabp, order_by=FormDate),
-                   Icp = first(Icp, order_by=FormDate),
-                   Hyperbar = first(Hyperbar, order_by=FormDate),
+                   #Icp = first(Icp, order_by=FormDate), #Fjernes fra datadump
+                   #Hyperbar = first(Hyperbar, order_by=FormDate), #Fjernes fra datadump
                    HeartRate = first(HeartRate, order_by=FormDate),
-                   Impella = first(Impella, order_by=FormDate),
-                   Intermitterende = first(Intermitterende, order_by=FormDate),
-                   IntermitterendeDays = first(IntermitterendeDays, order_by=FormDate),
+                   Impella = sum(Impella, na.rm = T), #Hvis ja på en: ja, #Logisk variabel
+                   Intermitterende = sum(Intermitterende, na.rm = T), #Hvis ja på en: ja
+                   IntermitterendeDays = sum(IntermitterendeDays, na.rm = T),
                    InvasivVentilation = sum(InvasivVentilation, na.rm = T),
-                   IsEcmoTreatmentAdministered = first(IsEcmoTreatmentAdministered, order_by=FormDate),
-                   Isolation = first(Isolation, order_by=FormDate),
+                   #IsEcmoTreatmentAdministered = first(IsEcmoTreatmentAdministered, order_by=FormDate), #Fjernes fra datadump
+                   Isolation = first(Isolation, order_by=FormDate), #Hvis ja på en: ja. Ikke mulig 1-nei, 2-5 ulike årsaker
                    IsolationDaysTotal = sum(IsolationDaysTotal, na.rm = T),
-                   KidneyReplacingTreatment = first(KidneyReplacingTreatment, order_by=FormDate),
-                   Kontinuerlig = first(Kontinuerlig, order_by=FormDate),
+                   KidneyReplacingTreatment = min(KidneyReplacingTreatment), # 1-ja, 2-nei, -1 ikke svart
+                   Kontinuerlig = sum(Kontinuerlig), #Logisk variabel
                    KontinuerligDays = sum(KontinuerligDays, na.rm = T),
-                   Leverdialyse = first(Leverdialyse, order_by=FormDate),
-                   Leukocytes = first(Leukocytes, order_by=FormDate),
-                   MvOrCpap = first(MvOrCpap, order_by=FormDate),
+                   # hvis ja på en Leverdialyse = first(Leverdialyse, order_by=FormDate), #Ta ut av datadump
+                   #Leukocytes = first(Leukocytes, order_by=FormDate),
+                   #MvOrCpap = first(MvOrCpap, order_by=FormDate),
                    NEMS = sum(Nems),
-                   No = first(No, order_by=FormDate),
+                   NO = sum(No), #Hvis ja: ja, logisk var
                    NonInvasivVentilation = sum(NonInvasivVentilation, na.rm=T),
-                   Oscillator = first(Oscillator, order_by=FormDate),
+                   #Oscillator = first(Oscillator, order_by=FormDate),
                    Potassium = first(Potassium, order_by=FormDate),
                    PrimaryReasonAdmitted = first(PrimaryReasonAdmitted, order_by=FormDate),
                    RespiratortidInt = sum(respiratortid, na.rm = T),
@@ -93,11 +92,11 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    Sodium = first(Sodium, order_by=FormDate),
                    SystolicBloodPressure = first(SystolicBloodPressure, order_by=FormDate),
                    Temperature = first(Temperature, order_by=FormDate),
-                   TerapetiskHypotermi = first(TerapetiskHypotermi, order_by=FormDate),
-                   Trakeostomi = first(Trakeostomi, order_by=FormDate),
+                   #TerapetiskHypotermi = first(TerapetiskHypotermi, order_by=FormDate),
+                   Trakeostomi = first(Trakeostomi, order_by=FormDate), #Hvis ja på en: ja
                    TypeOfAdmission = first(TypeOfAdmission, order_by=FormDate),
                    UrineOutput = first(UrineOutput, order_by=FormDate),
-                   VasoactiveInfusion = first(VasoactiveInfusion  , order_by=FormDate),
+                   VasoactiveInfusion = min(VasoactiveInfusion), #1-ja, 2-nei. Hvis ja på en:ja
          )
    }
    #DateAdmittedIntensive                      DaysAdmittedIntensiv
@@ -139,10 +138,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                                    sum(ReshId[order(FormDate)][2:AntRegPrPas] == ReshId[order(FormDate)][1:AntRegPrPas-1]),
                                    0),
                 ReinnKval = ifelse((InnSmResh > 0) & (ReinnTid < 72 & ReinnTid > 0),  1, 0),
-                Reinn = ifelse(ReinnTid > 12,  1, 0),
+                Reinn = ifelse(ReinnTid > 12,  1, 0), #Brukes til å få riktig startpunkt for nye innleggelser.
                 ReinnNaar = ifelse(Reinn==0, 1, #0-nei, 1-ja
                                    max(which(ReshId[order(FormDate)][2:AntRegPrPas] ==
-                                                ReshId[order(FormDate)][1:AntRegPrPas-1]))+1), #Hvilke opphold som er reinnleggelse# ReinnNaar = ifelse(Reinn==0, 0, #0-nei, 1-ja
+                                                ReshId[order(FormDate)][1:AntRegPrPas-1]))+1), #Hvilke opphold som er reinnleggelse#
                 #                     max(which(difftime(sort(FormDate)[2:AntRegPrPas],
                 #                                        DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
                 #                                        units = 'hours') > 12))), #Hvilke opphold som er reinnleggelse
@@ -162,7 +161,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                 MechanicalRespiratorStartSiste = nth(MechanicalRespiratorStart, ReinnRespNaar+1, order_by = MechanicalRespiratorStart),
                 MechanicalRespiratorStart = first(MechanicalRespiratorStart, order_by = MechanicalRespiratorStart),
                 MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
-                EcmoStart = sort(EcmoStart)[1],
+                EcmoStart = sort(EcmoStart)[1], #sort tar ikke med NA-verdier.
                 DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
                 MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
                 EcmoEnd = sort(EcmoEnd, decreasing = T)[1], #sort(NA) gir tom, men sort(NA)[1] gir NA

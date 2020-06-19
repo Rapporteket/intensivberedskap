@@ -420,7 +420,6 @@ AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
     'ECMO-bruk' = AntAndel(var = (RegData$ECMOTid>0), N=Ntest),
     'Bukleie' =  AntAndel(var = (RegData$Bukleie>0), N=Ntest),
     'Temperatur mer enn 39gr.' =  AntAndel(var = (RegData$Temperature==3), N=Ntest),
-    'Dødelig hjerneskade' = AntAndel(var = (RegData$BrainDamage==1), N=sum(RegData$BrainDamage %in% 1:2)),
     'Overflyttet' = AntAndel(var = (RegData$AntRegPrPas>1), N=Ntest),
     'Død på intensiv' = AntAndel(var = (RegData$DischargedIntensivStatus==1), N=Ntest),
     'Død innen 30 dager' = AntAndel(var = RegData$Dod30, N=Ntest),
@@ -470,12 +469,12 @@ SentralmaalTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', datoT
   SentralmaalTab <- rbind(
     'Alder (år)' = fun(RegData$Alder),
     'ECMO-tid (døgn)' = fun(RegData$ECMOTid),
-    'Respiratortid (døgn)' = fun(RegData$RespTid),
+    'Respiratortid (døgn)' = fun(RegData$RespiratortidInt), #RespTid
     'NonInvasivVentilation' = fun(RegData$NonInvasivVentilation),
     'InvasivVentilation' = fun(RegData$InvasivVentilation),
-    'Liggetid (døgn)' = fun(RegData$Liggetid)
+    'Liggetid (døgn)' = fun(RegData$Liggetid),
     # 'Liggetid (b-skjema)' =
-    #   'SAPSII-skåre' = Saps2scoreNumber
+    'SAPSII-skåre' = fun(RegData$Saps2ScoreNumber)
     #   'NEMS'
 
     )

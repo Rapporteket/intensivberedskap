@@ -40,15 +40,15 @@ if (paaServer) {
   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } else {
-  CoroDataRaa <<- read.table('I:/nir/ReadinessFormDataContract2020-06-11 09-31-13.txt', sep=';',
-                            stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
-  CoroDataRaa$EcmoEnd[CoroDataRaa$EcmoEnd == ""] <- NA
-  CoroDataRaa$EcmoStart[CoroDataRaa$EcmoStart == ""] <- NA
-  CoroDataRaa$MechanicalRespiratorStart[CoroDataRaa$MechanicalRespiratorStart == ""] <- NA
-  CoroDataRaa$MechanicalRespiratorEnd[CoroDataRaa$MechanicalRespiratorEnd == ""] <- NA
-  CoroDataRaa$DateDischargedIntensive[CoroDataRaa$DateDischargedIntensive==""] <- NA
-  NIRraa <- read.table('I:/nir/MainFormDataContract2020-06-12 12-36-21.txt', sep=';',
-                       stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+  # CoroDataRaa <<- read.table('I:/nir/ReadinessFormDataContract2020-06-11 09-31-13.txt', sep=';',
+  #                           stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
+  # CoroDataRaa$EcmoEnd[CoroDataRaa$EcmoEnd == ""] <- NA
+  # CoroDataRaa$EcmoStart[CoroDataRaa$EcmoStart == ""] <- NA
+  # CoroDataRaa$MechanicalRespiratorStart[CoroDataRaa$MechanicalRespiratorStart == ""] <- NA
+  # CoroDataRaa$MechanicalRespiratorEnd[CoroDataRaa$MechanicalRespiratorEnd == ""] <- NA
+  # CoroDataRaa$DateDischargedIntensive[CoroDataRaa$DateDischargedIntensive==""] <- NA
+  # NIRraa <- read.table('I:/nir/MainFormDataContract2020-06-12 12-36-21.txt', sep=';',
+  #                      stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 } #hente data
 
 #Bruk resh før preprosesserer
@@ -60,7 +60,7 @@ forsteReg <- min(as.Date(CoroDataRaa$FormDate))
 if (paaServer) {
   IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg)
 } else {
-  IntDataRaa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= forsteReg, ]
+#  IntDataRaa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= forsteReg, ]
 }
 
 #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
@@ -69,8 +69,8 @@ varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmit
                   'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
                   'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
                   'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
-                  #'PatientInRegistryGuid', 'FormStatus', 'ShNavn',
-                  'UnitId')
+                  #'FormStatus', 'ShNavn',
+                  'PatientInRegistryGuid', 'UnitId')
 
 BeredRaa <- CoroDataRaa[ ,-which(names(CoroDataRaa) %in% c(varFellesInt, 'DischargedIntensiveStatus'))]
 #names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
@@ -97,7 +97,7 @@ varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamag
             'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
             'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
             'PatientInRegistryGuid',
-            'TerapetiskHypotermi',  'Iabp', 'Icp', 'Oscillator', 'No', 'Leverdialyse', 'Hyperbar', 'Eeg')
+            'TerapetiskHypotermi',  'Iabp', 'Oscillator', 'No', 'Leverdialyse', 'Eeg')
 #'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
 beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')
 BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
@@ -352,11 +352,11 @@ ui <- tagList(
 
                         ),
                         mainPanel(
-                          h3('Covidpasienter med innleggelsesdato t.o.m. 10.mai 2020, div resultater'),
+                          h3('Bekreftede Covidpasienter med innleggelsesdato t.o.m. 10.mai 2020, div resultater'),
                           br(),
-                          h4('Last ned oppsummeringsdata. Ikke så pen tabell...'),
-                          downloadButton(outputId = 'lastNed_BeredIntOppsumTab', label = 'Last ned oppsummeringstall'),
-                          br(),
+                          #h4('Last ned oppsummeringsdata. Ikke så pen tabell...'),
+                          #downloadButton(outputId = 'lastNed_BeredIntOppsumTab', label = 'Last ned oppsummeringstall'),
+                          #br(),
                           br(),
                           h4('Div andeler...'),
                           tableOutput('tabAndeler'),
@@ -799,8 +799,11 @@ server <- function(input, output, session) {
   #-----------Artikkelarbeid------------
   #CoroDataRaa <- NIRberedskDataSQL()
 
-  BeredIntRaaArt <- BeredIntRaa[which(as.Date(BeredIntRaa$DateAdmittedIntensive) < '2020-05-11'), ]
-  BeredIntPasArt <- BeredIntPas[which(BeredIntPas$InnDato < '2020-05-11'), ]
+  BeredIntPasArt <- BeredIntPas[intersect(which(BeredIntPas$InnDato < '2020-05-11'),
+                                          which(BeredIntPas$Bekreftet==1)), ]
+  #Samme pasienter i råfil:
+  BeredIntRaaArt <- BeredIntRaa[
+    which(sort(BeredIntRaa$PatientInRegistryGuid) %in% sort(BeredIntPasArt$PasientID)), ]
 
   output$lastNed_dataBeredNIRraa <- downloadHandler(
     filename = function(){
@@ -818,27 +821,27 @@ server <- function(input, output, session) {
       write.csv2(BeredIntPasArt, file, row.names = F, na = '')
     })
 
-  var <- c("Alder","DischargedIntensivStatus","Graviditet", "Astma", "Diabetes" , "IsActivSmoker",
-           "IsChronicLungDiseasePatient", "IsChronicNeurologicNeuromuscularPatient",
-           "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-           "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-           "IsObesePatient", "IsRiskFactor", "Kreft", "Bekreftet", "ReinnKval", "Reinn",
-           "ReinnResp", "MechanicalRespirator", "MechanicalRespiratorEnd", "RespTid", "Liggetid",
-           "ExtendedHemodynamicMonitoring", "Bilirubin", "BrainDamage", "Bukleie", "ChronicDiseases",
-           "Diagnosis", "FrailtyIndex", "Glasgow", "Hco3", "HeartRate", "Impella", "Leukocytes",
-           "MvOrCpap", "NEMS", "NonInvasivVentilation", "Potassium", "Saps2Score", "Saps2ScoreNumber",
-           "SerumUreaOrBun", "Sodium", "SystolicBloodPressure", "Temperature", "Trakeostomi", "UrineOutput",
-           "VasoactiveInfusion", "erMann", "ECMOTid", "Dod30")
-
-  OppsumTab <- t(summary(BeredIntPasArt[,var]))
-
-  output$lastNed_BeredIntOppsumTab <- downloadHandler(
-    filename = function(){
-      paste0('OppsumTab', Sys.Date(), '.csv')
-    },
-    content = function(file, filename){
-      write.csv2(OppsumTab, file, row.names = T, na='')
-    })
+  # var <- c("Alder","DischargedIntensivStatus","Graviditet", "Astma", "Diabetes" , "IsActivSmoker",
+  #          "IsChronicLungDiseasePatient", "IsChronicNeurologicNeuromuscularPatient",
+  #          "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
+  #          "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
+  #          "IsObesePatient", "IsRiskFactor", "Kreft", "Bekreftet", "ReinnKval", "Reinn",
+  #          "ReinnResp", "MechanicalRespirator", "MechanicalRespiratorEnd", "RespTid", "Liggetid",
+  #          "ExtendedHemodynamicMonitoring", "Bilirubin", "BrainDamage", "Bukleie", "ChronicDiseases",
+  #          "Diagnosis", "FrailtyIndex", "Glasgow", "Hco3", "HeartRate", "Impella", "Leukocytes",
+  #          "MvOrCpap", "NEMS", "NonInvasivVentilation", "Potassium", "Saps2Score", "Saps2ScoreNumber",
+  #          "SerumUreaOrBun", "Sodium", "SystolicBloodPressure", "Temperature", "Trakeostomi", "UrineOutput",
+  #          "VasoactiveInfusion", "erMann", "ECMOTid", "Dod30")
+  #
+  # OppsumTab <- t(summary(BeredIntPasArt[,var]))
+  #
+  # output$lastNed_BeredIntOppsumTab <- downloadHandler(
+  #   filename = function(){
+  #     paste0('OppsumTab', Sys.Date(), '.csv')
+  #   },
+  #   content = function(file, filename){
+  #     write.csv2(OppsumTab, file, row.names = T, na='')
+  #   })
 
   observe({
     AndelerTab <- AndelerTab(RegData=BeredIntPasArt,
