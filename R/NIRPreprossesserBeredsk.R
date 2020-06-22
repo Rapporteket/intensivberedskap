@@ -50,8 +50,15 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
    #Respiratortider skal hentes fra intensivskjema
 
    if (kobletInt==1){
+      # Test <- Data %>% group_by(PatientInRegistryGuid) %>%
+      #    summarise(test = ifelse(sum(Isolation==3)>0 , 1, ifelse(sum(Isolation==-1)>0, -1,0)),
+      #              test1 = Isolation[1],
+      #              trak = sum(Trakeostomi),
+      #              Ant = n())
+
       RegDataRedEkstra <- RegData %>% group_by(PasientID) %>%
-         summarise(ExtendedHemodynamicMonitoring = first(ExtendedHemodynamicMonitoring, order_by=FormDate),
+         summarise(#PersonId = PersonId[1],
+                  ExtendedHemodynamicMonitoring = first(ExtendedHemodynamicMonitoring, order_by=FormDate),
                    Bilirubin = first(Bilirubin, order_by=FormDate),
                    BrainDamage = first(BrainDamage, order_by=FormDate),
                    Bukleie = sum(Bukleie, na.rm=T),
@@ -70,8 +77,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    IntermitterendeDays = sum(IntermitterendeDays, na.rm = T),
                    InvasivVentilation = sum(InvasivVentilation, na.rm = T),
                    #IsEcmoTreatmentAdministered = first(IsEcmoTreatmentAdministered, order_by=FormDate), #Fjernes fra datadump
-                   Isolation = first(Isolation, order_by=FormDate), #Hvis ja på en: ja. Ikke mulig 1-nei, 2-5 ulike årsaker
-                   IsolationDaysTotal = sum(IsolationDaysTotal, na.rm = T),
+                   #Isolation = first(Isolation, order_by=FormDate), #Hvis ja på en: ja. Ikke mulig 1-nei, 2-5 ulike årsaker
+                  IsolasjonLuft = ifelse(sum(Isolation==3)>0, 1,0), #ifelse(Isolation , -1, ifelse(Isolation==3, 1,0)), #3 - dråpesmitte
+                  IsolasjonDagerLuft = ifelse(IsolasjonLuft==1, sum(IsolationDaysTotal), 0),
+                   #IsolationDaysTotal = sum(IsolationDaysTotal, na.rm = T),
                    KidneyReplacingTreatment = min(KidneyReplacingTreatment), # 1-ja, 2-nei, -1 ikke svart
                    Kontinuerlig = sum(Kontinuerlig), #Logisk variabel
                    KontinuerligDays = sum(KontinuerligDays, na.rm = T),
@@ -93,7 +102,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    SystolicBloodPressure = first(SystolicBloodPressure, order_by=FormDate),
                    Temperature = first(Temperature, order_by=FormDate),
                    #TerapetiskHypotermi = first(TerapetiskHypotermi, order_by=FormDate),
-                   Trakeostomi = first(Trakeostomi, order_by=FormDate), #Hvis ja på en: ja
+                   Trakeostomi = ifelse(sum(Trakeostomi %in% 2:3)>0, #Trakeostomitype reg. først.
+                                        Trakeostomi[which(Trakeostomi>1)], 1),
                    TypeOfAdmission = first(TypeOfAdmission, order_by=FormDate),
                    UrineOutput = first(UrineOutput, order_by=FormDate),
                    VasoactiveInfusion = min(VasoactiveInfusion), #1-ja, 2-nei. Hvis ja på en:ja
