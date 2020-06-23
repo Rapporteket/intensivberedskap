@@ -254,7 +254,7 @@ ui <- tagList(
                                        'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring',
                                        'Frailty index' = 'frailtyIndex',
                                       # 'Inklusjonskriterier' = 'inklKrit',
-                                       'Isolasjon, type' = 'isolering',
+                                      # 'Isolasjon, type' = 'isolering',
                                       # 'Isolasjon, varighet' = 'isoleringDogn',
                                        'Liggetid' = 'liggetid',
                                       # 'Nas-skår (sykepleierakt.)' = 'Nas24',
