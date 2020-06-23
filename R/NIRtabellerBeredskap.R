@@ -71,7 +71,6 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
 
 
 
-
 #' Antall som er  i ECMO/respirator
 #'
 #' @param RegData beredskapsskjema
@@ -319,7 +318,7 @@ ManglerIntSkjema <- function(reshID=0){
   } else {
     DataNIRraa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= '2020-03-01', ]
     DataBeredskapRaa <- CoroDataRaa
-  }
+  }okk
 
 
   if (reshID !=0) {
@@ -334,56 +333,6 @@ ManglerIntSkjema <- function(reshID=0){
 }
 
 
-
-#' Antall som er  i ECMO/respirator
-#'
-#' @param RegData beredskapsskjema
-#'
-#' @return
-#' @export
-#'
-statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
-
-  UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
-                             erMann=erMann, bekr=bekr)
-  # dodInt=dodInt)$RegData velgAvd=velgAvd
-  RegData <- UtData$RegData
-  N <- dim(RegData)[1]
-  ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
-  inneliggere <- is.na(RegData$DateDischargedIntensive)
-  AntPaaIntNaa <- sum(inneliggere) #N - sum(!(is.na(RegData$DateDischargedIntensive)))
-  LiggetidNaa <- as.numeric(difftime(Sys.Date(), RegData$FormDateSiste[inneliggere], units='days'))
-  LiggetidNaaGjsn <- mean(LiggetidNaa[LiggetidNaa < 90], na.rm = T)
-
-  respLiggere <- inneliggere & is.na(RegData$MechanicalRespiratorEnd) & !(is.na(RegData$MechanicalRespiratorStart) ) #Har antatt at respiratortid MÅ registreres
-  AntIrespNaa <- sum(respLiggere)
-  ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStartSiste[respLiggere],
-                                    units='days'))
-  ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 90], na.rm=T)
-  #sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
-
-  ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) )
-  AntIECMONaa <- sum(ECMOLiggere) #sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
-  ECMOtidNaa <- as.numeric(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
-                                    units='days'))
-  ECMOtidNaaGjsn <- ifelse(AntIECMONaa==0, 0,
-                           mean(ECMOtidNaa[ECMOtidNaa < 90], na.rm=T))
-
-  TabHjelp <- rbind(
-    'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn),
-    'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaaGjsn),
-    'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaaGjsn)
-  )
-  colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn.)')
-  TabHjelp[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
-  TabHjelp[1:3, 3] <- paste0(sprintf('%.1f', as.numeric(TabHjelp[1:3, 3])), ' døgn')
-  xtable::xtable(TabHjelp,
-                 digits=0,
-                 align = c('l','r','r','r'),
-                 caption='Bruk av Respirator/ECMO.')
-  UtData <- list(Tab=TabHjelp, utvalgTxt=UtData$utvalgTxt, PaaIntensivNaa=inneliggere)
-  return(UtData)
-}
 
 
 #' Tabell med andel av div. variabler for koblet datasett (intensiv+beredskap)

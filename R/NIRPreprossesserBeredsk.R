@@ -63,6 +63,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    BrainDamage = first(BrainDamage, order_by=FormDate),
                    Bukleie = sum(Bukleie, na.rm=T),
                    ChronicDiseases = first(ChronicDiseases, order_by=FormDate),
+                  DaysAdmittedIntensiv = sum(DaysAdmittedIntensiv),
                    Diagnosis = first(Diagnosis, order_by=FormDate),
                    Eeg = first(Eeg, order_by=FormDate), #Fjernes fra datadump
                    FrailtyIndex = mean(FrailtyIndex, na.rm = T),
@@ -76,7 +77,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    Intermitterende = sum(Intermitterende, na.rm = T), #Hvis ja på en: ja
                    IntermitterendeDays = sum(IntermitterendeDays, na.rm = T),
                    InvasivVentilation = sum(InvasivVentilation, na.rm = T),
-                   #IsEcmoTreatmentAdministered = first(IsEcmoTreatmentAdministered, order_by=FormDate), #Fjernes fra datadump
+                   IsEcmoTreatmentAdministered = sum(IsEcmoTreatmentAdministered)>0, #Fjernes fra datadump. Tas inn. FHI har den på lista
                    #Isolation = first(Isolation, order_by=FormDate), #Hvis ja på en: ja. Ikke mulig 1-nei, 2-5 ulike årsaker
                   IsolasjonLuft = ifelse(sum(Isolation==3)>0, 1,0), #ifelse(Isolation , -1, ifelse(Isolation==3, 1,0)), #3 - dråpesmitte
                   IsolasjonDagerLuft = ifelse(IsolasjonLuft==1, sum(IsolationDaysTotal), 0),
@@ -87,6 +88,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    # hvis ja på en Leverdialyse = first(Leverdialyse, order_by=FormDate), #Ta ut av datadump
                    #Leukocytes = first(Leukocytes, order_by=FormDate),
                    #MvOrCpap = first(MvOrCpap, order_by=FormDate),
+                  Nas = sum(Nas),
                    NEMS = sum(Nems),
                    NO = sum(No), #Hvis ja: ja, logisk var
                    NonInvasivVentilation = sum(NonInvasivVentilation, na.rm=T),
@@ -176,6 +178,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                 MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
                 EcmoEnd = sort(EcmoEnd, decreasing = T)[1], #sort(NA) gir tom, men sort(NA)[1] gir NA
                 Municipal = first(Municipal, order_by = FormDate),
+                MunicipalNumber = first(MunicipalNumber, order_by = FormDate),
                 ReshId = first(ReshId, order_by = FormDate),
                 RHF = first(RHF, order_by = FormDate),
                 HF = first(HF, order_by = FormDate),
