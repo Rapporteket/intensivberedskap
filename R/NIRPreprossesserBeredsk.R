@@ -48,17 +48,16 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
 
    #------SLÅ SAMMEN TIL PER PASIENT
    #Respiratortider skal hentes fra intensivskjema
+   #sum(grepl('J80', BeredIntRaa[ ,c('ICD10_1', 'ICD10_2', 'ICD10_3', 'ICD10_4', 'ICD10_5')]))
 
    if (kobletInt==1){
-      # Test <- Data %>% group_by(PatientInRegistryGuid) %>%
-      #    summarise(test = ifelse(sum(Isolation==3)>0 , 1, ifelse(sum(Isolation==-1)>0, -1,0)),
-      #              test1 = Isolation[1],
-      #              trak = sum(Trakeostomi),
-      #              Ant = n())
+      # Test <- IntData %>% group_by(PatientInRegistryGuid) %>%
+      #    summarise(ARDS = sum(grepl('J80', c(ICD10_1, ICD10_2, ICD10_3, ICD10_4, ICD10_5)))>0)
 
       RegDataRedEkstra <- RegData %>% group_by(PasientID) %>%
          summarise(#PersonId = PersonId[1],
                   ExtendedHemodynamicMonitoring = first(ExtendedHemodynamicMonitoring, order_by=FormDate),
+                  ARDS = sum(grepl('J80', c(ICD10_1, ICD10_2, ICD10_3, ICD10_4, ICD10_5)))>0,
                    Bilirubin = first(Bilirubin, order_by=FormDate),
                    BrainDamage = first(BrainDamage, order_by=FormDate),
                    Bukleie = sum(Bukleie, na.rm=T),

@@ -318,7 +318,7 @@ ManglerIntSkjema <- function(reshID=0){
   } else {
     DataNIRraa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= '2020-03-01', ]
     DataBeredskapRaa <- CoroDataRaa
-  }okk
+  }
 
 
   if (reshID !=0) {
@@ -361,6 +361,10 @@ AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
     c(Ant, Andel)
   }
 
+  # andelen som har registrert NAS, maks SOFA, andre diagnosar enn covid-19, sekundærårsak til innlegging på intensiv? SMR
+  # Tal på pasientar som har fått ARDS-diagnosen (obs. dette er ikkje obligatorisk). Diagnose = J80 ARDS
+
+
   TabAndeler <- rbind(
     'Menn' = AntAndel(var = RegData$erMann, N=Ntest),
     'Trakeostomi' = AntAndel(var = (RegData$Trakeostomi %in% 2:3), N=Ntest),
@@ -372,7 +376,9 @@ AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
     'Overflyttet' = AntAndel(var = (RegData$AntRegPrPas>1), N=Ntest),
     'Død på intensiv' = AntAndel(var = (RegData$DischargedIntensivStatus==1), N=Ntest),
     'Død innen 30 dager' = AntAndel(var = RegData$Dod30, N=Ntest),
-    'Respirator (int)' = AntAndel(var = (RegData$MechanicalRespirator==1), N=Ntest)
+    'Respirator (int)' = AntAndel(var = (RegData$MechanicalRespirator==1), N=Ntest),
+    'Nas registrert' = AntAndel(var = (RegData$Nas>0), N=Ntest),
+    'ARDS' = AntAndel(var = RegData$ARDS) #[which(RegData$Alder>=70)]
     #ReinnKval, Reinn, ReinnInt
   )
 

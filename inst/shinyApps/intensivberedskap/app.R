@@ -35,8 +35,8 @@ regTitle <- ifelse(paaServer,
 
 if (paaServer) {
   CoroDataRaa <- NIRberedskDataSQL()
-  #qCoro <- 'SELECT *  from ReadinessFormDataContract'
-  #CoroDataRaa <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
+  # qCoro <- 'SELECT *  from ReadinessFormDataContract'
+  # CoroDataRaa <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
   #repLogger(session = session, 'Hentet alle data fra intensivregisteret')
 } else {
@@ -90,7 +90,7 @@ varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamag
             'IsObesePatient', 'Isolation', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
             'Kontinuerlig', 'KontinuerligDays', 'Kreft', 'Leukocytes', 'MechanicalRespirator',
             'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'Municipal','MunicipalNumber',
-            'MvOrCpap', 'Nems', 'NonInvasivVentilation',
+            'MvOrCpap', 'Nas', 'Nems', 'NonInvasivVentilation',
             'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',
             'PatientTransferredToHospital', 'PatientTransferredToHospitalName', 'Potassium',
             'PrimaryReasonAdmitted', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
@@ -99,7 +99,8 @@ varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamag
             'PatientInRegistryGuid',
             'TerapetiskHypotermi',  'Iabp', 'Oscillator', 'No', 'Leverdialyse', 'Eeg')
 #'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
-beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')
+beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn',
+               'ICD10_1', 'ICD10_2', 'ICD10_3', 'ICD10_4', 'ICD10_5')
 BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
 #setdiff(c(varMed, varFellesInt, beregnVar), names(BeredIntRaa1))
 if (dim(BeredIntRaa)[1]>0) {
