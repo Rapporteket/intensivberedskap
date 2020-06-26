@@ -152,7 +152,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
   RespTid <- summary(RegData$RespTid, na.rm = T)
   ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
   Alder <- summary(RegData$Alder, na.rm = T)
-  AntDod <- sum(RegData$DischargedIntensivStatus==1, na.rm=T)
+  AntDod <- sum(RegData$DischargedIntensiveStatus==1, na.rm=T)
 
   med_IQR <- function(x){
     #x[is.na(x)]<-0
@@ -224,7 +224,7 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoFra='2020-01-01',
     Leversykdom = tapply(RegData$IsLiverDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
     'Nevrologisk/nevromusk.' = tapply(RegData$IsChronicNeurologicNeuromuscularPatient, Tidsvariabel, FUN=sum, na.rm = T),
     Graviditet	= tapply(RegData$Graviditet, Tidsvariabel, FUN=sum, na.rm = T),
-    'Røyker' =	tapply(RegData$IsActivSmoker, Tidsvariabel, FUN=sum, na.rm = T),
+    'Røyker' =	tapply(RegData$IsActiveSmoker, Tidsvariabel, FUN=sum, na.rm = T),
     'Pasienter med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
   )
 
@@ -374,7 +374,7 @@ AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
     'Bukleie' =  AntAndel(var = (RegData$Bukleie>0), N=Ntest),
     'Temperatur mer enn 39gr.' =  AntAndel(var = (RegData$Temperature==3), N=Ntest),
     'Overflyttet' = AntAndel(var = (RegData$AntRegPrPas>1), N=Ntest),
-    'Død på intensiv' = AntAndel(var = (RegData$DischargedIntensivStatus==1), N=Ntest),
+    'Død på intensiv' = AntAndel(var = (RegData$DischargedIntensiveStatus==1), N=Ntest),
     'Død innen 30 dager' = AntAndel(var = RegData$Dod30, N=Ntest),
     'Respirator (int)' = AntAndel(var = (RegData$MechanicalRespirator==1), N=Ntest),
     'Nas registrert' = AntAndel(var = (RegData$Nas>0), N=Ntest),

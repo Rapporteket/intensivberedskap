@@ -83,7 +83,7 @@ varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamag
             'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
             'Glasgow', 'Graviditet', 'Hco3', 'HeartRate',
             'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
-            'InvasivVentilation', 'IsActivSmoker', 'IsChronicLungDiseasePatient',
+            'InvasivVentilation', 'IsActiveSmoker', 'IsChronicLungDiseasePatient',
             'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
             'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
             'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
@@ -133,7 +133,7 @@ ui <- tagList(
              windowTitle = regTitle,
              theme = "rap/bootstrap.css",
 
-             #------------Oversiktsside-----------------------------
+#------------Oversiktsside-----------------------------
              tabPanel("Oversikt",
                       useShinyjs(),
                       sidebarPanel(id = 'brukervalgStartside',
@@ -239,7 +239,7 @@ ui <- tagList(
                       ) #main
              ), #tab Tabeller
 
-             #------------Figurer-----------------------------------
+#------------Figurer-----------------------------------
              tabPanel("Antall intensivpasienter",
                       koronafigurer_UI(id = "koronafigurer_id", rhfNavn=rhfNavn)
              ),
@@ -290,7 +290,7 @@ ui <- tagList(
                       )
                       ), #Tab, fordelinger
 
-             #---------Datakvalitet-----------------
+#---------Datakvalitet-----------------
              tabPanel(#p('Tilhørende intensivskjema som mangler ferdigstillelse'),
                title = 'Datakvalitet',
                value = 'Datakvalitet',
@@ -311,7 +311,7 @@ ui <- tagList(
                )
              ), #tab Datakvalitet
 
-             #-----------Abonnement--------------------------------
+#-----------Abonnement--------------------------------
              tabPanel(p("Abonnement",
                         title='Bestill automatisk utsending av rapporter på e-post'),
                       value = 'Abonnement',
@@ -335,13 +335,13 @@ ui <- tagList(
                       )
              ), #tab abonnement
 
-             #-----------Artikkelarbeid------------
+#-----------Artikkelarbeid------------
              tabPanel(p("Artikkelarbeid",
                         title='Data til artikkel'),
                       value = 'Artikkelarbeid',
                       sidebarLayout(
                         sidebarPanel(width = 4,
-                                     h3('Covidpasienter med innleggelsesdato t.o.m. 10.mai 2020'),
+                                     h3('Alle Covidpasienter med bekreftet diagnose'),
                                      h4('Koblet RÅdatatsett: Covid-opphold og tilhørende intensivskjema'),
                                      downloadButton(outputId = 'lastNed_dataBeredNIRraa', label='Last ned rådata'),
                                      br(),
@@ -350,13 +350,17 @@ ui <- tagList(
                                      br(),
                                      br(),
                                      h4('Gjør utvalg av data'),
+                                     # dateRangeInput(inputId = 'datovalgArt', start = startDato, end = idag,
+                                     #                label = "Tidsperiode", separator="t.o.m.", language="nb"
+                                     # ),
                                      selectInput(inputId = "erMannArt", label="Kjønn",
                                                  choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
-                                     ),
+                                     )
 
                         ),
                         mainPanel(
-                          h3('Bekreftede Covidpasienter med innleggelsesdato t.o.m. 10.mai 2020, div resultater'),
+                          h3('Bekreftede Covidpasienter, t.o.m. dagens dato'),
+                          #med innleggelsesdato t.o.m. 10.mai 2020, div resultater'),
                           br(),
                           #h4('Last ned oppsummeringsdata. Ikke så pen tabell...'),
                           #downloadButton(outputId = 'lastNed_BeredIntOppsumTab', label = 'Last ned oppsummeringstall'),
@@ -412,11 +416,15 @@ server <- function(input, output, session) {
       shinyjs::hide(id = 'CoroRappTxt')
       hideTab(inputId = "hovedark", target = "Abonnement")
     }
-    if ((rolle != 'SC') | !(brukernavn %in% c('lenaro', 'Reidar', 'eabu'))) { #
+    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu'))) {  #(brukernavn == 'jlaake') {
+      shinyjs::hide(id = 'lastNed_dataBeredNIRraa')
+      shinyjs::hide(id = 'lastNed_dataBeredNIR')
+    }
+    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'jlaake'))) { #jlaake-ikke datafiler
       hideTab(inputId = "hovedark", target = "Artikkelarbeid")
       #hideTab(inputId = "hovedark", target = "Fordelingsfigurer")
     }
-    #print(brukernavn)
+     #print(brukernavn)
   })
   if (rolle != 'SC') {
     updateSelectInput(session, "valgtRHF",
@@ -434,6 +442,7 @@ server <- function(input, output, session) {
   if (paaServer) {
     output$appUserName <- renderText(rapbase::getUserFullName(session))
     output$appOrgName <- renderText(paste0('rolle: ', rolle,
+                                           ', bruker: ', brukernavn,
                                            '<br> ReshID: ', reshID) )}
   #,'<br> Org: ', egenOrg) )}
 
@@ -502,7 +511,7 @@ server <- function(input, output, session) {
     txt <- if(dim(UtData$RegData)[1]>2) {
       paste0('For innlagte f.o.m. 10.mars, er gjennomsnittsalderen <b>', round(mean(UtData$RegData$Alder, na.rm = T)), '</b> år og ',
              round(100*mean(UtData$RegData$erMann, na.rm = T)), '% er menn. Antall døde: ',
-             sum(UtData$RegData$DischargedIntensivStatus==1))
+             sum(UtData$RegData$DischargedIntensiveStatus==1))
     } else {''}
 
     output$utvalgHoved <- renderUI({
@@ -524,6 +533,8 @@ server <- function(input, output, session) {
     output$utvalgNaa <- renderUI({h5(HTML(paste0(statusNaaTab$utvalgTxt, '<br />'))) })
 
     #Tab ferdigstilte
+    #print(input$datovalgStart[1])
+    #print(input$datovalgArt[1])
     TabFerdig <- oppsumFerdigeRegTab(RegData=CoroData,
                                      valgtRHF=input$valgtRHF,
                                      datoFra = input$datovalgStart[1],
@@ -670,8 +681,6 @@ server <- function(input, output, session) {
 
     # test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
     #                       reshID=105460, valgtRHF = as.character(input$valgtRHFabb))
-    # print(input$valgtRHFabb)
-    # print(test)
 
     rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
                               fun = fun, paramNames = paramNames,
@@ -760,52 +769,23 @@ server <- function(input, output, session) {
   }, height=800, width=800 #height = function() {session$clientData$output_fordelinger_width}
   )
 
-  # observe({
-  #
-  #   UtDataFord <- NIRberedskFigAndeler(RegData=RegData, preprosess = 0, valgtVar=input$valgtVar,
-  #                               reshID=reshID, enhetsUtvalg=as.numeric(input$enhetsUtvalg),
-  #                               velgAvd = input$velgResh,
-  #                               datoFra=input$datovalg[1], datoTil=input$datovalg[2],
-  #                               #minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
-  #                               erMann=as.numeric(input$erMann), lagFig = 0, session = session)
-  #   #RegData <- NIRRegDataSQL(datoFra = '2018-01-01')
-  #   #UtDataFord <- NIRberedskFigAndeler(RegData=RegData, valgtVar='bukleie', reshID=109773, enhetsUtvalg=0 )
-  #   tab <- lagTabavFig(UtDataFraFig = UtDataFord)
-  #
-  #   output$tittelFord <- renderUI({
-  #     tagList(
-  #       h3(HTML(paste(UtDataFord$tittel, sep='<br />'))),
-  #       h5(HTML(paste0(UtDataFord$utvalgTxt, '<br />')))
-  #     )}) #, align='center'
-  #   output$fordelingTab <- function() { #gr1=UtDataFord$hovedgrTxt, gr2=UtDataFord$smltxt renderTable(
-  #
-  #     #       kable_styling("hover", full_width = F)
-  #     antKol <- ncol(tab)
-  #     kableExtra::kable(tab, format = 'html'
-  #                       , full_width=F
-  #                       , digits = c(0,1,0,1)[1:antKol]
-  #     ) %>%
-  #       add_header_above(c(" "=1, 'Valgt gruppe' = 2, 'Resten' = 2)[1:(antKol/2+1)]) %>%
-  #       column_spec(column = 1, width_min = '7em') %>%
-  #       column_spec(column = 2:(ncol(tab)+1), width = '7em') %>%
-  #       row_spec(0, bold = T)
-  #   }
-  #
-  #   output$lastNed_tabFord <- downloadHandler(
-  #     filename = function(){
-  #       paste0(input$valgtVar, '_fordeling.csv')
-  #     },
-  #     content = function(file, filename){
-  #       write.csv2(tab, file, row.names = F, na = '')
-  #     })
-  # }) #observe
 
 
   #-----------Artikkelarbeid------------
   #CoroDataRaa <- NIRberedskDataSQL()
 
-  BeredIntPasArt <- BeredIntPas[intersect(which(BeredIntPas$InnDato < '2020-05-11'),
-                                          which(BeredIntPas$Bekreftet==1)), ]
+  BeredIntPasArt <- BeredIntPas[which(BeredIntPas$Bekreftet==1), ]# 2020-05-11),
+
+# observe({
+#   print(input$datoValgArt[1])
+#   print(dim(BeredIntPas)[1])})
+  # BeredIntPasArt <- BeredIntPas[intersect(
+  # intersect(which(BeredIntPas$InnDato < as.Date(input$datoValgArt[1])), # 2020-05-11),
+  #                                         which(BeredIntPas$InnDato > as.Date(input$datoValgArt[2]))),
+  #                                         which(BeredIntPas$Bekreftet==1)), ]
+  # BeredIntPasArt <- BeredIntPas[(BeredIntPas$InnDato < input$datoValgArt[1]) &
+  #                                         (BeredIntPas$InnDato > input$datoValgArt[2]) &
+  #                                         (BeredIntPas$Bekreftet==1), ]
   #Samme pasienter i råfil:
   BeredIntRaaArt <- BeredIntRaa[
     which(sort(BeredIntRaa$PatientInRegistryGuid) %in% sort(BeredIntPasArt$PasientID)), ]
@@ -825,36 +805,18 @@ server <- function(input, output, session) {
     content = function(file, filename){
       write.csv2(BeredIntPasArt, file, row.names = F, na = '')
     })
-
-  # var <- c("Alder","DischargedIntensivStatus","Graviditet", "Astma", "Diabetes" , "IsActivSmoker",
-  #          "IsChronicLungDiseasePatient", "IsChronicNeurologicNeuromuscularPatient",
-  #          "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-  #          "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-  #          "IsObesePatient", "IsRiskFactor", "Kreft", "Bekreftet", "ReinnKval", "Reinn",
-  #          "ReinnResp", "MechanicalRespirator", "MechanicalRespiratorEnd", "RespTid", "Liggetid",
-  #          "ExtendedHemodynamicMonitoring", "Bilirubin", "BrainDamage", "Bukleie", "ChronicDiseases",
-  #          "Diagnosis", "FrailtyIndex", "Glasgow", "Hco3", "HeartRate", "Impella", "Leukocytes",
-  #          "MvOrCpap", "NEMS", "NonInvasivVentilation", "Potassium", "Saps2Score", "Saps2ScoreNumber",
-  #          "SerumUreaOrBun", "Sodium", "SystolicBloodPressure", "Temperature", "Trakeostomi", "UrineOutput",
-  #          "VasoactiveInfusion", "erMann", "ECMOTid", "Dod30")
-  #
-  # OppsumTab <- t(summary(BeredIntPasArt[,var]))
-  #
-  # output$lastNed_BeredIntOppsumTab <- downloadHandler(
-  #   filename = function(){
-  #     paste0('OppsumTab', Sys.Date(), '.csv')
-  #   },
-  #   content = function(file, filename){
-  #     write.csv2(OppsumTab, file, row.names = T, na='')
-  #   })
+#})
 
   observe({
+
     AndelerTab <- AndelerTab(RegData=BeredIntPasArt,
+                             #datoFra = input$datoValgArt[1], datoTil = input$datoValgArt[2],
                          erMann=as.numeric(input$erMannArt), valgtRHF='Alle') #,bekr=9, dodInt=9, resp=9, minald=0, maxald=110)
 
 output$tabAndeler <- renderTable(AndelerTab$Tab, rownames = T, digits=0, spacing="xs")
 
 SentralmaalTab <- SentralmaalTab(RegData=BeredIntPasArt,
+                                 #datoFra = input$datoValgArt[1], datoTil = input$datoValgArt[2],
                          erMann=as.numeric(input$erMannArt), valgtRHF='Alle')
 output$tabSentralmaal <- renderTable(SentralmaalTab$Tab, rownames = T, digits=1, spacing="xs") #
 

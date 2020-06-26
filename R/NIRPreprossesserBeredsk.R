@@ -76,7 +76,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    Intermitterende = sum(Intermitterende, na.rm = T), #Hvis ja på en: ja
                    IntermitterendeDays = sum(IntermitterendeDays, na.rm = T),
                    InvasivVentilation = sum(InvasivVentilation, na.rm = T),
-                   IsEcmoTreatmentAdministered = sum(IsEcmoTreatmentAdministered)>0, #Fjernes fra datadump. Tas inn. FHI har den på lista
                    #Isolation = first(Isolation, order_by=FormDate), #Hvis ja på en: ja. Ikke mulig 1-nei, 2-5 ulike årsaker
                   IsolasjonLuft = ifelse(sum(Isolation==3)>0, 1,0), #ifelse(Isolation , -1, ifelse(Isolation==3, 1,0)), #3 - dråpesmitte
                   IsolasjonDagerLuft = ifelse(IsolasjonLuft==1, sum(IsolationDaysTotal), 0),
@@ -121,14 +120,15 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
       summarise(Alder = Alder[1],
                 PatientGender = PatientGender[1],
                 Morsdato = sort(Morsdato)[1],
-                DischargedIntensivStatus = max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
+                DischargedIntensiveStatus = max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
                 Overf = max(Overf),
                 Graviditet = sum(Graviditet)>0,
                 Astma  = sum(Astma)>0,
                 Diabetes = sum(Diabetes)>0,
-                IsActivSmoker  = sum(IsActivSmoker)>0, #Opprinnelig navn fra MRS: IsActivSmoker
+                IsActiveSmoker  = sum(IsActiveSmoker)>0, #Opprinnelig navn fra MRS: IsActivSmoker
                 IsChronicLungDiseasePatient = sum(IsChronicLungDiseasePatient)>0,
                 IsChronicNeurologicNeuromuscularPatient = sum(IsChronicNeurologicNeuromuscularPatient)>0,
+                IsEcmoTreatmentAdministered = sum(IsEcmoTreatmentAdministered)>0, #Fjernes fra datadump. Tas inn. FHI har den på lista
                 IsHeartDiseaseIncludingHypertensionPatient  = sum(IsHeartDiseaseIncludingHypertensionPatient)>0,
                 IsImpairedImmuneSystemIncludingHivPatient = sum(IsImpairedImmuneSystemIncludingHivPatient)>0,
                 IsKidneyDiseaseIncludingFailurePatient  = sum(IsKidneyDiseaseIncludingFailurePatient)>0,
@@ -230,7 +230,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                                                  tz= 'UTC', format='%Y-%m-%d %H:%M:%S')
    #De som har Morsdato før utskriving fra intensiv:
    ind <- which(as.Date(RegData$Morsdato, format='%Y-%m-%d %H:%M:%S') <= as.Date(RegData$DateDischargedIntensive))
-   RegData$DischargedIntensivStatus[ind] <- 1
+   RegData$DischargedIntensiveStatus[ind] <- 1
 
 
    #Liggetider
