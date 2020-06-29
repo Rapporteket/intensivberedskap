@@ -24,7 +24,7 @@ NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, minald=0, 
   if (bekr %in% 0:1){RegData <- subset(RegData, RegData$Bekreftet==bekr)}
   if (skjemastatus %in% 1:2){RegData <- subset(RegData, RegData$FormStatus==skjemastatus)}
   if (resp %in% 1:2){RegData <- subset(RegData, RegData$MechanicalRespirator==resp)}
-  if (dodInt %in% 0:1){RegData <- subset(RegData, RegData$DischargedIntensivStatus==dodInt)}
+  if (dodInt %in% 0:1){RegData <- subset(RegData, RegData$DischargedIntensiveStatus==dodInt)}
   if (erMann %in% 0:1){
     vec <- (RegData$erMann == erMann)
     RegData <- subset(RegData, vec)}

@@ -69,8 +69,8 @@ indFerdig <- which(RegData$FormStatus==2)
 antFerdig <- length(indFerdig)
 antSkjema <- dim(RegData)[1]
 N <- antSkjema
-AntDode <- sum(RegData$DischargedIntensivStatus==1)
-DodBekr <- sum(RegData[which(RegData$Bekreftet==1), ]$DischargedIntensivStatus==1)
+AntDode <- sum(RegData$DischargedIntensiveStatus==1)
+DodBekr <- sum(RegData[which(RegData$Bekreftet==1), ]$DischargedIntensiveStatus==1)
 AntBekr <- sum(RegData$Bekreftet==1)
 
 # Registreringer i limbo

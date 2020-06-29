@@ -95,11 +95,11 @@ BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, suffixes = c('','Int'),
                       by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = F, all.y=F)
 #intvar <- names(BeredIntRaa)[grep('Int', names(BeredIntRaa))]
 varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamage',
-            'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis', 'DischargedIntensivStatus',
+            'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis', 'DischargedIntensiveStatus',
             'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
             'Glasgow', 'Graviditet', 'Hco3', 'HeartRate',
             'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
-            'InvasivVentilation', 'IsActivSmoker', 'IsChronicLungDiseasePatient',
+            'InvasivVentilation', 'IsActiveSmoker', 'IsChronicLungDiseasePatient',
             'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
             'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
             'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',

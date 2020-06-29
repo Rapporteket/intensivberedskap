@@ -39,7 +39,8 @@
 #' @export
 
 NIRberedskFigAndeler  <- function(RegData, valgtVar='alder',
-                                  erMann=9, datoFra=0, datoTil=0, #minald=0, maxald=110,
+                                  erMann=9, datoFra=0, datoTil=0,
+                                  bekr=9, #minald=0, maxald=110,
                               #skjemastatusInn=9, skjemastatusUt=9, dodSh=9, aarsakInn=9,
                               enhetsNivaa='RHF', valgtEnhet='Alle', enhetsUtvalg=0,
                            outfile='', lagFig=1, ...) {
@@ -60,6 +61,7 @@ NIRberedskFigAndeler  <- function(RegData, valgtVar='alder',
 
 
       Utvalg <- NIRUtvalgBeredsk(RegData=RegData, datoFra=datoFra, datoTil=datoTil,
+                                 bekr=bekr,
                                 #minald=minald, maxald=maxald, aarsakInn=aarsakInn,
                                 erMann=erMann) #, #dodSh=dodSh,
                                 #enhetsNivaa=enhetsNivaa, valgtEnhet=valgtEnhet,

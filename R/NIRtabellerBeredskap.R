@@ -71,7 +71,6 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
 
 
 
-
 #' Antall som er  i ECMO/respirator
 #'
 #' @param RegData beredskapsskjema
@@ -153,7 +152,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
   RespTid <- summary(RegData$RespTid, na.rm = T)
   ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
   Alder <- summary(RegData$Alder, na.rm = T)
-  AntDod <- sum(RegData$DischargedIntensivStatus==1, na.rm=T)
+  AntDod <- sum(RegData$DischargedIntensiveStatus==1, na.rm=T)
 
   med_IQR <- function(x){
     #x[is.na(x)]<-0
@@ -225,7 +224,7 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoFra='2020-01-01',
     Leversykdom = tapply(RegData$IsLiverDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
     'Nevrologisk/nevromusk.' = tapply(RegData$IsChronicNeurologicNeuromuscularPatient, Tidsvariabel, FUN=sum, na.rm = T),
     Graviditet	= tapply(RegData$Graviditet, Tidsvariabel, FUN=sum, na.rm = T),
-    'Røyker' =	tapply(RegData$IsActivSmoker, Tidsvariabel, FUN=sum, na.rm = T),
+    'Røyker' =	tapply(RegData$IsActiveSmoker, Tidsvariabel, FUN=sum, na.rm = T),
     'Pasienter med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
   )
 
@@ -335,56 +334,6 @@ ManglerIntSkjema <- function(reshID=0){
 
 
 
-#' Antall som er  i ECMO/respirator
-#'
-#' @param RegData beredskapsskjema
-#'
-#' @return
-#' @export
-#'
-statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
-
-  UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
-                             erMann=erMann, bekr=bekr)
-  # dodInt=dodInt)$RegData velgAvd=velgAvd
-  RegData <- UtData$RegData
-  N <- dim(RegData)[1]
-  ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
-  inneliggere <- is.na(RegData$DateDischargedIntensive)
-  AntPaaIntNaa <- sum(inneliggere) #N - sum(!(is.na(RegData$DateDischargedIntensive)))
-  LiggetidNaa <- as.numeric(difftime(Sys.Date(), RegData$FormDateSiste[inneliggere], units='days'))
-  LiggetidNaaGjsn <- mean(LiggetidNaa[LiggetidNaa < 90], na.rm = T)
-
-  respLiggere <- inneliggere & is.na(RegData$MechanicalRespiratorEnd) & !(is.na(RegData$MechanicalRespiratorStart) ) #Har antatt at respiratortid MÅ registreres
-  AntIrespNaa <- sum(respLiggere)
-  ResptidNaa <- as.numeric(difftime(Sys.Date(), RegData$MechanicalRespiratorStartSiste[respLiggere],
-                                    units='days'))
-  ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 90], na.rm=T)
-  #sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
-
-  ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) )
-  AntIECMONaa <- sum(ECMOLiggere) #sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
-  ECMOtidNaa <- as.numeric(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
-                                    units='days'))
-  ECMOtidNaaGjsn <- ifelse(AntIECMONaa==0, 0,
-                           mean(ECMOtidNaa[ECMOtidNaa < 90], na.rm=T))
-
-  TabHjelp <- rbind(
-    'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn),
-    'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaaGjsn),
-    'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaaGjsn)
-  )
-  colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn.)')
-  TabHjelp[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
-  TabHjelp[1:3, 3] <- paste0(sprintf('%.1f', as.numeric(TabHjelp[1:3, 3])), ' døgn')
-  xtable::xtable(TabHjelp,
-                 digits=0,
-                 align = c('l','r','r','r'),
-                 caption='Bruk av Respirator/ECMO.')
-  UtData <- list(Tab=TabHjelp, utvalgTxt=UtData$utvalgTxt, PaaIntensivNaa=inneliggere)
-  return(UtData)
-}
-
 
 #' Tabell med andel av div. variabler for koblet datasett (intensiv+beredskap)
 #' Kun ferdigstilte registreringer
@@ -412,6 +361,10 @@ AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
     c(Ant, Andel)
   }
 
+  # andelen som har registrert NAS, maks SOFA, andre diagnosar enn covid-19, sekundærårsak til innlegging på intensiv? SMR
+  # Tal på pasientar som har fått ARDS-diagnosen (obs. dette er ikkje obligatorisk). Diagnose = J80 ARDS
+
+
   TabAndeler <- rbind(
     'Menn' = AntAndel(var = RegData$erMann, N=Ntest),
     'Trakeostomi' = AntAndel(var = (RegData$Trakeostomi %in% 2:3), N=Ntest),
@@ -420,11 +373,12 @@ AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
     'ECMO-bruk' = AntAndel(var = (RegData$ECMOTid>0), N=Ntest),
     'Bukleie' =  AntAndel(var = (RegData$Bukleie>0), N=Ntest),
     'Temperatur mer enn 39gr.' =  AntAndel(var = (RegData$Temperature==3), N=Ntest),
-    'Dødelig hjerneskade' = AntAndel(var = (RegData$BrainDamage==1), N=sum(RegData$BrainDamage %in% 1:2)),
     'Overflyttet' = AntAndel(var = (RegData$AntRegPrPas>1), N=Ntest),
-    'Død på intensiv' = AntAndel(var = (RegData$DischargedIntensivStatus==1), N=Ntest),
+    'Død på intensiv' = AntAndel(var = (RegData$DischargedIntensiveStatus==1), N=Ntest),
     'Død innen 30 dager' = AntAndel(var = RegData$Dod30, N=Ntest),
-    'Respirator (int)' = AntAndel(var = (RegData$MechanicalRespirator==1), N=Ntest)
+    'Respirator (int)' = AntAndel(var = (RegData$MechanicalRespirator==1), N=Ntest),
+    'Nas registrert' = AntAndel(var = (RegData$Nas>0), N=Ntest),
+    'ARDS' = AntAndel(var = RegData$ARDS) #[which(RegData$Alder>=70)]
     #ReinnKval, Reinn, ReinnInt
   )
 
@@ -470,12 +424,12 @@ SentralmaalTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', datoT
   SentralmaalTab <- rbind(
     'Alder (år)' = fun(RegData$Alder),
     'ECMO-tid (døgn)' = fun(RegData$ECMOTid),
-    'Respiratortid (døgn)' = fun(RegData$RespTid),
+    'Respiratortid (døgn)' = fun(RegData$RespiratortidInt), #RespTid
     'NonInvasivVentilation' = fun(RegData$NonInvasivVentilation),
     'InvasivVentilation' = fun(RegData$InvasivVentilation),
-    'Liggetid (døgn)' = fun(RegData$Liggetid)
+    'Liggetid (døgn)' = fun(RegData$Liggetid),
     # 'Liggetid (b-skjema)' =
-    #   'SAPSII-skåre' = Saps2scoreNumber
+    'SAPSII-skåre' = fun(RegData$Saps2ScoreNumber)
     #   'NEMS'
 
     )
