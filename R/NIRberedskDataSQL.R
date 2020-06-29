@@ -66,7 +66,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date() ) {
 ,PatientGender
 -- ,PasientGUID
  ,PatientInRegistryGuid
--- ,PersonId Venter på at denne skal komme på plass
+ ,PersonId
 -- ,PostalCode
 ,RHF
 ,ShNavn

@@ -55,7 +55,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
       #    summarise(ARDS = sum(grepl('J80', c(ICD10_1, ICD10_2, ICD10_3, ICD10_4, ICD10_5)))>0)
 
       RegDataRedEkstra <- RegData %>% group_by(PasientID) %>%
-         summarise(#PersonId = PersonId[1],
+         summarise(
                   ExtendedHemodynamicMonitoring = first(ExtendedHemodynamicMonitoring, order_by=FormDate),
                   ARDS = sum(grepl('J80', c(ICD10_1, ICD10_2, ICD10_3, ICD10_4, ICD10_5)))>0,
                    Bilirubin = first(Bilirubin, order_by=FormDate),
@@ -117,7 +117,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
    #NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først
    #  På respirator antar man at hvis de ligger på respirator når de overflyttes
    RegDataRed <- RegData %>% group_by(PasientID) %>%
-      summarise(Alder = Alder[1],
+      summarise(PersonId = PersonId[1],
+         Alder = Alder[1],
                 PatientGender = PatientGender[1],
                 Morsdato = sort(Morsdato)[1],
                 DischargedIntensiveStatus = max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
