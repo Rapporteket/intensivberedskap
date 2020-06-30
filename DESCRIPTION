@@ -1,6 +1,6 @@
 Package: intensivberedskap
 Title: What the Package Does (One Line, Title Case)
-Version: 1.6.1
+Version: 1.7.0
 Date: 2020-06-29
 Authors@R: 
     person(given = "Lena Ringstad",
