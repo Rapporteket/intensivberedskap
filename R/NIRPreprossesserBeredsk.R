@@ -85,7 +85,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    KontinuerligDays = sum(KontinuerligDays, na.rm = T),
                    # hvis ja på en Leverdialyse = first(Leverdialyse, order_by=FormDate), #Ta ut av datadump
                    #Leukocytes = first(Leukocytes, order_by=FormDate),
-                   #MvOrCpap = first(MvOrCpap, order_by=FormDate),
+                   MvOrCpap = first(MvOrCpap, order_by=FormDate),
                   Nas = sum(Nas),
                    NEMS = sum(Nems),
                    NO = sum(No), #Hvis ja: ja, logisk var
@@ -229,8 +229,9 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                                                    tz= 'UTC', format='%Y-%m-%d %H:%M:%S')
    RegData$MechanicalRespiratorEnd <- as.POSIXlt(RegData$MechanicalRespiratorEnd,
                                                  tz= 'UTC', format='%Y-%m-%d %H:%M:%S')
+   RegData$Morsdato <- as.POSIXlt(RegData$Morsdato, tz= 'UTC', format='%Y-%m-%d')
    #De som har Morsdato før utskriving fra intensiv:
-   ind <- which(as.Date(RegData$Morsdato, format='%Y-%m-%d %H:%M:%S') <= as.Date(RegData$DateDischargedIntensive))
+   ind <- which(as.Date(RegData$Morsdato) <= as.Date(RegData$DateDischargedIntensive))
    RegData$DischargedIntensiveStatus[ind] <- 1
 
 

@@ -10,6 +10,7 @@ NIRberedskFigAndeler(
   erMann = 9,
   datoFra = 0,
   datoTil = 0,
+  bekr = 9,
   enhetsNivaa = "RHF",
   valgtEnhet = "Alle",
   enhetsUtvalg = 0,
@@ -30,6 +31,8 @@ NIRberedskFigAndeler(
 \item{datoFra}{startdato 'yyyy-mm-dd'}
 
 \item{datoTil}{sluttdato 'yyyy-mm-dd'}
+
+\item{bekr}{1-bekreftet, 0-mistenkt tilfelle}
 
 \item{enhetsUtvalg}{Gjør gruppeutvalg med eller uten sammenlikning. Se \strong{Details} for oversikt.}
 
