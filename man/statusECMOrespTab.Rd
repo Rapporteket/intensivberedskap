@@ -5,19 +5,13 @@
 \title{Antall som er  i ECMO/respirator}
 \usage{
 statusECMOrespTab(RegData, valgtRHF = "Alle", erMann = 9, bekr = 9)
-
-statusECMOrespTab(RegData, valgtRHF = "Alle", erMann = 9, bekr = 9)
 }
 \arguments{
 \item{RegData}{beredskapsskjema}
 }
 \value{
 
-
-
 }
 \description{
-Antall som er  i ECMO/respirator
-
 Antall som er  i ECMO/respirator
 }
