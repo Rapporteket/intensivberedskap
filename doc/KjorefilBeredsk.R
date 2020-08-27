@@ -188,6 +188,11 @@ erInneliggende <- function(datoer, regdata){
   map_df(datoer, auxfunc)
 }
 
+erInneliggendeMut <- function(datoer, regdata){
+  auxfunc <- function(x) {
+    x >  regdata$InnDato & (x <= regdata$UtDato)}
+  map_df(datoer, auxfunc)
+}
 
   datoer <- seq(as.Date('2020-03-01', tz= 'UTC', format="%Y-%m-%d"), Sys.Date(), by="day")
   #datoer <- seq(as.Date('2020-03-01'), today(), by="day")
@@ -195,11 +200,11 @@ erInneliggende <- function(datoer, regdata){
   #if (tidsenhet=='dag') {
     names(datoer) <- format(datoer, '%Y-%m-%d') #'%d.%B')
     aux <- erInneliggende(datoer = datoer, regdata = CoroData)
-
-    inneliggende <- colSums(aux1)
+    auxUt <- erInneliggendeMut(datoer = datoer, regdata = CoroData)
 
     inneliggende <- t(rbind(Dato = names(datoer),
-                           Inneliggende = colSums(aux1)))
+                           Inneliggende = colSums(aux),
+                           InneliggendeMut = colSums(auxUt)))
 
     write.table(inneliggende, file = 'data-raw/inneliggende.csv', sep = ';',  row.names = F, fileEncoding = 'UTF-8')
 
