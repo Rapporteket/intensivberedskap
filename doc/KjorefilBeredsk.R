@@ -189,16 +189,14 @@ erInneliggende <- function(datoer, regdata){
 }
 
 erInneliggendeMut <- function(datoer, regdata){
+  regdata <- regdata[!is.na(regdata$UtDato),]
   auxfunc <- function(x) {
-    x >  regdata$InnDato & (x <= regdata$UtDato)}
+    (x >  regdata$InnDato) & (x <= regdata$UtDato)}
   map_df(datoer, auxfunc)
 }
 
   datoer <- seq(as.Date('2020-03-01', tz= 'UTC', format="%Y-%m-%d"), Sys.Date(), by="day")
-  #datoer <- seq(as.Date('2020-03-01'), today(), by="day")
-
-  #if (tidsenhet=='dag') {
-    names(datoer) <- format(datoer, '%Y-%m-%d') #'%d.%B')
+  names(datoer) <- format(datoer, '%Y-%m-%d') #'%d.%B')
     aux <- erInneliggende(datoer = datoer, regdata = CoroData)
     auxUt <- erInneliggendeMut(datoer = datoer, regdata = CoroData)
 
@@ -207,24 +205,6 @@ erInneliggendeMut <- function(datoer, regdata){
                            InneliggendeMut = colSums(auxUt)))
 
     write.table(inneliggende, file = 'data-raw/inneliggende.csv', sep = ';',  row.names = F, fileEncoding = 'UTF-8')
-
-    RegDataAlle <- bind_cols(CoroData[ , c("PasientID", "HF", "RHF")], aux)
-
-
-    total <- RegData %>%
-      group_by(EnhNivaaVis) %>%
-      summarise(Totalt = length(unique(PasientID))) %>%
-      tr_summarize_output(grvarnavn = 'Tid')
-    TabTidEnh <-
-      RegData[,c("EnhNivaaVis", names(datoer))] %>%
-      group_by(EnhNivaaVis) %>%
-      summarise_all(sum) %>%
-      tr_summarize_output(grvarnavn = 'Tid') %>%
-      bind_rows(total) %>%
-      mutate('Hele landet' = select(., names(.)[-1]) %>% rowSums())
-    # bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Totalt")))
-    colnames(TabTidEnh)[ncol(TabTidEnh)] <- kolNavnSum
-
 
 
 
