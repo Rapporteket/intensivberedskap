@@ -162,3 +162,71 @@ test <- RegData[RegData$PatientInRegistryGuid %in% PID,
                 c('PatientInRegistryGuid', 'FormDate',"DateDischargedIntensive",
                   "MechanicalRespiratorStart", "MechanicalRespiratorEnd", 'AgeAdmitted')]
 
+
+#------------------Sjekk beregning antall inneliggende---------------------------------
+
+#Spm. Tatiana: aggregerer data først? både ferdigstilte og kladd? bare bekreftede?
+#Benytter aggregerte data ved beregning. Kan få avvik når personer er ute av intensiv og tilbake
+library(intensivberedskap)
+library(tidyverse)
+CoroDataRaa <- NIRberedskDataSQL()
+CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
+CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
+
+CoroData$UtDato <- as.Date(CoroData$DateDischargedIntensive, tz= 'UTC', format="%Y-%m-%d")
+sum(is.na(CoroData$UtDato)) #Ingen variabel som heter UtDato...
+#Evt. hent data koblet med intensivdata
+
+erInneliggende1 <- function(datoer, regdata){
+  auxfunc <- function(x) {
+    (x >  regdata$InnDato & x <= regdata$UtDato) | (x >=  regdata$InnDato & is.na( regdata$UtDato))}
+  map_df(datoer, auxfunc)
+}
+
+erInneliggende2 <- function(datoer, regdata){
+  auxfunc <- function(x) {
+    x >  regdata$InnDato & ((x <= regdata$UtDato) | is.na(regdata$UtDato))}
+  map_df(datoer, auxfunc)
+}
+
+
+  datoer <- seq(as.Date('2020-03-01', tz= 'UTC', format="%Y-%m-%d"), Sys.Date(), by="day")
+  #datoer <- seq(as.Date('2020-03-01'), today(), by="day")
+
+  #if (tidsenhet=='dag') {
+    names(datoer) <- format(datoer, '%Y-%m-%d') #'%d.%B')
+    aux1 <- erInneliggende1(datoer = datoer, regdata = CoroData)
+    aux2 <- erInneliggende2(datoer = datoer, regdata = CoroData)
+
+    inneliggende1 <- colSums(aux1)
+    inneliggende2 <- colSums(aux2)
+    sum(inneliggende1-inneliggende2)
+
+    inneliggende1 <- rbind(Dato = datoer,
+                           Inneliggende = colSums(aux1))
+
+    inneliggende2 <- rbind(Dato = datoer,
+                           Inneliggende = colSums(aux2))
+
+    inneliggende1-inneliggende2
+
+    RegDataAlle <- bind_cols(CoroData[ , c("PasientID", "HF", "RHF")], aux)
+
+
+    total <- RegData %>%
+      group_by(EnhNivaaVis) %>%
+      summarise(Totalt = length(unique(PasientID))) %>%
+      tr_summarize_output(grvarnavn = 'Tid')
+    TabTidEnh <-
+      RegData[,c("EnhNivaaVis", names(datoer))] %>%
+      group_by(EnhNivaaVis) %>%
+      summarise_all(sum) %>%
+      tr_summarize_output(grvarnavn = 'Tid') %>%
+      bind_rows(total) %>%
+      mutate('Hele landet' = select(., names(.)[-1]) %>% rowSums())
+    # bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Totalt")))
+    colnames(TabTidEnh)[ncol(TabTidEnh)] <- kolNavnSum
+
+
+
+
