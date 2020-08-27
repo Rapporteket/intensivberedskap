@@ -165,7 +165,6 @@ test <- RegData[RegData$PatientInRegistryGuid %in% PID,
 
 #------------------Sjekk beregning antall inneliggende---------------------------------
 
-#Spm. Tatiana: aggregerer data først? både ferdigstilte og kladd? bare bekreftede?
 #Benytter aggregerte data ved beregning. Kan få avvik når personer er ute av intensiv og tilbake
 library(intensivberedskap)
 library(tidyverse)
@@ -177,13 +176,13 @@ CoroData$UtDato <- as.Date(CoroData$DateDischargedIntensive, tz= 'UTC', format="
 sum(is.na(CoroData$UtDato)) #Ingen variabel som heter UtDato...
 #Evt. hent data koblet med intensivdata
 
-erInneliggende1 <- function(datoer, regdata){
-  auxfunc <- function(x) {
-    (x >  regdata$InnDato & x <= regdata$UtDato) | (x >=  regdata$InnDato & is.na( regdata$UtDato))}
-  map_df(datoer, auxfunc)
-}
+# erInneliggende1 <- function(datoer, regdata){
+#   auxfunc <- function(x) {
+#     (x >  regdata$InnDato & x <= regdata$UtDato) | (x >  regdata$InnDato & is.na( regdata$UtDato))}
+#   map_df(datoer, auxfunc)
+# }
 
-erInneliggende2 <- function(datoer, regdata){
+erInneliggende <- function(datoer, regdata){
   auxfunc <- function(x) {
     x >  regdata$InnDato & ((x <= regdata$UtDato) | is.na(regdata$UtDato))}
   map_df(datoer, auxfunc)
@@ -195,20 +194,14 @@ erInneliggende2 <- function(datoer, regdata){
 
   #if (tidsenhet=='dag') {
     names(datoer) <- format(datoer, '%Y-%m-%d') #'%d.%B')
-    aux1 <- erInneliggende1(datoer = datoer, regdata = CoroData)
-    aux2 <- erInneliggende2(datoer = datoer, regdata = CoroData)
+    aux <- erInneliggende(datoer = datoer, regdata = CoroData)
 
-    inneliggende1 <- colSums(aux1)
-    inneliggende2 <- colSums(aux2)
-    sum(inneliggende1-inneliggende2)
+    inneliggende <- colSums(aux1)
 
-    inneliggende1 <- rbind(Dato = datoer,
-                           Inneliggende = colSums(aux1))
+    inneliggende <- t(rbind(Dato = names(datoer),
+                           Inneliggende = colSums(aux1)))
 
-    inneliggende2 <- rbind(Dato = datoer,
-                           Inneliggende = colSums(aux2))
-
-    inneliggende1-inneliggende2
+    write.table(inneliggende, file = 'data-raw/inneliggende.csv', sep = ';',  row.names = F, fileEncoding = 'UTF-8')
 
     RegDataAlle <- bind_cols(CoroData[ , c("PasientID", "HF", "RHF")], aux)
 
