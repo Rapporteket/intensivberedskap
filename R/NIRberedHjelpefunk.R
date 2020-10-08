@@ -87,7 +87,7 @@ varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmit
                   'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
                   'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
                   'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
-                  'UnitId') # PatientInRegistryGuid', 'FormStatus', 'ShNavn',
+                  'UnitId', 'PersonId') # PatientInRegistryGuid', 'FormStatus', 'ShNavn',
 BeredRaa <- BeredskRaa[ ,-which(names(BeredskRaa) %in% varFellesInt)]
 #names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
 #varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
