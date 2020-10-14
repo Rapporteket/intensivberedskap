@@ -81,6 +81,6 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date() ) {
                       WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
 
 #query <- 'select * from ReadinessFormDataContract'
-      RegData <- rapbase::LoadRegData(registryName="nir", query=query, dbType="mysql")
+      RegData <- rapbase::loadRegData(registryName="nir", query=query, dbType="mysql")
       return(RegData)
 }
