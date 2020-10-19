@@ -72,6 +72,7 @@ varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmit
                   #'FormStatus', 'ShNavn',
                   'PatientInRegistryGuid', 'UnitId')
 
+#Tar bort variabler som skal hentes fra intensivskjema
 BeredRaa <- CoroDataRaa[ ,-which(names(CoroDataRaa) %in% c(varFellesInt, 'DischargedIntensiveStatus'))]
 #names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
 #varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
