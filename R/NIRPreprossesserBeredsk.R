@@ -116,6 +116,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
    #MoreThan24Hours
    #NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først
    #  På respirator antar man at hvis de ligger på respirator når de overflyttes
+   #PasientID=="EE983306-AE04-EB11-A96D-00155D0B4D16"
    RegDataRed <- RegData %>% group_by(PasientID) %>%
       summarise(PersonId = PersonId[1],
          Alder = Alder[1],
@@ -159,7 +160,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                 #                                        units = 'hours') > 12))), #Hvilke opphold som er reinnleggelse
                 FormDateSiste = nth(FormDate, ReinnNaar, order_by = FormDate),
                 #Justering av respiratortid mht. reinnleggelse. NB: Kan være reinnlagt på respirator selv om ikke reinnlagt på intensiv.
-                AntRespPas = sum(MechanicalRespirator==1, na.rm=T),
+                AntRespPas = length(MechanicalRespiratorStart)-sum(is.na(MechanicalRespiratorStart)), #sum(MechanicalRespirator==1, na.rm=T), #
                 ReinnRespTid = ifelse((AntRespPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
                                       sort(difftime(MechanicalRespiratorStart[order(MechanicalRespiratorStart)][2:AntRespPas], #sort hopper over NA
                                                     MechanicalRespiratorEnd[order(MechanicalRespiratorStart)][1:(AntRespPas-1)],
@@ -171,6 +172,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                                                           MechanicalRespiratorEnd[order(MechanicalRespiratorStart)][1:(AntRespPas-1)],
                                                           units = 'hours') > 12))), #Hvilket opphold som er siste reinnleggelse på respirator
                 MechanicalRespiratorStartSiste = nth(MechanicalRespiratorStart, ReinnRespNaar+1, order_by = MechanicalRespiratorStart),
+                #NB: MechanicalRespiratorStart/End finnes ikke i intensivskjema.
                 MechanicalRespiratorStart = first(MechanicalRespiratorStart, order_by = MechanicalRespiratorStart),
                 MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
                 EcmoStart = sort(EcmoStart)[1], #sort tar ikke med NA-verdier.

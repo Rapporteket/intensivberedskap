@@ -111,7 +111,7 @@ varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamag
             'PrimaryReasonAdmitted', 'ReshID', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
             'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
             'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
-            'PatientInRegistryGuid') #'Helseenhet', 'HelseenhetID','ShNavn',
+            'PatientInRegistryGuid', 'PersonId') #'Helseenhet', 'HelseenhetID','ShNavn',
 beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')
 BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
 

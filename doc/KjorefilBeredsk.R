@@ -162,3 +162,49 @@ test <- RegData[RegData$PatientInRegistryGuid %in% PID,
                 c('PatientInRegistryGuid', 'FormDate',"DateDischargedIntensive",
                   "MechanicalRespiratorStart", "MechanicalRespiratorEnd", 'AgeAdmitted')]
 
+
+#------------------Sjekk beregning antall inneliggende---------------------------------
+
+#Benytter aggregerte data ved beregning. Kan få avvik når personer er ute av intensiv og tilbake
+library(intensivberedskap)
+library(tidyverse)
+CoroDataRaa <- NIRberedskDataSQL()
+CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
+CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
+
+CoroData$UtDato <- as.Date(CoroData$DateDischargedIntensive, tz= 'UTC', format="%Y-%m-%d")
+sum(is.na(CoroData$UtDato)) #Ingen variabel som heter UtDato...
+#Evt. hent data koblet med intensivdata
+
+# erInneliggende1 <- function(datoer, regdata){
+#   auxfunc <- function(x) {
+#     (x >  regdata$InnDato & x <= regdata$UtDato) | (x >  regdata$InnDato & is.na( regdata$UtDato))}
+#   map_df(datoer, auxfunc)
+# }
+
+erInneliggende <- function(datoer, regdata){
+  auxfunc <- function(x) {
+    x >  regdata$InnDato & ((x <= regdata$UtDato) | is.na(regdata$UtDato))}
+  map_df(datoer, auxfunc)
+}
+
+erInneliggendeMut <- function(datoer, regdata){
+  regdata <- regdata[!is.na(regdata$UtDato),]
+  auxfunc <- function(x) {
+    (x >  regdata$InnDato) & (x <= regdata$UtDato)}
+  map_df(datoer, auxfunc)
+}
+
+  datoer <- seq(as.Date('2020-03-01', tz= 'UTC', format="%Y-%m-%d"), Sys.Date(), by="day")
+  names(datoer) <- format(datoer, '%Y-%m-%d') #'%d.%B')
+    aux <- erInneliggende(datoer = datoer, regdata = CoroData)
+    auxUt <- erInneliggendeMut(datoer = datoer, regdata = CoroData)
+
+    inneliggende <- t(rbind(Dato = names(datoer),
+                           Inneliggende = colSums(aux),
+                           InneliggendeMut = colSums(auxUt)))
+
+    write.table(inneliggende, file = 'data-raw/inneliggende.csv', sep = ';',  row.names = F, fileEncoding = 'UTF-8')
+
+
+
