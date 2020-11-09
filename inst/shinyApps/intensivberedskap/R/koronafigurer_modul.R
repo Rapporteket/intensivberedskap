@@ -18,7 +18,7 @@ koronafigurer_UI <- function(id, rhfNavn){
                  selectInput(inputId = ns("velgTidsenhet"), label="Velg tidsenhet",
                              choices = c("Dag"="dag", "Uke"="uke", "Måned"="maaned")),
                  selectInput(inputId = ns("velgAntVisning"), label="Velg antall dager",
-                             choices = c(10, 20, 30, 50, 100, 250), selected = 30),
+                             choices = c(10, 20, 30, 50, 100, 200, 300), selected = 30),
                  selectInput(inputId = ns("bekr"), label="Bekreftet/Mistenkt",
                              choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
                  ),
@@ -73,7 +73,7 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
   observe(
     switch (input$velgTidsenhet,
             "dag" = updateSelectInput(session, "velgAntVisning", label="Velg antall dager",
-                                      choices = c(10, 20, 30, 50, 100, 200), selected = 30),
+                                      choices = c(10, 20, 30, 50, 100, 200, 300), selected = 30),
             "uke" = updateSelectInput(session, "velgAntVisning", label="Velg antall uker",
                                       choices = c(4, 8, 12, 20, 40, 100), selected = 8),
             "maaned" = updateSelectInput(session, "velgAntVisning", label="Velg antall måneder",
