@@ -5,6 +5,7 @@
 #' av kvalitetsindikatorer og som kan legges ved pakken
 #'
 #' @param RegData Beredskapsskjema
+#' @param kobleInt koble på data fra intensivskjema
 #' @param skjema hvilket skjema data som skal preprosesseres tilhører
 #' 1: hoved, 2: paaror, 3: influ, 4: beredsk
 #'
@@ -12,9 +13,11 @@
 #'
 #' @export
 #'
-NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
+NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0)	#, reshID=reshID)
 {
-   #RegData <- NIRberedskDataSQL()
+   # @param skjema hvilket skjema data som skal preprosesseres tilhører
+   # 1: hoved, 2: paaror, 3: influ, 4: beredsk
+
    # Endre variabelnavn:
    #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
    RegData$Alder <- lubridate::time_length(difftime(as.Date(RegData$FormDate), as.Date(RegData$Birthdate)), 'years')
@@ -50,7 +53,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
    #Respiratortider skal hentes fra intensivskjema
    #sum(grepl('J80', BeredIntRaa[ ,c('ICD10_1', 'ICD10_2', 'ICD10_3', 'ICD10_4', 'ICD10_5')]))
 
-   if (kobletInt==1){
+   if (kobleInt==1){
       # Test <- IntData %>% group_by(PatientInRegistryGuid) %>%
       #    summarise(ARDS = sum(grepl('J80', c(ICD10_1, ICD10_2, ICD10_3, ICD10_4, ICD10_5)))>0)
 
@@ -119,6 +122,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
    #PasientID=="EE983306-AE04-EB11-A96D-00155D0B4D16"
    RegDataRed <- RegData %>% group_by(PasientID) %>%
       summarise(PersonId = PersonId[1],
+                PersonIdBC19Hash = PersonIdBC19Hash[1],
          Alder = Alder[1],
                 PatientGender = PatientGender[1],
                 Morsdato = sort(Morsdato)[1],
@@ -197,7 +201,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
 
 
    #----------------------------
-   RegData <- if (kobletInt==1) {
+   RegData <- if (kobleInt==1) {
       data.frame(cbind(RegDataRed, RegDataRedEkstra))
    } else {data.frame(RegDataRed)}
    RegData$Korona <- factor(RegData$Bekreftet, levels= 0:1, labels= c('M', 'B'))

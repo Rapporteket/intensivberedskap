@@ -57,7 +57,7 @@ CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
 BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
 
 if (dim(BeredIntRaa)[1]>0) {
-  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobletInt = 1)
+  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1)
 }
 
 

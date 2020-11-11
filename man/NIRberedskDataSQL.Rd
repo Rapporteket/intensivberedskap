@@ -2,17 +2,21 @@
 % Please edit documentation in R/NIRberedskDataSQL.R
 \name{NIRberedskDataSQL}
 \alias{NIRberedskDataSQL}
-\title{Henter data fra pårørendeskjema registrert for Intensiv og kobler til
-noen variabler fra hovedskjema.}
+\title{Hente data fra beredskapsskjema}
 \usage{
-NIRberedskDataSQL(datoFra = "2020-03-01", datoTil = Sys.Date())
+NIRberedskDataSQL(datoFra = "2020-03-01", datoTil = Sys.Date(), kobleInt = 0)
 }
 \arguments{
-\item{medH}{kobler på variabler fra hovedskjema}
+\item{datoFra}{fra og med, innleggelsesdato}
+
+\item{datoTil}{til og med, innleggelsesdato}
+
+\item{kobleInt}{koble på data fra intensivskjema 0 - nei (standard), 1 - ja}
 }
 \value{
-Henter dataramma RegData for Intensivregisteret
+Henter dataramme
 }
 \description{
-Henter data for Intensivregisterets database
+Henter data fra beredskapsskjema registrert for Intensiv og kobler til
+noen variabler fra hovedskjema.
 }

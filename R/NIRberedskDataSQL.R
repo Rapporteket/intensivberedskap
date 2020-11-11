@@ -1,15 +1,16 @@
-#' Henter data fra pårørendeskjema registrert for Intensiv og kobler til
+#' Hente data fra beredskapsskjema
+#'
+#' Henter data fra beredskapsskjema registrert for Intensiv og kobler til
 #' noen variabler fra hovedskjema.
 #'
-#' Henter data for Intensivregisterets database
+#' @param datoFra fra og med, innleggelsesdato
+#' @param datoTil til og med, innleggelsesdato
+#' @param kobleInt koble på data fra intensivskjema 0 - nei (standard), 1 - ja
 #'
-#' @param kobleInt kobler på variabler fra intensivskjema
-#'
-#' @return Henter dataramma RegData for Intensivregisteret
+#' @return Henter dataramme
 #' @export
 #'
-#'
-NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobleInt=1 ) {
+NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobleInt=0 ) {
 
 
   varBeredsk <- c("UPPER(SkjemaGUID) AS SkjemaGUID
@@ -67,6 +68,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 -- ,PasientGUID
  ,PatientInRegistryGuid
  ,PersonId
+ ,PersonIdBC19Hash
 -- ,PostalCode
 ,RHF
 ,ShNavn
@@ -96,7 +98,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
                       'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
                       'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
                       'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
-                      #'FormStatus', 'ShNavn',
+                      # 'FormStatus', 'ShNavn',
                       'PatientInRegistryGuid', 'UnitId')
 
     #Tar bort variabler som skal hentes fra intensivskjema
@@ -125,9 +127,9 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
                 'PrimaryReasonAdmitted', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
                 'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
                 'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
-                'PersonId',  #'PatientInRegistryGuid',
+                'PersonId',  # 'PatientInRegistryGuid',
                 'TerapetiskHypotermi',  'Iabp', 'Oscillator', 'No', 'Leverdialyse', 'Eeg')
-    #'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
+    # 'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
     beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn',
                    'ICD10_1', 'ICD10_2', 'ICD10_3', 'ICD10_4', 'ICD10_5')
     RegData <-  BeredIntRaa[ ,c(varMed, varFellesInt, beregnVar)] #c()]
