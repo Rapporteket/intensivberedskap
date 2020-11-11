@@ -10,7 +10,7 @@ koronafigurer_UI <- function(id, rhfNavn){
                              choices = rhfNavn
                  ),
                  selectInput(inputId = ns('valgtVar'), label='Velg variabel',
-                             choices = c('Antall innleggelser'='antreg',
+                             choices = c('Antall ny-innleggelser (ikke overf.)'='antreg',
                                          # 'Antall døde'='antdod',
                                          'Antall utskrivinger'= 'antut',
                                          'Antall inneliggende'='antinn')

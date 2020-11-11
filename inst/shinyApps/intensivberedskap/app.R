@@ -34,7 +34,7 @@ regTitle <- ifelse(paaServer,
 #---------Hente data------------
 
 if (paaServer) {
-  CoroDataRaa <- NIRberedskDataSQL()
+  CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
   # qCoro <- 'SELECT *  from ReadinessFormDataContract'
   # CoroDataRaa <- rapbase::LoadRegData(registryName= "nir", query=qCoro, dbType="mysql")
   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
@@ -53,59 +53,9 @@ if (paaServer) {
 
 #Bruk resh før preprosesserer
 CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
-#CoroData <- preprosessBeredVar(RegData = CoroData)
 
-#Koble på intensivdata. Først til bruk i artikkel
-forsteReg <- min(as.Date(CoroDataRaa$FormDate))
-if (paaServer) {
-  IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg)
-} else {
-#  IntDataRaa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= forsteReg, ]
-}
+BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
 
-#Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
-varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmittedIntensiv',
-                  'DischargedIntensiveStatus',
-                  'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
-                  'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
-                  'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
-                  #'FormStatus', 'ShNavn',
-                  'PatientInRegistryGuid', 'UnitId')
-
-#Tar bort variabler som skal hentes fra intensivskjema
-BeredRaa <- CoroDataRaa[ ,-which(names(CoroDataRaa) %in% c(varFellesInt, 'DischargedIntensiveStatus'))]
-#names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
-#varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
-BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, suffixes = c('','Int'),
-                      by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = F, all.y=F)
-#intvar <- names(BeredIntRaa)[grep('Int', names(BeredIntRaa))]
-varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamage',
-            'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis',
-            'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
-            'Glasgow', 'Graviditet', 'Hco3', 'HeartRate',
-            'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
-            'InvasivVentilation', 'IsActiveSmoker', 'IsChronicLungDiseasePatient',
-            'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
-            'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
-            'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
-            'IsObesePatient', 'Isolation', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
-            'Kontinuerlig', 'KontinuerligDays', 'Kreft', 'Leukocytes', 'MechanicalRespirator',
-            'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'Municipal','MunicipalNumber',
-            'MvOrCpap', 'Nas', 'Nems', 'NonInvasivVentilation',
-            'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',
-            'PatientTransferredFromHospitalReason',
-            'PatientTransferredToHospital', 'PatientTransferredToHospitalName',
-            'PatientTransferredToHospitalReason','Potassium',
-            'PrimaryReasonAdmitted', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
-            'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
-            'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
-            'PersonId',  #'PatientInRegistryGuid',
-            'TerapetiskHypotermi',  'Iabp', 'Oscillator', 'No', 'Leverdialyse', 'Eeg')
-#'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
-beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn',
-               'ICD10_1', 'ICD10_2', 'ICD10_3', 'ICD10_4', 'ICD10_5')
-BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
-#setdiff(c(varMed, varFellesInt, beregnVar), names(BeredIntRaa1))
 if (dim(BeredIntRaa)[1]>0) {
   BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobletInt = 1)
 }
@@ -270,8 +220,8 @@ ui <- tagList(
                                        'Respiratortid, totalt' = 'RespiratortidInt',
                                        'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
                                        'Respiratortid, invasiv' = 'respiratortidInv',
-                                       'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber',
-                                       'Spesielle tiltak' = 'spesTiltak'
+                                       'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber'
+                                      #,'Spesielle tiltak' = 'spesTiltak'
                                       #? UrineOutput
                                       )
                           ),
@@ -419,11 +369,11 @@ server <- function(input, output, session) {
       shinyjs::hide(id = 'CoroRappTxt')
       hideTab(inputId = "hovedark", target = "Abonnement")
     }
-    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu'))) {  #(brukernavn == 'jlaake') {
+    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'mariawa-he'))) {  #(brukernavn == 'jlaake') {
       shinyjs::hide(id = 'lastNed_dataBeredNIRraa')
       shinyjs::hide(id = 'lastNed_dataBeredNIR')
     }
-    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'jlaake'))) { #jlaake-ikke datafiler
+    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'jlaake', 'mariawa-he'))) { #jlaake-ikke datafiler
       hideTab(inputId = "hovedark", target = "Artikkelarbeid")
       #hideTab(inputId = "hovedark", target = "Fordelingsfigurer")
     }
@@ -779,16 +729,6 @@ server <- function(input, output, session) {
 
   BeredIntPasArt <- BeredIntPas[which(BeredIntPas$Bekreftet==1), ]# 2020-05-11),
 
-# observe({
-#   print(input$datoValgArt[1])
-#   print(dim(BeredIntPas)[1])})
-  # BeredIntPasArt <- BeredIntPas[intersect(
-  # intersect(which(BeredIntPas$InnDato < as.Date(input$datoValgArt[1])), # 2020-05-11),
-  #                                         which(BeredIntPas$InnDato > as.Date(input$datoValgArt[2]))),
-  #                                         which(BeredIntPas$Bekreftet==1)), ]
-  # BeredIntPasArt <- BeredIntPas[(BeredIntPas$InnDato < input$datoValgArt[1]) &
-  #                                         (BeredIntPas$InnDato > input$datoValgArt[2]) &
-  #                                         (BeredIntPas$Bekreftet==1), ]
   #Samme pasienter i råfil:
   BeredIntRaaArt <- BeredIntRaa[
     which(sort(BeredIntRaa$PatientInRegistryGuid) %in% sort(BeredIntPasArt$PasientID)), ]

@@ -6,23 +6,24 @@
 #'
 #' @return
 #' @export
-antallTidUtskrevneNIRberedskap <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
-                            bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
+antallTidUtskrevneNIRberedskap <- function(RegData, tidsenhet='dag', erMann=9, resp=9,
+                                           datoFra=0, datoTil=Sys.Date(), bekr=9, skjemastatus=9,
+                                           dodInt=9, valgtRHF='Alle', velgAvd=0){
   #valgtEnhet representerer eget RHF/HF
 
-  UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann,
+  UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=datoFra, datoTil=datoTil, erMann=erMann,
                              bekr=bekr, skjemastatus=skjemastatus, resp=resp,
                              dodInt=dodInt) # Kun døde på intensiv telles
 
   RegDataAlle <- UtData$RegData
   RegDataAlle$UtDato <- as.Date(RegDataAlle$DateDischargedIntensive, tz= 'UTC', format="%Y-%m-%d")
 
-  if (datoFra != 0) {RegDataAlle <- RegDataAlle[which(RegDataAlle$UtDato >= datoFra), ]} # filtrerer på dato
+  if (datoFra != 0) {RegDataAlle <- RegDataAlle[which(RegDataAlle$UtDato >= datoFra) & which(RegDataAlle$UtDato <= datoTil), ]} # filtrerer på dato
 
   RegDataAlle$TidsVar <- switch (tidsenhet,
-                                 dag = factor(format(RegDataAlle$UtDato, '%d.%B'),
+                                 dag = factor(format(RegDataAlle$UtDato, '%d.%b'),
                                               levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$UtDato, na.rm = T),
-                                                                      by=paste0('-1 day'))), '%d.%B')),
+                                                                      by=paste0('-1 day'))), '%d.%b')),
                                  uke = factor(paste0('Uke ', format(RegDataAlle$UtDato, '%V')),
                                               levels = paste0('Uke ', format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$UtDato, na.rm = T),
                                                                                      by=paste0('-1 week'))), '%V'))),
@@ -133,7 +134,7 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
   datoer <- seq(if (datoFra!=0) as.Date(datoFra, tz= 'UTC', format="%Y-%m-%d") else min(RegDataAlle$InnDato), today(), by="day")
 
   if (tidsenhet=='dag') {
-    names(datoer) <- format(datoer, '%d.%B')
+    names(datoer) <- format(datoer, '%d.%b')
     aux <- erInneliggende(datoer = datoer, regdata = RegDataAlle)
     RegDataAlle <- bind_cols(RegDataAlle[ , c("PasientID", "HF", "RHF")], aux)
   } else {
