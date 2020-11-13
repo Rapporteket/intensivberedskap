@@ -35,11 +35,24 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0)	#, reshID=reshID)
 
 
    #Konvertere boolske variable fra tekst til boolske variable...
-   TilLogiskeVar <- function(Skjema){
+
+   #mat <- Skjema
+   # test <- lessR::Recode(data=Skjema, old_vars = names(Skjema), new.vars=NULL,
+   #                       old=c('False', 'True'), new = c(FALSE, TRUE), quiet=TRUE)
+   # test <- lessR::Recode(data=Skjema, old_vars = Impella, new.vars=NULL,
+   #                       old=c('False', 'True'), new = c(FALSE, TRUE), quiet=TRUE)
+
+      TilLogiskeVar <- function(Skjema){
       verdiGML <- c('True','False')
       verdiNY <- c(TRUE,FALSE)
       mapping <- data.frame(verdiGML,verdiNY)
-      LogVar <- names(Skjema)[which(Skjema[1,] %in% verdiGML)]
+      LogVar <- names(Skjema)[unique(which(Skjema[1,] %in% verdiGML), which(Skjema[15,] %in% verdiGML))]
+      LogVar <- unique(c(LogVar,
+                       "Astma", "Diabetes", "Graviditet", "IsActiveSmoker", "IsChronicLungDiseasePatient",
+                       "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
+                       "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
+                       "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
+                       "IsObesePatient", "IsRiskFactor", "Kreft"))
       if (length(LogVar)>0) {
          for (k in 1:length(LogVar)) {
             Skjema[,LogVar[k]] <- mapping$verdiNY[match(Skjema[,LogVar[k]], mapping$verdiGML)]
@@ -56,6 +69,19 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0)	#, reshID=reshID)
    if (kobleInt==1){
       # Test <- IntData %>% group_by(PatientInRegistryGuid) %>%
       #    summarise(ARDS = sum(grepl('J80', c(ICD10_1, ICD10_2, ICD10_3, ICD10_4, ICD10_5)))>0)
+      TilLogiskeVar <- function(Skjema){
+         verdiGML <- c('True','False')
+         verdiNY <- c(TRUE,FALSE)
+         mapping <- data.frame(verdiGML,verdiNY)
+         LogVar <- c('Impella', 'Intermitterende', 'Kontinuerlig', 'No')
+         if (length(LogVar)>0) {
+            for (k in 1:length(LogVar)) {
+               Skjema[,LogVar[k]] <- mapping$verdiNY[match(Skjema[,LogVar[k]], mapping$verdiGML)]
+            }}
+         return(Skjema)
+      }
+
+      RegData <- TilLogiskeVar(RegData)
 
       RegDataRedEkstra <- RegData %>% group_by(PasientID) %>%
          summarise(
@@ -75,7 +101,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0)	#, reshID=reshID)
                    #Icp = first(Icp, order_by=FormDate), #Fjernes fra datadump
                    #Hyperbar = first(Hyperbar, order_by=FormDate), #Fjernes fra datadump
                    HeartRate = first(HeartRate, order_by=FormDate),
-                   Impella = sum(Impella, na.rm = T), #Hvis ja på en: ja, #Logisk variabel
+                   Impella = sum(Impella, na.rm = T), #Hvis ja på en: ja, #Logisk variabel. Alle har False eller tom
                    Intermitterende = sum(Intermitterende, na.rm = T), #Hvis ja på en: ja
                    IntermitterendeDays = sum(IntermitterendeDays, na.rm = T),
                    InvasivVentilation = sum(InvasivVentilation, na.rm = T),
@@ -95,6 +121,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0)	#, reshID=reshID)
                    NonInvasivVentilation = sum(NonInvasivVentilation, na.rm=T),
                    #Oscillator = first(Oscillator, order_by=FormDate),
                    Potassium = first(Potassium, order_by=FormDate),
+                  PersonId = PersonId[1],
                    PrimaryReasonAdmitted = first(PrimaryReasonAdmitted, order_by=FormDate),
                    RespiratortidInt = sum(respiratortid, na.rm = T),
                    Saps2Score = first(Saps2Score, order_by=FormDate),
@@ -126,7 +153,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0)	#, reshID=reshID)
          Alder = Alder[1],
                 PatientGender = PatientGender[1],
                 Morsdato = sort(Morsdato)[1],
-                DischargedIntensiveStatus = max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
+                DischargedIntensiveStatus = sort(DischargedIntensiveStatus, decreasing = T)[1], #max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
                 Overf = max(Overf),
                 Graviditet = sum(Graviditet)>0,
                 Astma  = sum(Astma)>0,

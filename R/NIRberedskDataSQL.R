@@ -101,38 +101,40 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
                       # 'FormStatus', 'ShNavn',
                       'PatientInRegistryGuid', 'UnitId')
 
-    #Tar bort variabler som skal hentes fra intensivskjema
-    BeredDataRaa <- BeredDataRaa[ ,-which(names(BeredDataRaa) %in% c(varFellesInt, 'DischargedIntensiveStatus'))]
+    #varFellesInt <- intersect(sort(names(BeredDataRaa)), sort(names(IntDataRaa)))
 
-    BeredIntRaa <- merge(BeredDataRaa, IntDataRaa, suffixes = c('','Int'),
-                          by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = F, all.y=F)
+    #Tar bort variabler som skal hentes fra intensivskjema
+    BeredDataRaa <- BeredDataRaa[ ,-which(names(BeredDataRaa) %in% c(varFellesInt))] #, 'DischargedIntensiveStatus'
+
+    BeredIntRaa <- merge(BeredDataRaa, IntDataRaa[,-which(names(IntDataRaa) == 'ReshId')], suffixes = c('','Int'),
+                          by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = T, all.y=F)
     #varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
-    varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamage',
-                'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis',
-                'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
-                'Glasgow', 'Graviditet', 'Hco3', 'HeartRate',
-                'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
-                'InvasivVentilation', 'IsActiveSmoker', 'IsChronicLungDiseasePatient',
-                'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
-                'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
-                'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
-                'IsObesePatient', 'Isolation', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
-                'Kontinuerlig', 'KontinuerligDays', 'Kreft', 'Leukocytes', 'MechanicalRespirator',
-                'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'Municipal','MunicipalNumber',
-                'MvOrCpap', 'Nas', 'Nems', 'NonInvasivVentilation',
-                'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',
-                'PatientTransferredFromHospitalReason',
-                'PatientTransferredToHospital', 'PatientTransferredToHospitalName',
-                'PatientTransferredToHospitalReason','Potassium',
-                'PrimaryReasonAdmitted', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
-                'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
-                'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
-                'PersonId',  # 'PatientInRegistryGuid',
-                'TerapetiskHypotermi',  'Iabp', 'Oscillator', 'No', 'Leverdialyse', 'Eeg')
+    # varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamage',
+    #             'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis',
+    #             'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
+    #             'Glasgow', 'Graviditet', 'Hco3', 'HeartRate',
+    #             'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
+    #             'InvasivVentilation', 'IsActiveSmoker', 'IsChronicLungDiseasePatient',
+    #             'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
+    #             'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
+    #             'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
+    #             'IsObesePatient', 'Isolation', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
+    #             'Kontinuerlig', 'KontinuerligDays', 'Kreft', 'Leukocytes', 'MechanicalRespirator',
+    #             'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'Municipal','MunicipalNumber',
+    #             'MvOrCpap', 'Nas', 'Nems', 'NonInvasivVentilation',
+    #             'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',
+    #             'PatientTransferredFromHospitalReason',
+    #             'PatientTransferredToHospital', 'PatientTransferredToHospitalName',
+    #             'PatientTransferredToHospitalReason','Potassium',
+    #             'PrimaryReasonAdmitted', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
+    #             'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
+    #             'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
+    #             'PersonId',  # 'PatientInRegistryGuid',
+    #             'TerapetiskHypotermi',  'Iabp', 'Oscillator', 'No', 'Leverdialyse', 'Eeg')
     # 'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
-    beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn',
-                   'ICD10_1', 'ICD10_2', 'ICD10_3', 'ICD10_4', 'ICD10_5')
-    RegData <-  BeredIntRaa[ ,c(varMed, varFellesInt, beregnVar)] #c()]
+    # beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn',
+    #                'ICD10_1', 'ICD10_2', 'ICD10_3', 'ICD10_4', 'ICD10_5')
+    RegData <-  BeredIntRaa #[ ,c(varMed, varFellesInt, beregnVar)] #c()]
 
     #setdiff(c(varMed, varFellesInt, beregnVar), names(BeredIntRaa1))
 

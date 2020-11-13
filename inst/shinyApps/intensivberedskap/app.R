@@ -288,17 +288,20 @@ ui <- tagList(
                       )
              ), #tab abonnement
 
-#-----------Artikkelarbeid------------
-             tabPanel(p("Artikkelarbeid",
+#-----------Registeradmin.------------
+             tabPanel(p("Registeradmin.",
                         title='Data til artikkel'),
-                      value = 'Artikkelarbeid',
+                      value = 'Registeradmin.',
                       sidebarLayout(
                         sidebarPanel(width = 4,
-                                     h3('Alle Covidpasienter med bekreftet diagnose'),
-                                     h4('Koblet RÅdatatsett: Covid-opphold og tilhørende intensivskjema'),
+                                     h3('Alle Covidpasienter i beredskapsskjema, samt data fra tilhørende intensivskjema'),
+                                     h5('Der variabelen finnes i begge, hentes den stort sett fra intensivskjema. Merk at ikke
+                                        alle skjema er ferdigstilte.'),
+                                     h4('Koblede RÅdata, opphold'),
                                      downloadButton(outputId = 'lastNed_dataBeredNIRraa', label='Last ned rådata'),
                                      br(),
-                                     h4('Koblet datatsett: Covid-pasienter'),
+                                     h4('Koblet aggregert datatsett: Covid-pasienter'),
+                                     h5('Inneholder bare variabler hvor vi har definert aggregeringsregler'),
                                      downloadButton(outputId = 'lastNed_dataBeredNIR', label='Last ned data'),
                                      br(),
                                      br(),
@@ -374,7 +377,7 @@ server <- function(input, output, session) {
       shinyjs::hide(id = 'lastNed_dataBeredNIR')
     }
     if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'jlaake', 'mariawa-he'))) { #jlaake-ikke datafiler
-      hideTab(inputId = "hovedark", target = "Artikkelarbeid")
+      hideTab(inputId = "hovedark", target = "Registeradmin.")
       #hideTab(inputId = "hovedark", target = "Fordelingsfigurer")
     }
      #print(brukernavn)
@@ -724,14 +727,14 @@ server <- function(input, output, session) {
 
 
 
-  #-----------Artikkelarbeid------------
+  #-----------Registeradmin.------------
   #CoroDataRaa <- NIRberedskDataSQL()
 
-  BeredIntPasArt <- BeredIntPas[which(BeredIntPas$Bekreftet==1), ]# 2020-05-11),
+  BeredIntPasBekr <- BeredIntPas[which(BeredIntPas$Bekreftet==1), ]# 2020-05-11),
 
   #Samme pasienter i råfil:
-  BeredIntRaaArt <- BeredIntRaa[
-    which(sort(BeredIntRaa$PatientInRegistryGuid) %in% sort(BeredIntPasArt$PasientID)), ]
+  # BeredIntRaaArt <- BeredIntRaa[
+  #   which(sort(BeredIntRaa$PatientInRegistryGuid) %in% sort(BeredIntPasBekr$PasientID)), ]
 
   output$lastNed_dataBeredNIRraa <- downloadHandler(
     filename = function(){
@@ -746,19 +749,19 @@ server <- function(input, output, session) {
       paste0('BeredIntPas', Sys.Date(), '.csv')
     },
     content = function(file, filename){
-      write.csv2(BeredIntPasArt, file, row.names = F, na = '')
+      write.csv2(BeredIntPas, file, row.names = F, na = '')
     })
 #})
 
   observe({
 
-    AndelerTab <- AndelerTab(RegData=BeredIntPasArt,
+    AndelerTab <- AndelerTab(RegData=BeredIntPasBekr,
                              #datoFra = input$datoValgArt[1], datoTil = input$datoValgArt[2],
                          erMann=as.numeric(input$erMannArt), valgtRHF='Alle') #,bekr=9, dodInt=9, resp=9, minald=0, maxald=110)
 
 output$tabAndeler <- renderTable(AndelerTab$Tab, rownames = T, digits=0, spacing="xs")
 
-SentralmaalTab <- SentralmaalTab(RegData=BeredIntPasArt,
+SentralmaalTab <- SentralmaalTab(RegData=BeredIntPasBekr,
                                  #datoFra = input$datoValgArt[1], datoTil = input$datoValgArt[2],
                          erMann=as.numeric(input$erMannArt), valgtRHF='Alle')
 output$tabSentralmaal <- renderTable(SentralmaalTab$Tab, rownames = T, digits=1, spacing="xs") #
