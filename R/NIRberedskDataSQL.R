@@ -98,8 +98,8 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
                       'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
                       'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
                       'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
-                      # 'FormStatus', 'ShNavn',
-                      'PatientInRegistryGuid', 'UnitId')
+                      # 'FormStatus', 'ShNavn', 'PatientInRegistryGuid',
+                      'UnitId')
 
     #varFellesInt <- intersect(sort(names(BeredDataRaa)), sort(names(IntDataRaa)))
 

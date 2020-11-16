@@ -294,14 +294,17 @@ ui <- tagList(
                       value = 'Registeradmin.',
                       sidebarLayout(
                         sidebarPanel(width = 4,
-                                     h3('Alle Covidpasienter i beredskapsskjema, samt data fra tilhørende intensivskjema'),
-                                     h5('Der variabelen finnes i begge, hentes den stort sett fra intensivskjema. Merk at ikke
-                                        alle skjema er ferdigstilte.'),
+                                     h3('Data fra beredskapsskjema og tilhørende intensivskjema'),
+                                     h5('Rådata inneholder alle beredskapsskjema og alle variabler fra tilhørende
+                                     intensivskjema hvis dette finnes. Der variabelen finnes i begge, hentes den stort
+                                     sett fra intensivskjema. Merk at ikke alle beredskapsskjema er ferdigstilte.'),
                                      h4('Koblede RÅdata, opphold'),
                                      downloadButton(outputId = 'lastNed_dataBeredNIRraa', label='Last ned rådata'),
                                      br(),
                                      h4('Koblet aggregert datatsett: Covid-pasienter'),
-                                     h5('Inneholder bare variabler hvor vi har definert aggregeringsregler'),
+                                     h5('Inneholder alle registrerte pasienter som har ferdigstilt intensivskjema tilknyttet
+                                        alle sine beredskapsskjema. Datasettet inneholder også bare de variabler
+                                        hvor vi har definert aggregeringsregler'),
                                      downloadButton(outputId = 'lastNed_dataBeredNIR', label='Last ned data'),
                                      br(),
                                      br(),

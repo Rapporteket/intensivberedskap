@@ -19,9 +19,39 @@ knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'U
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 library(intensivberedskap)
-library(tidyverse)
-CoroData <- NIRberedskDataSQL()
-RegData <- NIRPreprosessBeredsk(CoroData)
+CoroData <- NIRberedskDataSQL(kobleInt = 1)
+RegData <- NIRPreprosessBeredsk(RegData = CoroData, kobleInt = 1)
+
+ CoroSjekk <- CoroData[which(CoroData$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+                       c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate',
+                         "PatientInRegistryGuidInt", "PersonId")]
+ BeredDataRaa[which(BeredDataRaa$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+                      c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate',
+                        "PersonId")]
+ IntDataRaa[which(IntDataRaa$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+            c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate', "PersonId")]
+
+PersonId <-  '0x2EE6AD0CF8F2F06EC10EAD46C08B2FA5F965C63215A332A2E0707ABDF9E5A33E'
+RegData$PersonId==PersonId
+which(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)]== PersonId)
+RegData$PatientInRegistryGuid[21]
+
+
+RegData <- CoroData
+
+RegData[which(RegData$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+         c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate', "PatientInRegistryGuidInt")]
+
+as.data.frame(RegDataRed[RegDataRed$PasientID == "C47F1C66-2F11-EB11-A96D-00155D0B4D16", ])
+
+IntDataRaa[IntDataRaa$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16",
+           c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate')]
+
+RegData <- NIRPreprosessBeredsk(RegData <- CoroData)
+RegData[which(is.na(RegData$DateDischargedIntensive) & RegData$ShNavn == 'Lovisenberg'), ]
+
+
+
 
 statusECMOrespTab(RegData)$Tab
 
