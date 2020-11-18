@@ -64,7 +64,7 @@ datoFraInf <- '2020-09-28'
 queryInflu <- paste0('SELECT * FROM InfluensaFormDataContract
             WHERE cast(FormDate as date) BETWEEN \'', datoFraInf, '\' AND \'', Sys.Date(), '\'')
 InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
-InfluData <- intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
+#InfluData <- intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------
 
