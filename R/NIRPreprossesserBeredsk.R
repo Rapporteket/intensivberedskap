@@ -77,10 +77,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0)	#, reshID=reshID)
       pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
       RegData <- RegData[-which(RegData$PersonId %in% pasUint), ]
 
-      # test <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-      # "C47F1C66-2F11-EB11-A96D-00155D0B4D16"
-      # RegData[which(RegData$PersonId == PersonId), 'PasientID']
-
       RegDataRedEkstra <- RegData %>% group_by(PasientID) %>%
          summarise(
                   ExtendedHemodynamicMonitoring = first(ExtendedHemodynamicMonitoring, order_by=FormDate),
@@ -137,11 +133,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0)	#, reshID=reshID)
                    VasoactiveInfusion = min(VasoactiveInfusion), #1-ja, 2-nei. Hvis ja på en:ja
          )
    }
-   #DateAdmittedIntensive                      DaysAdmittedIntensiv
-   #DeadPatientDuring24Hours                   TransferredStatus
-   # PatientTransferredFromHospital             PatientTransferredFromHospitalName
-   # PatientTransferredToHospital               PatientTransferredToHospitalName
-   #MoreThan24Hours
+
    #NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først
    #  På respirator antar man at hvis de ligger på respirator når de overflyttes
    #PasientID=="EE983306-AE04-EB11-A96D-00155D0B4D16"

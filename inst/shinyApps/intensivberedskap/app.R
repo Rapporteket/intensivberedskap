@@ -60,6 +60,11 @@ if (dim(BeredIntRaa)[1]>0) {
   BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1)
 }
 
+datoFraInf <- '2020-09-28'
+queryInflu <- paste0('SELECT * FROM InfluensaFormDataContract
+            WHERE cast(FormDate as date) BETWEEN \'', datoFraInf, '\' AND \'', Sys.Date(), '\'')
+InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
+InfluData <- intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------
 
@@ -190,7 +195,7 @@ ui <- tagList(
 
                                   ))
                       ) #main
-             ), #tab Tabeller
+             ), #tab Oversikt
 
 #------------Figurer-----------------------------------
              tabPanel("Antall intensivpasienter",
@@ -264,13 +269,82 @@ ui <- tagList(
                )
              ), #tab Datakvalitet
 
+#------------Influensa-----------------------
+#Resultater fra influensaskjema
+tabPanel(title = 'Influensa',
+         value = 'Influensa',
+          sidebarPanel(id = 'brukervalgInfluensa',
+                       width = 3,
+                       #uiOutput('CoroRappTxt'),
+                       h3('Influensarapport med samling av resultater'),
+                        h5('Influensarapporten kan man få regelmessig tilsendt på e-post.
+                           Gå til fanen "Abonnement" for å bestille dette.'),
+                       br(),
+                       downloadButton(outputId = 'InfluRapp.pdf', label='Last ned Influensarapport', class = "butt"),
+                       tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
+                       br(),
+                       br(),
+                       #h3('Gjør filtreringer/utvalg:'),
+                       #br(),
+
+                       # selectInput(inputId = "valgtRHF", label="Velg RHF",
+                       #             choices = rhfNavn
+                       # ),
+                       # selectInput(inputId = "bekr", label="Bekreftet/Mistenkt",
+                       #             choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
+                       # ),
+                       # selectInput(inputId = "skjemastatus", label="Skjemastatus",
+                       #             choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
+                       # ),
+                       # selectInput(inputId = "resp", label="Respiratorbehandlet",
+                       #             choices = c("Alle"=9, "Ja"=1, "Nei"=2)
+                       # ),
+                       # selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
+                       #             choices = c("Alle"=9, "Død"=1, "Levende"=0)
+                       # ),
+                       # selectInput(inputId = "erMann", label="Kjønn",
+                       #             choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+                       # ),
+                       # dateRangeInput(inputId = 'datovalgStart', start = startDato, end = idag, #'2020-05-10',
+                       #                label = "Tidsperiode", separator="t.o.m.", language="nb"
+                       # ),
+                       # sliderInput(inputId="alder", label = "Alder",
+                       #             min = 0, max = 110,
+                       #             value = c(0, 110),
+                       #             step = 10
+                       # ),
+                       # br(),
+                       # actionButton("tilbakestillValg", label="Tilbakestill valg")
+
+                       # selectInput(inputId = 'enhetsGruppe', label='Enhetgruppe',
+                       #             choices = c("RHF"=1, "HF"=2, "Sykehus"=3)
+                       # ),
+                       # dateRangeInput(inputId = 'datovalg', start = startDato, end = idag,
+                       #                label = "Tidsperiode", separator="t.o.m.", language="nb" #)
+                       # ),
+          ),
+          mainPanel(width = 9,
+                    h3('Resultater fra intensivregisterets influensaregistrering'),
+                    h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
+                    h5('Siden er under utvikling... ', style = "color:red"),
+                    br(),
+                    fluidRow(),
+
+                    #h3('Antall ny-innlagte pasienter, siste 10 dager'),
+                    #h4('NB: Inkluderer ikke overføringer mellom intensivenheter'),
+                    #uiOutput('utvalgHoved'),
+                    #tableOutput('tabTidEnhet'),
+                    br(),
+                    fluidRow()
+          ) #main
+), #Influensaresultater
 #-----------Abonnement--------------------------------
              tabPanel(p("Abonnement",
                         title='Bestill automatisk utsending av rapporter på e-post'),
                       value = 'Abonnement',
                       sidebarLayout(
                         sidebarPanel(width = 3,
-                                     selectInput("subscriptionRep", "Dokument:", c("Koronarapport")),
+                                     selectInput("subscriptionRep", "Dokument:", c("Koronarapport", "Influensarapport")),
                                      selectInput("subscriptionFreq", "Frekvens:",
                                                  list(Månedlig="Månedlig-month",
                                                       Ukentlig="Ukentlig-week",
@@ -295,16 +369,17 @@ ui <- tagList(
                       sidebarLayout(
                         sidebarPanel(width = 4,
                                      h3('Data fra beredskapsskjema og tilhørende intensivskjema'),
+                                     h4('Koblede RÅdata, opphold'),
                                      h5('Rådata inneholder alle beredskapsskjema og alle variabler fra tilhørende
                                      intensivskjema hvis dette finnes. Der variabelen finnes i begge, hentes den stort
                                      sett fra intensivskjema. Merk at ikke alle beredskapsskjema er ferdigstilte.'),
-                                     h4('Koblede RÅdata, opphold'),
                                      downloadButton(outputId = 'lastNed_dataBeredNIRraa', label='Last ned rådata'),
+                                     br(),
                                      br(),
                                      h4('Koblet aggregert datatsett: Covid-pasienter'),
                                      h5('Inneholder alle registrerte pasienter som har ferdigstilt intensivskjema tilknyttet
-                                        alle sine beredskapsskjema. Datasettet inneholder også bare de variabler
-                                        hvor vi har definert aggregeringsregler'),
+                                        alle sine beredskapsskjema. Datasettet inneholder bare de variabler
+                                        hvor vi har definert aggregeringsregler.'),
                                      downloadButton(outputId = 'lastNed_dataBeredNIR', label='Last ned data'),
                                      br(),
                                      br(),
@@ -429,7 +504,15 @@ server <- function(input, output, session) {
                                  reshID = reshID) #Vurder å ta med tidsinndeling eller startdato
       }
     )
-  })
+    })
+    output$InfluRapp.pdf <- downloadHandler(
+      filename = function(){
+        paste0('InfluensaRapport', Sys.time(), '.pdf')},
+      content = function(file){
+        henteSamlerapporterBered(file, rnwFil="NIRinfluensa.Rnw") #Vurder å ta med tidsinndeling eller startdato
+      }
+    )
+
 
   output$CoroRappTxt <- renderUI(tagList(
     h3(HTML('Coronarapport med samling av resultater')),
@@ -621,10 +704,10 @@ server <- function(input, output, session) {
     )
     email <- rapbase::getUserEmail(session)
 
-    # if (input$subscriptionRep == "Koronarapport") {
-    #   synopsis <- "Rapporteket-Pandemi: Koronarapport"
-    #   rnwFil <- "KoronaRapport.Rnw" #Navn på fila
-    # }
+    if (input$subscriptionRep == "Intensivrapport") {
+      synopsis <- "NIR-Beredskap/Rapporteket: Intensivrapport"
+      rnwFil <- "NIRinfluensa.Rnw" #Navn på fila
+    }
     # fun <- "abonnementKorona"
     # paramNames <- c('rnwFil', 'brukernavn', "reshID") #, "valgtEnhet")
     # paramValues <- c(rnwFil, brukernavn, reshID) #, as.character(input$valgtEnhetabb))
