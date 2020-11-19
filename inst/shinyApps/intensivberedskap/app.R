@@ -704,8 +704,8 @@ server <- function(input, output, session) {
     )
     email <- rapbase::getUserEmail(session)
 
-    if (input$subscriptionRep == "Intensivrapport") {
-      synopsis <- "NIR-Beredskap/Rapporteket: Intensivrapport"
+    if (input$subscriptionRep == "Influensarapport") {
+      synopsis <- "NIR-Beredskap/Rapporteket: Influensarapport"
       rnwFil <- "NIRinfluensa.Rnw" #Navn på fila
     }
     # fun <- "abonnementKorona"
