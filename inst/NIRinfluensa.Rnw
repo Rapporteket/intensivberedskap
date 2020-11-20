@@ -123,6 +123,7 @@ Resultatene er oppsummert i tabeller som viser antall influensatilfeller per uke
 \item Skjema uten spesifikasjon av diagnose, er kategorisert som mistenkte influensatilfeller.
 \item Start av influensasesongen 2020/21 er uke 40 i 2020.
 \item Rapporten er basert på alle registreringer til og med \Sexpr{Sys.Date()-1}.
+\item Bare uker hvor det er registrerte tilfeller, vises i tabellene. (Dvs. uker med 0 registreringer vises ikke.)
 % NB: Innleggelesesdato ser ut til å være identisk med FormDate!
 \end{itemize}
 
@@ -207,7 +208,7 @@ command <- paste0(paste0('& \\multicolumn{2}{l}{', navnRHF, '} ', collapse=''), 
 add.to.row$command <- command
 print(xtable::xtable(TabUkeRHFFerdig[indAntRader,], digits=0,
 		caption=paste0('Influensatilfeller per uke og region, basert på kun ferdigstilte influensaskjema, sesongen',
-sesongTxt,'. (B - bekreftet, M - mistenkt)')),
+sesongTxt,'. (B - bekreftet, M - mistenkt)', ' Uker med 0 tilfeller vises ikke.')),
 		add.to.row = add.to.row,
 		sanitize.rownames.function = identity)
 @
@@ -218,7 +219,7 @@ sesongTxt,'. (B - bekreftet, M - mistenkt)')),
 
 <<'TabUkeTot', results='asis'>>=
 print(xtable::xtable(TabUkeTot[indAntRader,], digits=0, #align=c('l', rep('r', ncol(TabUkeTot))),
-		caption=paste0('Antall influensatilfeller sesongen', sesongTxt, '.')),
+		caption=paste0('Antall influensatilfeller sesongen', sesongTxt, '.', ' Uker med 0 tilfeller vises ikke.')),
 		#Totalt antall skjema er antall registrerte influensaskjema.'),
 		sanitize.rownames.function = identity)
 @
@@ -228,7 +229,8 @@ print(xtable::xtable(TabUkeTot[indAntRader,], digits=0, #align=c('l', rep('r', n
 
 <<'TabUkeTotferdig', results='asis'>>=
 print(xtable::xtable(TabUkeTotFerdig[indAntRader,], digits=0, #align=c('l', rep('r', ncol(TabUkeTot))),
-		caption=paste0('Antall influensatilfeller basert på ferdigstilte skjema, sesongen', sesongTxt,'.')),
+		caption=paste0('Antall influensatilfeller basert på ferdigstilte skjema, sesongen', sesongTxt,'.',
+		               ' Uker med 0 tilfeller vises ikke.')),
 		#Totalt antall skjema er antall registrerte influensaskjema.'),
 		sanitize.rownames.function = identity)
 @

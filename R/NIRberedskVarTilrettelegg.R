@@ -204,9 +204,9 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
             tittel <- 'Liggetid'
             if (figurtype %in% c('gjsnGrVar', 'gjsnTid')) {
                   tittel <- 'liggetid'}
-            gr <- c(0, 1, 2, 3, 4, 5, 6, 7, 14, 1000)
+            gr <- c(0, 1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 1000)
             RegData$VariabelGr <- cut(RegData$Liggetid, breaks=gr, include.lowest=TRUE, right=FALSE)
-            grtxt <- c('(0-1)','[1-2)','[2-3)','[3-4)','[4-5)','[5-6)','[6-7)','[7-14)','14+')
+            grtxt <- c('(0-1)','[1-2)','[2-3)','[3-4)','[4-5)','[5-6)','[6-7)','[7-14)','[14-21)','[21-28)','28+')
             xAkseTxt <- 'Liggetid (døgn)'
       }
 

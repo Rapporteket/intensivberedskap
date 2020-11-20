@@ -60,11 +60,32 @@ if (dim(BeredIntRaa)[1]>0) {
   BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1)
 }
 
-datoFraInf <- '2020-09-28'
-queryInflu <- paste0('SELECT * FROM InfluensaFormDataContract
-            WHERE cast(FormDate as date) BETWEEN \'', datoFraInf, '\' AND \'', Sys.Date(), '\'')
+#Influensadata#
+queryInflu <- paste0('SELECT * FROM InfluensaFormDataContract')
 InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
-#InfluData <- intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
+InfluData <- intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
+InfluData$Bekr <- as.numeric(InfluData$Influensa)-1
+
+#InfluData$RHF <- sub('Helse ', '', InfluData$RHF)
+InfluData$RHF <- factor(InfluData$RHF,
+                        levels= c('Helse Nord', 'Helse Midt-Norge', 'Helse Vest', 'Helse Sør-Øst', 'Privat'),
+                        labels = c('Nord', 'Midt', 'Vest', 'Sør-Øst', 'Privat'))
+
+#Legge på tidsenheter
+#InfluData$Aar <- format(InfluData$InnDato, '%Y')
+InfluData$UkeNr <- format(InfluData$InnDato, '%V')
+InfluData$UkeAar <- format(InfluData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
+InfluData$UkeAar <- as.factor(InfluData$UkeAar)
+
+InfluData$RHF <- factor(InfluData$RHF)
+
+InfluData$Sesong <- 'diverse'
+InfluData$Sesong[(InfluData$InnDato >= '2018-10-01') & (InfluData$InnDato <= '2019-05-19')] <- '2018-19'
+InfluData$Sesong[(InfluData$InnDato >= '2019-09-30') & (InfluData$InnDato <= '2020-05-17')] <- '2019-20'
+InfluData$Sesong[(InfluData$InnDato >= '2020-09-28') & (InfluData$InnDato <= '2021-05-23')] <- '2020-21'
+InfluData$Sesong <- factor(InfluData$Sesong,levels = c('2018-19', '2019-20', '2020-21', 'diverse'))
+
+
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------
 
@@ -81,6 +102,8 @@ names(sykehusValg) <- c('Ikke valgt',sykehusNavn$x)
 #updateTextInput(session, inputId, label = NULL, value = NULL). Hvis input skal endres som flge av et annet input.
 enhetsNivaa <- c('RHF', 'HF', 'ShNavn')
 names(enhetsNivaa) <- c('RHF', 'HF', 'Sykehus')
+
+sesongStart <- as.character(InfluData$Sesong[InfluData$InnDato == max(InfluData$InnDato)])
 
 source(system.file("shinyApps/intensivberedskap/R/koronafigurer_modul.R", package = "intensivberedskap"), encoding = 'UTF-8')
 
@@ -233,7 +256,7 @@ ui <- tagList(
                         selectInput(inputId = "bekrFord", label="Bekreftet/Mistenkt",
                                     choices = c("Bekreftet"=1, "Alle"=9, "Mistenkt"=0)
                         ),
-                        dateRangeInput(inputId = 'datovalg', start = startDato, end = '2020-05-10',
+                        dateRangeInput(inputId = 'datovalg', start = startDato, end = Sys.Date(),
                             label = "Tidsperiode", separator="t.o.m.", language="nb"
                             ),
                         selectInput(inputId = "erMannFord", label="Kjønn",
@@ -276,7 +299,7 @@ tabPanel(title = 'Influensa',
           sidebarPanel(id = 'brukervalgInfluensa',
                        width = 3,
                        #uiOutput('CoroRappTxt'),
-                       h3('Influensarapport med samling av resultater'),
+                       h3('Influensarapport med samling av resultater for sesongen 2020/21'),
                         h5('Influensarapporten kan man få regelmessig tilsendt på e-post.
                            Gå til fanen "Abonnement" for å bestille dette.'),
                        br(),
@@ -284,37 +307,31 @@ tabPanel(title = 'Influensa',
                        tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                        br(),
                        br(),
-                       #h3('Gjør filtreringer/utvalg:'),
-                       #br(),
+                       br(),
+                       h3('Gjør filtreringer/utvalg i tabellene:'),
 
-                       # selectInput(inputId = "valgtRHF", label="Velg RHF",
-                       #             choices = rhfNavn
-                       # ),
-                       # selectInput(inputId = "bekr", label="Bekreftet/Mistenkt",
-                       #             choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
-                       # ),
-                       # selectInput(inputId = "skjemastatus", label="Skjemastatus",
-                       #             choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
-                       # ),
-                       # selectInput(inputId = "resp", label="Respiratorbehandlet",
-                       #             choices = c("Alle"=9, "Ja"=1, "Nei"=2)
-                       # ),
-                       # selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
-                       #             choices = c("Alle"=9, "Død"=1, "Levende"=0)
-                       # ),
-                       # selectInput(inputId = "erMann", label="Kjønn",
-                       #             choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
-                       # ),
-                       # dateRangeInput(inputId = 'datovalgStart', start = startDato, end = idag, #'2020-05-10',
-                       #                label = "Tidsperiode", separator="t.o.m.", language="nb"
-                       # ),
+                       selectInput(inputId = "sesong", label="Velg influensasesong",
+                                   choices = rev(c('2018-19', '2019-20', '2020-21')),
+                                   selected = sesongStart
+                       ),selectInput(inputId = "bekr", label="Bekreftet/Mistenkt",
+                                   choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
+                       ),
+                       selectInput(inputId = "skjemastatus", label="Skjemastatus",
+                                   choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
+                       ),
+                       selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
+                                   choices = c("Alle"=9, "Død"=1, "Levende"=0)
+                       ),
+                       selectInput(inputId = "erMann", label="Kjønn",
+                                   choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+                       ),
                        # sliderInput(inputId="alder", label = "Alder",
                        #             min = 0, max = 110,
                        #             value = c(0, 110),
                        #             step = 10
                        # ),
                        # br(),
-                       # actionButton("tilbakestillValg", label="Tilbakestill valg")
+                       actionButton("tilbakestillValg", label="Tilbakestill valg")
 
                        # selectInput(inputId = 'enhetsGruppe', label='Enhetgruppe',
                        #             choices = c("RHF"=1, "HF"=2, "Sykehus"=3)
@@ -328,12 +345,11 @@ tabPanel(title = 'Influensa',
                     h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
                     h5('Siden er under utvikling... ', style = "color:red"),
                     br(),
-                    fluidRow(),
 
                     #h3('Antall ny-innlagte pasienter, siste 10 dager'),
                     #h4('NB: Inkluderer ikke overføringer mellom intensivenheter'),
                     #uiOutput('utvalgHoved'),
-                    #tableOutput('tabTidEnhet'),
+                    tableOutput('tabInfluUkeRHF'),
                     br(),
                     fluidRow()
           ) #main
@@ -811,7 +827,12 @@ server <- function(input, output, session) {
   }, height=800, width=800 #height = function() {session$clientData$output_fordelinger_width}
   )
 
+#---------------Influensa-------------------------
 
+  output$tabInfluUkeRHF <- renderTable(
+    #InfluensaUkeRHF(RegData=InfluData, bekr=as.numeric(input$..), ferdigstilt=as.numeric(input$..), sesong=input$sesong)
+    InfluensaUkeRHF(RegData=InfluData, bekr=9, ferdigstilt=9, sesong='2019-20', alleUker=1)
+  )
 
   #-----------Registeradmin.------------
   #CoroDataRaa <- NIRberedskDataSQL()

@@ -307,7 +307,7 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,resp=9,
 # colnames(TabAlder)[ncol(TabAlder)] <- 'Hele landet'
 
 
-#' Avdelingar som enno har ikkje-ferdigstilte NIR-skjema
+#' Avdelingar som enno har ikkje-ferdigstilte NIR-skjema for ferdigstilte beredskapsskjema
 #' @param reshID Avdelingas resh-id
 #' @return
 #' @export
