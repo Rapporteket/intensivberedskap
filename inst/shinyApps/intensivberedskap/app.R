@@ -63,6 +63,7 @@ if (dim(BeredIntRaa)[1]>0) {
 #Influensadata#
 queryInflu <- paste0('SELECT * FROM InfluensaFormDataContract')
 InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
+InfluDataRaa <- InfluDataRaa[which(as.Date(InfluDataRaa$FormDate) < '2020-08-01'), ]
 InfluData <- intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
 InfluData$Bekr <- as.numeric(InfluData$Influensa)-1
 
@@ -103,7 +104,7 @@ names(sykehusValg) <- c('Ikke valgt',sykehusNavn$x)
 enhetsNivaa <- c('RHF', 'HF', 'ShNavn')
 names(enhetsNivaa) <- c('RHF', 'HF', 'Sykehus')
 
-sesongStart <- as.character(InfluData$Sesong[InfluData$InnDato == max(InfluData$InnDato)])
+#sesongStart <- as.character(InfluData$Sesong[InfluData$InnDato == max(InfluData$InnDato)])
 
 source(system.file("shinyApps/intensivberedskap/R/koronafigurer_modul.R", package = "intensivberedskap"), encoding = 'UTF-8')
 
@@ -310,19 +311,19 @@ tabPanel(title = 'Influensa',
                        br(),
                        h3('Gjør filtreringer/utvalg i tabellene:'),
 
-                       selectInput(inputId = "sesong", label="Velg influensasesong",
-                                   choices = rev(c('2018-19', '2019-20', '2020-21')),
-                                   selected = sesongStart
-                       ),selectInput(inputId = "bekr", label="Bekreftet/Mistenkt",
+                       selectInput(inputId = "sesongInf", label="Velg influensasesong",
+                                   choices = rev(c('2018-19', '2019-20', '2020-21'))
+                                   #, selected = sesongStart
+                       ),selectInput(inputId = "bekrInf", label="Bekreftet/Mistenkt",
                                    choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
                        ),
-                       selectInput(inputId = "skjemastatus", label="Skjemastatus",
+                       selectInput(inputId = "skjemastatusInf", label="Skjemastatus",
                                    choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
                        ),
-                       selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
-                                   choices = c("Alle"=9, "Død"=1, "Levende"=0)
+                       selectInput(inputId = "dodIntInf", label="Tilstand ut fra intensiv",
+                                   choices = c("Alle"=9, "Død"=1, "Levende"=0, "Ukjent"=-1)
                        ),
-                       selectInput(inputId = "erMann", label="Kjønn",
+                       selectInput(inputId = "erMannInf", label="Kjønn",
                                    choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
                        ),
                        # sliderInput(inputId="alder", label = "Alder",
@@ -583,6 +584,8 @@ server <- function(input, output, session) {
     output$tabTidEnhet <- renderTable({AntTab$Tab[(visNdager-10):visNdager,]}, rownames = T, digits=0, spacing="xs"
     )
 
+
+
     #Tab status nå
     statusNaaTab <- statusECMOrespTab(RegData=CoroData, valgtRHF=input$valgtRHF,
                                       erMann=as.numeric(input$erMann),
@@ -829,10 +832,17 @@ server <- function(input, output, session) {
 
 #---------------Influensa-------------------------
 
-  output$tabInfluUkeRHF <- renderTable(
-    #InfluensaUkeRHF(RegData=InfluData, bekr=as.numeric(input$..), ferdigstilt=as.numeric(input$..), sesong=input$sesong)
-    InfluensaUkeRHF(RegData=InfluData, bekr=9, ferdigstilt=9, sesong='2019-20', alleUker=1)
+  output$tabInfluUkeRHF <- renderTable({
+    TabUkeRHFinflu <- InfluensaUkeRHF(RegData=InfluData, bekr=as.numeric(input$bekrInf),
+                                      skjemastatus=as.numeric(input$skjemastatusInf),
+                                      dodInt = as.numeric(input$dodIntInf),
+                                      erMann = as.numeric(input$erMannInf),
+                                      sesong=input$sesongInf)
+    xtable::xtable(TabUkeRHFinflu)}, rownames = T, digits=0, spacing="xs"
   )
+
+
+
 
   #-----------Registeradmin.------------
   #CoroDataRaa <- NIRberedskDataSQL()

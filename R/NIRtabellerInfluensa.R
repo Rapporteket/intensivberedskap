@@ -10,7 +10,7 @@
 #' @return
 #' @export
 #'
-InfluensaUkeRHF <- function(RegData, bekr=9, ferdigstilt=9, sesong='2019-20', alleUker=1){
+InfluensaUkeRHF <- function(RegData, bekr=9, skjemastatus=9, dodInt=9, erMann=9, sesong='2019-20', alleUker=1){
   # InfluData$Sesong <- 'diverse'
   # InfluData$Sesong[(InfluData$InnDato >= '2018-10-01') & (InfluData$InnDato <= '2019-05-19')] <- '2018-19'
   # InfluData$Sesong[(InfluData$InnDato >= '2019-09-30') & (InfluData$InnDato <= '2020-05-17')] <- '2019-20'
@@ -21,7 +21,10 @@ InfluensaUkeRHF <- function(RegData, bekr=9, ferdigstilt=9, sesong='2019-20', al
 InfluData <- RegData
   InfluData <- InfluData[InfluData$Sesong == sesong,]
   if (bekr != 9) {InfluData <- InfluData[InfluData$Bekr == bekr, ]}
-  if (ferdigstilt != 9) {InfluData <- InfluData[InfluData$FormStatus == ferdigstilt-1, ]}
+  if (skjemastatus != 9) {InfluData <- InfluData[InfluData$FormStatus == skjemastatus, ]}
+  if (dodInt %in% -1:1){InfluData <- subset(InfluData, InfluData$DischargedIntensiveStatus==dodInt)}
+  if (erMann %in% 0:1){InfluData <- subset(InfluData, InfluData$DischargedIntensiveStatus==dodInt)}
+
 
   if (alleUker==1){
     uker <- switch(sesong,
@@ -48,4 +51,5 @@ InfluData <- RegData
   # navnUkenr <- attributes(TabUkeRHF)$row.vars$UkeAar
   # TabUkeRHF <- as.matrix(TabUkeRHF)
   TabUkeRHF <- addmargins(TabUkeRHF)
+  return(invisible(TabUkeRHF))
 }
