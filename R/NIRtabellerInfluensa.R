@@ -23,7 +23,7 @@ InfluData <- RegData
   if (bekr != 9) {InfluData <- InfluData[InfluData$Bekr == bekr, ]}
   if (skjemastatus != 9) {InfluData <- InfluData[InfluData$FormStatus == skjemastatus, ]}
   if (dodInt %in% -1:1){InfluData <- subset(InfluData, InfluData$DischargedIntensiveStatus==dodInt)}
-  if (erMann %in% 0:1){InfluData <- subset(InfluData, InfluData$DischargedIntensiveStatus==dodInt)}
+  if (erMann %in% 0:1){InfluData <- subset(InfluData, InfluData$erMann==erMann)}
 
 
   if (alleUker==1){
