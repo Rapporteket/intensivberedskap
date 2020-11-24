@@ -304,6 +304,8 @@ tabPanel(title = 'Influensa',
                         h5('Influensarapporten kan man få regelmessig tilsendt på e-post.
                            Gå til fanen "Abonnement" for å bestille dette.'),
                        br(),
+                       h4('NB: Inntil det blir registrert influensatilfeller etter uke 40 i 2020,
+                          vil innholdet i rapporten gjelde sesongen 2019/20.'),
                        downloadButton(outputId = 'InfluRapp.pdf', label='Last ned Influensarapport', class = "butt"),
                        tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                        br(),

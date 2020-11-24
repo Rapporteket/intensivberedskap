@@ -141,6 +141,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0)	#, reshID=reshID)
       summarise(PersonId = PersonId[1],
                 PersonIdBC19Hash = PersonIdBC19Hash[1],
                 Alder = Alder[1],
+                AgeAdmitted = AgeAdmitted[1],
                 PatientGender = PatientGender[1],
                 Morsdato = sort(Morsdato)[1],
                 DischargedIntensiveStatus = sort(DischargedIntensiveStatus, decreasing = T)[1], #max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
