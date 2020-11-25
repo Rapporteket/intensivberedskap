@@ -174,12 +174,14 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0)	#, reshID=reshID)
                                    0),
                 ReinnKval = ifelse((InnSmResh > 0) & (ReinnTid < 72 & ReinnTid > 0),  1, 0),
                 Reinn = ifelse(ReinnTid > 12,  1, 0), #Brukes til å få riktig startpunkt for nye innleggelser.
-                ReinnNaar = ifelse(Reinn==0, 1, #0-nei, 1-ja
-                                   max(which(ReshId[order(FormDate)][2:AntRegPrPas] ==
-                                                ReshId[order(FormDate)][1:AntRegPrPas-1]))+1),  #Hvilke opphold som er reinnleggelse#
-                #                     max(which(difftime(sort(FormDate)[2:AntRegPrPas],
-                #                                        DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
-                #                                        units = 'hours') > 12))), #Hvilke opphold som er reinnleggelse
+                AntReinn = sum(ReinnTid>12), #Antall reinnleggelser
+                # ReinnNaar = ifelse(Reinn==0, 1, #0-nei, 1-ja NB: Gir feil når reinnleggelse mellom to ulike resh. Kan bare benyttes for ReinnKval!
+                #                    max(which(ReshId[order(FormDate)][2:AntRegPrPas] ==
+                #                                 ReshId[order(FormDate)][1:(AntRegPrPas-1)]))+1),
+                #Oppholdet etter lengst utetid velges som reinnleggelse. Mister andre reinn hvis flere.
+                ReinnNaar = ifelse(Reinn==0, 1, max(which(difftime(sort(FormDate)[2:AntRegPrPas],
+                                                       DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
+                                                       units = 'hours') > 12))+1), #Hvilke opphold som er reinnleggelse
                 FormDateSiste = nth(FormDate, ReinnNaar, order_by = FormDate),
                 #Justering av respiratortid mht. reinnleggelse. NB: Kan være reinnlagt på respirator selv om ikke reinnlagt på intensiv.
                 AntRespPas = length(MechanicalRespiratorStart)-sum(is.na(MechanicalRespiratorStart)), #sum(MechanicalRespirator==1, na.rm=T), #
