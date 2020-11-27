@@ -36,6 +36,10 @@ pas <- c(RegData$PasientID[RegData$Reinn==1], pasFeil)
 #ANGIR EGENTLIG REINNNAAR HVILKET OPPHOLD SOM VAR REINNLEGGELSE ELLER ANTALL REINNLEGGELSER...
 #Hva brukes FormDateSiste til? start på siste innleggelse (uten overføring)
 
+tall <- c(2, 4, 5, -2/0, 8)
+ifelse(tall %in% c('Inf', '-Inf'), 1, NA)
+
+
 testRaa <- RegDataRaa[which(RegDataRaa$PatientInRegistryGuid %in% pas), ]
 testPp <- RegData[which(RegData$PasientID %in% pas), ]
 table(testRaa$PatientInRegistryGuid)
