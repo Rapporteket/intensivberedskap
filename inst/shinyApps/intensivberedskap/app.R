@@ -63,8 +63,16 @@ if (dim(BeredIntRaa)[1]>0) {
 #Influensadata#
 queryInflu <- paste0('SELECT * FROM InfluensaFormDataContract')
 InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
-InfluDataRaa <- InfluDataRaa[which(as.Date(InfluDataRaa$FormDate) < '2020-08-01'), ]
-InfluData <- intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
+#InfluDataRaa <- InfluDataRaa[which(as.Date(InfluDataRaa$FormDate) < '2020-08-01'), ]
+InfluData <- InfluDataRaa #intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
+
+InfluData$Influensa <- factor(NA, levels = c('Mistenkt', 'Bekreftet'))
+#--Identifiser J10 og J11 i ICD10-variablene.
+indBekreftet <- which(InfluData$ICD10_1 %in% c(9:12))
+indMistenkt <- which(InfluData$ICD10_1 %in% c(-1,13:16))
+InfluData$Influensa[indMistenkt] <- 'Mistenkt'
+InfluData$Influensa[indBekreftet] <- 'Bekreftet'
+
 InfluData$Bekr <- as.numeric(InfluData$Influensa)-1
 
 #InfluData$RHF <- sub('Helse ', '', InfluData$RHF)
@@ -85,7 +93,6 @@ InfluData$Sesong[(InfluData$InnDato >= '2018-10-01') & (InfluData$InnDato <= '20
 InfluData$Sesong[(InfluData$InnDato >= '2019-09-30') & (InfluData$InnDato <= '2020-05-17')] <- '2019-20'
 InfluData$Sesong[(InfluData$InnDato >= '2020-09-28') & (InfluData$InnDato <= '2021-05-23')] <- '2020-21'
 InfluData$Sesong <- factor(InfluData$Sesong,levels = c('2018-19', '2019-20', '2020-21', 'diverse'))
-
 
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------

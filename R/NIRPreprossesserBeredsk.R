@@ -7,13 +7,13 @@
 #' @param RegData Beredskapsskjema
 #' @param kobleInt koble på data fra intensivskjema. Hvis koblede data, filtreres registreringer uten intensivskjema bort.
 #' @param skjema hvilket skjema data som skal preprosesseres tilhører
-#' 1: hoved, 2: paaror, 3: influ, 4: beredsk
+#' 'bered': beredskap (korona), 'influ': influensa
 #'
 #' @return Data En liste med det filtrerte datasettet (og sykehusnavnet som tilsvarer reshID, ikke pt)
 #'
 #' @export
 #'
-NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0)	#, reshID=reshID)
+NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, skjema='bered')	#, reshID=reshID)
 {
    # Bør legge inn sjekk som endrer kobleInt til 1 hvis det opplagt er med variabler fra intensivskjema
    # eller gi feilmelding om at her ser det ut til å være intensivvariabler.
