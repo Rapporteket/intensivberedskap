@@ -4,10 +4,12 @@
 \alias{NIRPreprosessBeredsk}
 \title{Preprosesser data fra Intensivregisteret}
 \usage{
-NIRPreprosessBeredsk(RegData = RegData, kobletInt = 0)
+NIRPreprosessBeredsk(RegData = RegData, kobleInt = 0)
 }
 \arguments{
 \item{RegData}{Beredskapsskjema}
+
+\item{kobleInt}{koble på data fra intensivskjema. Hvis koblede data, filtreres registreringer uten intensivskjema bort.}
 
 \item{skjema}{hvilket skjema data som skal preprosesseres tilhører
 1: hoved, 2: paaror, 3: influ, 4: beredsk}

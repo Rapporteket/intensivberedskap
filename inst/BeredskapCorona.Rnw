@@ -122,14 +122,12 @@ av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
 #xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
 
 tidsenhet <- 'dag'
-#enhetsNivaa <- 'RHF'
   TidsVar <- switch (tidsenhet,
     dag = 'Dag',
     uke = 'UkeNr',
     maaned = 'MndAar')
 
   RegDataAlle$EnhetsNivaaVar <- as.factor(RegDataAlle[ ,enhetsNivaa])
-  #RegDataAlle$HF <- factor(RegDataAlle$HF, levels=unique(RegDataAlle$HF))
 
 
 if (valgtRHF=='Alle'){
@@ -150,7 +148,7 @@ add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', col
 AntRader <- dim(TabTidEnh)[1]
 
 print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-		caption=paste0('Coronatilfeller siste 20 dager. Totalt er sum fra 10.mars. \n (B - bekreftet, M - mistenkt)')),
+		caption=paste0('Sist registrerte Coronatilfeller og 20 dager bakover i tid. <<Totalt>> er sum fra 10.mars. \n (B - bekreftet, M - mistenkt)')),
  		add.to.row = add.to.row,
 		sanitize.rownames.function = identity)
 } else {
@@ -161,7 +159,7 @@ print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0, #meth
   TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN=sum, quiet=TRUE)
   AntRader <- dim(TabTidEnh)[1]
   xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
-		caption='Coronatilfeller siste 20 dager i egen region, samt hele landet. Totalt er sum fra 10.mars.
+		caption='Siste Coronatilfeller i egen region, samt hele landet. Totalt er sum fra 10.mars.
 		\\\ (B - bekreftet, M - mistenkt)')
 }
 
@@ -214,12 +212,9 @@ TabKjonn <- addmargins(TabKjonn, FUN=list(Totalt=sum, 'Totalt' = sum), quiet=TRU
 add.to.row <- list(pos = list(-1), command = NULL)
 add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnKjonn, '} ', collapse=''), '\\\\\n')
 
-# kable(dt, "latex", booktabs = T,
-# col.names = c("Item", "Short Title", "Very Very Very Very Very Very Long Title")) %>%
-# column_spec(2:3, width = "5cm")
-
-print(xtable::xtable(TabKjonn, digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-		caption=paste0('Coronatilfeller per uke, kvinner og menn (B - bekreftet, M - mistenkt)')),
+AntRader <- dim(TabKjonn)[1]
+print(xtable::xtable(TabKjonn[(max(1,AntRader-20)):AntRader, ], digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
+		caption=paste0('Coronatilfeller siste uker samt totalt fra uke 10, kvinner og menn (B - bekreftet, M - mistenkt)')),
  		add.to.row = add.to.row,
 		sanitize.rownames.function = identity)
 

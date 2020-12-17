@@ -10,6 +10,7 @@ antallTidUtskrevneNIRberedskap(
   erMann = 9,
   resp = 9,
   datoFra = 0,
+  datoTil = Sys.Date(),
   bekr = 9,
   skjemastatus = 9,
   dodInt = 9,

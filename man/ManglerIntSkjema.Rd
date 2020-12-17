@@ -2,7 +2,7 @@
 % Please edit documentation in R/NIRtabellerBeredskap.R
 \name{ManglerIntSkjema}
 \alias{ManglerIntSkjema}
-\title{Avdelingar som enno har ikkje-ferdigstilte NIR-skjema}
+\title{Avdelingar som enno har ikkje-ferdigstilte NIR-skjema for ferdigstilte beredskapsskjema}
 \usage{
 ManglerIntSkjema(reshID = 0)
 }
@@ -13,5 +13,5 @@ ManglerIntSkjema(reshID = 0)
 
 }
 \description{
-Avdelingar som enno har ikkje-ferdigstilte NIR-skjema
+Avdelingar som enno har ikkje-ferdigstilte NIR-skjema for ferdigstilte beredskapsskjema
 }

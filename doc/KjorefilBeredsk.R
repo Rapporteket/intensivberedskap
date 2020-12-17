@@ -19,9 +19,71 @@ knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'U
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 library(intensivberedskap)
-library(tidyverse)
-CoroData <- NIRberedskDataSQL()
-RegData <- NIRPreprosessBeredsk(CoroData)
+
+RegDataRaa <- NIRberedskDataSQL()
+RegData <- NIRPreprosessBeredsk(RegDataRaa)
+table(table(RegDataRaa$PatientInRegistryGuid))
+table(RegData$ReinnNaar)
+table(RegData$ReinnNaarTest)
+pasFeil <- 'E6C9B5FD-661F-EB11-A96D-00155D0B4D16'
+pas <- c(RegData$PasientID[RegData$Reinn==1], pasFeil)
+# 013F0C5E-7B6E-EA11-A96B-00155D0B4F09 0B00F37A-D46C-EA11-A96B-00155D0B4F09 756A94A6-7D7A-EA11-A96B-00155D0B4F09
+# 4                                    2                                    2
+# A5453B56-4470-EA11-A96B-00155D0B4F09 E2DFBBD4-7B7D-EA11-A96B-00155D0B4F09 E6C9B5FD-661F-EB11-A96D-00155D0B4D16
+# 2                                    2                                    2
+# F09B715A-2170-EA11-A96B-00155D0B4F09
+# 3
+#ANGIR EGENTLIG REINNNAAR HVILKET OPPHOLD SOM VAR REINNLEGGELSE ELLER ANTALL REINNLEGGELSER...
+#Hva brukes FormDateSiste til? start på siste innleggelse (uten overføring)
+
+tall <- c(2, 4, 5, -2/0, 8)
+ifelse(tall %in% c('Inf', '-Inf'), 1, NA)
+
+
+testRaa <- RegDataRaa[which(RegDataRaa$PatientInRegistryGuid %in% pas), ]
+testPp <- RegData[which(RegData$PasientID %in% pas), ]
+table(testRaa$PatientInRegistryGuid)
+testRaa[order(testRaa$PatientInRegistryGuid, testRaa$FormDate),
+        c("PatientInRegistryGuid", "FormDate", "DateDischargedIntensive", "FormStatus")]
+
+AntRegPrPas <- 2
+ReinnNaar <- max(which(ReshId[order(test$FormDate)][2:AntRegPrPas] ==
+                               ReshId[order(FormDate)][1:AntRegPrPas-1]))+1
+
+
+CoroData <- NIRberedskDataSQL(kobleInt = 1)
+RegData <- NIRPreprosessBeredsk(RegData = CoroData, kobleInt = 1)
+
+ CoroSjekk <- CoroData[which(CoroData$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+                       c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate',
+                         "PatientInRegistryGuidInt", "PersonId")]
+ BeredDataRaa[which(BeredDataRaa$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+                      c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate',
+                        "PersonId")]
+ IntDataRaa[which(IntDataRaa$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+            c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate', "PersonId")]
+
+PersonId <-  '0x2EE6AD0CF8F2F06EC10EAD46C08B2FA5F965C63215A332A2E0707ABDF9E5A33E'
+RegData$PersonId==PersonId
+which(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)]== PersonId)
+RegData$PatientInRegistryGuid[21]
+
+
+RegData <- CoroData
+
+RegData[which(RegData$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+         c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate', "PatientInRegistryGuidInt")]
+
+as.data.frame(RegDataRed[RegDataRed$PasientID == "C47F1C66-2F11-EB11-A96D-00155D0B4D16", ])
+
+IntDataRaa[IntDataRaa$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16",
+           c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate')]
+
+RegData <- NIRPreprosessBeredsk(RegData <- CoroData)
+RegData[which(is.na(RegData$DateDischargedIntensive) & RegData$ShNavn == 'Lovisenberg'), ]
+
+
+
 
 statusECMOrespTab(RegData)$Tab
 

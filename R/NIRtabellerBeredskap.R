@@ -25,9 +25,9 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
   RegDataAlle <- UtData$RegData
   if (datoFra != 0) {RegDataAlle <- RegDataAlle[which(RegDataAlle$InnDato >= datoFra), ]}
   RegDataAlle$TidsVar <- switch (tidsenhet,
-                                 dag = factor(format(RegDataAlle$InnDato, '%d.%B'),
+                                 dag = factor(format(RegDataAlle$InnDato, '%d.%b'),
                                               levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
-                                                                      by=paste0('-1 day'))), '%d.%B')),
+                                                                      by=paste0('-1 day'))), '%d.%b')),
                                  uke = factor(paste0('Uke ', format(RegDataAlle$InnDato, '%V')),
                                               levels = paste0('Uke ', format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
                                                                                      by=paste0('-1 week'))), '%V'))),
@@ -307,14 +307,14 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,resp=9,
 # colnames(TabAlder)[ncol(TabAlder)] <- 'Hele landet'
 
 
-#' Avdelingar som enno har ikkje-ferdigstilte NIR-skjema
+#' Avdelingar som enno har ikkje-ferdigstilte NIR-skjema for ferdigstilte beredskapsskjema
 #' @param reshID Avdelingas resh-id
 #' @return
 #' @export
 ManglerIntSkjema <- function(reshID=0){
   if (rapbase::isRapContext()) {
     DataNIRraa <- intensiv::NIRRegDataSQL(datoFra = '2020-03-01') #Kun ferdigstilte intensivopphold sendes til Rapporteket
-    DataBeredskapRaa <- NIRberedskDataSQL()
+    DataBeredskapRaa <- NIRberedskDataSQL(kobleInt = 0)
   } else {
     DataNIRraa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= '2020-03-01', ]
     DataBeredskapRaa <- CoroDataRaa

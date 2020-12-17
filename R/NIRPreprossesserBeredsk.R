@@ -5,16 +5,20 @@
 #' av kvalitetsindikatorer og som kan legges ved pakken
 #'
 #' @param RegData Beredskapsskjema
+#' @param kobleInt koble på data fra intensivskjema. Hvis koblede data, filtreres registreringer uten intensivskjema bort.
 #' @param skjema hvilket skjema data som skal preprosesseres tilhører
-#' 1: hoved, 2: paaror, 3: influ, 4: beredsk
+#' 'bered': beredskap (korona), 'influ': influensa
 #'
 #' @return Data En liste med det filtrerte datasettet (og sykehusnavnet som tilsvarer reshID, ikke pt)
 #'
 #' @export
 #'
-NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
+NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, skjema='bered')	#, reshID=reshID)
 {
-   #RegData <- NIRberedskDataSQL()
+   # Bør legge inn sjekk som endrer kobleInt til 1 hvis det opplagt er med variabler fra intensivskjema
+   # eller gi feilmelding om at her ser det ut til å være intensivvariabler.
+
+
    # Endre variabelnavn:
    #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
    RegData$Alder <- lubridate::time_length(difftime(as.Date(RegData$FormDate), as.Date(RegData$Birthdate)), 'years')
@@ -32,27 +36,46 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
 
 
    #Konvertere boolske variable fra tekst til boolske variable...
-   TilLogiskeVar <- function(Skjema){
-      verdiGML <- c('True','False')
-      verdiNY <- c(TRUE,FALSE)
-      mapping <- data.frame(verdiGML,verdiNY)
-      LogVar <- names(Skjema)[which(Skjema[1,] %in% verdiGML)]
-      if (length(LogVar)>0) {
-         for (k in 1:length(LogVar)) {
-            Skjema[,LogVar[k]] <- mapping$verdiNY[match(Skjema[,LogVar[k]], mapping$verdiGML)]
-         }}
-      return(Skjema)
-   }
 
-   RegData <- TilLogiskeVar(RegData)
+    #    TilLogiskeVar <- function(Skjema){
+   #    verdiGML <- c('True','False')
+   #    verdiNY <- c(TRUE,FALSE)
+   #    mapping <- data.frame(verdiGML,verdiNY)
+   #    LogVarSjekk <- names(Skjema)[unique(which(Skjema[1,] %in% verdiGML), which(Skjema[15,] %in% verdiGML))]
+   #    LogVar <- unique(c(LogVarSjekk,
+   #                     "Astma", "Diabetes", "Graviditet", "IsActiveSmoker", "IsChronicLungDiseasePatient",
+   #                     "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
+   #                     "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
+   #                     "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
+   #                     "IsObesePatient", "IsRiskFactor", "Kreft"))
+   #    if (length(LogVar)>0) {
+   #       for (k in 1:length(LogVar)) {
+   #          Skjema[,LogVar[k]] <- mapping$verdiNY[match(Skjema[,LogVar[k]], mapping$verdiGML)]
+   #       }}
+   #    return(Skjema)
+   # }
+   # RegData <- TilLogiskeVar(RegData)
+
+   LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
+   LogVar <- unique(c(LogVarSjekk,
+                      "Astma", "Diabetes", "Graviditet", "IsActiveSmoker", "IsChronicLungDiseasePatient",
+                      "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
+                      "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
+                      "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
+                      "IsObesePatient", "IsRiskFactor", "Kreft",
+                      'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
+
+   RegData[, intersect(names(RegData), LogVar)] <-
+          apply(RegData[, intersect(names(RegData), LogVar)], 2, as.logical)
 
    #------SLÅ SAMMEN TIL PER PASIENT
    #Respiratortider skal hentes fra intensivskjema
    #sum(grepl('J80', BeredIntRaa[ ,c('ICD10_1', 'ICD10_2', 'ICD10_3', 'ICD10_4', 'ICD10_5')]))
 
-   if (kobletInt==1){
-      # Test <- IntData %>% group_by(PatientInRegistryGuid) %>%
-      #    summarise(ARDS = sum(grepl('J80', c(ICD10_1, ICD10_2, ICD10_3, ICD10_4, ICD10_5)))>0)
+   if (kobleInt==1){
+      #Fjerner  uten intensivskjema
+      pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
+      RegData <- RegData[-which(RegData$PersonId %in% pasUint), ]
 
       RegDataRedEkstra <- RegData %>% group_by(PasientID) %>%
          summarise(
@@ -72,7 +95,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    #Icp = first(Icp, order_by=FormDate), #Fjernes fra datadump
                    #Hyperbar = first(Hyperbar, order_by=FormDate), #Fjernes fra datadump
                    HeartRate = first(HeartRate, order_by=FormDate),
-                   Impella = sum(Impella, na.rm = T), #Hvis ja på en: ja, #Logisk variabel
+                   #Impella = sum(Impella, na.rm = T), #Hvis ja på en: ja, #Logisk variabel. Alle har False eller tom
                    Intermitterende = sum(Intermitterende, na.rm = T), #Hvis ja på en: ja
                    IntermitterendeDays = sum(IntermitterendeDays, na.rm = T),
                    InvasivVentilation = sum(InvasivVentilation, na.rm = T),
@@ -92,6 +115,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    NonInvasivVentilation = sum(NonInvasivVentilation, na.rm=T),
                    #Oscillator = first(Oscillator, order_by=FormDate),
                    Potassium = first(Potassium, order_by=FormDate),
+                  #PersonId = PersonId[1],
                    PrimaryReasonAdmitted = first(PrimaryReasonAdmitted, order_by=FormDate),
                    RespiratortidInt = sum(respiratortid, na.rm = T),
                    Saps2Score = first(Saps2Score, order_by=FormDate),
@@ -109,20 +133,18 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                    VasoactiveInfusion = min(VasoactiveInfusion), #1-ja, 2-nei. Hvis ja på en:ja
          )
    }
-   #DateAdmittedIntensive                      DaysAdmittedIntensiv
-   #DeadPatientDuring24Hours                   TransferredStatus
-   # PatientTransferredFromHospital             PatientTransferredFromHospitalName
-   # PatientTransferredToHospital               PatientTransferredToHospitalName
-   #MoreThan24Hours
+
    #NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først
    #  På respirator antar man at hvis de ligger på respirator når de overflyttes
    #PasientID=="EE983306-AE04-EB11-A96D-00155D0B4D16"
    RegDataRed <- RegData %>% group_by(PasientID) %>%
       summarise(PersonId = PersonId[1],
-         Alder = Alder[1],
+                PersonIdBC19Hash = PersonIdBC19Hash[1],
+                Alder = Alder[1],
+                AgeAdmitted = AgeAdmitted[1],
                 PatientGender = PatientGender[1],
                 Morsdato = sort(Morsdato)[1],
-                DischargedIntensiveStatus = max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
+                DischargedIntensiveStatus = sort(DischargedIntensiveStatus, decreasing = T)[1], #max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
                 Overf = max(Overf),
                 Graviditet = sum(Graviditet)>0,
                 Astma  = sum(Astma)>0,
@@ -152,12 +174,14 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                                    0),
                 ReinnKval = ifelse((InnSmResh > 0) & (ReinnTid < 72 & ReinnTid > 0),  1, 0),
                 Reinn = ifelse(ReinnTid > 12,  1, 0), #Brukes til å få riktig startpunkt for nye innleggelser.
-                ReinnNaar = ifelse(Reinn==0, 1, #0-nei, 1-ja
-                                   max(which(ReshId[order(FormDate)][2:AntRegPrPas] ==
-                                                ReshId[order(FormDate)][1:AntRegPrPas-1]))+1), #Hvilke opphold som er reinnleggelse#
-                #                     max(which(difftime(sort(FormDate)[2:AntRegPrPas],
-                #                                        DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
-                #                                        units = 'hours') > 12))), #Hvilke opphold som er reinnleggelse
+                AntReinn = sum(ReinnTid>12), #Antall reinnleggelser
+                # ReinnNaar = ifelse(Reinn==0, 1, #0-nei, 1-ja NB: Gir feil når reinnleggelse mellom to ulike resh. Kan bare benyttes for ReinnKval!
+                #                    max(which(ReshId[order(FormDate)][2:AntRegPrPas] ==
+                #                                 ReshId[order(FormDate)][1:(AntRegPrPas-1)]))+1),
+                #Oppholdet etter lengst utetid velges som reinnleggelse. Mister andre reinn hvis flere.
+                ReinnNaar = ifelse(Reinn==0, 1, max(which(difftime(sort(FormDate)[2:AntRegPrPas],
+                                                       DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
+                                                       units = 'hours') > 12))+1), #Hvilke opphold som er reinnleggelse
                 FormDateSiste = nth(FormDate, ReinnNaar, order_by = FormDate),
                 #Justering av respiratortid mht. reinnleggelse. NB: Kan være reinnlagt på respirator selv om ikke reinnlagt på intensiv.
                 AntRespPas = length(MechanicalRespiratorStart)-sum(is.na(MechanicalRespiratorStart)), #sum(MechanicalRespirator==1, na.rm=T), #
@@ -197,7 +221,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
 
 
    #----------------------------
-   RegData <- if (kobletInt==1) {
+   RegData <- if (kobleInt==1) {
       data.frame(cbind(RegDataRed, RegDataRedEkstra))
    } else {data.frame(RegDataRed)}
    RegData$Korona <- factor(RegData$Bekreftet, levels= 0:1, labels= c('M', 'B'))
@@ -264,9 +288,9 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobletInt=0)	#, reshID=reshID)
                            levels = min(as.numeric(format(RegData$InnDato, '%V'))):max(as.numeric(format(RegData$InnDato, '%V'))))
    #RegData$UkeAar <- format(RegData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
    #RegData$UkeAar <- as.factor(RegData$UkeAar)
-   # RegData$Dag <- format(RegData$InnDato, '%d.%B')
-   RegData$Dag <- factor(format(RegData$InnDato, '%d.%B'),
-                         levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%B'))
+   # RegData$Dag <- format(RegData$InnDato, '%d.%b')
+   RegData$Dag <- factor(format(RegData$InnDato, '%d.%b'),
+                         levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%b'))
 
 
 
