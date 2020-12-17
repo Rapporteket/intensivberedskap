@@ -1,7 +1,7 @@
 Package: intensivberedskap
 Title: What the Package Does (One Line, Title Case)
-Version: 1.7.2
-Date: 2020-10-19
+Version: 1.8.0
+Date: 2020-12-17
 Authors@R: 
     person(given = "Lena Ringstad",
            family = "Olsen",
