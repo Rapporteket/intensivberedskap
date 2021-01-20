@@ -4,7 +4,7 @@
 \alias{NIRPreprosessBeredsk}
 \title{Preprosesser data fra Intensivregisteret}
 \usage{
-NIRPreprosessBeredsk(RegData = RegData, kobleInt = 0)
+NIRPreprosessBeredsk(RegData = RegData, kobleInt = 0, skjema = "bered")
 }
 \arguments{
 \item{RegData}{Beredskapsskjema}
@@ -12,7 +12,7 @@ NIRPreprosessBeredsk(RegData = RegData, kobleInt = 0)
 \item{kobleInt}{koble på data fra intensivskjema. Hvis koblede data, filtreres registreringer uten intensivskjema bort.}
 
 \item{skjema}{hvilket skjema data som skal preprosesseres tilhører
-1: hoved, 2: paaror, 3: influ, 4: beredsk}
+'bered': beredskap (korona), 'influ': influensa}
 }
 \value{
 Data En liste med det filtrerte datasettet (og sykehusnavnet som tilsvarer reshID, ikke pt)

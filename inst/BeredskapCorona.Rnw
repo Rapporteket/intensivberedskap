@@ -34,12 +34,16 @@ paaServer <- context %in% c("DEV", "TEST", "QA", "PRODUCTION")
 
 <<'tilrettelegg', include=FALSE>>=
 #NB: Har benyttet FormDate benyttes som hoveddato. Gjelder også influensa
+CoroData$RHF <- as.character(CoroData$RHF)
+RegDataOpph <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 0)
 RegData <- NIRPreprosessBeredsk(RegData=CoroData)
 enhetsNivaa <- 'RHF'
 RegDataAlle <- RegData
+RegDataAlleOpph <- RegDataOpph
 if (valgtRHF!='Alle'){
   RegData <- subset(RegData, RegData$RHF == valgtRHF)
-  RegData$RHF <- as.character(RegData$RHF)
+  RegDataOpph <- subset(RegDataOpph, RegDataOpph$RHF == valgtRHF)
+  #RegData$RHF <- as.character(RegData$RHF) #Gjøres tidligere
   enhetsNivaa <- 'RHF' #Endres til HF når får på plass tekstdeling i kolonnenavn
   }
 datoStart <- '2020-03-01'
@@ -47,24 +51,6 @@ datoStart <- '2020-03-01'
 RHFtxt <-ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
 tittelRHF <- paste0('Coronarapportering fra NIR, ',
                paste0('registreringer fra ', RHFtxt))
-  # RegData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann,
-  #                             bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
-  #                             reshID=reshID, valgtRHF=valgtRHF)$RegData #velgAvd=velgAvd
-
-
-#Diagnosis
-# -1 = Velg verdi
-# 100 = Påvist SARS-CoV-2
-# 101 = Påvist SARS-CoV-2 med pneumoni
-# 102 = Påvist SARS-CoV-2 med annen luftveissykdom
-# 103 = Påvist SARS-CoV-2 med annen organmanifestasjon
-# 104 = Mistenkt SARS-CoV-2
-# 105 = Mistenkt SARS-CoV-2 med pneumoni
-# 106 = Mistenkt SARS-CoV-2 med annen luftveissykdom
-# 107 = Mistenkt SARS-CoV-2 med annen organmanifestasjon
-#"Når ein opprettar eit Coronaskjema har ein per def. Mistanke om Corona. Vi meiner difor at skjema med verdi -1 også bør tellast med som mistenkt Corona." Antar dette også gjelder Corona.
-
-
 indFerdig <- which(RegData$FormStatus==2)
 antFerdig <- length(indFerdig)
 antSkjema <- dim(RegData)[1]
@@ -75,8 +61,9 @@ AntBekr <- sum(RegData$Bekreftet==1)
 
 # Registreringer i limbo
     AntLimbo <- sum((!(is.na(RegData$DateDischargedIntensive)) & (RegData$FormStatus!=2)))
-    RegILimboTxt <- if (AntLimbo>0) {paste0('\\item Det er ', AntLimbo, ' skjema i ', RHFtxt, ' som mangler ferdigstillelse. Dvs. opphold registrert som utskrevet, uten at skjema er ferdigstilt.')} else {''}
-
+    RegILimboTxt <- if (AntLimbo>0) {
+      paste0('\\item Det er ', AntLimbo, ' skjema i ', RHFtxt,
+             ' som mangler ferdigstillelse. Dvs. opphold registrert som utskrevet, uten at skjema er ferdigstilt.')} else {''}
 @
 
 \begin{document}
@@ -100,7 +87,6 @@ Mistenkte og bekreftede Coronatilfeller er rapportert i eget skjema i registeret
 
 %\bf{Merk at:}
 \begin{itemize}
-\item Rapporten baserer seg på antall intensivopphold, ikke antall unike pasienter
 \item Tabellene skiller ikke på om et skjema er ferdigstilt eller ikke. Det er \Sexpr{N-antFerdig}
 av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
 \item Skjema uten spesifikasjon av diagnose, er kategorisert som mistenkte Coronatilfeller.
@@ -109,61 +95,6 @@ av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
 \Sexpr{RegILimboTxt}
 \end{itemize}
 
-\end{frame}
-
-
-\begin{frame}[fragile] {Corona, antall registreringer}
-
-% Registrerte tilfeller per dag og totalt antall tilfeller.
-% Registreringer hvor diagnose ikke er angitt, er klassifiserte som mistenkte tilfeller.
-
-<<'TabTot', results='asis'>>=
-#TabRHF <- table(RegData$Dag, RegData$RHF)
-#xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
-
-tidsenhet <- 'dag'
-  TidsVar <- switch (tidsenhet,
-    dag = 'Dag',
-    uke = 'UkeNr',
-    maaned = 'MndAar')
-
-  RegDataAlle$EnhetsNivaaVar <- as.factor(RegDataAlle[ ,enhetsNivaa])
-
-
-if (valgtRHF=='Alle'){
-TabTidEnh <- ftable(RegDataAlle[ , c(TidsVar, enhetsNivaa, 'Korona')],
-                    row.vars =TidsVar)
-
-navnEnh <- levels(RegDataAlle$EnhetsNivaaVar) #unique(RegData$EnhetsNivaaVar)
-TabTidEnh <- as.matrix(TabTidEnh)
-colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
-
-TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
-add.to.row <- list(pos = list(-1), command = NULL)
-add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
-
-# kable(dt, "latex", booktabs = T,
-# col.names = c("Item", "Short Title", "Very Very Very Very Very Very Long Title")) %>%
-# column_spec(2:3, width = "5cm")
-AntRader <- dim(TabTidEnh)[1]
-
-print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-		caption=paste0('Sist registrerte Coronatilfeller og 20 dager bakover i tid. <<Totalt>> er sum fra 10.mars. \n (B - bekreftet, M - mistenkt)')),
- 		add.to.row = add.to.row,
-		sanitize.rownames.function = identity)
-} else {
-  RegDataAlle$TidsVar <- as.factor(RegDataAlle[,TidsVar])
-  TabTidEnh <- cbind(
-    table(RegDataAlle[RegDataAlle$RHF==valgtRHF, c('TidsVar', 'Korona')]),
-    'Hele landet' = table(RegDataAlle$TidsVar))
-  TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN=sum, quiet=TRUE)
-  AntRader <- dim(TabTidEnh)[1]
-  xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
-		caption='Siste Coronatilfeller i egen region, samt hele landet. Totalt er sum fra 10.mars.
-		\\\ (B - bekreftet, M - mistenkt)')
-}
-
-@
 \end{frame}
 
 \begin{frame}[fragile] {Corona på respirator/ECMO}
@@ -178,7 +109,6 @@ xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
                caption='Bruk av Respirator/ECMO.')
 
 @
-
 \end{frame}
 
 \begin{frame}[fragile] {Ferdigstilte registreringer, bekreftede}
@@ -190,7 +120,7 @@ FerdigBekr <- oppsumFerdigeRegTab(RegData=RegData, bekr=1, valgtRHF=valgtRHF)
 xtable::xtable(FerdigBekr$Tab,
                digits=0,
                align = c('l','r','r','c', 'r','r')
-                , caption=paste0('Ferdigstilte opphold, bekreftede tilfeller (',  FerdigBekr$Ntest,' skjema).
+                , caption=paste0('Ferdigstilte forløp, bekreftede tilfeller (',  FerdigBekr$Ntest,' skjema).
                  IQR (Inter quartile range) - 50 \\% av oppholdene er i dette intervallet.')
                )
  @
@@ -198,67 +128,69 @@ xtable::xtable(FerdigBekr$Tab,
 \end{frame}
 
 
+\begin{frame}[fragile] {Corona, antall opphold}
 
-\begin{frame}[fragile] {Corona, kjønnsfordeling}
-<<'TabKjonn', results='asis'>>=
+% Registrerte tilfeller per dag og totalt antall tilfeller.
+% Registreringer hvor diagnose ikke er angitt, er klassifiserte som mistenkte tilfeller.
 
-TabKjonn <- ftable(RegData[ , c('UkeNr', 'Kjonn','Korona')], row.vars ='UkeNr')
-navnMB <- attributes(TabKjonn)$col.vars$Korona
-navnKjonn <- attributes(TabKjonn)$col.vars$Kjonn
-TabKjonn <- as.matrix(TabKjonn)
-colnames(TabKjonn) <- rep(navnMB, length(navnKjonn))
-rownames(TabKjonn) <- paste0('Uke ', rownames(TabKjonn))
-TabKjonn <- addmargins(TabKjonn, FUN=list(Totalt=sum, 'Totalt' = sum), quiet=TRUE)
+<<'TabTot', results='asis'>>=
+#TabRHF <- table(RegData$Dag, RegData$RHF)
+#xtable::xtable(addmargins(TabRHF), digits=0, caption='Coronatilfeller per uke i hvert RHF')
+
+  TidsVar <- 'Dag'
+  RegDataAlleOpph$EnhetsNivaaVar <- as.factor(RegDataAlleOpph[ ,enhetsNivaa])
+
+
+if (valgtRHF=='Alle'){
+TabTidEnh <- ftable(RegDataAlleOpph[ , c(TidsVar, enhetsNivaa, 'Korona')],
+                    row.vars =TidsVar)
+
+navnEnh <- levels(RegDataAlleOpph$EnhetsNivaaVar) #unique(RegData$EnhetsNivaaVar)
+TabTidEnh <- as.matrix(TabTidEnh)
+colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
+
+TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
 add.to.row <- list(pos = list(-1), command = NULL)
-add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnKjonn, '} ', collapse=''), '\\\\\n')
+add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
 
-AntRader <- dim(TabKjonn)[1]
-print(xtable::xtable(TabKjonn[(max(1,AntRader-20)):AntRader, ], digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-		caption=paste0('Coronatilfeller siste uker samt totalt fra uke 10, kvinner og menn (B - bekreftet, M - mistenkt)')),
+AntRader <- dim(TabTidEnh)[1]
+
+print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
+                     #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
+		caption=paste0('Sist registrerte Coronatilfeller og 20 dager bakover i tid.
+		               <<Totalt>> er sum fra 10.mars. \n (B - bekreftet, M - mistenkt)')),
  		add.to.row = add.to.row,
 		sanitize.rownames.function = identity)
-
-
-#TabKjonn <- table(paste0('Uke ', RegData$UkeNr), RegData$Kjonn)
-# xtable::xtable(addmargins(TabKjonn),
-#                digits=0,
-#                caption='Coronatilfeller per uke, kvinner og menn')
-
+} else {
+  RegDataAlleOpph$TidsVar <- as.factor(RegDataAlleOpph[,TidsVar])
+  TabTidEnh <- cbind(
+    table(RegDataAlleOpph[RegDataAlleOpph$RHF==valgtRHF, c('TidsVar', 'Korona')]),
+    'Hele landet' = table(RegDataAlleOpph$TidsVar))
+  TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN=sum, quiet=TRUE)
+  AntRader <- dim(TabTidEnh)[1]
+  xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
+		caption='Siste Coronaopphold i egen region, samt hele landet. Totalt er sum fra 10.mars.
+		\\\ (B - bekreftet, M - mistenkt)')
+}
 
 @
 \end{frame}
 
 
-\begin{frame}[fragile] {Corona, aldersfordeling, alle}
 
-<<'TabAlder', results='asis'>>=
-Alder <- round(summary(RegData$Alder))
-AlderBekr <- round(summary(RegData$Alder[RegData$Bekreftet==1]))
 
-txtAlle <- if (N>2){paste0('De registrerte er mellom ', Alder[1], ' og ', Alder[6], ' år med en gjennomsnittsalder på ', Alder[4], ' år.')} else {''}
 
+
+\begin{frame}[fragile] {Corona, aldersfordeling}
+<<'VisTabAlder', results='asis'>>=
+  AlderBekr <- round(summary(RegData$Alder[RegData$Bekreftet==1]))
 txtBekr <- if (AntBekr>2){paste0('For bekreftede tilfeller er alderen mellom ',
                            AlderBekr[1], ' og ', AlderBekr[6], ' år med en snittsalder på ',
                            AlderBekr[4], ' år.')} else {''}
-
 @
-%De registrerte er mellom \Sexpr{Alder[1]} og \Sexpr{Alder[6]} år med en gjennomsnittsalder på \Sexpr{Alder[4]}.
-\Sexpr{txtAlle}
 
-<<'VisTabAlder', results='asis'>>=
-TabAlder <- TabAlder(RegDataAlle, valgtRHF=valgtRHF)$Tab
-
-xtable::xtable(TabAlder,
-               digits = 0,
-               align = c('l', rep('r', dim(TabAlder)[2])),
-               caption='Fordeling i aldersgrupper')
-
-@
-\end{frame}
-
-
-\begin{frame}[fragile] {Corona, aldersfordeling, bekreftede}
 \Sexpr{txtBekr}
+
 <<'TabAlderBekr', results='asis'>>=
 TabAlderBekr <- TabAlder(RegData=RegDataAlle #RegDataAlle[which(RegDataAlle$Bekreftet==1), ]
                         , bekr = 1
@@ -306,5 +238,58 @@ if (AntBekr>2) {
 % @
 % \end{frame}
 
+
+% \begin{frame}[fragile] {Corona, kjønnsfordeling}
+% <<'TabKjonn', results='asis'>>=
+%
+% TabKjonn <- ftable(RegData[ , c('UkeNr', 'Kjonn','Korona')], row.vars ='UkeNr')
+% navnMB <- attributes(TabKjonn)$col.vars$Korona
+% navnKjonn <- attributes(TabKjonn)$col.vars$Kjonn
+% TabKjonn <- as.matrix(TabKjonn)
+% colnames(TabKjonn) <- rep(navnMB, length(navnKjonn))
+% rownames(TabKjonn) <- paste0('Uke ', rownames(TabKjonn))
+% TabKjonn <- addmargins(TabKjonn, FUN=list(Totalt=sum, 'Totalt' = sum), quiet=TRUE)
+% add.to.row <- list(pos = list(-1), command = NULL)
+% add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnKjonn, '} ', collapse=''), '\\\\\n')
+%
+% AntRader <- dim(TabKjonn)[1]
+% print(xtable::xtable(TabKjonn[(max(1,AntRader-20)):AntRader, ], digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
+% 		caption=paste0('Coronatilfeller siste uker samt totalt fra uke 10, kvinner og menn (B - bekreftet, M - mistenkt)')),
+%  		add.to.row = add.to.row,
+% 		sanitize.rownames.function = identity)
+%
+%
+% #TabKjonn <- table(paste0('Uke ', RegData$UkeNr), RegData$Kjonn)
+% # xtable::xtable(addmargins(TabKjonn),
+% #                digits=0,
+% #                caption='Coronatilfeller per uke, kvinner og menn')
+%
+%
+% @
+% \end{frame}
+
+% <<'TabAlder', results='asis'>>=
+% Alder <- round(summary(RegData$Alder))
+%
+%
+% txtAlle <- if (N>2){paste0('De registrerte er mellom ', Alder[1], ' og ', Alder[6], ' år med en gjennomsnittsalder på ', Alder[4], ' år.')} else {''}
+%
+%
+% @
+% %De registrerte er mellom \Sexpr{Alder[1]} og \Sexpr{Alder[6]} år med en gjennomsnittsalder på \Sexpr{Alder[4]}.
+% \Sexpr{txtAlle}
+
+% \begin{frame}[fragile] {Corona, aldersfordeling}
+% <<'VisTabAlder', results='asis'>>=
+% TabAlder <- TabAlder(RegDataAlle, valgtRHF=valgtRHF)$Tab
+%
+% xtable::xtable(TabAlder,
+%                digits = 0,
+%                align = c('l', rep('r', dim(TabAlder)[2])),
+%                caption='Fordeling i aldersgrupper')
+% @
+% \end{frame}
+
 \end{tiny}
 \end{document}
+

@@ -22,6 +22,7 @@ library(intensivberedskap)
 
 RegDataRaa <- NIRberedskDataSQL()
 RegData <- NIRPreprosessBeredsk(RegDataRaa)
+RegDataOpph <- NIRPreprosessBeredsk(RegDataRaa, aggPers = 0)
 table(table(RegDataRaa$PatientInRegistryGuid))
 table(RegData$ReinnNaar)
 table(RegData$ReinnNaarTest)
@@ -269,4 +270,16 @@ erInneliggendeMut <- function(datoer, regdata){
     write.table(inneliggende, file = 'data-raw/inneliggende.csv', sep = ';',  row.names = F, fileEncoding = 'UTF-8')
 
 
+
+    #Diagnosis
+    # -1 = Velg verdi
+    # 100 = Påvist SARS-CoV-2
+    # 101 = Påvist SARS-CoV-2 med pneumoni
+    # 102 = Påvist SARS-CoV-2 med annen luftveissykdom
+    # 103 = Påvist SARS-CoV-2 med annen organmanifestasjon
+    # 104 = Mistenkt SARS-CoV-2
+    # 105 = Mistenkt SARS-CoV-2 med pneumoni
+    # 106 = Mistenkt SARS-CoV-2 med annen luftveissykdom
+    # 107 = Mistenkt SARS-CoV-2 med annen organmanifestasjon
+    #"Når ein opprettar eit Coronaskjema har ein per def. Mistanke om Corona. Vi meiner difor at skjema med verdi -1 også bør tellast med som mistenkt Corona." Antar dette også gjelder Corona.
 

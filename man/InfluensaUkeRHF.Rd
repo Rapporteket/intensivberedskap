@@ -7,7 +7,9 @@
 InfluensaUkeRHF(
   RegData,
   bekr = 9,
-  ferdigstilt = 9,
+  skjemastatus = 9,
+  dodInt = 9,
+  erMann = 9,
   sesong = "2019-20",
   alleUker = 1
 )
@@ -17,9 +19,9 @@ InfluensaUkeRHF(
 
 \item{bekr}{1:bekreftet 0: mistenkt tilfelle}
 
-\item{ferdigstilt}{ferdigstilt registrering}
-
 \item{sesong}{influensasesong}
+
+\item{ferdigstilt}{ferdigstilt registrering}
 }
 \value{
 
