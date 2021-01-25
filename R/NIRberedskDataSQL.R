@@ -93,7 +93,10 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
     IntDataRaa <- rapbase::loadRegData(registryName= "nir", query=queryInt, dbType="mysql")
 
     #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
-    varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmittedIntensiv',
+    #Ved overføringer, kan det ene skjemaet være lagt inn i intensiv og det andre ikke. Vi får da trøbbel i aggregeringa.
+    #Velger derfor å ta flest mulig fra beredskapsskjema.
+    #Tar bort: 'DateAdmittedIntensive', 'DateDischargedIntensive',
+    varFellesInt <- c('DaysAdmittedIntensiv',
                       'DischargedIntensiveStatus',
                       'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
                       'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
