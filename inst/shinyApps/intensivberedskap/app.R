@@ -239,6 +239,7 @@ ui <- tagList(
                         h4('Her kan man velge hvilken variabel man ønsker å se på og gjøre ulike filtreringer.'),
                         selectInput(
                           inputId = "valgtVar", label="Velg variabel",
+                          selected = 'regForsinkelseInn',
                           choices = c('Alder' = 'alder',
                                        'Bukleie' = 'bukleie',
                                        'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring',
@@ -253,6 +254,8 @@ ui <- tagList(
                                       # 'Nyreerstattende beh., varighet' = 'nyreBehTid',
                                       # 'Potensielle donorer, årsak ikke påvist opph. sirkulasjon' = 'CerebralCirculationAbolishedReasonForNo',
                                        'Primærårsak' = 'PrimaryReasonAdmitted',
+                                      'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
+                                      'Registreringsforsinkelse, utskriving' = 'regForsinkelseUt',
                                        'Respiratortid, totalt' = 'RespiratortidInt',
                                        'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
                                        'Respiratortid, invasiv' = 'respiratortidInv',

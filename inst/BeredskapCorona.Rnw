@@ -124,8 +124,8 @@ xtable::xtable(FerdigBekr$Tab,
                  IQR (Inter quartile range) betyr at 50 \\% av oppholdene er i dette intervallet.')
                )
  @
-
 \end{frame}
+
 
 
 \begin{frame}[fragile] {Antall inneliggende per HF}
@@ -142,6 +142,23 @@ print(xtable::xtable(RegHF, row.names=FALSE, digits=0,
 #table(RegDataAlle[(is.na(RegDataAlle$DateDischargedIntensive)), 'HF'])
 
 @
+\end{frame}
+
+
+\begin{frame}[fragile] {Registreringsforsinkelse/datakvalitet}
+<<'RegForsinkelse', results='asis'>>=
+dum <- NIRberedskFigAndeler(RegData = RegDataAlle, valgtVar = 'regForsinkelseInn',
+                        #enhetsNivaa=enhetsNivaa, valgtEnhet=valgtEnhet, enhetsUtvalg = 1,
+                        datoFra = Sys.Date()-60, datoTil = Sys.Date()-30,
+                        outfile='RegForsink.pdf')
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.35]{RegForsink.pdf}
+\caption{Registreringsforsinkelse, forrige måneds registreringer. \Sexpr{dum$utvalgTxt[2]}}
+\end{figure}
+
 \end{frame}
 
 

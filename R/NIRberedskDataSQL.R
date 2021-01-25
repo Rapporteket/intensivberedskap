@@ -19,6 +19,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,Astma
 ,Birthdate
 -- ,CurrentMunicipalNumber
+,CreationDate
 ,DateAdmittedIntensive
 ,DateDischargedIntensive
 ,DaysAdmittedIntensiv
@@ -30,6 +31,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 -- ,DistrictCode
 ,EcmoEnd
 ,EcmoStart
+,FirstTimeClosed
 ,FormDate
 ,FormStatus
 ,FormTypeId
@@ -80,6 +82,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
                     varBeredsk,
                     ' FROM ReadinessFormDataContract Q
                       WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
+    #query <- 'SELECT * from ReadinessFormDataContract'
     BeredDataRaa <- rapbase::loadRegData(registryName="nir", query=query, dbType="mysql")
 
   if (kobleInt == 1){

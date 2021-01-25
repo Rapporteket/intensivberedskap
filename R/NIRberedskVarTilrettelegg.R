@@ -304,7 +304,29 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
 
       }
 
-      if (valgtVar=='reinn') { #AndelGrVar, AndelTid
+      if (valgtVar %in% c('regForsinkelseInn', 'regForsinkelseUt')) {  #Andeler, GjsnGrVar
+        #Bare ferdigstilte?
+        #Endrede skjema:
+
+        RegData$RegForsink <- switch(valgtVar,
+                                     regForsinkelseInn = as.numeric(difftime(RegData$CreationDate,
+                                                                             RegData$Innleggelsestidspunkt, units = 'days')),
+                                     regForsinkelseUt = as.numeric(difftime(RegData$FirstTimeClosed,
+                                                                            RegData$DateDischargedIntensive, units = 'days'))
+        )
+        RegData <- RegData[which(RegData$RegForsink>0), ] #which(!is.na(RegData$RegForsink))
+        tittel <- switch(valgtVar,
+                         regForsinkelseInn='Tid fra første innleggelse til opprettet skjema',
+                         regForsinkelseUt = 'Tid fra utskriving til ferdigstilt skjema')
+        subtxt <- 'døgn'
+        gr <- c(0,1:7,500) #gr <- c(seq(0, 90, 10), 1000)
+        RegData$VariabelGr <- cut(RegData$RegForsink, breaks = gr, include.lowest = TRUE, right = TRUE)
+        grtxt <- c(levels(RegData$VariabelGr)[1:(length(gr)-2)], '7+')
+        cexgr <- 0.9
+        xAkseTxt <- 'dager'
+      }
+
+       if (valgtVar=='reinn') { #AndelGrVar, AndelTid
 
             #Andel reinnlagte kun hvor dette er registrert. #Tidligere: Ja=1, nei=2, ukjent=9
             #Endret til: -1 = Velg verdi, 1 = Ja, 2 = Nei, 3 = Ukjent

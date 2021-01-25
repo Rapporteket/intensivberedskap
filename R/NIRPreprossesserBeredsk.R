@@ -84,7 +84,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    Morsdato = sort(Morsdato)[1],
                    DischargedIntensiveStatus = sort(DischargedIntensiveStatus, decreasing = T)[1], #max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
                    Overf = max(Overf),
-                   Graviditet = sum(Graviditet)>0,
                    Astma  = sum(Astma)>0,
                    Diabetes = sum(Diabetes)>0,
                    IsActiveSmoker  = sum(IsActiveSmoker)>0, #Opprinnelig navn fra MRS: IsActivSmoker
@@ -97,9 +96,12 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    IsLiverDiseaseIncludingFailurePatient = sum(IsLiverDiseaseIncludingFailurePatient)>0,
                    IsObesePatient = sum(IsObesePatient)>0,
                    IsRiskFactor = sum(IsRiskFactor)>0,
+                   Graviditet = sum(Graviditet)>0,
                    Kreft = sum(Kreft)>0,
                    Bekreftet = max(Bekreftet),
+                   CreationDate = first(CreationDate, order_by = FormDate),
                    FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
+                   FirstTimeClosed = first(FirstTimeClosed, order_by = FormDate),
                    #Justering av liggetid mht. reinnleggelse:
                    AntRegPrPas = n(),
                    ReinnTid = ifelse((AntRegPrPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
@@ -265,6 +267,9 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                                                format='%Y-%m-%d %H:%M:%S' ) #DateAdmittedIntensive
    RegData$DateDischargedIntensive <- as.POSIXlt(RegData$DateDischargedIntensive, tz= 'UTC',
                                                  format='%Y-%m-%d %H:%M:%S' )
+   # RegData$FirstTimeClosed
+   # RegData$Creat
+
    RegData$MechanicalRespiratorStart <- as.POSIXlt(RegData$MechanicalRespiratorStart,
                                                    tz= 'UTC', format='%Y-%m-%d %H:%M:%S')
    RegData$MechanicalRespiratorEnd <- as.POSIXlt(RegData$MechanicalRespiratorEnd,
