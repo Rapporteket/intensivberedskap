@@ -167,6 +167,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
       #Fjerner  uten intensivskjema
       pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
       RegData <- RegData[-which(RegData$PersonId %in% pasUint), ]
+      RegDataRed <- RegDataRed[-which(RegDataRed$PersonId %in% pasUint), ]
 
       if (aggPers == 1){
 
@@ -178,7 +179,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                BrainDamage = first(BrainDamage, order_by=FormDate),
                Bukleie = sum(Bukleie, na.rm=T),
                ChronicDiseases = first(ChronicDiseases, order_by=FormDate),
-               DaysAdmittedIntensiv = sum(DaysAdmittedIntensiv),
+               DaysAdmittedIntensiv = sum(DaysAdmittedIntensiv, na.rm=T),
                Diagnosis = first(Diagnosis, order_by=FormDate),
                Eeg = first(Eeg, order_by=FormDate), #Fjernes fra datadump
                FrailtyIndex = mean(FrailtyIndex, na.rm = T),

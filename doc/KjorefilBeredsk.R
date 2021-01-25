@@ -20,8 +20,11 @@ knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'U
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 library(intensivberedskap)
 
-RegDataRaa <- NIRberedskDataSQL()
-RegData <- NIRPreprosessBeredsk(RegDataRaa)
+RegDataRaa <- NIRberedskDataSQL(kobleInt = 1)
+RegData <- RegDataRaa
+RegData <- NIRPreprosessBeredsk(RegDataRaa, kobleInt = 1)
+
+
 RegDataOpph <- NIRPreprosessBeredsk(RegDataRaa, aggPers = 0)
 table(table(RegDataRaa$PatientInRegistryGuid))
 table(RegData$ReinnNaar)

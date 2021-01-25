@@ -121,11 +121,30 @@ xtable::xtable(FerdigBekr$Tab,
                digits=0,
                align = c('l','r','r','c', 'r','r')
                 , caption=paste0('Ferdigstilte forløp, bekreftede tilfeller (',  FerdigBekr$Ntest,' skjema).
-                 IQR (Inter quartile range) - 50 \\% av oppholdene er i dette intervallet.')
+                 IQR (Inter quartile range) betyr at 50 \\% av oppholdene er i dette intervallet.')
                )
  @
 
 \end{frame}
+
+
+\begin{frame}[fragile] {Antall inneliggende per HF}
+Oversikt over antall som ligger på intensiv. (Registreringer uten ut-tid fra intensiv.)
+
+<<'InneliggendePrHF', results='asis'>>=
+
+inneligg <- is.na(RegDataAlle$DateDischargedIntensive)
+RegHF <- RegDataAlle[inneligg,] %>% dplyr::group_by(RHF, HF) %>% dplyr::summarise(Antall = n())
+print(xtable::xtable(RegHF, row.names=FALSE, digits=0,
+                     caption='Antall inneliggende i hvert HF.'),
+      include.rownames = FALSE)
+
+#table(RegDataAlle[(is.na(RegDataAlle$DateDischargedIntensive)), 'HF'])
+
+@
+\end{frame}
+
+
 
 
 \begin{frame}[fragile] {Corona, antall opphold}
@@ -175,8 +194,6 @@ print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
 
 @
 \end{frame}
-
-
 
 
 
