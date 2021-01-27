@@ -225,38 +225,6 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
             tittel <- 'Andel av total liggetid brukt på dem som dør på intensiv'
       }
 
-      if (valgtVar=='Nas24') { #Fordeling, GjsnGrVar
-            tittel <- 'Nas per døgn'   #GjsnGrVar henter tittel fra NIRGjsnVar
-            RegData$Variabel <- RegData$Nas/RegData$liggetid
-            indMed <- which(RegData$Variabel <= 177) %i% which( (RegData$liggetid > 8/24) & (RegData$Nas>0))
-            RegData <- RegData[indMed, ]
-            gr <- c(seq(0, 160, 20),500)
-            RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
-            grtxt <- c('(0-20)','[20-40)','[40-60)','[60-80)','[80-100)','[100-120)','[120-140)','[140-160)',  '160+')
-            xAkseTxt <- 'Nas-score/døgn'
-      }
-      if (valgtVar=='NEMS') { #GjsnGrVar
-            #Inkluderer: opphald lenger enn 24 timar og det faktisk er skåra NEMS-poeng.
-            #Dvs. NEMS-poeng totalt, altså NEMS per opphold
-            tittel <- 'NEMS per opphold'
-            RegData$Variabel <- RegData$NEMS
-            indMed <- which( (RegData$Liggetid>=1) & (RegData$NEMS>1))	#NEMS=0 el 1 - ikke registrert.
-            RegData <- RegData[indMed, ]
-            xAkseTxt <- 'NEMS/opphold'
-      }
-      if (valgtVar=='NEMS24') { #Andeler, GjsnGrVar, GjsnTid
-            #Inkluderer: opphald lenger enn 24 timar og det faktisk er skåra NEMS-poeng.
-            #Dvs. NEMS-poeng totalt/liggjedøger, altså NEMS/24 timar
-            indMed <- which( (RegData$Liggetid>=1) & (RegData$NEMS>1))	#NEMS=0 el 1 - ikke registrert.
-            RegData <- RegData[indMed, ]
-            RegData$Variabel <- RegData$NEMS/RegData$Liggetid
-            tittel <- 'NEMS per døgn'  #Benyttes bare i Andeler
-            gr <- c(seq(0, 60,10), 500)
-            RegData$Variabel <- RegData$NEMS/RegData$Liggetid
-            RegData$VariabelGr <- cut(RegData$Variabel, breaks=gr, include.lowest=TRUE, right=FALSE)
-            grtxt <- c('(0-10)','[10-20)','[20-30)','[30-40)','[40-50)','[50-60)','60+')
-            xAkseTxt <- 'NEMS per døgn'
-      }
 
       if (valgtVar == 'nyreBeh' ) {   # Andeler, andelerGrVar
             tittel <- 'Andel av opphold med registrert nyreerstattende behandling'
@@ -316,8 +284,8 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
         )
         RegData <- RegData[which(RegData$RegForsink>0), ] #which(!is.na(RegData$RegForsink))
         tittel <- switch(valgtVar,
-                         regForsinkelseInn='Tid fra første innleggelse til opprettet skjema',
-                         regForsinkelseUt = 'Tid fra utskriving til ferdigstilt skjema')
+                         regForsinkelseInn='Tid fra første innleggelse på intensiv til opprettet beredskapsskjema',
+                         regForsinkelseUt = 'Tid fra utskriving intensiv til ferdigstilt beredskapsskjema')
         subtxt <- 'døgn'
         gr <- c(0,1:7,500) #gr <- c(seq(0, 90, 10), 1000)
         RegData$VariabelGr <- cut(RegData$RegForsink, breaks = gr, include.lowest = TRUE, right = TRUE)

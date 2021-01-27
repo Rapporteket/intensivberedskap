@@ -145,23 +145,6 @@ print(xtable::xtable(RegHF, row.names=FALSE, digits=0,
 \end{frame}
 
 
-\begin{frame}[fragile] {Registreringsforsinkelse/datakvalitet}
-<<'RegForsinkelse', results='asis'>>=
-dum <- NIRberedskFigAndeler(RegData = RegDataAlle, valgtVar = 'regForsinkelseInn',
-                        #enhetsNivaa=enhetsNivaa, valgtEnhet=valgtEnhet, enhetsUtvalg = 1,
-                        datoFra = Sys.Date()-60, datoTil = Sys.Date()-30,
-                        outfile='RegForsink.pdf')
-@
-
-\begin{figure}[ht]
-\centering
-\includegraphics[scale=0.35]{RegForsink.pdf}
-\caption{Registreringsforsinkelse, forrige måneds registreringer. \Sexpr{dum$utvalgTxt[2]}}
-\end{figure}
-
-\end{frame}
-
-
 
 
 \begin{frame}[fragile] {Corona, antall opphold}
@@ -258,6 +241,25 @@ if (AntBekr>2) {
 
 \Sexpr{txtRisiko}
 \end{frame}
+
+
+\begin{frame}[fragile] {Registreringsforsinkelse/datakvalitet}
+<<'RegForsinkelse', results='asis'>>=
+dum <- NIRberedskFigAndeler(RegData = RegDataAlle, valgtVar = 'regForsinkelseInn',
+                        #enhetsNivaa=enhetsNivaa, valgtEnhet=valgtEnhet, enhetsUtvalg = 1,
+                        datoFra = Sys.Date()-60, datoTil = Sys.Date()-30,
+                        outfile='RegForsink.pdf')
+@
+
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.35]{RegForsink.pdf}
+\caption{Registreringsforsinkelse, forrige måneds registreringer. \Sexpr{dum$utvalgTxt[2]}}
+\end{figure}
+
+\end{frame}
+
+
 
 
 % \begin{frame}[fragile] {Tilfeller registrert forrige døgn}
