@@ -445,5 +445,30 @@ SentralmaalTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', datoT
                                   Ntest=N)))
 }
 
+#' Vise figurdata som tabell
+#' @param UtDataFraFig data fra figurfunksjoner, dvs. beregnede verdier
+#' @export
+#'
+#'
+lagTabavFigFord <- function(UtDataFraFig){
+  tab <-cbind(UtDataFraFig$Ngr$Hoved,
+              UtDataFraFig$N$Hoved,
+              UtDataFraFig$AggVerdier$Hoved,
+              UtDataFraFig$Ngr$Rest,
+              UtDataFraFig$N$Rest,
+              UtDataFraFig$AggVerdier$Rest)
+  grtxt <- UtDataFraFig$grtxt
+  if ((min(nchar(grtxt)) == 5) & (max(nchar(grtxt)) == 5)) {
+    grtxt <- paste(substr(grtxt, 1,3), substr(grtxt, 4,5))}
+  rownames(tab) <- grtxt
+  kolnavn <- c('Teller', 'Nevner' , 'Andel (%)')
+  colnames(tab) <- c(kolnavn, if(!is.null(UtDataFraFig$Ngr$Rest)){kolnavn})
+  # colnames(tab) <- c(paste0(UtDataFraFig$hovedgrTxt,', Antall'),
+  #                    paste0(UtDataFraFig$hovedgrTxt, ', Andel (%)'),
+  #                    if(!is.null(UtDataFraFig$Ngr$Rest)){paste0(UtDataFraFig$smltxt,', Antall')},
+  #                    if(!is.null(UtDataFraFig$Ngr$Rest)){paste0(UtDataFraFig$smltxt, ', Andel (%)')})
+
+  return(tab)
+}
 
 

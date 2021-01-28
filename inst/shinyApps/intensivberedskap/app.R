@@ -275,10 +275,18 @@ ui <- tagList(
                         )
                         ),
                       mainPanel(
-                      #h2('Fordelingsfigurer for variabler registrert under intensivoppholdene'),
-                      h3('Data er aggregerte til pasientnivå'),
-                        plotOutput('fordelinger'),
-                      br()
+                        tabsetPanel(
+                          tabPanel(
+                            'Figur',
+                            h3('Data er aggregerte til pasientnivå'),
+                            plotOutput('fordelinger')),
+                          tabPanel(
+                            'Tabell',
+                            uiOutput("tittelFord"),
+                            tableOutput('fordelingTab'),
+                            downloadButton(outputId = 'lastNed_tabFord', label='Last ned tabell') #, class = "butt")
+                          )
+                        )
                       )
                       ), #Tab, fordelinger
 
@@ -841,6 +849,45 @@ server <- function(input, output, session) {
                   )
   }, height=800, width=800 #height = function() {session$clientData$output_fordelinger_width}
   )
+
+  observe({
+    UtDataFord <- NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0,
+                                       valgtVar=input$valgtVar,
+                                       # reshID=reshID,
+                                       # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
+                                       bekr=as.numeric(input$bekrFord),
+                                       datoFra=input$datovalg[1], datoTil=input$datovalg[2],
+                                       # minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
+                                       erMann=as.numeric(input$erMannFord),
+                                       session = session
+                                       )
+    tab <- lagTabavFigFord(UtDataFraFig = UtDataFord)
+
+    output$tittelFord <- renderUI({
+      tagList(
+        h3(HTML(paste(UtDataFord$tittel, sep='<br />'))),
+        h5(HTML(paste0(UtDataFord$utvalgTxt, '<br />')))
+      )}) #, align='center'
+    output$fordelingTab <- function() {
+      antKol <- ncol(tab)
+      kableExtra::kable(tab, format = 'html'
+                        , full_width=F
+                        , digits = c(0,0,1,0,0,1)[1:antKol]
+      ) %>%
+        #add_header_above(c(" "=1, 'Egen enhet/gruppe' = 3, 'Resten' = 3)[1:(antKol/3+1)]) %>%
+        column_spec(column = 1, width_min = '7em') %>%
+        column_spec(column = 2:(ncol(tab)+1), width = '7em') %>%
+        row_spec(0, bold = T)
+    }
+
+    output$lastNed_tabFord <- downloadHandler(
+      filename = function(){
+        paste0(input$valgtVar, '_fordeling.csv')
+      },
+      content = function(file, filename){
+        write.csv2(tab, file, row.names = T, na = '')
+      })
+  }) #observe
 
 #---------------Influensa-------------------------
 

@@ -243,18 +243,35 @@ if (AntBekr>2) {
 \end{frame}
 
 
-\begin{frame}[fragile] {Registreringsforsinkelse/datakvalitet}
+\begin{frame}[fragile] {Registreringsforsinkelse, innregistrering}
+
 <<'RegForsinkelse', results='asis'>>=
 dum <- NIRberedskFigAndeler(RegData = RegDataAlle, valgtVar = 'regForsinkelseInn',
                         #enhetsNivaa=enhetsNivaa, valgtEnhet=valgtEnhet, enhetsUtvalg = 1,
                         datoFra = Sys.Date()-60, datoTil = Sys.Date()-30,
-                        outfile='RegForsink.pdf')
+                        outfile='RegForsinkInn.pdf')
+
+dum <- NIRberedskFigAndeler(RegData = RegDataAlle, valgtVar = 'regForsinkelseUt',
+                        #enhetsNivaa=enhetsNivaa, valgtEnhet=valgtEnhet, enhetsUtvalg = 1,
+                        datoFra = Sys.Date()-60, datoTil = Sys.Date()-30,
+                        outfile='RegForsinkUt.pdf')
 @
 
 \begin{figure}[ht]
 \centering
-\includegraphics[scale=0.35]{RegForsink.pdf}
+\includegraphics[scale=0.35]{RegForsinkInn.pdf}
 \caption{Registreringsforsinkelse, forrige måneds registreringer. \Sexpr{dum$utvalgTxt[2]}}
+\end{figure}
+
+\end{frame}
+
+
+\begin{frame}[fragile] {Registreringsforsinkelse, ferdigstillelse}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[scale=0.35]{RegForsinkUt.pdf}
+\caption{Forsinkelse i ferdigstillelse av beredskapsskjema, forrige måneds registreringer. \Sexpr{dum$utvalgTxt[2]}}
 \end{figure}
 
 \end{frame}
