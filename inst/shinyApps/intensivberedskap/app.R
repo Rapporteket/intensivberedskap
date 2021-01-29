@@ -81,12 +81,12 @@ InfluData$RHF <- factor(InfluData$RHF,
                         labels = c('Nord', 'Midt', 'Vest', 'Sør-Øst', 'Privat'))
 
 #Legge på tidsenheter
-#InfluData$Aar <- format(InfluData$InnDato, '%Y')
+InfluData$InnDato <- as.Date(InfluData$FormDate) #, tz='UTC', format = '%Y-%m-%d"')
 InfluData$UkeNr <- format(InfluData$InnDato, '%V')
 InfluData$UkeAar <- format(InfluData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
 InfluData$UkeAar <- as.factor(InfluData$UkeAar)
 
-InfluData$RHF <- factor(InfluData$RHF)
+#InfluData$RHF <- factor(InfluData$RHF)
 
 InfluData$Sesong <- 'diverse'
 InfluData$Sesong[(InfluData$InnDato >= '2018-10-01') & (InfluData$InnDato <= '2019-05-19')] <- '2018-19'
@@ -343,9 +343,9 @@ tabPanel(title = 'Influensa',
                        selectInput(inputId = "dodIntInf", label="Tilstand ut fra intensiv",
                                    choices = c("Alle"=9, "Død"=1, "Levende"=0, "Ukjent"=-1)
                        ),
-                       selectInput(inputId = "erMannInf", label="Kjønn",
-                                   choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
-                       ),
+                       # selectInput(inputId = "erMannInf", label="Kjønn",
+                       #             choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+                       # ),
                        # sliderInput(inputId="alder", label = "Alder",
                        #             min = 0, max = 110,
                        #             value = c(0, 110),
@@ -890,12 +890,13 @@ server <- function(input, output, session) {
   }) #observe
 
 #---------------Influensa-------------------------
+  observeEvent(input$tilbakestillValg, shinyjs::reset("brukervalgInfluensa"))
 
   output$tabInfluUkeRHF <- renderTable({
     TabUkeRHFinflu <- InfluensaUkeRHF(RegData=InfluData, bekr=as.numeric(input$bekrInf),
                                       skjemastatus=as.numeric(input$skjemastatusInf),
                                       dodInt = as.numeric(input$dodIntInf),
-                                      erMann = as.numeric(input$erMannInf),
+                                      #erMann = as.numeric(input$erMannInf),
                                       sesong=input$sesongInf)
     xtable::xtable(TabUkeRHFinflu)}, rownames = T, digits=0, spacing="xs"
   )
