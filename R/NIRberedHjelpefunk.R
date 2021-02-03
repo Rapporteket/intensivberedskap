@@ -51,9 +51,9 @@ abonnementBeredsk <- function(rnwFil, brukernavn='beredskap', reshID=0,
 valgtRHF <- valgtRHF[[1]]
   #datoFra <- datoFra[[1]]
   #datoTil <- datoTil[[1]]
-  #reshID <- reshID[[1]]
+  reshID <- reshID[[1]]
   raplog::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
-                    reshId = reshID[[1]],
+                    reshId = reshID,
                     msg = "starter Abonnement: Corona-rapport")
   filbase <- substr(rnwFil, 1, nchar(rnwFil)-4)
   tmpFile <- paste0(filbase, Sys.Date(),'_',digest::digest(brukernavn), '.Rnw')
@@ -67,7 +67,7 @@ valgtRHF <- valgtRHF[[1]]
   #gc() #Opprydning gc-"garbage collection"
   utfil <- paste0(dir, '/', substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf')
   raplog::subLogger(author = brukernavn, registryName = 'NIR - beredskap',
-                    reshId = reshID[[1]],
+                    reshId = reshID,
                     msg = paste("Leverer: ", utfil))
   return(utfil)
 }
