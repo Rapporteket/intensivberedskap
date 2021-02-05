@@ -195,7 +195,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
 #' @export
 #' @return
 RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoFra='2020-01-01', datoTil=Sys.Date(), reshID=0,
-                              erMann='', bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle',
+                              erMann=9, bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle',
                               resp=9, minald=0, maxald=110, velgAvd=0){
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=datoFra, datoTil=datoTil, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
@@ -344,7 +344,7 @@ ManglerIntSkjema <- function(reshID=0){
 #' @export
 #' @return
 AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
-                       erMann='', bekr=9, dodInt=9, valgtRHF='Alle',
+                       erMann=9, bekr=9, dodInt=9, valgtRHF='Alle',
                        resp=9, minald=0, maxald=110){
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=datoFra, datoTil=datoTil, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
@@ -472,3 +472,38 @@ lagTabavFigFord <- function(UtDataFraFig){
 }
 
 
+#' Tabell som viser fordeling av registreringsforsinkelse per enhet
+#'
+#' @param RegData registerdata, IKKE personaggregert
+#' @param innUt 1-forsinkelse innreg, 2-forsinkelse, ferdigstille utskr.
+#' @param datoFra dato, fra og med
+#' @param datoTil dato, til og med
+#' @param pst 0-antall, 1-prosent
+#'
+#' @return
+#' @export
+#'
+tabRegForsinkelse <- function(RegData, innUt=1, datoFra='2020-03-01', datoTil=Sys.Date(), pst=1){ #,  nivaa='ShNavn'
+
+    # RegData <- NIRPreprosessBeredsk(RegData=NIRberedskDataSQL(), aggPers = 0)
+    # forsinkInn=1
+
+    RegData$RegForsink <- switch(innUt,
+                                 '1' = as.numeric(difftime(RegData$CreationDate,
+                                                                         RegData$Innleggelsestidspunkt, units = 'days')),
+                                 '2' = as.numeric(difftime(RegData$FirstTimeClosed,
+                                                                        RegData$DateDischargedIntensive, units = 'days'))
+    )
+    RegData <- RegData[which(RegData$RegForsink>0), ] #which(!is.na(RegData$RegForsink))
+    gr <- c(0,1:7,500) #gr <- c(seq(0, 90, 10), 1000)
+    RegData$VariabelGr <- cut(RegData$RegForsink, breaks = gr, include.lowest = TRUE, right = TRUE)
+    levels(RegData$VariabelGr) <- c(levels(RegData$VariabelGr)[1:(length(gr)-2)], '7+')
+
+    tab <- table(RegData$ShNavn, RegData$VariabelGr)
+    tab <- rbind(tab,
+                 'Hele landet' = colSums(tab))
+
+    if (pst==1) {tab <- prop.table(tab, margin = 1)*100}
+    return(tab)
+
+      }

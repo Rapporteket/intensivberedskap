@@ -53,6 +53,7 @@ if (paaServer) {
 
 #Bruk resh før preprosesserer
 CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
+BeredOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
 
 BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
 
@@ -421,12 +422,19 @@ tabPanel(title = 'Influensa',
                                      br(),
                                      br(),
                                      h4('Gjør utvalg av data'),
-                                     # dateRangeInput(inputId = 'datovalgArt', start = startDato, end = idag,
-                                     #                label = "Tidsperiode", separator="t.o.m.", language="nb"
-                                     # ),
                                      selectInput(inputId = "erMannArt", label="Kjønn",
-                                                 choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
-                                     )
+                                                 choices = c("Begge"=9, "Kvinne"=0, "Mann"=1)),
+                                     br(),
+                                     br(),
+                                     h3('Valg som gjelder registeringsforsinkelse'),
+                                     selectInput(inputId = "innUtForsink", label="Velg innleggelse/utsriving",
+                                                 choices = c("Innleggelse"=1, "Utskriving"=2)),
+                                     selectInput(inputId = "pstForsink", label="Vis antall eller andel",
+                                                 choices = c("Andeler"=1, "Antall"=0)),
+                                     dateRangeInput(inputId = 'datovalgForsink', start = startDato, end = idag, #'2020-05-10',
+                                                    label = "Tidsperiode", separator="t.o.m.", language="nb"
+                                     ),
+
 
                         ),
                         mainPanel(
@@ -441,7 +449,11 @@ tabPanel(title = 'Influensa',
                           tableOutput('tabAndeler'),
                           br(),
                           h4('Div. sentralmål...'),
-                          tableOutput('tabSentralmaal')
+                          tableOutput('tabSentralmaal'),
+                          br(),
+                          br(),
+                          h3('Registeringsforsinkelse'),
+                          uiOutput("tabRegForsinkEnhet")
                         )
                       )
              ) #tab artikkelarb
@@ -942,6 +954,14 @@ SentralmaalTab <- SentralmaalTab(RegData=BeredIntPasBekr,
                                  #datoFra = input$datoValgArt[1], datoTil = input$datoValgArt[2],
                          erMann=as.numeric(input$erMannArt), valgtRHF='Alle')
 output$tabSentralmaal <- renderTable(SentralmaalTab$Tab, rownames = T, digits=1, spacing="xs") #
+
+TabRegForsinkelse <- tabRegForsinkelse(RegData=RegDataOpph,
+                                       datoFra = input$datovalgForsink[1],
+                                       datoTil = input$datovalgForsink[2],
+                                       pst = input$pstForsink,
+                                       innUt = input$innUtForsink)
+output$tabRegForsinkEnhet <- renderTable(TabRegForsinkelse, rownames = T, digits=1, spacing="xs")
+
 
 })
 

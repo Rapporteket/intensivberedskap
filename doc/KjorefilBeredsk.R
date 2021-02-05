@@ -25,7 +25,10 @@ RegData <- RegDataRaa
 RegData <- NIRPreprosessBeredsk(RegDataRaa, kobleInt = 1)
 
 
-RegDataOpph <- NIRPreprosessBeredsk(RegDataRaa, aggPers = 0)
+RegDataOpph <- NIRPreprosessBeredsk(RegData = NIRberedskDataSQL(), aggPers = 0)
+tab <- tabRegForsinkelse(RegData=RegDataOpph, pst = 0) #datoFra='2020-03-01', datoTil=Sys.Date())
+
+
 table(table(RegDataRaa$PatientInRegistryGuid))
 table(RegData$ReinnNaar)
 table(RegData$ReinnNaarTest)
