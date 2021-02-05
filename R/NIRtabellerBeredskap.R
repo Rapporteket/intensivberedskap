@@ -485,9 +485,7 @@ lagTabavFigFord <- function(UtDataFraFig){
 #'
 tabRegForsinkelse <- function(RegData, innUt=1, datoFra='2020-03-01', datoTil=Sys.Date(), pst=1){ #,  nivaa='ShNavn'
 
-    # RegData <- NIRPreprosessBeredsk(RegData=NIRberedskDataSQL(), aggPers = 0)
-    # forsinkInn=1
-
+  RegData <- NIRUtvalgBeredsk(RegData, datoFra=datoFra, datoTil=datoTil)$RegData
     RegData$RegForsink <- switch(innUt,
                                  '1' = as.numeric(difftime(RegData$CreationDate,
                                                                          RegData$Innleggelsestidspunkt, units = 'days')),

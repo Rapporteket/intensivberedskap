@@ -53,7 +53,7 @@ if (paaServer) {
 
 #Bruk resh før preprosesserer
 CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
-BeredOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
+BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
 
 BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
 
@@ -452,7 +452,7 @@ tabPanel(title = 'Influensa',
                           tableOutput('tabSentralmaal'),
                           br(),
                           br(),
-                          h3('Registeringsforsinkelse'),
+                          h3('Registeringsforsinkelse, antall dager'),
                           uiOutput("tabRegForsinkEnhet")
                         )
                       )
@@ -955,7 +955,7 @@ SentralmaalTab <- SentralmaalTab(RegData=BeredIntPasBekr,
                          erMann=as.numeric(input$erMannArt), valgtRHF='Alle')
 output$tabSentralmaal <- renderTable(SentralmaalTab$Tab, rownames = T, digits=1, spacing="xs") #
 
-TabRegForsinkelse <- tabRegForsinkelse(RegData=RegDataOpph,
+TabRegForsinkelse <- tabRegForsinkelse(RegData=BeredDataOpph,
                                        datoFra = input$datovalgForsink[1],
                                        datoTil = input$datovalgForsink[2],
                                        pst = input$pstForsink,

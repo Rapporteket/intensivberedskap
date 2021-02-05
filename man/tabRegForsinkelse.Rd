@@ -8,7 +8,8 @@ tabRegForsinkelse(
   RegData,
   innUt = 1,
   datoFra = "2020-03-01",
-  datoTil = Sys.Date()
+  datoTil = Sys.Date(),
+  pst = 1
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ tabRegForsinkelse(
 \item{datoFra}{dato, fra og med}
 
 \item{datoTil}{dato, til og med}
+
+\item{pst}{0-antall, 1-prosent}
 }
 \value{
 
