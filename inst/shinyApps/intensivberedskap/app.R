@@ -436,6 +436,7 @@ tabPanel(title = 'Influensa',
                                      ),
 
 
+
                         ),
                         mainPanel(
                           h3('Bekreftede Covidpasienter, t.o.m. dagens dato'),
@@ -453,7 +454,8 @@ tabPanel(title = 'Influensa',
                           br(),
                           br(),
                           h3('Registeringsforsinkelse, antall dager'),
-                          uiOutput("tabRegForsinkEnhet")
+                          uiOutput("tabRegForsinkEnhet"),
+                          downloadButton(outputId = 'lastNed_tabForsink', label='Last ned tabell') #, class = "butt")
                         )
                       )
              ) #tab artikkelarb
@@ -960,10 +962,18 @@ TabRegForsinkelse <- tabRegForsinkelse(RegData=BeredDataOpph,
                                        datoTil = input$datovalgForsink[2],
                                        pst = input$pstForsink,
                                        innUt = input$innUtForsink)
-output$tabRegForsinkEnhet <- renderTable(TabRegForsinkelse, rownames = T, digits=1, spacing="xs")
+output$tabRegForsinkEnhet <- renderTable(TabRegForsinkelse, rownames = T, digits=0, spacing="xs")
 
+output$lastNed_tabForsink <- downloadHandler(
+  filename = function(){
+    paste0('RegForsinkelse.csv')
+  },
+  content = function(file, filename){
+    write.csv2(TabRegForsinkelse, file, row.names = T, na = '')
+  })
 
 })
+
 
 }
 # Run the application
