@@ -501,11 +501,11 @@ server <- function(input, output, session) {
       shinyjs::hide(id = 'CoroRappTxt')
       hideTab(inputId = "hovedark", target = "Abonnement")
     }
-    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'EIVH', 'mariawa-he'))) {  #(brukernavn == 'jlaake') {
+    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'eivh', 'mariawa-he'))) {  #(brukernavn == 'jlaake') {
       shinyjs::hide(id = 'lastNed_dataBeredNIRraa')
       shinyjs::hide(id = 'lastNed_dataBeredNIR')
     }
-    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'EIVH', 'jlaake', 'mariawa-he'))) { #jlaake-ikke datafiler
+    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'eivh', 'jlaake', 'mariawa-he'))) { #jlaake-ikke datafiler
       hideTab(inputId = "hovedark", target = "Registeradmin.")
       #hideTab(inputId = "hovedark", target = "Fordelingsfigurer")
     }
