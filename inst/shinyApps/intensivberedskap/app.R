@@ -53,6 +53,7 @@ if (paaServer) {
 
 #Bruk resh før preprosesserer
 CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
+BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
 
 BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
 
@@ -81,12 +82,12 @@ InfluData$RHF <- factor(InfluData$RHF,
                         labels = c('Nord', 'Midt', 'Vest', 'Sør-Øst', 'Privat'))
 
 #Legge på tidsenheter
-#InfluData$Aar <- format(InfluData$InnDato, '%Y')
+InfluData$InnDato <- as.Date(InfluData$FormDate) #, tz='UTC', format = '%Y-%m-%d"')
 InfluData$UkeNr <- format(InfluData$InnDato, '%V')
 InfluData$UkeAar <- format(InfluData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
 InfluData$UkeAar <- as.factor(InfluData$UkeAar)
 
-InfluData$RHF <- factor(InfluData$RHF)
+#InfluData$RHF <- factor(InfluData$RHF)
 
 InfluData$Sesong <- 'diverse'
 InfluData$Sesong[(InfluData$InnDato >= '2018-10-01') & (InfluData$InnDato <= '2019-05-19')] <- '2018-19'
@@ -239,6 +240,7 @@ ui <- tagList(
                         h4('Her kan man velge hvilken variabel man ønsker å se på og gjøre ulike filtreringer.'),
                         selectInput(
                           inputId = "valgtVar", label="Velg variabel",
+                          selected = 'regForsinkelseInn',
                           choices = c('Alder' = 'alder',
                                        'Bukleie' = 'bukleie',
                                        'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring',
@@ -253,6 +255,8 @@ ui <- tagList(
                                       # 'Nyreerstattende beh., varighet' = 'nyreBehTid',
                                       # 'Potensielle donorer, årsak ikke påvist opph. sirkulasjon' = 'CerebralCirculationAbolishedReasonForNo',
                                        'Primærårsak' = 'PrimaryReasonAdmitted',
+                                      'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
+                                      'Registreringsforsinkelse, utskriving' = 'regForsinkelseUt',
                                        'Respiratortid, totalt' = 'RespiratortidInt',
                                        'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
                                        'Respiratortid, invasiv' = 'respiratortidInv',
@@ -272,10 +276,18 @@ ui <- tagList(
                         )
                         ),
                       mainPanel(
-                      #h2('Fordelingsfigurer for variabler registrert under intensivoppholdene'),
-                      h3('Data er aggregerte til pasientnivå'),
-                        plotOutput('fordelinger'),
-                      br()
+                        tabsetPanel(
+                          tabPanel(
+                            'Figur',
+                            h3('Data er aggregerte til pasientnivå'),
+                            plotOutput('fordelinger')),
+                          tabPanel(
+                            'Tabell',
+                            uiOutput("tittelFord"),
+                            tableOutput('fordelingTab'),
+                            downloadButton(outputId = 'lastNed_tabFord', label='Last ned tabell') #, class = "butt")
+                          )
+                        )
                       )
                       ), #Tab, fordelinger
 
@@ -332,9 +344,9 @@ tabPanel(title = 'Influensa',
                        selectInput(inputId = "dodIntInf", label="Tilstand ut fra intensiv",
                                    choices = c("Alle"=9, "Død"=1, "Levende"=0, "Ukjent"=-1)
                        ),
-                       selectInput(inputId = "erMannInf", label="Kjønn",
-                                   choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
-                       ),
+                       # selectInput(inputId = "erMannInf", label="Kjønn",
+                       #             choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+                       # ),
                        # sliderInput(inputId="alder", label = "Alder",
                        #             min = 0, max = 110,
                        #             value = c(0, 110),
@@ -410,12 +422,20 @@ tabPanel(title = 'Influensa',
                                      br(),
                                      br(),
                                      h4('Gjør utvalg av data'),
-                                     # dateRangeInput(inputId = 'datovalgArt', start = startDato, end = idag,
-                                     #                label = "Tidsperiode", separator="t.o.m.", language="nb"
-                                     # ),
                                      selectInput(inputId = "erMannArt", label="Kjønn",
-                                                 choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
-                                     )
+                                                 choices = c("Begge"=9, "Kvinne"=0, "Mann"=1)),
+                                     br(),
+                                     br(),
+                                     h3('Valg som gjelder registeringsforsinkelse'),
+                                     selectInput(inputId = "innUtForsink", label="Velg innleggelse/utsriving",
+                                                 choices = c("Innleggelse"=1, "Utskriving"=2)),
+                                     selectInput(inputId = "pstForsink", label="Vis antall eller andel",
+                                                 choices = c("Andeler"=1, "Antall"=0)),
+                                     dateRangeInput(inputId = 'datovalgForsink', start = startDato, end = idag, #'2020-05-10',
+                                                    label = "Tidsperiode", separator="t.o.m.", language="nb"
+                                     ),
+
+
 
                         ),
                         mainPanel(
@@ -430,7 +450,12 @@ tabPanel(title = 'Influensa',
                           tableOutput('tabAndeler'),
                           br(),
                           h4('Div. sentralmål...'),
-                          tableOutput('tabSentralmaal')
+                          tableOutput('tabSentralmaal'),
+                          br(),
+                          br(),
+                          h3('Registeringsforsinkelse, antall dager'),
+                          uiOutput("tabRegForsinkEnhet"),
+                          downloadButton(outputId = 'lastNed_tabForsink', label='Last ned tabell') #, class = "butt")
                         )
                       )
              ) #tab artikkelarb
@@ -476,11 +501,11 @@ server <- function(input, output, session) {
       shinyjs::hide(id = 'CoroRappTxt')
       hideTab(inputId = "hovedark", target = "Abonnement")
     }
-    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'mariawa-he'))) {  #(brukernavn == 'jlaake') {
+    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'eivh', 'mariawa-he'))) {  #(brukernavn == 'jlaake') {
       shinyjs::hide(id = 'lastNed_dataBeredNIRraa')
       shinyjs::hide(id = 'lastNed_dataBeredNIR')
     }
-    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'jlaake', 'mariawa-he'))) { #jlaake-ikke datafiler
+    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'eivh', 'jlaake', 'mariawa-he'))) { #jlaake-ikke datafiler
       hideTab(inputId = "hovedark", target = "Registeradmin.")
       #hideTab(inputId = "hovedark", target = "Fordelingsfigurer")
     }
@@ -839,13 +864,53 @@ server <- function(input, output, session) {
   }, height=800, width=800 #height = function() {session$clientData$output_fordelinger_width}
   )
 
+  observe({
+    UtDataFord <- NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0,
+                                       valgtVar=input$valgtVar,
+                                       # reshID=reshID,
+                                       # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
+                                       bekr=as.numeric(input$bekrFord),
+                                       datoFra=input$datovalg[1], datoTil=input$datovalg[2],
+                                       # minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
+                                       erMann=as.numeric(input$erMannFord),
+                                       session = session
+                                       )
+    tab <- lagTabavFigFord(UtDataFraFig = UtDataFord)
+
+    output$tittelFord <- renderUI({
+      tagList(
+        h3(HTML(paste(UtDataFord$tittel, sep='<br />'))),
+        h5(HTML(paste0(UtDataFord$utvalgTxt, '<br />')))
+      )}) #, align='center'
+    output$fordelingTab <- function() {
+      antKol <- ncol(tab)
+      kableExtra::kable(tab, format = 'html'
+                        , full_width=F
+                        , digits = c(0,0,1,0,0,1)[1:antKol]
+      ) %>%
+        #add_header_above(c(" "=1, 'Egen enhet/gruppe' = 3, 'Resten' = 3)[1:(antKol/3+1)]) %>%
+        column_spec(column = 1, width_min = '7em') %>%
+        column_spec(column = 2:(ncol(tab)+1), width = '7em') %>%
+        row_spec(0, bold = T)
+    }
+
+    output$lastNed_tabFord <- downloadHandler(
+      filename = function(){
+        paste0(input$valgtVar, '_fordeling.csv')
+      },
+      content = function(file, filename){
+        write.csv2(tab, file, row.names = T, na = '')
+      })
+  }) #observe
+
 #---------------Influensa-------------------------
+  observeEvent(input$tilbakestillValg, shinyjs::reset("brukervalgInfluensa"))
 
   output$tabInfluUkeRHF <- renderTable({
     TabUkeRHFinflu <- InfluensaUkeRHF(RegData=InfluData, bekr=as.numeric(input$bekrInf),
                                       skjemastatus=as.numeric(input$skjemastatusInf),
                                       dodInt = as.numeric(input$dodIntInf),
-                                      erMann = as.numeric(input$erMannInf),
+                                      #erMann = as.numeric(input$erMannInf),
                                       sesong=input$sesongInf)
     xtable::xtable(TabUkeRHFinflu)}, rownames = T, digits=0, spacing="xs"
   )
@@ -892,7 +957,23 @@ SentralmaalTab <- SentralmaalTab(RegData=BeredIntPasBekr,
                          erMann=as.numeric(input$erMannArt), valgtRHF='Alle')
 output$tabSentralmaal <- renderTable(SentralmaalTab$Tab, rownames = T, digits=1, spacing="xs") #
 
+TabRegForsinkelse <- tabRegForsinkelse(RegData=BeredDataOpph,
+                                       datoFra = input$datovalgForsink[1],
+                                       datoTil = input$datovalgForsink[2],
+                                       pst = input$pstForsink,
+                                       innUt = input$innUtForsink)
+output$tabRegForsinkEnhet <- renderTable(TabRegForsinkelse, rownames = T, digits=0, spacing="xs")
+
+output$lastNed_tabForsink <- downloadHandler(
+  filename = function(){
+    paste0('RegForsinkelse.csv')
+  },
+  content = function(file, filename){
+    write.csv2(TabRegForsinkelse, file, row.names = T, na = '')
+  })
+
 })
+
 
 }
 # Run the application

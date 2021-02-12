@@ -20,8 +20,15 @@ knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'U
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 library(intensivberedskap)
 
-RegDataRaa <- NIRberedskDataSQL()
-RegData <- NIRPreprosessBeredsk(RegDataRaa)
+RegDataRaa <- NIRberedskDataSQL(kobleInt = 1)
+RegData <- RegDataRaa
+RegData <- NIRPreprosessBeredsk(RegDataRaa, kobleInt = 1)
+
+
+RegDataOpph <- NIRPreprosessBeredsk(RegData = NIRberedskDataSQL(), aggPers = 0)
+tab <- tabRegForsinkelse(RegData=RegDataOpph, pst = 0) #datoFra='2020-03-01', datoTil=Sys.Date())
+
+
 table(table(RegDataRaa$PatientInRegistryGuid))
 table(RegData$ReinnNaar)
 table(RegData$ReinnNaarTest)
@@ -269,4 +276,16 @@ erInneliggendeMut <- function(datoer, regdata){
     write.table(inneliggende, file = 'data-raw/inneliggende.csv', sep = ';',  row.names = F, fileEncoding = 'UTF-8')
 
 
+
+    #Diagnosis
+    # -1 = Velg verdi
+    # 100 = Påvist SARS-CoV-2
+    # 101 = Påvist SARS-CoV-2 med pneumoni
+    # 102 = Påvist SARS-CoV-2 med annen luftveissykdom
+    # 103 = Påvist SARS-CoV-2 med annen organmanifestasjon
+    # 104 = Mistenkt SARS-CoV-2
+    # 105 = Mistenkt SARS-CoV-2 med pneumoni
+    # 106 = Mistenkt SARS-CoV-2 med annen luftveissykdom
+    # 107 = Mistenkt SARS-CoV-2 med annen organmanifestasjon
+    #"Når ein opprettar eit Coronaskjema har ein per def. Mistanke om Corona. Vi meiner difor at skjema med verdi -1 også bør tellast med som mistenkt Corona." Antar dette også gjelder Corona.
 
