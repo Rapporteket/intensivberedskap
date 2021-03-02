@@ -25,12 +25,12 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
   RegDataAlle <- UtData$RegData
   if (datoFra != 0) {RegDataAlle <- RegDataAlle[which(RegDataAlle$InnDato >= datoFra), ]}
   RegDataAlle$TidsVar <- switch (tidsenhet,
-                                 dag = factor(format(RegDataAlle$InnDato, '%d.%b'),
+                                 dag = factor(format(RegDataAlle$InnDato, '%d.%m.%y'),
                                               levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
-                                                                      by=paste0('-1 day'))), '%d.%b')),
-                                 uke = factor(paste0('Uke ', format(RegDataAlle$InnDato, '%V')),
+                                                                      by=paste0('-1 day'))), '%d.%m.%y')),
+                                 uke = factor(paste0('Uke ', format(RegDataAlle$InnDato, '%V.%Y')),
                                               levels = paste0('Uke ', format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
-                                                                                     by=paste0('-1 week'))), '%V'))),
+                                                                                     by=paste0('-1 week'))), '%V.%Y'))),
                                  maaned = factor(format(RegDataAlle$InnDato, '%b.%Y'),
                                                  levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
                                                                          by=paste0('-1 month'))), '%b.%Y')))

@@ -21,12 +21,12 @@ antallTidUtskrevneNIRberedskap <- function(RegData, tidsenhet='dag', erMann=9, r
   if (datoFra != 0) {RegDataAlle <- RegDataAlle[which(RegDataAlle$UtDato >= datoFra) & which(RegDataAlle$UtDato <= datoTil), ]} # filtrerer på dato
 
   RegDataAlle$TidsVar <- switch (tidsenhet,
-                                 dag = factor(format(RegDataAlle$UtDato, '%d.%b'),
+                                 dag = factor(format(RegDataAlle$UtDato, '%d.%m.%y'),
                                               levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$UtDato, na.rm = T),
-                                                                      by=paste0('-1 day'))), '%d.%b')),
-                                 uke = factor(paste0('Uke ', format(RegDataAlle$UtDato, '%V')),
+                                                                      by=paste0('-1 day'))), '%d.%m.%y')),
+                                 uke = factor(paste0('Uke ', format(RegDataAlle$UtDato, '%V.%Y')),
                                               levels = paste0('Uke ', format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$UtDato, na.rm = T),
-                                                                                     by=paste0('-1 week'))), '%V'))),
+                                                                                     by=paste0('-1 week'))), '%V.%Y'))),
                                  maaned = factor(format(RegDataAlle$UtDato, '%b.%Y'),
                                                  levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$UtDato, na.rm = T),
                                                                          by=paste0('-1 month'))), '%b.%Y')))
@@ -134,7 +134,7 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
   datoer <- seq(if (datoFra!=0) as.Date(datoFra, tz= 'UTC', format="%Y-%m-%d") else min(RegDataAlle$InnDato), today(), by="day")
 
   if (tidsenhet=='dag') {
-    names(datoer) <- format(datoer, '%d.%b')
+    names(datoer) <- format(datoer, '%d.%m.%y')
     aux <- erInneliggende(datoer = datoer, regdata = RegDataAlle)
     RegDataAlle <- bind_cols(RegDataAlle[ , c("PasientID", "HF", "RHF")], aux)
   } else {
@@ -154,7 +154,7 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
   }
 
   switch (tidsenhet,
-          uke = datoer <- unique(paste0('Uke ', format(datoer, '%V'))),
+          uke = datoer <- unique(paste0('Uke ', format(datoer, '%V.%Y'))),
           maaned = datoer <- unique(format(datoer, '%b.%Y')))
   if (tidsenhet %in% c("uke", "maaned")) {
     names(datoer) <- datoer

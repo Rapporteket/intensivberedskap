@@ -24,6 +24,7 @@ RegDataRaa <- NIRberedskDataSQL(kobleInt = 1)
 RegData <- RegDataRaa
 RegData <- NIRPreprosessBeredsk(RegDataRaa, kobleInt = 1)
 
+unique(RegData[ ,c('ReshId', 'ShNavn')])
 
 RegDataOpph <- NIRPreprosessBeredsk(RegData = NIRberedskDataSQL(), aggPers = 0)
 tab <- tabRegForsinkelse(RegData=RegDataOpph, pst = 0) #datoFra='2020-03-01', datoTil=Sys.Date())
