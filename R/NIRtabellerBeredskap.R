@@ -28,12 +28,13 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
                                  dag = factor(format(RegDataAlle$InnDato, '%d.%m.%y'),
                                               levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
                                                                       by=paste0('-1 day'))), '%d.%m.%y')),
-                                 uke = factor(paste0('Uke ', format(RegDataAlle$InnDato, '%V.%Y')),
-                                              levels = paste0('Uke ', format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
-                                                                                     by=paste0('-1 week'))), '%V.%Y'))),
-                                 maaned = factor(format(RegDataAlle$InnDato, '%b.%Y'),
+                                 uke = factor(paste0('U', format(RegDataAlle$InnDato, '%V.%y')),
+                                              levels = paste0('U', format(rev(seq(Sys.Date(),
+                                                                             if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
+                                                                                     by=paste0('-1 week'))), '%V.%y'))),
+                                 maaned = factor(format(RegDataAlle$InnDato, '%B.%y'),
                                                  levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
-                                                                         by=paste0('-1 month'))), '%b.%Y')))
+                                                                         by=paste0('-1 month'))), '%B.%y')))
   RegDataAlle <- RegDataAlle[!is.na(RegDataAlle$TidsVar), ]
   RegData <- if(valgtRHF=='Alle') {RegDataAlle} else {RegDataAlle[RegDataAlle$RHF == valgtRHF, ]}
   Ntest <- dim(RegData)[1]

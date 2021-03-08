@@ -83,8 +83,10 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
 
   datoFra <- reactive(datoFra <- switch (input$velgTidsenhet,
                                          "dag" = Sys.Date() - days(as.numeric(input$velgAntVisning)-1),
-                                         "uke" = floor_date(Sys.Date() - weeks(as.numeric(input$velgAntVisning)-1), unit = 'week', week_start = 1),
-                                         "maaned" = floor_date(Sys.Date() - months(as.numeric(input$velgAntVisning)-1), unit = 'month')
+                                         "uke" = floor_date(Sys.Date() - weeks(as.numeric(input$velgAntVisning)-1),
+                                                            unit = 'week', week_start = 1),
+                                         "maaned" = floor_date(Sys.Date() - months(as.numeric(input$velgAntVisning)-1),
+                                                               unit = 'month')
   )
   )
 

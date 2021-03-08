@@ -22,7 +22,7 @@ context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
 paaServer <- context %in% c("DEV", "TEST", "QA", "PRODUCTION")
 
 #options(knitr.table.format = "html")
-idag <- Sys.Date() #as.Date('2018-11-30') #
+idag <- Sys.Date()
 datoTil <- as.POSIXlt(idag)
 startDato <- '2020-03-01'  #paste0(as.numeric(format(idag-90, "%Y")), '-01-01')
 #AarNaa <- as.numeric(format(idag, "%Y"))
