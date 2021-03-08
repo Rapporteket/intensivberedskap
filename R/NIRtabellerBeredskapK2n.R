@@ -18,18 +18,19 @@ antallTidUtskrevneNIRberedskap <- function(RegData, tidsenhet='dag', erMann=9, r
   RegDataAlle <- UtData$RegData
   RegDataAlle$UtDato <- as.Date(RegDataAlle$DateDischargedIntensive, tz= 'UTC', format="%Y-%m-%d")
 
-  if (datoFra != 0) {RegDataAlle <- RegDataAlle[which(RegDataAlle$UtDato >= datoFra) & which(RegDataAlle$UtDato <= datoTil), ]} # filtrerer på dato
+  if (datoFra != 0) {RegDataAlle <-
+    RegDataAlle[which(RegDataAlle$UtDato >= datoFra) & which(RegDataAlle$UtDato <= datoTil), ]} # filtrerer på dato
 
   RegDataAlle$TidsVar <- switch (tidsenhet,
                                  dag = factor(format(RegDataAlle$UtDato, '%d.%m.%y'),
                                               levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$UtDato, na.rm = T),
                                                                       by=paste0('-1 day'))), '%d.%m.%y')),
-                                 uke = factor(paste0('U', format(RegDataAlle$UtDato, '%V.%y')),
-                                              levels = paste0('U ', format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$UtDato, na.rm = T),
+                                 uke = factor(paste0('Uke ', format(RegDataAlle$UtDato, '%V.%y')),
+                                              levels = paste0('Uke ', format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$UtDato, na.rm = T),
                                                                                      by=paste0('-1 week'))), '%V.%y'))),
-                                 maaned = factor(format(RegDataAlle$UtDato, '%B.%y'),
+                                 maaned = factor(format(RegDataAlle$UtDato, '%b %y'),
                                                  levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else
-                                                   min(RegDataAlle$UtDato, na.rm = T), by=paste0('-1 month'))), '%B.%y')))
+                                                   min(RegDataAlle$UtDato, na.rm = T), by=paste0('-1 month'))), '%b %y')))
 
   RegDataAlle <- RegDataAlle[!is.na(RegDataAlle$TidsVar), ]
 
@@ -144,8 +145,8 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
     aux <- aux %>% gather(names(aux)[-1], key=Tid, value = verdi)
     aux$Tid <- as.Date(aux$Tid)
     aux$Tid <- switch (tidsenhet,
-                       'uke' = paste0('U', format(aux$Tid, "%V")),
-                       'maaned' = format(aux$Tid, "%b.%Y")
+                       'uke' = paste0('Uke ', format(aux$Tid, "%V.%y")),
+                       'maaned' = format(aux$Tid, "%b %y")
     )
     aux <- aux %>% group_by(PasientID, Tid) %>%
       summarise(er_inne = max(verdi))
@@ -154,8 +155,8 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
   }
 
   switch (tidsenhet,
-          uke = datoer <- unique(paste0('U', format(datoer, '%V.%y'))),
-          maaned = datoer <- unique(format(datoer, '%B.%y')))
+          uke = datoer <- unique(paste0('Uke ', format(datoer, '%V.%y'))),
+          maaned = datoer <- unique(format(datoer, '%b %y')))
   if (tidsenhet %in% c("uke", "maaned")) {
     names(datoer) <- datoer
   }

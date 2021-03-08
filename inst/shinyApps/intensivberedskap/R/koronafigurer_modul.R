@@ -89,17 +89,9 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
                                                                unit = 'month')
   )
   )
-
+  #TabTidEnhet(RegData=CoroData, tidsenhet='uke')
   AntTab <- function() {
     valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-    # AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
-    #                       valgtRHF= valgtRHF,
-    #                       skjemastatus=as.numeric(input$skjemastatus),
-    #                       resp=as.numeric(input$resp),
-    #                       dodInt = as.numeric(input$dodInt),
-    #                       bekr=as.numeric(input$bekr),
-    #                       erMann=as.numeric(input$erMann)
-    # )
     AntTab <- switch(input$valgtVar,
                      'antreg'= TabTidEnhet(RegData=CoroData,
                                            tidsenhet=input$velgTidsenhet,
@@ -119,13 +111,6 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
                                                            dodInt = as.numeric(input$dodInt),
                                                            bekr=as.numeric(input$bekr),
                                                            erMann=as.numeric(input$erMann)),
-                     # 'antut'=antallTidUtskrevne(RegData=KoroData, tilgangsNivaa=rolle,
-                     #                            valgtEnhet= egenEnhet, #nivå avgjort av rolle
-                     #                            tidsenhet=input$velgTidsenhet,
-                     #                            datoFra=datoFra(),
-                     #                            aarsakInn = as.numeric(input$aarsakInnRes),
-                     #                            skjemastatusInn=as.numeric(input$skjemastatusInnRes),
-                     #                            erMann=as.numeric(input$erMannRes)),
                      'antinn'= antallTidInneliggendeBeredskap(RegData=CoroData,
                                                               tidsenhet=input$velgTidsenhet,
                                                               datoFra=datoFra(),

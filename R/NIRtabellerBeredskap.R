@@ -13,28 +13,26 @@
 TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
                         bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
 
-  # RegData$TidsVar <- RegData[ ,switch (tidsenhet,
-  #                                      dag = 'Dag',
-  #                                      uke = 'UkeNr',
-  #                                      maaned = 'MndAar')]
-
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=0, datoTil=0, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                              bekr=bekr, skjemastatus=skjemastatus, resp=resp,
                              dodInt=dodInt) #, valgtRHF=valgtRHF) #velgAvd=velgAvd
 
   RegDataAlle <- UtData$RegData
   if (datoFra != 0) {RegDataAlle <- RegDataAlle[which(RegDataAlle$InnDato >= datoFra), ]}
-  RegDataAlle$TidsVar <- switch (tidsenhet,
-                                 dag = factor(format(RegDataAlle$InnDato, '%d.%m.%y'),
-                                              levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
-                                                                      by=paste0('-1 day'))), '%d.%m.%y')),
-                                 uke = factor(paste0('U', format(RegDataAlle$InnDato, '%V.%y')),
-                                              levels = paste0('U', format(rev(seq(Sys.Date(),
-                                                                             if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
-                                                                                     by=paste0('-1 week'))), '%V.%y'))),
-                                 maaned = factor(format(RegDataAlle$InnDato, '%B.%y'),
-                                                 levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
-                                                                         by=paste0('-1 month'))), '%B.%y')))
+  RegDataAlle$TidsVar <-
+    switch (tidsenhet,
+            dag = factor(format(RegDataAlle$InnDato, '%d.%m.%y'),
+                         levels = format(rev(seq(Sys.Date(),
+                                                 if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
+                                                 by=paste0('-1 day'))), '%d.%m.%y')),
+            uke = factor(paste0('Uke ', format(RegDataAlle$InnDato, '%V.%y')),
+                         levels = paste0('Uke ', format(rev(seq(Sys.Date(),
+                                                                if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
+                                                                by=paste0('-1 week'))), '%V.%y'))),
+            maaned = factor(format(RegDataAlle$InnDato, '%b %y'),
+                            levels = format(rev(seq(Sys.Date(),
+                                                    if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
+                                                    by=paste0('-1 month'))), '%b %y')))
   RegDataAlle <- RegDataAlle[!is.na(RegDataAlle$TidsVar), ]
   RegData <- if(valgtRHF=='Alle') {RegDataAlle} else {RegDataAlle[RegDataAlle$RHF == valgtRHF, ]}
   Ntest <- dim(RegData)[1]
