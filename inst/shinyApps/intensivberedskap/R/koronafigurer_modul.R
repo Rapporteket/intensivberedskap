@@ -25,7 +25,7 @@ koronafigurer_UI <- function(id, rhfNavn){
                  selectInput(inputId = ns("skjemastatus"), label="Skjemastatus",
                              choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
                  ),
-                 selectInput(inputId = ns("resp"), label="Respiratorbehandlet",
+                 selectInput(inputId = ns("resp"), label="Respiratorbehandlet (invasiv+non-inv.)",
                              choices = c("Alle"=9, "Ja"=1, "Nei"=2)
                  ),
                  selectInput(inputId = ns("dodInt"), label="Tilstand ut fra intensiv",
