@@ -122,11 +122,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    ReinnNaar = ifelse(Reinn==0, 1, max(which(difftime(sort(FormDate)[2:AntRegPrPas],
                                                                       DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
                                                                       units = 'hours') > 12))+1), #Hvilke opphold som er reinnleggelse
-      #    )
-      # test <- RegData[RegData$PasientID == "91C40563-E533-EB11-A96E-00155D0B4D16", ]
-      # testRed <- RegDataRed[RegDataRed$PasientID == "91C40563-E533-EB11-A96E-00155D0B4D16", ]
-
-
                    FormDateSiste = nth(FormDate, ReinnNaar, order_by = FormDate),
                    #Justering av respiratortid mht. reinnleggelse. NB: Kan være reinnlagt på respirator selv om ikke reinnlagt på intensiv.
                    AntRespPas = length(MechanicalRespiratorStart)-sum(is.na(MechanicalRespiratorStart)), #sum(MechanicalRespirator==1, na.rm=T), #
@@ -152,6 +147,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    MunicipalNumber = first(MunicipalNumber, order_by = FormDate),
                    ReshId = first(ReshId, order_by = FormDate),
                    RHF = first(RHF, order_by = FormDate),
+                   HFut = last(HF, order_by = FormDate),
                    HF = first(HF, order_by = FormDate),
                    ShNavnUt = last(HelseenhetKortnavn, order_by = FormDate),
                    ShNavn = first(HelseenhetKortnavn, order_by = FormDate),
@@ -303,13 +299,13 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    RegData$Aar <- factor(format(RegData$InnDato, '%Y'),
                          levels = min(as.numeric(format(RegData$InnDato, '%Y'))):max(as.numeric(format(RegData$InnDato, '%Y'))))
    # RegData$UkeNr <- format(RegData$InnDato, '%V')
-   RegData$UkeNr <- factor(format(RegData$InnDato, '%V'),
-                           levels = min(as.numeric(format(RegData$InnDato, '%V'))):max(as.numeric(format(RegData$InnDato, '%V'))))
+   RegData$UkeNr <- factor(format(RegData$InnDato, '%V.%Y'),
+                           levels = min(as.numeric(format(RegData$InnDato, '%V.%Y'))):max(as.numeric(format(RegData$InnDato, '%V.%Y'))))
    #RegData$UkeAar <- format(RegData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
    #RegData$UkeAar <- as.factor(RegData$UkeAar)
    # RegData$Dag <- format(RegData$InnDato, '%d.%b')
-   RegData$Dag <- factor(format(RegData$InnDato, '%d.%b'),
-                         levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%b'))
+   RegData$Dag <- factor(format(RegData$InnDato, '%d.%m.%y'),
+                         levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
 
 
 

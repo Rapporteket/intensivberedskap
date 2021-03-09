@@ -25,7 +25,7 @@ koronafigurer_UI <- function(id, rhfNavn){
                  selectInput(inputId = ns("skjemastatus"), label="Skjemastatus",
                              choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
                  ),
-                 selectInput(inputId = ns("resp"), label="Respiratorbehandlet",
+                 selectInput(inputId = ns("resp"), label="Respiratorbehandlet (invasiv+non-inv.)",
                              choices = c("Alle"=9, "Ja"=1, "Nei"=2)
                  ),
                  selectInput(inputId = ns("dodInt"), label="Tilstand ut fra intensiv",
@@ -83,21 +83,15 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
 
   datoFra <- reactive(datoFra <- switch (input$velgTidsenhet,
                                          "dag" = Sys.Date() - days(as.numeric(input$velgAntVisning)-1),
-                                         "uke" = floor_date(Sys.Date() - weeks(as.numeric(input$velgAntVisning)-1), unit = 'week', week_start = 1),
-                                         "maaned" = floor_date(Sys.Date() - months(as.numeric(input$velgAntVisning)-1), unit = 'month')
+                                         "uke" = floor_date(Sys.Date() - weeks(as.numeric(input$velgAntVisning)-1),
+                                                            unit = 'week', week_start = 1),
+                                         "maaned" = floor_date(Sys.Date() - months(as.numeric(input$velgAntVisning)-1),
+                                                               unit = 'month')
   )
   )
-
+  #TabTidEnhet(RegData=CoroData, tidsenhet='uke')
   AntTab <- function() {
     valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
-    # AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
-    #                       valgtRHF= valgtRHF,
-    #                       skjemastatus=as.numeric(input$skjemastatus),
-    #                       resp=as.numeric(input$resp),
-    #                       dodInt = as.numeric(input$dodInt),
-    #                       bekr=as.numeric(input$bekr),
-    #                       erMann=as.numeric(input$erMann)
-    # )
     AntTab <- switch(input$valgtVar,
                      'antreg'= TabTidEnhet(RegData=CoroData,
                                            tidsenhet=input$velgTidsenhet,
@@ -117,13 +111,6 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
                                                            dodInt = as.numeric(input$dodInt),
                                                            bekr=as.numeric(input$bekr),
                                                            erMann=as.numeric(input$erMann)),
-                     # 'antut'=antallTidUtskrevne(RegData=KoroData, tilgangsNivaa=rolle,
-                     #                            valgtEnhet= egenEnhet, #nivå avgjort av rolle
-                     #                            tidsenhet=input$velgTidsenhet,
-                     #                            datoFra=datoFra(),
-                     #                            aarsakInn = as.numeric(input$aarsakInnRes),
-                     #                            skjemastatusInn=as.numeric(input$skjemastatusInnRes),
-                     #                            erMann=as.numeric(input$erMannRes)),
                      'antinn'= antallTidInneliggendeBeredskap(RegData=CoroData,
                                                               tidsenhet=input$velgTidsenhet,
                                                               datoFra=datoFra(),
