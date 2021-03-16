@@ -279,7 +279,8 @@ ui <- tagList(
                         tabsetPanel(
                           tabPanel(
                             'Figur',
-                            h3('Data er aggregerte til pasientnivå'),
+                            h4('Data er aggregerte til pasientnivå og inneholder kun registreringer
+                               hvor pasienten har både beredskapsskjema og ferdigstilte intensivskjema.'),
                             plotOutput('fordelinger')),
                           tabPanel(
                             'Tabell',

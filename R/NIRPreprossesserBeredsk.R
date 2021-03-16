@@ -164,8 +164,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    if (kobleInt==1){
       #Fjerner  uten intensivskjema
       pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-      RegData <- RegData[-which(RegData$PersonId %in% pasUint), ]
-      RegDataRed <- RegDataRed[-which(RegDataRed$PersonId %in% pasUint), ]
+      indManglerIntSkjema <- which(RegData$PersonId %in% pasUint)
+      if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
+      indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)
+      if (length(indManglerIntPas)>0) {RegDataRed <- RegDataRed[-indManglerIntPas, ]}
 
       if (aggPers == 1){
 
