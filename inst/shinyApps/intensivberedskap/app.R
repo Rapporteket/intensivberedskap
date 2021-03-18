@@ -169,9 +169,6 @@ ui <- tagList(
                                    br(),
                                    actionButton("tilbakestillValg", label="Tilbakestill valg")
 
-                                   # selectInput(inputId = 'enhetsGruppe', label='Enhetgruppe',
-                                   #             choices = c("RHF"=1, "HF"=2, "Sykehus"=3)
-                                   # ),
                                    # dateRangeInput(inputId = 'datovalg', start = startDato, end = idag,
                                    #                label = "Tidsperiode", separator="t.o.m.", language="nb" #)
                                    # ),
@@ -203,6 +200,10 @@ ui <- tagList(
                                          uiOutput('utvalgFerdigeReg'),
                                          tableOutput('tabFerdigeReg')
                                   )),
+
+                                h3('Antall inneliggende i hvert HF'),
+                                h5('Mistenkte og bekreftede'),
+                                tableOutput('tabInneliggHF'),
 
                                 h3('Antall ny-innlagte pasienter, siste 10 dager'),
                                 h4('NB: Inkluderer ikke overføringer mellom intensivenheter'),
@@ -627,6 +628,17 @@ server <- function(input, output, session) {
                                       bekr=as.numeric(input$bekr))
     output$tabECMOrespirator <- renderTable({statusNaaTab$Tab}, rownames = T, digits=0, spacing="xs")
     output$utvalgNaa <- renderUI({h5(HTML(paste0(statusNaaTab$utvalgTxt, '<br />'))) })
+
+
+    # Inneliggende per HF
+    output$tabInneliggHF <- renderTable({
+      inneligg <- is.na(CoroData$DateDischargedIntensive)
+      RegHF <- CoroData[inneligg,] %>% dplyr::group_by(RHFut, HFut) %>% dplyr::summarise(Antall = n())
+      colnames(RegHF) <- c('RHF', 'HF', 'Antall')
+      RegHF
+    }, rownames = F, digits = 0)
+
+
 
     #Tab ferdigstilte
     #print(input$datovalgStart[1])

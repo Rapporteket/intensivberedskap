@@ -134,12 +134,10 @@ Oversikt over antall som ligger på intensiv. (Registreringer uten ut-tid fra in
 <<'InneliggendePrHF', results='asis'>>=
 
 inneligg <- is.na(RegDataAlle$DateDischargedIntensive)
-RegHF <- RegDataAlle[inneligg,] %>% dplyr::group_by(RHF, HF) %>% dplyr::summarise(Antall = n())
+RegHF <- RegDataAlle[inneligg,] %>% dplyr::group_by(RHFut, HFut) %>% dplyr::summarise(Antall = n())
 print(xtable::xtable(RegHF, row.names=FALSE, digits=0,
                      caption='Antall inneliggende i hvert HF.'),
       include.rownames = FALSE)
-
-#table(RegDataAlle[(is.na(RegDataAlle$DateDischargedIntensive)), 'HF'])
 
 @
 \end{frame}

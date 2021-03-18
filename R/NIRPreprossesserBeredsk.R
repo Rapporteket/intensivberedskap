@@ -33,6 +33,14 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    RegData$Bekreftet <- 0
    RegData$Bekreftet[which(RegData$Diagnosis %in% 100:103)] <- 1
 
+   # Enhetsnivånavn
+   RegData$ShNavn <- trimws(as.character(RegData$ShNavn)) #Fjerner mellomrom (før) og etter navn
+   RegData$RHF <- sub('Helse ', '', RegData$RHF) #factor()
+   # Kode om fra Haraldsplass til RHF Vest og Lovisenberg diakonhjemmet til RHF Øst, fra priv
+   RegData$RHF[RegData$ReshId == 100180] <- 'Vest' #Haraldsplass
+   RegData$RHF[RegData$ReshId == 42088921] <- 'Sør-Øst' #Lovisenberg Diakonale
+   RegData$RHF[RegData$ReshId == 108897] <- 'Sør-Øst' #Diakonhjemmet
+
 
    #Konvertere boolske variable fra tekst til boolske variable...
 
@@ -146,6 +154,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    Municipal = first(Municipal, order_by = FormDate),
                    MunicipalNumber = first(MunicipalNumber, order_by = FormDate),
                    ReshId = first(ReshId, order_by = FormDate),
+                   RHFut = last(RHF, order_by = FormDate),
                    RHF = first(RHF, order_by = FormDate),
                    HFut = last(HF, order_by = FormDate),
                    HF = first(HF, order_by = FormDate),
@@ -248,13 +257,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    RegData$Kjonn <- factor(RegData$erMann, levels=0:1, labels=c('kvinner','menn'))
 
 
-   # Enhetsnivånavn
-   RegData$ShNavn <- trimws(as.character(RegData$ShNavn)) #Fjerner mellomrom (før) og etter navn
-   RegData$RHF <- sub('Helse ', '', RegData$RHF) #factor()
-   # Kode om fra Haraldsplass til RHF Vest og Lovisenberg diakonhjemmet til RHF Øst, fra priv
-   RegData$RHF[RegData$ReshId == 100180] <- 'Vest' #Haraldsplass
-   RegData$RHF[RegData$ReshId == 42088921] <- 'Sør-Øst' #Lovisenberg Diakonale
-   RegData$RHF[RegData$ReshId == 108897] <- 'Sør-Øst' #Diakonhjemmet
 
    #unique(RegData[RegData$RHF=='Privat',c(ShNavn, UnitId, RHF)])
 
