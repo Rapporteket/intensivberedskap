@@ -24,6 +24,11 @@ RegDataRaa <- NIRberedskDataSQL(kobleInt = 1)
 RegData <- RegDataRaa
 RegData <- NIRPreprosessBeredsk(RegDataRaa, kobleInt = 1)
 
+CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
+CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
+test <- RisikofaktorerTab(RegData=CoroData, tidsenhet='Mnd', datoFra='2020-01-01', datoTil='2020-12-31')$Tab
+
+
 unique(RegData[ ,c('ReshId', 'ShNavn')])
 
 RegDataOpph <- NIRPreprosessBeredsk(RegData = NIRberedskDataSQL(), aggPers = 0)
@@ -91,9 +96,6 @@ RegData <- NIRPreprosessBeredsk(RegData <- CoroData)
 RegData[which(is.na(RegData$DateDischargedIntensive) & RegData$ShNavn == 'Lovisenberg'), ]
 
 
-
-
-statusECMOrespTab(RegData)$Tab
 
 
 data <- RegData[(RegData$Reinn==1) | (RegData$ReinnGml==1) ,c("PasientID", "ShNavn", "ShNavnUt", "FormDate", "DateDischargedIntensive", "Reinn", "ReinnGml", "ReinnNaar", "ReinnTid")]
@@ -167,7 +169,6 @@ test <- TabAlder(RegData) #, valgtRHF = valgtRHF)
 
 
 statusECMOrespTab(CoroData)
-RisikofaktorerTab(RegData, erMann = 1)
 
 ut <- TabTidEnhet(RegData=CoroData, tidsenhet='uke', enhetsNivaa='HF')
 
