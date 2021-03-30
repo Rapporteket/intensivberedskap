@@ -251,11 +251,7 @@ ui <- tagList(
                                       # 'Isolasjon, type' = 'isolering',
                                       # 'Isolasjon, varighet' = 'isoleringDogn',
                                        'Liggetid' = 'liggetid',
-                                      # 'Nas-skår (sykepleierakt.)' = 'Nas24',
                                        'NEMS-skår per døgn' = 'NEMS24',
-                                      # 'Nyreerstattende beh., type' = 'nyreBeh',
-                                      # 'Nyreerstattende beh., varighet' = 'nyreBehTid',
-                                      # 'Potensielle donorer, årsak ikke påvist opph. sirkulasjon' = 'CerebralCirculationAbolishedReasonForNo',
                                        'Primærårsak' = 'PrimaryReasonAdmitted',
                                       'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
                                       'Registreringsforsinkelse, utskriving' = 'regForsinkelseUt',
@@ -264,7 +260,6 @@ ui <- tagList(
                                        'Respiratortid, invasiv' = 'respiratortidInv',
                                        'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber'
                                       #,'Spesielle tiltak' = 'spesTiltak'
-                                      #? UrineOutput
                                       )
                           ),
                         selectInput(inputId = "bekrFord", label="Bekreftet/Mistenkt",
@@ -287,8 +282,8 @@ ui <- tagList(
                             'Figur',
                             h4('Data er aggregerte til pasientnivå og inneholder kun registreringer
                                hvor pasienten har både beredskapsskjema og ferdigstilte intensivskjema.'),
-                            plotOutput('fordelinger', height="auto")),
-                          downloadButton(outputId = "LastNedFigFord", label = "Last ned figur"),
+                            plotOutput('fordelinger', height="auto"),
+                          downloadButton(outputId = "LastNedFigFord", label = "Last ned figur")),
                           tabPanel(
                             'Tabell',
                             uiOutput("tittelFord"),
@@ -885,21 +880,24 @@ server <- function(input, output, session) {
   )
 
 
-
   output$LastNedFigFord <- downloadHandler(
     filename = function(){
-      paste0('FigFord_', input$valgtVar, '.', input$bildeformatFord)
+      paste0('FordelingsFigur_', valgtVar=input$valgtVar, '.', input$bildeformatFord) #'_', Sys.time(),
     },
+
     content = function(file){
       NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0, valgtVar=input$valgtVar,
-                                               bekr=as.numeric(input$bekrFord),
-                                               datoFra=input$datovalg[1], datoTil=input$datovalg[2],
-                                               erMann=as.numeric(input$erMannFord), session = session,
-                                               outfile = file)
+                           # reshID=reshID,
+                           # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
+                           bekr=as.numeric(input$bekrFord),
+                           datoFra=input$datovalg[1], datoTil=input$datovalg[2],
+                           # minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
+                           erMann=as.numeric(input$erMannFord), session = session,
+                       outfile = file)
     }
   )
 
-  observe({
+    observe({
     UtDataFord <- NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0,
                                        valgtVar=input$valgtVar,
                                        # reshID=reshID,
