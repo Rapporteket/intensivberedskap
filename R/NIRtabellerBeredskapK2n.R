@@ -165,12 +165,12 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
   Ntest <- dim(RegData)[1]
 
 
-  enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
+  enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHFut', 'HFut')
 
   RegData$EnhNivaaVis <- RegData[ ,enhetsNivaa]
   kolNavnSum <- switch(enhetsNivaa,
-                       RHF = 'Hele landet',
-                       HF = paste0(valgtRHF, ', totalt'))
+                       RHFut = 'Hele landet',
+                       HFut = paste0(valgtRHF, ', totalt'))
   if (Ntest==0) {
     TabTidEnh <- matrix(0, ncol=1, nrow=length(datoer) + 1,
                         dimnames = list(c(names(datoer), 'Totalt'), kolNavnSum))

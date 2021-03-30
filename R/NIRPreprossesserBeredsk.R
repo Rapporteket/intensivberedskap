@@ -160,6 +160,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    HF = first(HF, order_by = FormDate),
                    ShNavnUt = last(HelseenhetKortnavn, order_by = FormDate),
                    ShNavn = first(HelseenhetKortnavn, order_by = FormDate),
+                   FormDateUt = last(FormDate, order_by = FormDate),
                    FormDate = first(FormDate, order_by = FormDate),
                    RespTid = ifelse(ReinnResp==0 ,
                                     difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = 'days'),

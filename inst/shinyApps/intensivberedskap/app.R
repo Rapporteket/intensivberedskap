@@ -167,7 +167,11 @@ ui <- tagList(
                                                step = 10
                                    ),
                                    br(),
-                                   actionButton("tilbakestillValg", label="Tilbakestill valg")
+                                   actionButton("tilbakestillValg", label="Tilbakestill valg"),
+                                   br(),
+                                   selectInput(inputId = "bildeformatAldKj",
+                                               label = "Velg format for nedlasting av figur",
+                                               choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
 
                                    # dateRangeInput(inputId = 'datovalg', start = startDato, end = idag,
                                    #                label = "Tidsperiode", separator="t.o.m.", language="nb" #)
@@ -220,10 +224,7 @@ ui <- tagList(
                                          # uiOutput('utvalgAlder'),
                                          # tableOutput("tabAlder"),
                                          plotOutput("FigurAldersfordeling", height="auto"),
-                                         br(),
-                                         #downloadButton("LastNedFigAldKj", "Last ned figur"),
-                                         br(),
-                                         br(),
+                                         downloadButton("LastNedFigAldKj", "Last ned figur"),
                                          downloadButton("lastNedAldKj", "Last ned tabell")
 
                                   ))
@@ -274,7 +275,11 @@ ui <- tagList(
                             ),
                         selectInput(inputId = "erMannFord", label="Kjønn",
                                     choices = c("Begge"=2, "Menn"=1, "Kvinner"=0)
-                        )
+                                    ),
+                        selectInput(inputId = "bildeformatFord",
+                                    label = "Velg format for nedlasting av figur",
+                                    choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')
+                                    )
                         ),
                       mainPanel(
                         tabsetPanel(
@@ -282,7 +287,8 @@ ui <- tagList(
                             'Figur',
                             h4('Data er aggregerte til pasientnivå og inneholder kun registreringer
                                hvor pasienten har både beredskapsskjema og ferdigstilte intensivskjema.'),
-                            plotOutput('fordelinger')),
+                            plotOutput('fordelinger', height="auto")),
+                          downloadButton(outputId = "LastNedFigFord", label = "Last ned figur"),
                           tabPanel(
                             'Tabell',
                             uiOutput("tittelFord"),
@@ -682,8 +688,6 @@ server <- function(input, output, session) {
 
 
     #Tab risiko
-    print(input$datovalgStart[1])
-    print(input$datovalgStart[2])
     RisikoTab <- RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',
                                    valgtRHF= input$valgtRHF,
                                    skjemastatus=as.numeric(input$skjemastatus),
@@ -820,7 +824,7 @@ server <- function(input, output, session) {
 
   output$LastNedFigAldKj <- downloadHandler(
     filename = function(){
-      paste0('AldKjFig', Sys.time(), '.', input$bildeformat)
+      paste0('AldKjFig', Sys.time(), '.', input$bildeformatAldKj)
     },
 
     content = function(file){
@@ -868,6 +872,7 @@ server <- function(input, output, session) {
 
 
   output$fordelinger <- renderPlot({
+    #print(paste0('FigFord_', input$valgtVar, '.', input$bildeformatFord))
     NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0, valgtVar=input$valgtVar,
                   # reshID=reshID,
                   # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
@@ -877,6 +882,21 @@ server <- function(input, output, session) {
                   erMann=as.numeric(input$erMannFord), session = session
                   )
   }, height=800, width=800 #height = function() {session$clientData$output_fordelinger_width}
+  )
+
+
+
+  output$LastNedFigFord <- downloadHandler(
+    filename = function(){
+      paste0('FigFord_', input$valgtVar, '.', input$bildeformatFord)
+    },
+    content = function(file){
+      NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0, valgtVar=input$valgtVar,
+                                               bekr=as.numeric(input$bekrFord),
+                                               datoFra=input$datovalg[1], datoTil=input$datovalg[2],
+                                               erMann=as.numeric(input$erMannFord), session = session,
+                                               outfile = file)
+    }
   )
 
   observe({
