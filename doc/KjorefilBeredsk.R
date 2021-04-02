@@ -14,8 +14,6 @@ valgtRHF <- as.character(NIRPreprosessBeredsk(NIRberedskDataSQL())$RHF[3])
 #tools::texi2pdf(file='BeredskapCorona.tex')
 knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'UTF-8')
 
-#/home/rstudio/rap_config/autoReport.yml
-
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 library(intensivberedskap)
@@ -25,11 +23,22 @@ RegData <- NIRPreprosessBeredsk(RegDataRaa, kobleInt = 1)
 CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
 CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
 
+test <- CoroDataRaa[CoroDataRaa$PatientInRegistryGuid == "4442C54B-848C-EB11-A970-00155D0B4E21", ]
+first(test$CreationDate, order_by = test$FormDate)
+
+ReinnNaar = max(which(difftime(sort(test$FormDate)[2:2],
+                               test$DateDischargedIntensive[order(test$FormDate)][1],
+                                                   units = 'hours') > 12))+1
+ReinnNaar = ifelse(Reinn==0  , 1,
+                   ifelse(sum(is.na(test$DateDischargedIntensive))>0
+                     max(which(difftime(sort(FormDate)[2:AntRegPrPas],
+                                                   DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
+                                                   units = 'hours') > 12))+1)
 
 test <- CoroData[!is.na(CoroData$EcmoStart) & CoroData$RHF=='Vest',
                  c("RHF", 'HF',"ShNavn",'HFut', "ShNavnUt", "FormStatus", "FormDate", "DateDischargedIntensive")]
 
-
+first(RegData$CreationDate, order_by = RegData$FormDate)
 
 
 

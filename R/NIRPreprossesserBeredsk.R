@@ -107,12 +107,12 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    Graviditet = sum(Graviditet)>0,
                    Kreft = sum(Kreft)>0,
                    Bekreftet = max(Bekreftet),
+                   AntRegPrPas = n(),
                    CreationDate = first(CreationDate, order_by = FormDate),
                    FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
                    FirstTimeClosed = first(FirstTimeClosed, order_by = FormDate),
                    #Justering av liggetid mht. reinnleggelse:
-                   AntRegPrPas = n(),
-                   ReinnTid = ifelse((AntRegPrPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
+                   ReinnTid = ifelse((AntRegPrPas > 1) & sum(is.na(DateDischargedIntensive))>0, #(FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
                                      sort(difftime(sort(FormDate)[2:AntRegPrPas], #sort hopper over NA
                                                    DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
                                                    units = 'hours'), decreasing = T)[1],
@@ -127,9 +127,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    #                    max(which(ReshId[order(FormDate)][2:AntRegPrPas] ==
                    #                                 ReshId[order(FormDate)][1:(AntRegPrPas-1)]))+1),
                    #Oppholdet etter lengst utetid velges som reinnleggelse. Mister andre reinn hvis flere.
-                   ReinnNaar = ifelse(Reinn==0, 1, max(which(difftime(sort(FormDate)[2:AntRegPrPas],
-                                                                      DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
-                                                                      units = 'hours') > 12))+1), #Hvilke opphold som er reinnleggelse
+                   ReinnNaar = ifelse(Reinn==0 | sum(is.na(DateDischargedIntensive))>0, 1,
+                                      max(which(difftime(sort(FormDate)[2:AntRegPrPas],
+                                                      DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
+                                                      units = 'hours') > 12))+1), #Hvilke opphold som er reinnleggelse
                    FormDateSiste = nth(FormDate, ReinnNaar, order_by = FormDate),
                    #Justering av respiratortid mht. reinnleggelse. NB: Kan være reinnlagt på respirator selv om ikke reinnlagt på intensiv.
                    AntRespPas = length(MechanicalRespiratorStart)-sum(is.na(MechanicalRespiratorStart)), #sum(MechanicalRespirator==1, na.rm=T), #
