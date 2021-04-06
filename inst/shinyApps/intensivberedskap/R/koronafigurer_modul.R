@@ -91,7 +91,7 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
   )
   #TabTidEnhet(RegData=CoroData, tidsenhet='uke')
   AntTab <- function() {
-    valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+    valgtRHF <- as.character(input$valgtRHF) #ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
     AntTab <- switch(input$valgtVar,
                      'antreg'= TabTidEnhet(RegData=CoroData,
                                            tidsenhet=input$velgTidsenhet,

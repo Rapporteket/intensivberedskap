@@ -35,7 +35,7 @@ antallTidUtskrevneNIRberedskap <- function(RegData, tidsenhet='dag', erMann=9, r
   RegDataAlle <- RegDataAlle[!is.na(RegDataAlle$TidsVar), ]
 
   ##############################
-  RegData <- if(valgtRHF=='Alle') {RegDataAlle} else {RegDataAlle[RegDataAlle$RHF == valgtRHF, ]}
+  RegData <- if(valgtRHF=='Alle') {RegDataAlle} else {RegDataAlle[RegDataAlle$RHFut == valgtRHF, ]}
   Ntest <- dim(RegData)[1]
 
   if (valgtRHF == 'Ukjent'){
@@ -43,12 +43,12 @@ antallTidUtskrevneNIRberedskap <- function(RegData, tidsenhet='dag', erMann=9, r
     colnames(TabTidEnh) <- 'Hele landet'
   } else {
 
-    enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
+    enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHFut', 'HFut')
 
     RegData$EnhetsNivaaVar <- RegData[ ,enhetsNivaa]
     kolNavnSum <- switch(enhetsNivaa,
-                         RHF = 'Hele landet',
-                         HF = paste0(valgtRHF, ', totalt'))
+                         RHFut = 'Hele landet',
+                         HFut = paste0(valgtRHF, ', totalt'))
     if (Ntest==0) {
       TabTidEnh <- matrix(0, ncol=1, nrow=length(levels(RegData$TidsVar)) + 1,
                           dimnames = list(c(levels(RegData$TidsVar), 'Totalt'), valgtRHF)) #table(RegData$TidsVar)
@@ -137,7 +137,7 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
   if (tidsenhet=='dag') {
     names(datoer) <- format(datoer, '%d.%m.%y')
     aux <- erInneliggende(datoer = datoer, regdata = RegDataAlle)
-    RegDataAlle <- bind_cols(RegDataAlle[ , c("PasientID", "HF", "RHF")], aux)
+    RegDataAlle <- bind_cols(RegDataAlle[ , c("PasientID", "HFut", "RHFut")], aux)
   } else {
     names(datoer) <- datoer
     aux <- erInneliggende(datoer = datoer, regdata = RegDataAlle)
@@ -151,7 +151,7 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
     aux <- aux %>% group_by(PasientID, Tid) %>%
       summarise(er_inne = max(verdi))
     aux <- aux %>% spread(key=Tid, value = er_inne)
-    RegDataAlle <- merge(RegDataAlle[ , c("PasientID", "HF", "RHF")], aux, by = 'PasientID')
+    RegDataAlle <- merge(RegDataAlle[ , c("PasientID", "HFut", "RHFut")], aux, by = 'PasientID')
   }
 
   switch (tidsenhet,
@@ -161,16 +161,16 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
     names(datoer) <- datoer
   }
 
-  RegData <- if(valgtRHF=='Alle') {RegDataAlle} else {RegDataAlle[RegDataAlle$RHF == valgtRHF, ]}
+  RegData <- if(valgtRHF=='Alle') {RegDataAlle} else {RegDataAlle[RegDataAlle$RHFut == valgtRHF, ]}
   Ntest <- dim(RegData)[1]
 
 
-  enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHF', 'HF')
+  enhetsNivaa <- ifelse(as.character(valgtRHF)=='Alle', 'RHFut', 'HFut')
 
   RegData$EnhNivaaVis <- RegData[ ,enhetsNivaa]
   kolNavnSum <- switch(enhetsNivaa,
-                       RHF = 'Hele landet',
-                       HF = paste0(valgtRHF, ', totalt'))
+                       RHFut = 'Hele landet',
+                       HFut = paste0(valgtRHF, ', totalt'))
   if (Ntest==0) {
     TabTidEnh <- matrix(0, ncol=1, nrow=length(datoer) + 1,
                         dimnames = list(c(names(datoer), 'Totalt'), kolNavnSum))

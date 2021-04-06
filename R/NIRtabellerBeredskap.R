@@ -188,7 +188,6 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
 #' @param RegData data
 #' @param datoTil sluttdato
 #' @param reshID enhetens resh
-#' @param tidsenhet 'Dag', 'Uke' (standard)
 #' @param valgtRHF 'Alle' (standard), RHF-navn uten 'Helse '
 #'
 #' @export
@@ -206,31 +205,47 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoFra='2020-01-01',
 
 
   #Kvikk fix: Totalt gir nå totalen for 2020
-  Tidsvariabel <- switch(tidsenhet,
-                         Uke = paste0('uke',RegData$UkeNr),
-                         Dag = RegData$Dag,
-                         Totalt = RegData$Aar)
-
+  # Tidsvariabel <- switch(tidsenhet,
+  #                        Uke = paste0('uke',RegData$UkeNr),
+  #                        Dag = RegData$Dag,
+  #                        Totalt = RegData$Aar)
+  #
+  # TabRisiko <- rbind(
+  #   Kreft = tapply(RegData$Kreft, Tidsvariabel, FUN=sum, na.rm = T),
+  #   'Nedsatt immunforsvar' = tapply(RegData$IsImpairedImmuneSystemIncludingHivPatient, Tidsvariabel, FUN=sum, na.rm = T),
+  #   Diabetes	= tapply(RegData$Diabetes, Tidsvariabel, FUN=sum, na.rm = T),
+  #   Hjertesykdom = tapply(RegData$IsHeartDiseaseIncludingHypertensionPatient, Tidsvariabel, FUN=sum, na.rm = T),
+  #   'Fedme (KMI>30)' =	tapply(RegData$IsObesePatient, Tidsvariabel, FUN=sum, na.rm = T),
+  #   Astma	= tapply(RegData$Astma, Tidsvariabel, FUN=sum, na.rm = T),
+  #   'Kronisk lungesykdom' = tapply(RegData$IsChronicLungDiseasePatient, Tidsvariabel, FUN=sum, na.rm = T),
+  #   Nyresykdom =	tapply(RegData$IsKidneyDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
+  #   Leversykdom = tapply(RegData$IsLiverDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
+  #   'Nevrologisk/nevromusk.' = tapply(RegData$IsChronicNeurologicNeuromuscularPatient, Tidsvariabel, FUN=sum, na.rm = T),
+  #   Graviditet	= tapply(RegData$Graviditet, Tidsvariabel, FUN=sum, na.rm = T),
+  #   'Røyker' =	tapply(RegData$IsActiveSmoker, Tidsvariabel, FUN=sum, na.rm = T),
+  #   'Pasienter med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
+  # )
   TabRisiko <- rbind(
-    Kreft = tapply(RegData$Kreft, Tidsvariabel, FUN=sum, na.rm = T),
-    'Nedsatt immunforsvar' = tapply(RegData$IsImpairedImmuneSystemIncludingHivPatient, Tidsvariabel, FUN=sum, na.rm = T),
-    Diabetes	= tapply(RegData$Diabetes, Tidsvariabel, FUN=sum, na.rm = T),
-    Hjertesykdom = tapply(RegData$IsHeartDiseaseIncludingHypertensionPatient, Tidsvariabel, FUN=sum, na.rm = T),
-    'Fedme (KMI>30)' =	tapply(RegData$IsObesePatient, Tidsvariabel, FUN=sum, na.rm = T),
-    Astma	= tapply(RegData$Astma, Tidsvariabel, FUN=sum, na.rm = T),
-    'Kronisk lungesykdom' = tapply(RegData$IsChronicLungDiseasePatient, Tidsvariabel, FUN=sum, na.rm = T),
-    Nyresykdom =	tapply(RegData$IsKidneyDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
-    Leversykdom = tapply(RegData$IsLiverDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
-    'Nevrologisk/nevromusk.' = tapply(RegData$IsChronicNeurologicNeuromuscularPatient, Tidsvariabel, FUN=sum, na.rm = T),
-    Graviditet	= tapply(RegData$Graviditet, Tidsvariabel, FUN=sum, na.rm = T),
-    'Røyker' =	tapply(RegData$IsActiveSmoker, Tidsvariabel, FUN=sum, na.rm = T),
-    'Pasienter med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
+    Kreft = sum(RegData$Kreft, na.rm = T),
+    'Nedsatt immunforsvar' = sum(RegData$IsImpairedImmuneSystemIncludingHivPatient, na.rm = T),
+    Diabetes	= sum(RegData$Diabetes, na.rm = T),
+    Hjertesykdom = sum(RegData$IsHeartDiseaseIncludingHypertensionPatient, na.rm = T),
+    'Fedme (KMI>30)' =	sum(RegData$IsObesePatient, na.rm = T),
+    Astma	= sum(RegData$Astma, na.rm = T),
+    'Kronisk lungesykdom' = sum(RegData$IsChronicLungDiseasePatient, na.rm = T),
+    Nyresykdom =	sum(RegData$IsKidneyDiseaseIncludingFailurePatient, na.rm = T),
+    Leversykdom = sum(RegData$IsLiverDiseaseIncludingFailurePatient, na.rm = T),
+    'Nevrologisk/nevromusk.' = sum(RegData$IsChronicNeurologicNeuromuscularPatient, na.rm = T),
+    Graviditet	= sum(RegData$Graviditet, na.rm = T),
+    'Røyker' =	sum(RegData$IsActiveSmoker, na.rm = T),
+    'Pasienter med risikofaktorer' = sum(RegData$IsRiskFactor, na.rm = T)
   )
 
   if (Ntest>3){
     TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
-    if (tidsenhet=='Totalt'){TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
-    colnames(TabRisiko) <- 'Sum'}
+    #if (tidsenhet=='Totalt'){
+      TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
+    colnames(TabRisiko) <- 'Sum' #}
     TabRisiko <- cbind(TabRisiko,
                        'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%'))
 

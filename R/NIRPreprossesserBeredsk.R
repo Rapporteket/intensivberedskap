@@ -33,6 +33,14 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    RegData$Bekreftet <- 0
    RegData$Bekreftet[which(RegData$Diagnosis %in% 100:103)] <- 1
 
+   # Enhetsnivånavn
+   RegData$ShNavn <- trimws(as.character(RegData$ShNavn)) #Fjerner mellomrom (før) og etter navn
+   RegData$RHF <- sub('Helse ', '', RegData$RHF) #factor()
+   # Kode om fra Haraldsplass til RHF Vest og Lovisenberg diakonhjemmet til RHF Øst, fra priv
+   RegData$RHF[RegData$ReshId == 100180] <- 'Vest' #Haraldsplass
+   RegData$RHF[RegData$ReshId == 42088921] <- 'Sør-Øst' #Lovisenberg Diakonale
+   RegData$RHF[RegData$ReshId == 108897] <- 'Sør-Øst' #Diakonhjemmet
+
 
    #Konvertere boolske variable fra tekst til boolske variable...
 
@@ -99,12 +107,12 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    Graviditet = sum(Graviditet)>0,
                    Kreft = sum(Kreft)>0,
                    Bekreftet = max(Bekreftet),
+                   AntRegPrPas = n(),
                    CreationDate = first(CreationDate, order_by = FormDate),
                    FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
                    FirstTimeClosed = first(FirstTimeClosed, order_by = FormDate),
                    #Justering av liggetid mht. reinnleggelse:
-                   AntRegPrPas = n(),
-                   ReinnTid = ifelse((AntRegPrPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
+                   ReinnTid = ifelse((AntRegPrPas > 1) & sum(is.na(DateDischargedIntensive))>0, #(FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
                                      sort(difftime(sort(FormDate)[2:AntRegPrPas], #sort hopper over NA
                                                    DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
                                                    units = 'hours'), decreasing = T)[1],
@@ -119,9 +127,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    #                    max(which(ReshId[order(FormDate)][2:AntRegPrPas] ==
                    #                                 ReshId[order(FormDate)][1:(AntRegPrPas-1)]))+1),
                    #Oppholdet etter lengst utetid velges som reinnleggelse. Mister andre reinn hvis flere.
-                   ReinnNaar = ifelse(Reinn==0, 1, max(which(difftime(sort(FormDate)[2:AntRegPrPas],
-                                                                      DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
-                                                                      units = 'hours') > 12))+1), #Hvilke opphold som er reinnleggelse
+                   ReinnNaar = ifelse(Reinn==0 | sum(is.na(DateDischargedIntensive))>0, 1,
+                                      max(which(difftime(sort(FormDate)[2:AntRegPrPas],
+                                                      DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
+                                                      units = 'hours') > 12))+1), #Hvilke opphold som er reinnleggelse
                    FormDateSiste = nth(FormDate, ReinnNaar, order_by = FormDate),
                    #Justering av respiratortid mht. reinnleggelse. NB: Kan være reinnlagt på respirator selv om ikke reinnlagt på intensiv.
                    AntRespPas = length(MechanicalRespiratorStart)-sum(is.na(MechanicalRespiratorStart)), #sum(MechanicalRespirator==1, na.rm=T), #
@@ -146,11 +155,13 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    Municipal = first(Municipal, order_by = FormDate),
                    MunicipalNumber = first(MunicipalNumber, order_by = FormDate),
                    ReshId = first(ReshId, order_by = FormDate),
+                   RHFut = last(RHF, order_by = FormDate),
                    RHF = first(RHF, order_by = FormDate),
                    HFut = last(HF, order_by = FormDate),
                    HF = first(HF, order_by = FormDate),
                    ShNavnUt = last(HelseenhetKortnavn, order_by = FormDate),
                    ShNavn = first(HelseenhetKortnavn, order_by = FormDate),
+                   FormDateUt = last(FormDate, order_by = FormDate),
                    FormDate = first(FormDate, order_by = FormDate),
                    RespTid = ifelse(ReinnResp==0 ,
                                     difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = 'days'),
@@ -164,8 +175,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    if (kobleInt==1){
       #Fjerner  uten intensivskjema
       pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-      RegData <- RegData[-which(RegData$PersonId %in% pasUint), ]
-      RegDataRed <- RegDataRed[-which(RegDataRed$PersonId %in% pasUint), ]
+      indManglerIntSkjema <- which(RegData$PersonId %in% pasUint)
+      if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
+      indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)
+      if (length(indManglerIntPas)>0) {RegDataRed <- RegDataRed[-indManglerIntPas, ]}
 
       if (aggPers == 1){
 
@@ -246,13 +259,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    RegData$Kjonn <- factor(RegData$erMann, levels=0:1, labels=c('kvinner','menn'))
 
 
-   # Enhetsnivånavn
-   RegData$ShNavn <- trimws(as.character(RegData$ShNavn)) #Fjerner mellomrom (før) og etter navn
-   RegData$RHF <- sub('Helse ', '', RegData$RHF) #factor()
-   # Kode om fra Haraldsplass til RHF Vest og Lovisenberg diakonhjemmet til RHF Øst, fra priv
-   RegData$RHF[RegData$ReshId == 100180] <- 'Vest' #Haraldsplass
-   RegData$RHF[RegData$ReshId == 42088921] <- 'Sør-Øst' #Lovisenberg Diakonale
-   RegData$RHF[RegData$ReshId == 108897] <- 'Sør-Øst' #Diakonhjemmet
 
    #unique(RegData[RegData$RHF=='Privat',c(ShNavn, UnitId, RHF)])
 

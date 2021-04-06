@@ -167,11 +167,12 @@ ui <- tagList(
                                                step = 10
                                    ),
                                    br(),
-                                   actionButton("tilbakestillValg", label="Tilbakestill valg")
+                                   actionButton("tilbakestillValg", label="Tilbakestill valg"),
+                                   br(),
+                                   selectInput(inputId = "bildeformatAldKj",
+                                               label = "Velg format for nedlasting av figur",
+                                               choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
 
-                                   # selectInput(inputId = 'enhetsGruppe', label='Enhetgruppe',
-                                   #             choices = c("RHF"=1, "HF"=2, "Sykehus"=3)
-                                   # ),
                                    # dateRangeInput(inputId = 'datovalg', start = startDato, end = idag,
                                    #                label = "Tidsperiode", separator="t.o.m.", language="nb" #)
                                    # ),
@@ -204,6 +205,10 @@ ui <- tagList(
                                          tableOutput('tabFerdigeReg')
                                   )),
 
+                                h3('Antall inneliggende i hvert HF'),
+                                h5('Mistenkte og bekreftede'),
+                                tableOutput('tabInneliggHF'),
+
                                 h3('Antall ny-innlagte pasienter, siste 10 dager'),
                                 h4('NB: Inkluderer ikke overføringer mellom intensivenheter'),
                                 uiOutput('utvalgHoved'),
@@ -219,10 +224,7 @@ ui <- tagList(
                                          # uiOutput('utvalgAlder'),
                                          # tableOutput("tabAlder"),
                                          plotOutput("FigurAldersfordeling", height="auto"),
-                                         br(),
-                                         #downloadButton("LastNedFigAldKj", "Last ned figur"),
-                                         br(),
-                                         br(),
+                                         downloadButton("LastNedFigAldKj", "Last ned figur"),
                                          downloadButton("lastNedAldKj", "Last ned tabell")
 
                                   ))
@@ -249,11 +251,7 @@ ui <- tagList(
                                       # 'Isolasjon, type' = 'isolering',
                                       # 'Isolasjon, varighet' = 'isoleringDogn',
                                        'Liggetid' = 'liggetid',
-                                      # 'Nas-skår (sykepleierakt.)' = 'Nas24',
                                        'NEMS-skår per døgn' = 'NEMS24',
-                                      # 'Nyreerstattende beh., type' = 'nyreBeh',
-                                      # 'Nyreerstattende beh., varighet' = 'nyreBehTid',
-                                      # 'Potensielle donorer, årsak ikke påvist opph. sirkulasjon' = 'CerebralCirculationAbolishedReasonForNo',
                                        'Primærårsak' = 'PrimaryReasonAdmitted',
                                       'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
                                       'Registreringsforsinkelse, utskriving' = 'regForsinkelseUt',
@@ -262,7 +260,6 @@ ui <- tagList(
                                        'Respiratortid, invasiv' = 'respiratortidInv',
                                        'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber'
                                       #,'Spesielle tiltak' = 'spesTiltak'
-                                      #? UrineOutput
                                       )
                           ),
                         selectInput(inputId = "bekrFord", label="Bekreftet/Mistenkt",
@@ -273,14 +270,20 @@ ui <- tagList(
                             ),
                         selectInput(inputId = "erMannFord", label="Kjønn",
                                     choices = c("Begge"=2, "Menn"=1, "Kvinner"=0)
-                        )
+                                    ),
+                        selectInput(inputId = "bildeformatFord",
+                                    label = "Velg format for nedlasting av figur",
+                                    choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')
+                                    )
                         ),
                       mainPanel(
                         tabsetPanel(
                           tabPanel(
                             'Figur',
-                            h3('Data er aggregerte til pasientnivå'),
-                            plotOutput('fordelinger')),
+                            h4('Data er aggregerte til pasientnivå og inneholder kun registreringer
+                               hvor pasienten har både beredskapsskjema og ferdigstilte intensivskjema.'),
+                            plotOutput('fordelinger', height="auto"),
+                          downloadButton(outputId = "LastNedFigFord", label = "Last ned figur")),
                           tabPanel(
                             'Tabell',
                             uiOutput("tittelFord"),
@@ -627,6 +630,18 @@ server <- function(input, output, session) {
     output$tabECMOrespirator <- renderTable({statusNaaTab$Tab}, rownames = T, digits=0, spacing="xs")
     output$utvalgNaa <- renderUI({h5(HTML(paste0(statusNaaTab$utvalgTxt, '<br />'))) })
 
+
+    # Inneliggende per HF
+    output$tabInneliggHF <- renderTable({
+      if (rolle == 'LU') {CoroData <- CoroData[which(CoroData$RHF == egetRHF), ]}
+      inneligg <- is.na(CoroData$DateDischargedIntensive)
+      RegHF <- CoroData[inneligg,] %>% dplyr::group_by(RHFut, HFut) %>% dplyr::summarise(Antall = n())
+      colnames(RegHF) <- c('RHF', 'HF', 'Antall')
+      RegHF
+    }, rownames = F, digits = 0)
+
+
+
     #Tab ferdigstilte
     #print(input$datovalgStart[1])
     #print(input$datovalgArt[1])
@@ -805,7 +820,7 @@ server <- function(input, output, session) {
 
   output$LastNedFigAldKj <- downloadHandler(
     filename = function(){
-      paste0('AldKjFig', Sys.time(), '.', input$bildeformat)
+      paste0('AldKjFig', Sys.time(), '.', input$bildeformatAldKj)
     },
 
     content = function(file){
@@ -853,6 +868,7 @@ server <- function(input, output, session) {
 
 
   output$fordelinger <- renderPlot({
+    #print(paste0('FigFord_', input$valgtVar, '.', input$bildeformatFord))
     NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0, valgtVar=input$valgtVar,
                   # reshID=reshID,
                   # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
@@ -864,7 +880,25 @@ server <- function(input, output, session) {
   }, height=800, width=800 #height = function() {session$clientData$output_fordelinger_width}
   )
 
-  observe({
+
+  output$LastNedFigFord <- downloadHandler(
+    filename = function(){
+      paste0('FordelingsFigur_', valgtVar=input$valgtVar, '.', input$bildeformatFord) #'_', Sys.time(),
+    },
+
+    content = function(file){
+      NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0, valgtVar=input$valgtVar,
+                           # reshID=reshID,
+                           # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
+                           bekr=as.numeric(input$bekrFord),
+                           datoFra=input$datovalg[1], datoTil=input$datovalg[2],
+                           # minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
+                           erMann=as.numeric(input$erMannFord), session = session,
+                       outfile = file)
+    }
+  )
+
+    observe({
     UtDataFord <- NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0,
                                        valgtVar=input$valgtVar,
                                        # reshID=reshID,
