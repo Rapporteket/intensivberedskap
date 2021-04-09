@@ -41,6 +41,18 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    RegData$RHF[RegData$ReshId == 42088921] <- 'Sør-Øst' #Lovisenberg Diakonale
    RegData$RHF[RegData$ReshId == 108897] <- 'Sør-Øst' #Diakonhjemmet
 
+   #Liggetider
+   #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
+   RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
+                                          RegData$EcmoStart,
+                                          units = 'days'))
+   RegData$RespTid <- as.numeric(difftime(RegData$MechanicalRespiratorEnd,
+                                          RegData$MechanicalRespiratorStart,
+                                          units = 'days'))
+   RegData$Liggetid <- as.numeric(difftime(RegData$DateDischargedIntensive,
+                                           RegData$DateAdmittedIntensive,
+                                           units = 'days'))
+
 
    #Konvertere boolske variable fra tekst til boolske variable...
 
@@ -152,6 +164,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
                    MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
                    EcmoEnd = sort(EcmoEnd, decreasing = T)[1], #sort(NA) gir tom, men sort(NA)[1] gir NA
+                   ECMOTid = sum(ECMOTid, na.rm = T),
                    Municipal = first(Municipal, order_by = FormDate),
                    MunicipalNumber = first(MunicipalNumber, order_by = FormDate),
                    ReshId = first(ReshId, order_by = FormDate),
@@ -163,12 +176,14 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    ShNavn = first(HelseenhetKortnavn, order_by = FormDate),
                    FormDateUt = last(FormDate, order_by = FormDate),
                    FormDate = first(FormDate, order_by = FormDate),
-                   RespTid = ifelse(ReinnResp==0 ,
-                                    difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = 'days'),
-                                    difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = 'days') - ReinnRespTid/24),
-                   Liggetid = ifelse(Reinn==0,
-                                     difftime(DateDischargedIntensive, FormDate, units = 'days'),
-                                     difftime(DateDischargedIntensive, FormDate, units = 'days') - ReinnTid/24)
+                   RespTid = sum(RespTid, na.rm = T),
+                  #    ifelse(ReinnResp==0 ,
+                   #                  difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = 'days'),
+                   #                  difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = 'days') - ReinnRespTid/24),
+                   Liggetid = sum(Liggetid, na.rm = T),
+                     # ifelse(Reinn==0,
+                     #                 difftime(DateDischargedIntensive, FormDate, units = 'days'),
+                     #                 difftime(DateDischargedIntensive, FormDate, units = 'days') - ReinnTid/24)
          )
    } #aggPers
 
@@ -177,10 +192,11 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
       pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
       indManglerIntSkjema <- which(RegData$PersonId %in% pasUint)
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
-      indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)
-      if (length(indManglerIntPas)>0) {RegDataRed <- RegDataRed[-indManglerIntPas, ]}
 
       if (aggPers == 1){
+
+         indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)
+         if (length(indManglerIntPas)>0) {RegDataRed <- RegDataRed[-indManglerIntPas, ]}
 
          RegDataRedInt <- RegData %>% group_by(PasientID) %>%
             summarise(
@@ -237,8 +253,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                UrineOutput = first(UrineOutput, order_by=FormDate),
                VasoactiveInfusion = min(VasoactiveInfusion), #1-ja, 2-nei. Hvis ja på en:ja
             )
+         RegData <- data.frame(cbind(RegDataRed, RegDataRedInt))
       } #aggPers
-      RegData <- data.frame(cbind(RegDataRed, RegDataRedInt))
    } #kobletInt
    else {
       if (aggPers == 1) {RegData <- data.frame(RegDataRed)}}
@@ -269,8 +285,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                                                format='%Y-%m-%d %H:%M:%S' ) #DateAdmittedIntensive
    RegData$DateDischargedIntensive <- as.POSIXlt(RegData$DateDischargedIntensive, tz= 'UTC',
                                                  format='%Y-%m-%d %H:%M:%S' )
-   # RegData$FirstTimeClosed
-   # RegData$Creat
 
    RegData$MechanicalRespiratorStart <- as.POSIXlt(RegData$MechanicalRespiratorStart,
                                                    tz= 'UTC', format='%Y-%m-%d %H:%M:%S')
@@ -282,17 +296,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    RegData$DischargedIntensiveStatus[ind] <- 1
 
 
-   #Liggetider
-   #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
-   RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
-                                          RegData$EcmoStart,
-                                          units = 'days'))
-   # RegData$RespTid <- as.numeric(difftime(RegData$MechanicalRespiratorEnd,
-   #                                        RegData$MechanicalRespiratorStart,
-   #                                        units = 'days'))
-   # RegData$Liggetid <- as.numeric(difftime(RegData$DateDischargedIntensive,
-   #                                         RegData$Innleggelsestidspunkt,
-   #                                         units = 'days'))
 
    # Nye tidsvariable:
    RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$Innleggelsestidspunkt, tz= 'UTC',
