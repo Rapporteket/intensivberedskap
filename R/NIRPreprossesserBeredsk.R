@@ -17,7 +17,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    # Bør legge inn sjekk som endrer kobleInt til 1 hvis det opplagt er med variabler fra intensivskjema
    # eller gi feilmelding om at her ser det ut til å være intensivvariabler.
 
-
    # Endre variabelnavn:
    #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
    RegData$Alder <- lubridate::time_length(difftime(as.Date(RegData$FormDate), as.Date(RegData$Birthdate)), 'years')
@@ -54,7 +53,20 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                                            units = 'days'))
 
 
-   #Konvertere boolske variable fra tekst til boolske variable...
+   if (kobleInt==1){
+      #Fjerner  skjema uten intensivskjema
+      pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
+      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
+      indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
+      #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
+      if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
+
+      if (aggPers == 1){ #Fjerner pasienter som mangler ett eller flere intensivskjema
+         indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)
+         if (length(indManglerIntPas)>0) {RegDataRed <- RegDataRed[-indManglerIntPas, ]}
+      }}
+
+      #Konvertere boolske variable fra tekst til boolske variable...
 
    #    TilLogiskeVar <- function(Skjema){
    #    verdiGML <- c('True','False')
@@ -188,15 +200,16 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    } #aggPers
 
    if (kobleInt==1){
-      #Fjerner  uten intensivskjema
-      pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-      indManglerIntSkjema <- which(RegData$PersonId %in% pasUint)
-      if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
+      # #Fjerner  uten intensivskjema
+      # pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
+      # skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
+      # indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
+      # test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
+      # if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
 
       if (aggPers == 1){
-
-         indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)
-         if (length(indManglerIntPas)>0) {RegDataRed <- RegDataRed[-indManglerIntPas, ]}
+         # indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)
+         # if (length(indManglerIntPas)>0) {RegDataRed <- RegDataRed[-indManglerIntPas, ]}
 
          RegDataRedInt <- RegData %>% group_by(PasientID) %>%
             summarise(
