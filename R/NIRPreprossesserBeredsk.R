@@ -62,8 +62,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
 
       if (aggPers == 1){ #Fjerner pasienter som mangler ett eller flere intensivskjema
-         indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)
-         if (length(indManglerIntPas)>0) {RegDataRed <- RegDataRed[-indManglerIntPas, ]}
+         indManglerIntPas <- which(RegData$PersonId %in% pasUint)
+         if (length(indManglerIntPas)>0) {RegData <- RegData[-indManglerIntPas, ]}
       }}
 
       #Konvertere boolske variable fra tekst til boolske variable...

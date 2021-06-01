@@ -684,7 +684,7 @@ server <- function(input, output, session) {
 
 
     #Tab risiko
-    RisikoTab <- RisikofaktorerTab(RegData=CoroData, tidsenhet='Totalt',
+    RisikoTab <- RisikofaktorerTab(RegData=CoroData, #tidsenhet='Totalt',
                                    valgtRHF= input$valgtRHF,
                                    skjemastatus=as.numeric(input$skjemastatus),
                                    bekr=as.numeric(input$bekr),
