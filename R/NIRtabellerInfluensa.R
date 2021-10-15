@@ -10,7 +10,7 @@
 #' @return
 #' @export
 #'
-InfluensaUkeRHF <- function(RegData, bekr=9, skjemastatus=9, dodInt=9, erMann=9, sesong='2019-20', alleUker=1){
+InfluensaUkeRHF <- function(RegData, bekr=9, skjemastatus=9, dodInt=9, erMann=9, sesong='2021-22', alleUker=1){
   # InfluData$Sesong <- 'diverse'
   # InfluData$Sesong[(InfluData$InnDato >= '2018-10-01') & (InfluData$InnDato <= '2019-05-19')] <- '2018-19'
   # InfluData$Sesong[(InfluData$InnDato >= '2019-09-30') & (InfluData$InnDato <= '2020-05-17')] <- '2019-20'
@@ -30,7 +30,8 @@ InfluData <- RegData
     uker <- switch(sesong,
                    '2018-19' = seq(as.Date('2018-10-01'), as.Date('2019-05-19'), "weeks"),
                    '2019-20' = seq(as.Date( '2019-09-30'), as.Date('2020-05-17'), "weeks"),
-                   '2020-21' = seq(as.Date('2020-09-28'), min(Sys.Date(), as.Date('2021-05-23')), "weeks")
+                   '2020-21' = seq(as.Date( '2020-09-28'), as.Date('2021-05-23'), "weeks"),
+                   '2021-22' = seq(as.Date('2021-10-04'), min(Sys.Date(), as.Date('2022-05-22')), "weeks")
                    )
   InfluData$UkeAar <- factor(InfluData$UkeAar, levels=format(uker, '%G.%V'))
   }

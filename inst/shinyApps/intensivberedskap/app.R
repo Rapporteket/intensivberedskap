@@ -61,7 +61,7 @@ if (dim(BeredIntRaa)[1]>0) {
   BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1)
 }
 
-#Influensadata#
+#Influensadata# MÅ GJØRES I EI preprosess-fil eller i spørringa som henter data!!
 queryInflu <- paste0('SELECT * FROM InfluensaFormDataContract')
 InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
 #InfluDataRaa <- InfluDataRaa[which(as.Date(InfluDataRaa$FormDate) < '2020-08-01'), ]
@@ -93,7 +93,8 @@ InfluData$Sesong <- 'diverse'
 InfluData$Sesong[(InfluData$InnDato >= '2018-10-01') & (InfluData$InnDato <= '2019-05-19')] <- '2018-19'
 InfluData$Sesong[(InfluData$InnDato >= '2019-09-30') & (InfluData$InnDato <= '2020-05-17')] <- '2019-20'
 InfluData$Sesong[(InfluData$InnDato >= '2020-09-28') & (InfluData$InnDato <= '2021-05-23')] <- '2020-21'
-InfluData$Sesong <- factor(InfluData$Sesong,levels = c('2018-19', '2019-20', '2020-21', 'diverse'))
+InfluData$Sesong[(InfluData$InnDato >= '2021-10-05') & (InfluData$InnDato <= '2022-05-23')] <- '2021-22'
+InfluData$Sesong <- factor(InfluData$Sesong,levels = c('2018-19', '2019-20', '2020-21', '2021-22', 'utenfor sesong'))
 
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------
@@ -315,19 +316,19 @@ ui <- tagList(
                )
              ), #tab Datakvalitet
 
-#------------Influensa-----------------------
+#------------ Influensa -----------------------
 #Resultater fra influensaskjema
 tabPanel(title = 'Influensa',
          value = 'Influensa',
           sidebarPanel(id = 'brukervalgInfluensa',
                        width = 3,
                        #uiOutput('CoroRappTxt'),
-                       h3('Influensarapport med samling av resultater for sesongen 2020/21'),
+                       h3('Influensarapport med samling av resultater for sesongen 2021/22'),
                         h5('Influensarapporten kan man få regelmessig tilsendt på e-post.
                            Gå til fanen "Abonnement" for å bestille dette.'),
                        br(),
-                       h4('NB: Inntil det blir registrert influensatilfeller etter uke 40 i 2020,
-                          vil innholdet i rapporten gjelde sesongen 2019/20.'),
+                       #h4('NB: Inntil det blir registrert influensatilfeller etter uke 40 i 2021,
+                       #   vil innholdet i rapporten gjelde sesongen 2020/21.'),
                        downloadButton(outputId = 'InfluRapp.pdf', label='Last ned Influensarapport', class = "butt"),
                        tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                        br(),
@@ -336,7 +337,7 @@ tabPanel(title = 'Influensa',
                        h3('Gjør filtreringer/utvalg i tabellene:'),
 
                        selectInput(inputId = "sesongInf", label="Velg influensasesong",
-                                   choices = rev(c('2018-19', '2019-20', '2020-21'))
+                                   choices = rev(c('2018-19', '2019-20', '2020-21', '2021-22'))
                                    #, selected = sesongStart
                        ),selectInput(inputId = "bekrInf", label="Bekreftet/Mistenkt",
                                    choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
@@ -368,7 +369,7 @@ tabPanel(title = 'Influensa',
           mainPanel(width = 9,
                     h3('Resultater fra intensivregisterets influensaregistrering'),
                     h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
-                    h5('Siden er under utvikling... ', style = "color:red"),
+                    #h5('Siden er under utvikling... ', style = "color:red"),
                     br(),
 
                     #h3('Antall ny-innlagte pasienter, siste 10 dager'),
