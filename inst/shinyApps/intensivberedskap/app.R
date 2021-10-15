@@ -458,8 +458,8 @@ tabPanel(title = 'Influensa',
                           br(),
                           br(),
                           h3('Registeringsforsinkelse, antall dager'),
-                          h3('Tabellen viser fordeling av registreringsforsinkelse angitt antall dager forsinkelse.
-                             Tallene i tabellen er fordeling angitt i prosent'),
+                          h4('Tabellen viser fordeling av registreringsforsinkelse per enhet.
+                             Tallene i tabellen er fordeling over gitte antall dager, angitt i prosent'),
                           uiOutput("tabRegForsinkEnhet"),
                           downloadButton(outputId = 'lastNed_tabForsink', label='Last ned tabell') #, class = "butt")
                         )
