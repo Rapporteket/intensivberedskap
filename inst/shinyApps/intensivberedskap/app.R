@@ -357,7 +357,7 @@ tabPanel(title = 'Influensa',
                        #             step = 10
                        # ),
                        # br(),
-                       actionButton("tilbakestillValg", label="Tilbakestill valg")
+                       actionButton("tilbakestillValg", label="Tilbakestill valg"),
 
                        # selectInput(inputId = 'enhetsGruppe', label='Enhetgruppe',
                        #             choices = c("RHF"=1, "HF"=2, "Sykehus"=3)
@@ -365,6 +365,19 @@ tabPanel(title = 'Influensa',
                        # dateRangeInput(inputId = 'datovalg', start = startDato, end = idag,
                        #                label = "Tidsperiode", separator="t.o.m.", language="nb" #)
                        # ),
+
+                       h4('Data til FHI'),
+                       selectInput("hvilkeFilerTilFHI", "Data:", c("Influensadata" = "InfluensadataTilFHI",
+                                                                   "Testfil" = "Testfil")),
+                       actionButton("bestillDataTilFHI", "Bestill data til FHI"),
+                       br(),
+                       downloadButton(outputId = 'lastNed_filstiDataNHN',
+                                      label='Send filer til NHN og last ned filsti', class = "butt"),
+                       #),
+                       br(),
+                       br(),
+
+
           ),
           mainPanel(width = 9,
                     h3('Resultater fra intensivregisterets influensaregistrering'),
@@ -952,6 +965,42 @@ server <- function(input, output, session) {
     xtable::xtable(TabUkeRHFinflu)}, rownames = T, digits=0, spacing="xs"
   )
 
+
+  #Send filer til FHI: kopi fra korona
+  output$lastNed_filstiDataNHN <- downloadHandler(
+    filename = function(){
+      paste0('Filsti', Sys.time(), '.csv')},
+    content = function(file, filename){
+      Filsti <- sendDataFilerFHI(zipFilNavn=input$hvilkeFilerTilFHI) #brukernavn = brukernavn)
+      write.csv2(x=Filsti, file, row.names = F, na = '') #x - r-objektet
+    })
+
+  #Abonnement, filer til FHI kopi fra korona
+  observeEvent(input$bestillDataTilFHI, { #MÅ HA
+    owner <- rapbase::getUserName(session)
+    organization <- rapbase::getUserReshId(session)
+    email <- rapbase::getUserEmail(session)
+    interval <- "DSTday"
+    intervalName <- "Daglig"
+    runDayOfYear <- rapbase::makeRunDayOfYearSequence(interval = interval)
+    paramNames = c('zipFilNavn', 'brukernavn')
+    paramValues = c(input$hvilkeFilerTilFHI, brukernavn)
+    rapbase::createAutoReport(synopsis = paste0('Sendt til FHI: ',input$hvilkeFilerTilFHI),
+                              package = 'intensivberedskap',
+                           ?   fun = "sendDataFilerFHI",
+                              paramNames = paramNames,
+                              paramValues = paramValues,
+                              owner = owner,
+                              email = email, organization = organization,
+                              runDayOfYear = runDayOfYear,
+                              interval = interval,
+                              intervalName = intervalName)
+
+    #rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    subscription$tab <-
+      rapbase::makeAutoReportTab(session, type = "subscription")
+
+  })
 
 
 
