@@ -15,6 +15,7 @@ knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 knitr::opts_knit$set(root.dir = './')
 library(xtable)
 library(lubridate)
+library(intensivberedskap)
 @
 
 
@@ -36,10 +37,10 @@ library(lubridate)
 
 InfluData <- intensivberedskap::NIRsqlInfluensa(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1)
 
-    sisteReg <- max(as.Date(RegData$FormDate))
+    sisteReg <- max(as.Date(InfluData$FormDate))
     datoU40 <- ifelse(sisteReg >= '2021-10-04','2021-10-04', '2020-09-28')
     startDato <- datoU40 #ifelse(sisteReg >= datoU40, '2020-09-28', '2019-09-30')
-    RegData <- RegData[which(RegData$InnDato >= datoU40), ]  #NIRUtvalgEnh(RegData=RegData, datoFra = '2019-09-30')$RegData
+    InfluData <- InfluData[which(InfluData$InnDato >= datoU40), ]
     sesongTxt <- ifelse(sisteReg >= '2021-10-04', ' 2021/22', '2020/2021')
 
 

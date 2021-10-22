@@ -86,8 +86,18 @@ NIRsqlInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), prepro
 
 
 
-    #Legg på sesong...!!!!!!!
-
+    #Legg på sesong
+    RegData$Sesong <- 'mellom'
+    startU40 <- c('2017-10-02', '2018-10-01', '2019-09-30', '2020-09-28', '2021-10-04', '2022-10-03',
+                  '2023-10-02', '2024-09-30', '2025-09-29', '2026-09-28', '2027-10-04', '2028-10-02')
+    sluttU20 <- c('2018-05-20', '2019-05-19', '2020-05-17', '2021-05-23', '2022-05-22', '2023-05-21',
+                  '2024-05-19', '2025-05-18', '2026-05-17', '2027-05-23', '2028-05-21', '2029-05-20')
+    sesonger <- paste0(2017:2028,'-',18:29)
+    for (s in 1:length(sesonger)){
+      ind <- which(RegData$InnDato >= as.Date(startU40[s]) & RegData$InnDato <= as.Date(sluttU20[s]))
+        RegData$Sesong[ind] <- sesonger[s]
+    }
+    #table(RegData$Sesong)
 
     # Enhetsnivånavn
     RegData$RHF <- factor(RegData$RHF)
