@@ -818,14 +818,14 @@ server <- function(input, output, session) {
                               email = email, organization = organization,
                               runDayOfYear = runDayOfYear, interval = interval,
                               intervalName = intervalName)
-    subscription$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
   })
 
   ## slett eksisterende abonnement
   observeEvent(input$del_button, {
     selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
     rapbase::deleteAutoReport(selectedRepId)
-    subscription$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
   })
 
 
