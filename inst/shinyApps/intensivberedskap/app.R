@@ -367,7 +367,7 @@ tabPanel(title = 'Influensa',
                        # ),
 
                        h4('Data til FHI'),
-                       selectInput("hvilkeFilerTilFHI", "Data:", c("Influensadata" = "InfluensadataTilFHI",
+                       selectInput("hvilkeFilerTilFHI", "Data:", c("Influensadata" = "InfluDataFHI",
                                                                    "Testfil" = "Testfil")),
                        actionButton("bestillDataTilFHI", "Bestill data til FHI"),
                        br(),
@@ -754,18 +754,22 @@ server <- function(input, output, session) {
   #------------------ Abonnement ----------------------------------------------
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
-  rv <- reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab(session))
+  # rv <- reactiveValues(
+  #   subscriptionTab = rapbase::makeUserSubscriptionTab(session))
+
+  subscription <- reactiveValues(
+    tab = rapbase::makeAutoReportTab(session, type = "subscription"))
+
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
-    rv$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
+    subscription$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
     rownames = FALSE, options = list(dom = 't')
   )
 
   ## lag side som viser status for abonnement, også når det ikke finnes noen
   output$subscriptionContent <- renderUI({
     fullName <- rapbase::getUserFullName(session)
-    if (length(rv$subscriptionTab) == 0) {
+    if (length(subscription$subscriptionTab) == 0) {
       p(paste("Ingen aktive abonnement for", fullName))
     } else {
       tagList(
@@ -814,14 +818,14 @@ server <- function(input, output, session) {
                               email = email, organization = organization,
                               runDayOfYear = runDayOfYear, interval = interval,
                               intervalName = intervalName)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    subscription$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
 
   ## slett eksisterende abonnement
   observeEvent(input$del_button, {
     selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
     rapbase::deleteAutoReport(selectedRepId)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    subscription$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
 
 
@@ -971,7 +975,7 @@ server <- function(input, output, session) {
     filename = function(){
       paste0('Filsti', Sys.time(), '.csv')},
     content = function(file, filename){
-      Filsti <- sendDataFilerFHI(zipFilNavn=input$hvilkeFilerTilFHI) #brukernavn = brukernavn)
+      Filsti <- sendInfluDataFHI(zipFilNavn=input$hvilkeFilerTilFHI) #brukernavn = brukernavn)
       write.csv2(x=Filsti, file, row.names = F, na = '') #x - r-objektet
     })
 
@@ -987,7 +991,7 @@ server <- function(input, output, session) {
     paramValues = c(input$hvilkeFilerTilFHI, brukernavn)
     rapbase::createAutoReport(synopsis = paste0('Sendt til FHI: ',input$hvilkeFilerTilFHI),
                               package = 'intensivberedskap',
-                           ?   fun = "sendDataFilerFHI",
+                              fun = "InfluensadataTilFHI",
                               paramNames = paramNames,
                               paramValues = paramValues,
                               owner = owner,
@@ -996,7 +1000,7 @@ server <- function(input, output, session) {
                               interval = interval,
                               intervalName = intervalName)
 
-    #rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
+    #subscription$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
     subscription$tab <-
       rapbase::makeAutoReportTab(session, type = "subscription")
 

@@ -5,7 +5,7 @@
 #' @return
 #' @export
 #'
-InfluensadataTilFHI <- function(){
+lagInfluDataFHI <- function(){
 #Rådata
 library(intensivberedskap) #  library(tidyverse) #
 
@@ -34,7 +34,7 @@ InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, 
 
 
 
-UtData <- list(InfluDataRaa = InfluDataRaa)
+UtData <- list(InfluDataFHI = InfluDataRaa)
 return(UtData)
 
 }

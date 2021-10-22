@@ -4,7 +4,7 @@
 \alias{ManglerIntSkjema}
 \title{Avdelingar som enno har ikkje-ferdigstilte NIR-skjema for ferdigstilte beredskapsskjema}
 \usage{
-ManglerIntSkjema(reshID = 0)
+ManglerIntSkjema(reshID = 0, datoFra = "2020-03-01", datoTil = Sys.Date())
 }
 \arguments{
 \item{reshID}{Avdelingas resh-id}
