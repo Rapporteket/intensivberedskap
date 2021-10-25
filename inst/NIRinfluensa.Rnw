@@ -37,11 +37,13 @@ library(intensivberedskap)
 
 InfluData <- intensivberedskap::NIRsqlInfluensa(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1)
 
-    sisteReg <- max(as.Date(InfluData$FormDate))
-    datoU40 <- ifelse(sisteReg >= '2021-10-04','2021-10-04', '2020-09-28')
-    startDato <- datoU40 #ifelse(sisteReg >= datoU40, '2020-09-28', '2019-09-30')
-    InfluData <- InfluData[which(InfluData$InnDato >= datoU40), ]
-    sesongTxt <- ifelse(sisteReg >= '2021-10-04', ' 2021/22', '2020/2021')
+    #sisteReg <- max(as.Date(InfluData$FormDate))
+    #datoU40 <- ifelse(sisteReg >= '2021-10-04','2021-10-04', '2020-09-28')
+    #startDato <- datoU40 #ifelse(sisteReg >= datoU40, '2020-09-28', '2019-09-30')
+    #sesongTxt <- ifelse(sisteReg >= '2021-10-04', ' 2021/22', '2020/2021')
+    sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
+InfluData <- InfluData[which(InfluData$Sesong %in% sesongNaa), ]
+
 
 
 # #Legge på tidsenheter
@@ -53,8 +55,6 @@ InfluData$UkeAar <- as.factor(InfluData$UkeAar)
 InfluData$UkeNr <- factor(InfluData$UkeNr, levels=c(min(InfluData$UkeNr):max(InfluData$UkeNr)))
 #InfluData$RHF <- factor(InfluData$RHF)
 
-
-
 indFerdig <- which(InfluData$FormStatus==2)
 antFerdig <- length(indFerdig)
 antSkjema <- dim(InfluData)[1]
@@ -63,7 +63,7 @@ antSkjema <- dim(InfluData)[1]
 \begin{document}
 
 \title[Influensa \\\today] {%\textit{Influensadata, NIR} \\
-Influensarapportering fra NIR, sesongen \Sexpr{sesongTxt} }
+Influensarapportering fra NIR, sesongen \Sexpr{sesongNaa} }
 
 \maketitle
 
@@ -143,7 +143,7 @@ command <- paste0(paste0('& \\multicolumn{2}{l}{', navnRHF, '} ', collapse=''), 
 #comment$command <- "\\hline\n{\\footnotesize B - bekreftet, M - mistenkt}\n"
 add.to.row$command <- command
 print(xtable::xtable(TabUkeRHF[indAntRader,], digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-		caption=paste0('Influensatilfeller per uke og region sesongen', sesongTxt,' (B - bekreftet, M - mistenkt)',
+		caption=paste0('Influensatilfeller per uke og region sesongen', sesongNaa,' (B - bekreftet, M - mistenkt)',
 		               ' Uker med 0 tilfeller vises ikke.')),
       #footnote= 'B-bekreftet, M-mistenkt',),
 		add.to.row = add.to.row,
@@ -172,7 +172,7 @@ command <- paste0(paste0('& \\multicolumn{2}{l}{', navnRHF, '} ', collapse=''), 
 add.to.row$command <- command
 print(xtable::xtable(TabUkeRHFFerdig[indAntRader,], digits=0,
 		caption=paste0('Influensatilfeller per uke og region, basert på kun ferdigstilte influensaskjema, sesongen',
-sesongTxt,'. (B - bekreftet, M - mistenkt)', ' Uker med 0 tilfeller vises ikke.')),
+sesongNaa,'. (B - bekreftet, M - mistenkt)', ' Uker med 0 tilfeller vises ikke.')),
 		add.to.row = add.to.row,
 		sanitize.rownames.function = identity)
 @
@@ -183,7 +183,7 @@ sesongTxt,'. (B - bekreftet, M - mistenkt)', ' Uker med 0 tilfeller vises ikke.'
 
 <<'TabUkeTot', results='asis'>>=
 print(xtable::xtable(TabUkeTot[indAntRader,], digits=0, #align=c('l', rep('r', ncol(TabUkeTot))),
-		caption=paste0('Antall influensatilfeller sesongen', sesongTxt, '.', ' Uker med 0 tilfeller vises ikke.')),
+		caption=paste0('Antall influensatilfeller sesongen', sesongNaa, '.', ' Uker med 0 tilfeller vises ikke.')),
 		#Totalt antall skjema er antall registrerte influensaskjema.'),
 		sanitize.rownames.function = identity)
 @
@@ -193,7 +193,7 @@ print(xtable::xtable(TabUkeTot[indAntRader,], digits=0, #align=c('l', rep('r', n
 
 <<'TabUkeTotferdig', results='asis'>>=
 print(xtable::xtable(TabUkeTotFerdig[indAntRader,], digits=0, #align=c('l', rep('r', ncol(TabUkeTot))),
-		caption=paste0('Antall influensatilfeller basert på ferdigstilte skjema, sesongen', sesongTxt,'.',
+		caption=paste0('Antall influensatilfeller basert på ferdigstilte skjema, sesongen', sesongNaa,'.',
 		               ' Uker med 0 tilfeller vises ikke.')),
 		#Totalt antall skjema er antall registrerte influensaskjema.'),
 		sanitize.rownames.function = identity)

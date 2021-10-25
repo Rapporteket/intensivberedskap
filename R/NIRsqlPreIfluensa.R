@@ -28,6 +28,7 @@ NIRsqlInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), prepro
 
     #startOfMonth<- function(x) {as.Date(format(x, "%Y-%m-01")) }
 
+    if (preprosess == 1) {
 
     #Diagnoser: ICD10_1
     # -1 = Velg verdi
@@ -49,6 +50,16 @@ NIRsqlInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), prepro
     indMistenkt <- which(RegData$ICD10_1 %in% c(-1,13:16))
     RegData$Influensa[indMistenkt] <- 'Mistenkt'
     RegData$Influensa[indBekreftet] <- 'Bekreftet'
+
+    RegData$Bekr <- as.numeric(RegData$Influensa)-1
+
+    # Enhetsnivånavn
+    RegData$RHF <- factor(RegData$RHF)
+    #RegData$RHF <- sub('Helse ', '', RegData$RHF)
+    RegData$RHF <- factor(RegData$RHF,
+                            levels= c('Helse Nord', 'Helse Midt-Norge', 'Helse Vest', 'Helse Sør-Øst', 'Privat'),
+                            labels = c('Nord', 'Midt', 'Vest', 'Sør-Øst', 'Privat'))
+
 
 
     #Riktig format på datovariable:
@@ -87,7 +98,7 @@ NIRsqlInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), prepro
 
 
     #Legg på sesong
-    RegData$Sesong <- 'mellom'
+    RegData$Sesong <- NA
     startU40 <- c('2017-10-02', '2018-10-01', '2019-09-30', '2020-09-28', '2021-10-04', '2022-10-03',
                   '2023-10-02', '2024-09-30', '2025-09-29', '2026-09-28', '2027-10-04', '2028-10-02')
     sluttU20 <- c('2018-05-20', '2019-05-19', '2020-05-17', '2021-05-23', '2022-05-22', '2023-05-21',
@@ -98,9 +109,6 @@ NIRsqlInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), prepro
         RegData$Sesong[ind] <- sesonger[s]
     }
     #table(RegData$Sesong)
-
-    # Enhetsnivånavn
-    RegData$RHF <- factor(RegData$RHF)
 
 
    #    #Konvertere boolske variable fra tekst til boolske variable...
@@ -116,6 +124,6 @@ NIRsqlInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), prepro
    # RegData[, intersect(names(RegData), LogVar)] <-
    #    apply(RegData[, intersect(names(RegData), LogVar)], 2, as.logical)
    #
-
+}
    return(invisible(RegData))
 }

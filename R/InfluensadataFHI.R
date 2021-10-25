@@ -1,6 +1,6 @@
 
 
-#' Henter data og tilrettelegger filer for overføring til FHI
+#' Henter data og velger variabler for overføring til FHI
 #'
 #' @return
 #' @export
@@ -28,13 +28,26 @@ library(intensivberedskap) #  library(tidyverse) #
                 ,FormStatus
                 ,FormDate
                 ,CreationDate
-   FROM InfluensaFormDataContract'
+                # ,IsEcmoTreatmentAdministered
+                # ,IsRiskFactor
+                # ,IsActiveSmoker
+                # ,IsAsthmaticPatient
+                # ,IsCancerPatient
+                # ,IsChronicLungDiseasePatient
+                # ,IsChronicNeurologicNeuromuscularPatient
+                # ,IsDiabeticPatient
+                # ,IsHeartDiseaseIncludingHypertensionPatient
+                # ,IsImpairedImmuneSystemIncludingHivPatient
+                # ,IsKidneyDiseaseIncludingFailurePatient
+                # ,IsLiverDiseaseIncludingFailurePatient
+                # ,IsObesePatient
+                # ,IsPregnant
+ FROM InfluensaFormDataContract'
   #queryInflu <- 'select * from InfluensaFormDataContract'
 InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
 
 
+UtData <- InfluDataRaa #list(InfluDataFHI = InfluDataRaa)
 
-UtData <- list(InfluDataFHI = InfluDataRaa)
 return(UtData)
-
 }

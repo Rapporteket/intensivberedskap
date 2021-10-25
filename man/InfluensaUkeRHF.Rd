@@ -21,6 +21,8 @@ InfluensaUkeRHF(
 
 \item{sesong}{influensasesong}
 
+\item{alleUker}{0: viser uker med hendelser, 1: viser alle uker}
+
 \item{ferdigstilt}{ferdigstilt registrering}
 }
 \value{

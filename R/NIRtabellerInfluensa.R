@@ -6,6 +6,7 @@
 #' @param bekr 1:bekreftet 0: mistenkt tilfelle
 #' @param ferdigstilt ferdigstilt registrering
 #' @param sesong influensasesong
+#' @param alleUker 0: viser uker med hendelser, 1: viser alle uker
 #'
 #' @return
 #' @export
@@ -20,7 +21,7 @@ InfluData <- RegData
   if (erMann %in% 0:1){InfluData <- subset(InfluData, InfluData$erMann==erMann)}
 
 
-  if (alleUker==1){ #Automatiseres...
+  if (alleUker==1){
     uker <- switch(sesong,
                    '2018-19' = seq(as.Date('2018-10-01'), as.Date('2019-05-19'), "weeks"),
                    '2019-20' = seq(as.Date( '2019-09-30'), as.Date('2020-05-17'), "weeks"),
