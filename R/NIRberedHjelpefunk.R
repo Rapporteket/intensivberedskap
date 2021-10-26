@@ -48,10 +48,9 @@ abonnementBeredsk <- function(rnwFil, brukernavn='beredskap', reshID=0,
                        Rpakke='intensivberedskap') {
 
   #function(baseName, reshId, registryName,author, hospitalName, type) {
-valgtRHF <- valgtRHF[[1]]
-  #datoFra <- datoFra[[1]]
-  #datoTil <- datoTil[[1]]
-  reshID <- reshID[[1]]
+#Parametre ligger ikke lenger i liste...
+#  valgtRHF <- valgtRHF[[1]]
+#  reshID <- reshID[[1]]
   raplog::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
                     reshId = reshID,
                     msg = "starter Abonnement: Corona-rapport")

@@ -30,7 +30,6 @@ library(intensivberedskap) #  library(tidyverse) #
                 ,CreationDate
                 # ,IsEcmoTreatmentAdministered
                 # ,IsRiskFactor
-                # ,IsActiveSmoker
                 # ,IsAsthmaticPatient
                 # ,IsCancerPatient
                 # ,IsChronicLungDiseasePatient

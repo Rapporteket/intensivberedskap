@@ -37,23 +37,13 @@ library(intensivberedskap)
 
 InfluData <- intensivberedskap::NIRsqlInfluensa(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1)
 
-    #sisteReg <- max(as.Date(InfluData$FormDate))
-    #datoU40 <- ifelse(sisteReg >= '2021-10-04','2021-10-04', '2020-09-28')
-    #startDato <- datoU40 #ifelse(sisteReg >= datoU40, '2020-09-28', '2019-09-30')
-    #sesongTxt <- ifelse(sisteReg >= '2021-10-04', ' 2021/22', '2020/2021')
-    sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
+sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
 InfluData <- InfluData[which(InfluData$Sesong %in% sesongNaa), ]
 
 
-
 # #Legge på tidsenheter
-# InfluData$Aar <- format(InfluData$InnDato, '%Y')
-# InfluData$UkeNr <- format(InfluData$InnDato, '%V')
-# InfluData$UkeAar <- format(InfluData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
 InfluData$UkeAar <- as.factor(InfluData$UkeAar)
-#
-InfluData$UkeNr <- factor(InfluData$UkeNr, levels=c(min(InfluData$UkeNr):max(InfluData$UkeNr)))
-#InfluData$RHF <- factor(InfluData$RHF)
+#InfluData$UkeNr <- factor(InfluData$UkeNr, levels=c(min(InfluData$UkeNr):max(InfluData$UkeNr)))
 
 indFerdig <- which(InfluData$FormStatus==2)
 antFerdig <- length(indFerdig)
@@ -199,23 +189,6 @@ print(xtable::xtable(TabUkeTotFerdig[indAntRader,], digits=0, #align=c('l', rep(
 		sanitize.rownames.function = identity)
 @
 \end{frame}
-
-<<'Manuelle resultater', results='hide'>>=
-
-@
-
-
-% \begin{frame}[fragile] {Ferdigstilte influensaskjema uten ICD10-kode}
-% <<'TabICD10koder', results='asis'>>=
-% ind <- which(InfluData$ICD10_1 == -1)
-%
-% print(
-% IkkeFerdig <- InfluData[ind, c('ShNavn', 'InnDato')] #, row.names = F)
-%  print(xtable::xtable(IkkeFerdig, #digits=1, align=c('l', rep('r', ncol(alderDIV))),
-%  		caption='Ferdigstilte influensaskjema hvor ICD10-kode ikke er spesifisert.'),
-%  		sanitize.rownames.function = identity)
-% @
-% \end{frame}
 
 
 \end{tiny}
