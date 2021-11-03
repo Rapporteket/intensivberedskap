@@ -54,11 +54,9 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,IsRiskFactor
 , IsCancerPatient AS Kreft
 ,LastUpdate
-,MajorVersion
 ,MechanicalRespirator
 ,MechanicalRespiratorEnd
 ,MechanicalRespiratorStart
-,MinorVersion
 ,MoreThan24Hours
 ,Morsdato
 ,MorsdatoOppdatert
