@@ -16,7 +16,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
   varBeredsk <- c("UPPER(SkjemaGUID) AS SkjemaGUID
 -- ,AddressQuality
 ,AgeAdmitted
-, IsAsthmaticPatient
+, IsAsthmaticPatient AS Astma
 ,Birthdate
 -- ,CurrentMunicipalNumber
 ,CreationDate
@@ -24,7 +24,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,DateDischargedIntensive
 ,DaysAdmittedIntensiv
 ,DeadPatientDuring24Hours
-, IsDiabeticPatient
+, IsDiabeticPatient AS Diabetes
 ,Diagnosis
 -- ,DischargedIntensivStatus
 ,DischargedIntensiveStatus
@@ -35,7 +35,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,FormDate
 ,FormStatus
 ,FormTypeId
-, IsPregnant
+, IsPregnant AS Graviditet
 ,Helseenhet
 -- ,HelseenhetID
 ,HelseenhetKortnavn
@@ -52,7 +52,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,IsLiverDiseaseIncludingFailurePatient
 ,IsObesePatient
 ,IsRiskFactor
-, IsCancerPatient
+, IsCancerPatient AS Kreft
 ,LastUpdate
 ,MajorVersion
 ,MechanicalRespirator
