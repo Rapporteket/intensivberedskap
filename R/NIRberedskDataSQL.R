@@ -16,7 +16,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
   varBeredsk <- c("UPPER(SkjemaGUID) AS SkjemaGUID
 -- ,AddressQuality
 ,AgeAdmitted
-,Astma
+, IsAsthmaticPatient AS Astma
 ,Birthdate
 -- ,CurrentMunicipalNumber
 ,CreationDate
@@ -24,7 +24,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,DateDischargedIntensive
 ,DaysAdmittedIntensiv
 ,DeadPatientDuring24Hours
-,Diabetes
+, IsDiabeticPatient AS Diabetes
 ,Diagnosis
 -- ,DischargedIntensivStatus
 ,DischargedIntensiveStatus
@@ -35,7 +35,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,FormDate
 ,FormStatus
 ,FormTypeId
-,Graviditet
+, IsPregnant AS Graviditet
 ,Helseenhet
 -- ,HelseenhetID
 ,HelseenhetKortnavn
@@ -52,13 +52,11 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,IsLiverDiseaseIncludingFailurePatient
 ,IsObesePatient
 ,IsRiskFactor
-,Kreft
+, IsCancerPatient AS Kreft
 ,LastUpdate
-,MajorVersion
 ,MechanicalRespirator
 ,MechanicalRespiratorEnd
 ,MechanicalRespiratorStart
-,MinorVersion
 ,MoreThan24Hours
 ,Morsdato
 ,MorsdatoOppdatert
@@ -98,12 +96,13 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
     #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
     #Ved overføringer, kan det ene skjemaet være lagt inn i intensiv og det andre ikke. Vi får da trøbbel i aggregeringa.
     #Velger derfor å ta flest mulig fra beredskapsskjema.
-    #Tar bort: 'DateAdmittedIntensive', 'DateDischargedIntensive',
+    #Tar bort: (apr. 21, legger til...) 'DateAdmittedIntensive', 'DateDischargedIntensive',
     varFellesInt <- c('DaysAdmittedIntensiv',
                       'DischargedIntensiveStatus',
                       'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
                       'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
                       'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
+                      'DateAdmittedIntensive', 'DateDischargedIntensive',
                       # 'FormStatus', 'ShNavn', 'PatientInRegistryGuid',
                       'UnitId')
 

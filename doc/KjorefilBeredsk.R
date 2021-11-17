@@ -12,7 +12,7 @@ valgtRHF <- as.character(NIRPreprosessBeredsk(NIRberedskDataSQL())$RHF[3])
 #setwd('C:/ResultattjenesteGIT/intensivberedskap/')
 #knit('C:/ResultattjenesteGIT/intensivberedskap/inst/BeredskapCorona.Rnw', encoding = 'UTF-8')
 #tools::texi2pdf(file='BeredskapCorona.tex')
-knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'UTF-8')
+knitr::knit2pdf('~/intensivberedskap/inst/NIRinfluensa.Rnw') #, encoding = 'UTF-8')
 
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')

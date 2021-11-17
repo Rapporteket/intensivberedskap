@@ -10,7 +10,7 @@ InfluensaUkeRHF(
   skjemastatus = 9,
   dodInt = 9,
   erMann = 9,
-  sesong = "2019-20",
+  sesong = "2021-22",
   alleUker = 1
 )
 }
@@ -20,6 +20,8 @@ InfluensaUkeRHF(
 \item{bekr}{1:bekreftet 0: mistenkt tilfelle}
 
 \item{sesong}{influensasesong}
+
+\item{alleUker}{0: viser uker med hendelser, 1: viser alle uker}
 
 \item{ferdigstilt}{ferdigstilt registrering}
 }

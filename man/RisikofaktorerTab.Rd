@@ -6,7 +6,6 @@
 \usage{
 RisikofaktorerTab(
   RegData,
-  tidsenhet = "Totalt",
   datoFra = "2020-01-01",
   datoTil = Sys.Date(),
   reshID = 0,
@@ -23,8 +22,6 @@ RisikofaktorerTab(
 }
 \arguments{
 \item{RegData}{data}
-
-\item{tidsenhet}{'Dag', 'Uke' (standard)}
 
 \item{datoTil}{sluttdato}
 

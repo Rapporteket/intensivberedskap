@@ -192,9 +192,9 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
 #'
 #' @export
 #' @return
-RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoFra='2020-01-01', datoTil=Sys.Date(), reshID=0,
+RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(), reshID=0,
                               erMann=9, bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle',
-                              resp=9, minald=0, maxald=110, velgAvd=0){
+                              resp=9, minald=0, maxald=110, velgAvd=0){ #tidsenhet='Totalt',
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=datoFra, datoTil=datoTil, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                              bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
@@ -204,12 +204,6 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoFra='2020-01-01',
   RegData <- UtData$RegData
 
 
-  #Kvikk fix: Totalt gir nå totalen for 2020
-  # Tidsvariabel <- switch(tidsenhet,
-  #                        Uke = paste0('uke',RegData$UkeNr),
-  #                        Dag = RegData$Dag,
-  #                        Totalt = RegData$Aar)
-  #
   # TabRisiko <- rbind(
   #   Kreft = tapply(RegData$Kreft, Tidsvariabel, FUN=sum, na.rm = T),
   #   'Nedsatt immunforsvar' = tapply(RegData$IsImpairedImmuneSystemIncludingHivPatient, Tidsvariabel, FUN=sum, na.rm = T),
@@ -243,9 +237,8 @@ RisikofaktorerTab <- function(RegData, tidsenhet='Totalt', datoFra='2020-01-01',
 
   if (Ntest>3){
     TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
-    #if (tidsenhet=='Totalt'){
       TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
-    colnames(TabRisiko) <- 'Sum' #}
+    colnames(TabRisiko) <- 'Sum'
     TabRisiko <- cbind(TabRisiko,
                        'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%'))
 
@@ -325,16 +318,16 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,resp=9,
 #' @param reshID Avdelingas resh-id
 #' @return
 #' @export
-ManglerIntSkjema <- function(reshID=0){
+ManglerIntSkjema <- function(reshID=0, datoFra='2020-03-01', datoTil=Sys.Date()){
   if (rapbase::isRapContext()) {
-    DataNIRraa <- intensiv::NIRRegDataSQL(datoFra = '2020-03-01') #Kun ferdigstilte intensivopphold sendes til Rapporteket
-    DataBeredskapRaa <- NIRberedskDataSQL(kobleInt = 0)
+    DataNIRraa <- intensiv::NIRRegDataSQL(datoFra = datoFra, datoTil = datoTil) #, datoTil = '2020-12-31') #Kun ferdigstilte intensivopphold sendes til Rapporteket
+    DataBeredskapRaa <- NIRberedskDataSQL(kobleInt = 0, datoFra = datoFra, datoTil = datoTil)
   } else {
     DataNIRraa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= '2020-03-01', ]
     DataBeredskapRaa <- CoroDataRaa
   }
 
-
+#Filtrerer
   if (reshID !=0) {
     DataNIRraa <- DataNIRraa[DataNIRraa$ReshID == reshID, ]
     DataBeredskapRaa <- DataBeredskapRaa[DataBeredskapRaa$UnitId == reshID, ]
@@ -345,8 +338,6 @@ ManglerIntSkjema <- function(reshID=0){
   ManglerIntOpph$FormDate <- as.Date(ManglerIntOpph$FormDate)
   ManglerIntOpph[order(ManglerIntOpph$ShNavn, ManglerIntOpph$FormDate), ]
 }
-
-
 
 
 #' Tabell med andel av div. variabler for koblet datasett (intensiv+beredskap)
