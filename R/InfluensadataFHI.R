@@ -28,19 +28,19 @@ library(intensivberedskap) #  library(tidyverse) #
                 ,FormStatus
                 ,FormDate
                 ,CreationDate
-                # ,IsEcmoTreatmentAdministered
-                # ,IsRiskFactor
-                # ,IsAsthmaticPatient
-                # ,IsCancerPatient
-                # ,IsChronicLungDiseasePatient
-                # ,IsChronicNeurologicNeuromuscularPatient
-                # ,IsDiabeticPatient
-                # ,IsHeartDiseaseIncludingHypertensionPatient
-                # ,IsImpairedImmuneSystemIncludingHivPatient
-                # ,IsKidneyDiseaseIncludingFailurePatient
-                # ,IsLiverDiseaseIncludingFailurePatient
-                # ,IsObesePatient
-                # ,IsPregnant
+                ,IsEcmoTreatmentAdministered
+                ,IsRiskFactor
+                ,IsAsthmaticPatient
+                ,IsCancerPatient
+                ,IsChronicLungDiseasePatient
+                ,IsChronicNeurologicNeuromuscularPatient
+                ,IsDiabeticPatient
+                ,IsHeartDiseaseIncludingHypertensionPatient
+                ,IsImpairedImmuneSystemIncludingHivPatient
+                ,IsKidneyDiseaseIncludingFailurePatient
+                ,IsLiverDiseaseIncludingFailurePatient
+                ,IsObesePatient
+                ,IsPregnant
  FROM InfluensaFormDataContract'
   #queryInflu <- 'select * from InfluensaFormDataContract'
 InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
