@@ -30,10 +30,10 @@ ReinnNaar = max(which(difftime(sort(test$FormDate)[2:2],
                                test$DateDischargedIntensive[order(test$FormDate)][1],
                                                    units = 'hours') > 12))+1
 ReinnNaar = ifelse(Reinn==0  , 1,
-                   ifelse(sum(is.na(test$DateDischargedIntensive))>0
+                   ifelse(sum(is.na(test$DateDischargedIntensive))>0,
                      max(which(difftime(sort(FormDate)[2:AntRegPrPas],
                                                    DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
-                                                   units = 'hours') > 12))+1)
+                                                   units = 'hours') > 12))+1))
 
 test <- CoroData[!is.na(CoroData$EcmoStart) & CoroData$RHF=='Vest',
                  c("RHF", 'HF',"ShNavn",'HFut', "ShNavnUt", "FormStatus", "FormDate", "DateDischargedIntensive")]

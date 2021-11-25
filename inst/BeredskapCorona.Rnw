@@ -49,7 +49,7 @@ if (valgtRHF!='Alle'){
 datoStart <- '2020-03-01'
 
 RHFtxt <-ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
-tittelRHF <- paste0('Coronarapportering fra NIR, ',
+tittelRHF <- paste0('Coronarapportering fra NIPar, ',
                paste0('registreringer fra ', RHFtxt))
 indFerdig <- which(RegData$FormStatus==2)
 antFerdig <- length(indFerdig)
@@ -68,7 +68,7 @@ AntBekr <- sum(RegData$Bekreftet==1)
 
 \begin{document}
 
-\title[Norsk Intensivregister, Corona \\\today] {%\textit{Coronadata, NIR} \\
+\title[Norsk Intensiv- og pandemiregister, covid-19 \\\today] {%\textit{Coronadata, NIPar} \\
 \Sexpr{tittelRHF}}
 
 \maketitle
@@ -79,9 +79,9 @@ AntBekr <- sum(RegData$Bekreftet==1)
 \begin{tiny}
 
 \begin{frame}[fragile] {Hva er dette?}
-Dette er en automatisk generert rapport fra Norsk Intensivregister (NIR).
+Dette er en automatisk generert rapport fra Norsk Intensiv- og pandemiregister (NIPar).
 Dokumentet inneholder oppsummering av Coronatilfeller hos pasienter som
-kvalifiserer for rapportering til NIR.
+kvalifiserer for rapportering til NIPar.
 Mistenkte og bekreftede Coronatilfeller er rapportert i eget skjema i registeret, og data fra dette skjemaet danner grunnlaget for denne rapporten.
 \\
 
@@ -90,14 +90,14 @@ Mistenkte og bekreftede Coronatilfeller er rapportert i eget skjema i registeret
 \item Tabellene skiller ikke på om et skjema er ferdigstilt eller ikke. Det er \Sexpr{N-antFerdig}
 av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
 \item Skjema uten spesifikasjon av diagnose, er kategorisert som mistenkte Coronatilfeller.
-\item Det er registrert \Sexpr{AntBekr} med bekreftet Corona. Av disse er \Sexpr{DodBekr} døde.
+\item Det er registrert \Sexpr{AntBekr} med bekreftet covid-19. Av disse er \Sexpr{DodBekr} døde.
 \item Rapporten er basert på alle registreringer gjort inntil 4 timer før rapporten ble lastet ned.
 \Sexpr{RegILimboTxt}
 \end{itemize}
 
 \end{frame}
 
-\begin{frame}[fragile] {Corona på respirator/ECMO}
+\begin{frame}[fragile] {covid-19 på respirator/ECMO}
 Oversikt over antall som ligger i respirator/ECMO på intensiv. (Registreringer uten ut-tid fra intensiv.)
 
 <<'RespiratorECMO', results='asis'>>=
@@ -112,7 +112,7 @@ xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
 \end{frame}
 
 \begin{frame}[fragile] {Ferdigstilte registreringer, bekreftede}
-%Oversikt over ferdigstilte registreringer for bekreftede Corona-tilfeller.
+%Oversikt over ferdigstilte registreringer for bekreftede covid-19-tilfeller.
 
 <<'Ferdigstilte', results='asis'>>=
 #oppsumFerdigeRegTab(RegData=RegData, valgtRHF=valgtRHF)$Tab
@@ -145,7 +145,7 @@ print(xtable::xtable(RegHF, row.names=FALSE, digits=0,
 
 
 
-\begin{frame}[fragile] {Corona, antall opphold}
+\begin{frame}[fragile] {covid-19, antall opphold}
 
 % Registrerte tilfeller per dag og totalt antall tilfeller.
 % Registreringer hvor diagnose ikke er angitt, er klassifiserte som mistenkte tilfeller.
@@ -175,7 +175,7 @@ AntRader <- dim(TabTidEnh)[1]
 print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
                      #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
 		caption=paste0('Sist registrerte Coronatilfeller og 20 dager bakover i tid.
-		               <<Totalt>> er sum fra 10.mars. \n (B - bekreftet, M - mistenkt)')),
+		               <<Totalt>> er sum fra 10. mars 2020. \n (B - bekreftet, M - mistenkt)')),
  		add.to.row = add.to.row,
 		sanitize.rownames.function = identity)
 } else {
@@ -186,7 +186,7 @@ print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
   TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN=sum, quiet=TRUE)
   AntRader <- dim(TabTidEnh)[1]
   xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
-		caption='Siste Coronaopphold i egen region, samt hele landet. Totalt er sum fra 10.mars.
+		caption='Siste Coronaopphold i egen region, samt hele landet. Totalt er sum fra 10. mars 2020.
 		\\\ (B - bekreftet, M - mistenkt)')
 }
 
@@ -196,7 +196,7 @@ print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
 
 
 
-\begin{frame}[fragile] {Corona, aldersfordeling}
+\begin{frame}[fragile] {covid-19, aldersfordeling}
 <<'VisTabAlder', results='asis'>>=
   AlderBekr <- round(summary(RegData$Alder[RegData$Bekreftet==1]))
 txtBekr <- if (AntBekr>2){paste0('For bekreftede tilfeller er alderen mellom ',
@@ -290,7 +290,7 @@ dum <- NIRberedskFigAndeler(RegData = RegDataAlle, valgtVar = 'regForsinkelseUt'
 % \end{frame}
 
 
-% \begin{frame}[fragile] {Corona, kjønnsfordeling}
+% \begin{frame}[fragile] {covid-19, kjønnsfordeling}
 % <<'TabKjonn', results='asis'>>=
 %
 % TabKjonn <- ftable(RegData[ , c('UkeNr', 'Kjonn','Korona')], row.vars ='UkeNr')
@@ -330,7 +330,7 @@ dum <- NIRberedskFigAndeler(RegData = RegDataAlle, valgtVar = 'regForsinkelseUt'
 % %De registrerte er mellom \Sexpr{Alder[1]} og \Sexpr{Alder[6]} år med en gjennomsnittsalder på \Sexpr{Alder[4]}.
 % \Sexpr{txtAlle}
 
-% \begin{frame}[fragile] {Corona, aldersfordeling}
+% \begin{frame}[fragile] {covid-19, aldersfordeling}
 % <<'VisTabAlder', results='asis'>>=
 % TabAlder <- TabAlder(RegDataAlle, valgtRHF=valgtRHF)$Tab
 %
