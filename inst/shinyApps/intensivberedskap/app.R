@@ -28,7 +28,7 @@ startDato <- '2020-03-01'  #paste0(as.numeric(format(idag-90, "%Y")), '-01-01')
 #AarNaa <- as.numeric(format(idag, "%Y"))
 
 regTitle <- ifelse(paaServer,
-                   paste0('Norsk Intensivregister, Beredskapsregistrering ',ifelse(context=='QA', 'QA','')),
+                   paste0('Norsk Intensiv- og pandemiregister, Beredskapsregistrering ',ifelse(context=='QA', 'QA','')),
                    'Norsk Intensivregister med FIKTIVE data')
 
 #---------Hente data------------
@@ -136,7 +136,7 @@ ui <- tagList(
                                    # h3('Coronarapport med samling av resultater'),
                                    # h5('Coronarapporten kan man få regelmessig tilsendt på e-post.
                                    #    Gå til fanen "Abonnement" for å bestille dette.'),
-                                   downloadButton(outputId = 'CoroRapp.pdf', label='Last ned Coronarapport', class = "butt"),
+                                   downloadButton(outputId = 'CoroRapp.pdf', label='Last ned covid-19rapport', class = "butt"),
                                    tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                                    br(),
                                    br(),
@@ -373,12 +373,12 @@ tabPanel(title = 'Influensa',
                        br(),
                        br(),
 
-                       h3('Data til FHI'),
-                       h4('Inntil automatsik dataoverføring til FHI er på plass, kan tilsvarende data lastes ned'),
-                       downloadButton("lastNed_DataFHI", "Last ned Influensadata, FHI"),
-                       br(),
-                       br(),
-                       br(),
+                       # h3('Data til FHI'),
+                       # h4('Inntil automatsik dataoverføring til FHI er på plass, kan tilsvarende data lastes ned'),
+                       # downloadButton("lastNed_DataFHI", "Last ned Influensadata, FHI"),
+                       # br(),
+                       # br(),
+                       # br(),
 
                        # selectInput("hvilkeFilerTilFHI", "Data:", c("Influensadata" = "InfluDataFHI",
                        #                                             "Testfil" = "Testfil")),
@@ -982,25 +982,25 @@ server <- function(input, output, session) {
   )
 
 
-  #Send filer til FHI: kopi fra korona
-  output$lastNed_filstiDataNHN <- downloadHandler(
-    filename = function(){
-      paste0('Filsti', Sys.time(), '.csv')},
-    content = function(file, filename){
-      Filsti <- sendInfluDataFHI(zipFilNavn=input$hvilkeFilerTilFHI) #brukernavn = brukernavn)
-      write.csv2(x=Filsti, file, row.names = F, na = '') #x - r-objektet
-    })
-
-  #Manuell nedlasting av FHI-data (influensa)
-  InfluensadataFHI <- lagInfluDataFHI()
-
-  output$lastNed_DataFHI <- downloadHandler(
-    filename = function(){
-      paste0('DataInfluensaFHI.', Sys.Date(), '.csv')
-    },
-    content = function(file, filename){
-      write.csv2(InfluensadataFHI, file, row.names = F, na = '')
-    })
+  # #Send filer til FHI: kopi fra korona
+  # output$lastNed_filstiDataNHN <- downloadHandler(
+  #   filename = function(){
+  #     paste0('Filsti', Sys.time(), '.csv')},
+  #   content = function(file, filename){
+  #     Filsti <- sendInfluDataFHI(zipFilNavn=input$hvilkeFilerTilFHI) #brukernavn = brukernavn)
+  #     write.csv2(x=Filsti, file, row.names = F, na = '') #x - r-objektet
+  #   })
+  #
+  # #Manuell nedlasting av FHI-data (influensa)
+  # InfluensadataFHI <- lagInfluDataFHI()
+  #
+  # output$lastNed_DataFHI <- downloadHandler(
+  #   filename = function(){
+  #     paste0('DataInfluensaFHI.', Sys.Date(), '.csv')
+  #   },
+  #   content = function(file, filename){
+  #     write.csv2(InfluensadataFHI, file, row.names = F, na = '')
+  #   })
 
 
   #Abonnement, filer til FHI kopi fra korona

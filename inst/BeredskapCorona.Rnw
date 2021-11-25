@@ -241,8 +241,6 @@ if (AntBekr>2) {
 \end{frame}
 
 
-\begin{frame}[fragile] {Registreringsforsinkelse, innregistrering}
-
 <<'RegForsinkelse', results='asis'>>=
 dum <- NIRberedskFigAndeler(RegData = RegDataAlle, valgtVar = 'regForsinkelseInn',
                         #enhetsNivaa=enhetsNivaa, valgtEnhet=valgtEnhet, enhetsUtvalg = 1,
@@ -254,6 +252,8 @@ dum <- NIRberedskFigAndeler(RegData = RegDataAlle, valgtVar = 'regForsinkelseUt'
                         datoFra = Sys.Date()-60, datoTil = Sys.Date()-30,
                         outfile='RegForsinkUt.pdf')
 @
+
+\begin{frame}[fragile] {Registreringsforsinkelse, innregistrering}
 
 \begin{figure}[ht]
 \centering
