@@ -49,7 +49,7 @@ if (valgtRHF!='Alle'){
 datoStart <- '2020-03-01'
 
 RHFtxt <-ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
-tittelRHF <- paste0('Covid-19rapportering fra NIPar, ',
+tittelRHF <- paste0('Covid-19rapportering fra NIPaR, ',
                paste0('registreringer fra ', RHFtxt))
 indFerdig <- which(RegData$FormStatus==2)
 antFerdig <- length(indFerdig)
@@ -68,7 +68,7 @@ AntBekr <- sum(RegData$Bekreftet==1)
 
 \begin{document}
 
-\title[Norsk Intensiv- og pandemiregister, covid-19 \\\today] {%\textit{Covid-19data, NIPar} \\
+\title[Norsk Intensiv- og pandemiregister, covid-19 \\\today] {%\textit{Covid-19data, NIPaR} \\
 \Sexpr{tittelRHF}}
 
 \maketitle
@@ -79,9 +79,9 @@ AntBekr <- sum(RegData$Bekreftet==1)
 \begin{tiny}
 
 \begin{frame}[fragile] {Hva er dette?}
-Dette er en automatisk generert rapport fra Norsk Intensiv- og pandemiregister (NIPar).
+Dette er en automatisk generert rapport fra Norsk Intensiv- og pandemiregister (NIPaR).
 Dokumentet inneholder oppsummering av covid-19tilfeller hos pasienter som
-kvalifiserer for rapportering til NIPar.
+kvalifiserer for rapportering til NIPaR.
 Mistenkte og bekreftede covid-19tilfeller er rapportert i eget skjema i registeret, og data fra dette skjemaet danner grunnlaget for denne rapporten.
 \\
 
@@ -106,7 +106,7 @@ Oversikt over antall som ligger i respirator/ECMO på intensiv. (Registreringer 
 xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
                digits=0,
                align = c('l','r','r','r'),
-               caption='Bruk av Respirator/ECMO.')
+               caption='Bruk av respirator/ECMO.')
 
 @
 \end{frame}
@@ -135,6 +135,7 @@ Oversikt over antall som ligger på intensiv. (Registreringer uten ut-tid fra in
 
 inneligg <- is.na(RegDataAlle$DateDischargedIntensive)
 RegHF <- RegDataAlle[inneligg,] %>% dplyr::group_by(RHFut, HFut) %>% dplyr::summarise(Antall = n())
+colnames(RegHF) <- gsub('ut', '', colnames(RegHF))
 print(xtable::xtable(RegHF, row.names=FALSE, digits=0,
                      caption='Antall inneliggende i hvert HF.'),
       include.rownames = FALSE)

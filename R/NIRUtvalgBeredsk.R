@@ -41,7 +41,7 @@ NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, minald=0, 
   RegData$Alder <- round(RegData$Alder,1)
   utvalgTxt <- c(
     if (bekr %in% 0:1){paste(c('Mistenkte','Bekreftede')[bekr+1], 'tilfeller')
-    } else {'Alle registrerte (mistenkte og bekreftede)'},
+    } else {'Alle tilfeller (mistenkte og bekreftede)'},
     if(datoFra!=0 | datoTil!=0) {paste0(
       'Innleggelsesdatoer: ', if (N>0) {min(as.Date(RegData[,datovar]), na.rm=T)} else {datoFra},
       ' til ', if (N>0) {max(as.Date(RegData[,datovar]), na.rm=T)} else {datoTil})} else {NULL},

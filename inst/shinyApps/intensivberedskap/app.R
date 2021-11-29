@@ -274,8 +274,12 @@ ui <- tagList(
                title = 'Datakvalitet',
                value = 'Datakvalitet',
                sidebarLayout(
-                 sidebarPanel(width = 2
-                 ),
+                 sidebarPanel(width = 2,
+                   dateInput(inputId = 'datoFraMI', label = "Fra dato: ",
+                             value = as.character(Sys.Date()-365)) #, min = startDato, max = Sys.Date())
+                   # dateRangeInput(inputId = 'datovalgMI', start = startDato, end = Sys.Date(),
+                   #                label = "Tidsperiode", separator="t.o.m.", language="nb")
+                ),
                  mainPanel(
                    h4('Ferdistilte beredskapsskjema som mangler ferdigstillelse av tilhørende intensivskjema'),
                    br(),
@@ -719,10 +723,18 @@ server <- function(input, output, session) {
   #------------------Datakvalitet-----------------------
   #Ferdigstilte beredskapsskjema uten ferdigstilt intensivskjema:
   #reshSe <- ifelse(rolle == 'SC', 0, reshID)
-  ManglerIntSkjemaTab <- ManglerIntSkjema(reshID = ifelse(rolle == 'SC', 0, reshID))
+  observe({
+    #print(input$datoValgMI[1])
+    #print(input$datoValgMI[2])
+    #print(input$datoFraMI)
+
+  ManglerIntSkjemaTab <- ManglerIntSkjema(reshID = ifelse(rolle == 'SC', 0, reshID)
+                                          ,datoFra = input$datoFraMI)
+                                          #,datoFra = input$datoValgMI[1], datoTil = input$datoValgMI[2])
   ManglerIntSkjemaTab$FormDate <- as.character(ManglerIntSkjemaTab$FormDate)
 
   output$tabManglerIntSkjema <- if (dim(ManglerIntSkjemaTab)[1]>0){
+
     renderTable(ManglerIntSkjemaTab, rownames = F, digits=0, spacing="xs") } else {
       renderText('Alle intensivskjema ferdigstilt')}
 
@@ -733,7 +745,7 @@ server <- function(input, output, session) {
     content = function(file, filename){
       write.csv2(ManglerIntSkjemaTab, file, row.names = F, na = '')
     })
-
+  })
   #------------------ Abonnement ----------------------------------------------
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører

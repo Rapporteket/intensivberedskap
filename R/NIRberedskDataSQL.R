@@ -90,7 +90,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
     #Koble på intensivdata.
     forsteReg <- min(as.Date(BeredDataRaa$FormDate))
     queryInt <- paste0('select * from MainFormDataContract
-      WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=Sys.Date(), '\'')
+      WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'') #datoTil=Sys.Date(), '\'')
     IntDataRaa <- rapbase::loadRegData(registryName= "nir", query=queryInt, dbType="mysql")
 
     #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)

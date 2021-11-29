@@ -299,8 +299,8 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,resp=9,
      )
      TabAlderUt <-  if (valgtRHF %in% levels(RegData$RHF)){
        TabAlderUt <- cbind(
-         'Antall, eget' = TabAlder[ ,valgtRHF],
-         'Andel, eget' = paste0(sprintf('%.0f', c(TabAlderPst[ ,valgtRHF], 100)), ' %'),
+         'Antall, eget RHF' = TabAlder[ ,valgtRHF],
+         'Andel, eget RHF' = paste0(sprintf('%.0f', c(TabAlderPst[ ,valgtRHF], 100)), ' %'),
          TabAlderAlle)
        } else {TabAlderAlle}
 
@@ -321,8 +321,8 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,resp=9,
 #' @export
 ManglerIntSkjema <- function(reshID=0, datoFra='2020-03-01', datoTil=Sys.Date()){
   if (rapbase::isRapContext()) {
-    DataNIRraa <- intensiv::NIRRegDataSQL(datoFra = datoFra, datoTil = datoTil) #, datoTil = '2020-12-31') #Kun ferdigstilte intensivopphold sendes til Rapporteket
-    DataBeredskapRaa <- NIRberedskDataSQL(kobleInt = 0, datoFra = datoFra, datoTil = datoTil)
+    DataNIRraa <- intensiv::NIRRegDataSQL(datoFra = datoFra) #, datoTil = datoTil) #, datoTil = '2020-12-31') #Kun ferdigstilte intensivopphold sendes til Rapporteket
+    DataBeredskapRaa <- NIRberedskDataSQL(kobleInt = 0, datoFra = datoFra) #, datoTil = datoTil)
   } else {
     DataNIRraa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= '2020-03-01', ]
     DataBeredskapRaa <- CoroDataRaa
