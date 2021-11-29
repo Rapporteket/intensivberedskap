@@ -55,7 +55,7 @@ if (paaServer) {
 CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
 BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
 
-BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1) #1159 pasienter, 121 manger int: 1047
 
 if (dim(BeredIntRaa)[1]>0) {
   BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1)
@@ -65,36 +65,7 @@ if (dim(BeredIntRaa)[1]>0) {
 queryInflu <- paste0('SELECT * FROM InfluensaFormDataContract')
 #InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
 #InfluDataRaa <- InfluDataRaa[which(as.Date(InfluDataRaa$FormDate) < '2020-08-01'), ]
-InfluData <- intensivberedskap::NIRsqlInfluensa() #InfluDataRaa #intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
-
-# InfluData$Influensa <- factor(NA, levels = c('Mistenkt', 'Bekreftet'))
-# #--Identifiser J10 og J11 i ICD10-variablene.
-# indBekreftet <- which(InfluData$ICD10_1 %in% c(9:12))
-# indMistenkt <- which(InfluData$ICD10_1 %in% c(-1,13:16))
-# InfluData$Influensa[indMistenkt] <- 'Mistenkt'
-# InfluData$Influensa[indBekreftet] <- 'Bekreftet'
-#
-# InfluData$Bekr <- as.numeric(InfluData$Influensa)-1
-#
-# #InfluData$RHF <- sub('Helse ', '', InfluData$RHF)
-# InfluData$RHF <- factor(InfluData$RHF,
-#                         levels= c('Helse Nord', 'Helse Midt-Norge', 'Helse Vest', 'Helse Sør-Øst', 'Privat'),
-#                         labels = c('Nord', 'Midt', 'Vest', 'Sør-Øst', 'Privat'))
-
-# #Legge på tidsenheter
-# InfluData$InnDato <- as.Date(InfluData$FormDate) #, tz='UTC', format = '%Y-%m-%d"')
-# InfluData$UkeNr <- format(InfluData$InnDato, '%V')
-# InfluData$UkeAar <- format(InfluData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
-# InfluData$UkeAar <- as.factor(InfluData$UkeAar)
-#
-# #InfluData$RHF <- factor(InfluData$RHF)
-#
-# InfluData$Sesong <- 'diverse'
-# InfluData$Sesong[(InfluData$InnDato >= '2018-10-01') & (InfluData$InnDato <= '2019-05-19')] <- '2018-19'
-# InfluData$Sesong[(InfluData$InnDato >= '2019-09-30') & (InfluData$InnDato <= '2020-05-17')] <- '2019-20'
-# InfluData$Sesong[(InfluData$InnDato >= '2020-09-28') & (InfluData$InnDato <= '2021-05-23')] <- '2020-21'
-# InfluData$Sesong[(InfluData$InnDato >= '2021-10-05') & (InfluData$InnDato <= '2022-05-23')] <- '2021-22'
-# InfluData$Sesong <- factor(InfluData$Sesong,levels = c('2018-19', '2019-20', '2020-21', '2021-22', 'utenfor sesong'))
+InfluData <- NIRsqlPreInfluensa() #InfluDataRaa #intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
 
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------

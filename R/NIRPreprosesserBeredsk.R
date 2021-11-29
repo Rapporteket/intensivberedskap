@@ -176,7 +176,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
                    MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
                    EcmoEnd = sort(EcmoEnd, decreasing = T)[1], #sort(NA) gir tom, men sort(NA)[1] gir NA
-                   ECMOTid = sum(ECMOTid, na.rm = T),
+                   ECMOTid = ifelse(sum(!is.na(ECMOTid))>0, sum(ECMOTid, na.rm = T), NA), #Ellers får vi 0 på tomme
                    Municipal = first(Municipal, order_by = FormDate),
                    MunicipalNumber = first(MunicipalNumber, order_by = FormDate),
                    ReshId = first(ReshId, order_by = FormDate),
@@ -188,7 +188,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    ShNavn = first(HelseenhetKortnavn, order_by = FormDate),
                    FormDateUt = last(FormDate, order_by = FormDate),
                    FormDate = first(FormDate, order_by = FormDate),
-                   RespTid = sum(RespTid, na.rm = T),
+                   RespTid = ifelse(sum(RespTid, na.rm = T) > 0, sum(RespTid, na.rm = T), NA),
                   #    ifelse(ReinnResp==0 ,
                    #                  difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = 'days'),
                    #                  difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = 'days') - ReinnRespTid/24),
@@ -199,13 +199,14 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
          )
    } #aggPers
 
+
    if (kobleInt==1){
       # #Fjerner  uten intensivskjema
-      # pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-      # skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
-      # indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
-      # test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
-      # if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
+      pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
+      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
+      indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
+      test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
+      if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
 
       if (aggPers == 1){
          # indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)

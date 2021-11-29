@@ -130,7 +130,8 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
 #' @return
 #' @export
 #'
-oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', datoTil=Sys.Date(), bekr=9, erMann=9, resp=9, dodInt=9){
+oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', datoTil=Sys.Date(),
+                                bekr=9, erMann=9, resp=9, dodInt=9){
 
   if (valgtRHF == 'Ukjent') {valgtRHF <- 'Alle'}
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
