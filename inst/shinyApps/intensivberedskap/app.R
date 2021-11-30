@@ -638,7 +638,7 @@ server <- function(input, output, session) {
     output$tabInneliggHF <- renderTable({
       if (rolle == 'LU') {CoroData <- CoroData[which(CoroData$RHF == egetRHF), ]}
       inneligg <- is.na(CoroData$DateDischargedIntensive)
-      RegHF <- CoroData[inneligg,] %>% dplyr::group_by(RHFut, HFut) %>% dplyr::summarise(Antall = n())
+      RegHF <- CoroData[inneligg,] %>% dplyr::group_by(RHFut, HFut) %>% dplyr::summarise(Antall = n(), .groups = 'keep')
       colnames(RegHF) <- c('RHF', 'HF', 'Antall')
       RegHF
     }, rownames = F, digits = 0)
