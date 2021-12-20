@@ -58,10 +58,12 @@ server <- function(input, output, session) {
   format <- autoReportFormatServer("test")
 
   # set reactive parameters overriding those in the reports list
-  paramNames <- shiny::reactive("organization") #Hvorfor reaktiv når verdien statisk..
+  paramNames <- shiny::reactive("organization", "format") #Hvorfor reaktiv når verdien statisk..
   #paramValues <- shiny::reactive(c(org$value(), format()))
   #paramValues <- shiny::reactive(c(input$valgtRHFsub()))
-  paramValues <- shiny::reactive(as.character(input$valgtRHFsub))
+  paramValues <- shiny::reactive(c(as.character(input$valgtRHFsub)), 'pdf')
+
+  #shiny::reactive(print(org))
 
   autoReportServer(
     id = "test", registryName = "rapbase", type = "dispatchment",
