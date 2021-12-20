@@ -39,9 +39,10 @@ ui <- shiny::fluidPage(
   shiny::sidebarLayout(
     shiny::sidebarPanel(
       autoReportFormatInput("test"),
-      selectInput(inputId = "valgtRHFsub", label="Velg RHF",
-                  choices = orgs
-      ),
+      uiOutput("valgtRHFsub"),
+      # selectInput(inputId = "valgtRHFsub", label="Velg RHF",
+      #             choices = orgs
+      # ),
       #autoReportOrgInput("test"), #Kan definere det slik at RHF benyttes
       autoReportInput("test")
     ),
@@ -55,7 +56,15 @@ ui <- shiny::fluidPage(
 server <- function(input, output, session) {
 #  org <- autoReportOrgServer("test", orgs) #Bytt ut test med aktuelt navn for utsending, beredsk.
   org <- shiny::reactive(as.character(input$valgtRHFsub))
+  ## ui: velg enhet
+  output$valgtRHFsub <- renderUI({
+    selectInput("valgtRHFsub", "Valgt RHF:",
+                orgs,
+                selected = 'Alle')
+  })
+
   format <- autoReportFormatServer("test")
+
 
   # set reactive parameters overriding those in the reports list
   paramNames <- shiny::reactive("organization", "format") #Hvorfor reaktiv når verdien statisk..
