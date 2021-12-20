@@ -1,38 +1,3 @@
-#Henter data:
-library(intensivberedskap)
-CoroData <- NIRPreprosessBeredsk(RegData = NIRberedskDataSQL(kobleInt = 0))
-
-## make a list of organization names and numbers
-orgs <- c('Alle', as.character(sort(unique(CoroData$RHF))))
-
-# orgs <- list( #
-#   OrgOne = 111111,
-#   OrgTwo = 222222
-# )
-
-
-## make a list for report metadata
-reports <- list(
-  CovidRapp = list(
-    synopsis = "Resultater, Covid-19",
-    fun = "abonnementBeredsk", #DENNE MÅ SKRIVES SOM FØR
-    paramNames <- c('rnwFil', "valgtRHF"),
-    paramValues <- c('Koronarapport', 'Alle') #valgtRHF) #
-  ),
-  #abonnementBeredsk(rnwFil, brukernavn='beredskap', reshID=0, valgtRHF = 'Alle'),
-  InfluensaRapp = list(
-    synopsis = "Influensarapport",
-    fun = "abonnementBeredsk",
-    paramNames <- c('rnwFil', "valgtRHF"),
-    paramValues <- c('Koronarapport', 'Alle') #valgtRHF) #
-  ),
-  SecondReport = list(
-    synopsis = "Influensarapport",
-    fun = "fun2",
-    paramNames = c("organization", "topic", "outputFormat"),
-    paramValues = c(700720, "leisure", "pdf")
-  )
-)
 
 ## client user interface function
 ui <- shiny::fluidPage(
@@ -220,20 +185,13 @@ server <- function(input, output, session) {
   observeEvent(input$edit_button, {
     repId <- strsplit(input$edit_button, "_")[[1]][2]
     rep <- rapbase::readAutoReportData()[[repId]]
-    if (rep$type == "subscription") {#abonnement
 
-    }
-    if (rep$type == "dispatchment") { #utsending
-      dispatchment$freq <- paste0(rep$intervalName, "-", rep$interval)
+    dispatchment$freq <- paste0(rep$intervalName, "-", rep$interval)
       dispatchment$email <- rep$email
       rapbase::deleteAutoReport(repId)
       dispatchment$tab <-
         rapbase::makeAutoReportTab(session, type = "dispatchment")
       dispatchment$report <- rep$synopsis
-    }
-    if (rep$type == "bulletin") {
-
-    }
   })
 
 

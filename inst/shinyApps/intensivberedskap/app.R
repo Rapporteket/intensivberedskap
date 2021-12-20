@@ -470,47 +470,47 @@ tabPanel(title = 'Influensa',
 #Skal inn under registeradm.
 
 ## make a list for report metadata
-reports <- list(
-  CovidRapp = list(
-    synopsis = "Resultater, Covid-19",
-    fun = "abonnementBeredsk", #DENNE MÅ SKRIVES SOM FØR?
-    paramNames <- c('rnwFil', "valgtRHF"),
-    paramValues <- c('Koronarapport', as.character(input$valgtRHFabb)) #valgtRHF) #
-  ),
-  abonnementBeredsk(rnwFil, brukernavn='beredskap', reshID=0,
-                                valgtRHF = 'Alle'),
-  InfluensaRapp = list(
-    synopsis = "Influensarapport",
-    fun = "abonnementBeredsk",
-    paramNames <- c('rnwFil', "valgtRHF"),
-    paramValues <- c('Koronarapport', as.character(input$valgtRHFabb)) #valgtRHF) #
-  ),
-  SecondReport = list(
-    synopsis = "Influensarapport",
-    fun = "fun2",
-    paramNames = c("organization", "topic", "outputFormat"),
-    paramValues = c(700720, "leisure", "pdf")
-  )
-),
-
-
-## make a list of organization names and numbers
-#orgs <- list(OrgOne = 111111, OrgTwo = 222222)
-#tilsvarer: sykehusValg
-
-## client user interface function
-shiny::fluidPage(
-  shiny::sidebarLayout(
-    shiny::sidebarPanel(
-      autoReportFormatInput("test"),
-      autoReportOrgInput("test"),
-      autoReportInput("test")
-    ),
-    shiny::mainPanel(
-      autoReportUI("test")
-    )
-  )
-),
+# reports <- list(
+#   CovidRapp = list(
+#     synopsis = "Resultater, Covid-19",
+#     fun = "abonnementBeredsk", #DENNE MÅ SKRIVES SOM FØR?
+#     paramNames <- c('rnwFil', "valgtRHF"),
+#     paramValues <- c('Koronarapport', as.character(input$valgtRHFabb)) #valgtRHF) #
+#   ),
+#   abonnementBeredsk(rnwFil, brukernavn='beredskap', reshID=0,
+#                                 valgtRHF = 'Alle'),
+#   InfluensaRapp = list(
+#     synopsis = "Influensarapport",
+#     fun = "abonnementBeredsk",
+#     paramNames <- c('rnwFil', "valgtRHF"),
+#     paramValues <- c('Koronarapport', as.character(input$valgtRHFabb)) #valgtRHF) #
+#   ),
+#   SecondReport = list(
+#     synopsis = "Influensarapport",
+#     fun = "fun2",
+#     paramNames = c("organization", "topic", "outputFormat"),
+#     paramValues = c(700720, "leisure", "pdf")
+#   )
+# ),
+#
+#
+# ## make a list of organization names and numbers
+# #orgs <- list(OrgOne = 111111, OrgTwo = 222222)
+# #tilsvarer: sykehusValg
+#
+# ## client user interface function
+# shiny::fluidPage(
+#   shiny::sidebarLayout(
+#     shiny::sidebarPanel(
+#       autoReportFormatInput("test"),
+#       autoReportOrgInput("test"),
+#       autoReportInput("test")
+#     ),
+#     shiny::mainPanel(
+#       autoReportUI("test")
+#     )
+#   )
+# )
 
 
 
@@ -873,21 +873,21 @@ server <- function(input, output, session) {
 
   #------------Utsending-----------------
 
-    org <- autoReportOrgServer("test", sykehusValg)
-    format <- autoReportFormatServer("test")
-
-    # set reactive parameters overriding those in the reports list
-  paramNames <- shiny::reactive(c("organization", "outputFormat"))
-  paramValues <- shiny::reactive(c(org$value(), format()))
-  #paramNames <- shiny::reactive(c('rnwFil', 'brukernavn', "valgtRHF"))
-  #paramValues <- shiny::reactive(c(rnwFil, brukernavn, as.character(input$valgtRHFabb)) )
-
-
-    autoReportServer(
-      id = "test", registryName = "intensivberedskap", type = "dispatchment",
-      org = org$value, paramNames = paramNames, paramValues = paramValues,
-      reports = reports, orgs = sykehusValg, eligible = TRUE
-    )
+  #   org <- autoReportOrgServer("test", sykehusValg)
+  #   format <- autoReportFormatServer("test")
+  #
+  #   # set reactive parameters overriding those in the reports list
+  # paramNames <- shiny::reactive(c("organization", "outputFormat"))
+  # paramValues <- shiny::reactive(c(org$value(), format()))
+  # #paramNames <- shiny::reactive(c('rnwFil', 'brukernavn', "valgtRHF"))
+  # #paramValues <- shiny::reactive(c(rnwFil, brukernavn, as.character(input$valgtRHFabb)) )
+  #
+  #
+  #   autoReportServer(
+  #     id = "test", registryName = "intensivberedskap", type = "dispatchment",
+  #     org = org$value, paramNames = paramNames, paramValues = paramValues,
+  #     reports = reports, orgs = sykehusValg, eligible = TRUE
+  #   )
 
 
   #---------------- Alders- og kjønnsfordeling #####################
