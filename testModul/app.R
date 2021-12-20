@@ -12,21 +12,6 @@ orgs <- c('Alle', as.character(sort(unique(CoroData$RHF))))
 
 
 ## make a list for report metadata
-# reports <- list(
-#   FirstReport = list(
-#     synopsis = "First example report",
-#     fun = "fun1", #Må fortsatt skrives. Ta mal fra abonnement. Skrives slik at den selv tar høyde for ekstra brukervalg som RHF. Må genereres ulike moduler
-#     #eller innebygges i andre parametre, eks. valg av rapport. Modulen kan bare bruke parametre som er håndtert i modulen
-#     paramNames = c("organization", "topic", "outputFormat"), #Kan ha så mange parametre man ønsker, men de er faste. Kun org og format er reaktive
-#     paramValues = c(111111, "work", "html")
-#   ),
-#   SecondReport = list(
-#     synopsis = "Second example report",
-#     fun = "fun2",
-#     paramNames = c("organization", "topic", "outputFormat"),
-#     paramValues = c(111111, "leisure", "pdf")
-#   )
-# )
 reports <- list(
   CovidRapp = list(
     synopsis = "Resultater, Covid-19",
