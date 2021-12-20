@@ -303,7 +303,7 @@ tabPanel(title = 'Influensa',
           sidebarPanel(id = 'brukervalgInfluensa',
                        width = 3,
                        #uiOutput('CoroRappTxt'),
-                       h3(paste0('Influensarapport med samling av resultater for sesongen ', sesongNaa, ')')),
+                       h3(paste0('Influensarapport med samling av resultater for sesongen ', sesongNaa)),
                        h5('(Influensasesong oppdateres automatisk når det registreres data for en ny sesong)'),
                         h5('Influensarapporten kan man få regelmessig tilsendt på e-post.
                            Gå til fanen "Abonnement" for å bestille dette.'),
@@ -464,7 +464,55 @@ tabPanel(title = 'Influensa',
                           downloadButton(outputId = 'lastNed_tabForsink', label='Last ned tabell') #, class = "butt")
                         )
                       )
-             ) #tab artikkelarb
+             ), #tab artikkelarb
+
+#------------Utsending-----------------------
+#Skal inn under registeradm.
+
+## make a list for report metadata
+reports <- list(
+  CovidRapp = list(
+    synopsis = "Resultater, Covid-19",
+    fun = "abonnementBeredsk", #DENNE MÅ SKRIVES SOM FØR?
+    paramNames <- c('rnwFil', "valgtRHF"),
+    paramValues <- c('Koronarapport', as.character(input$valgtRHFabb)) #valgtRHF) #
+  ),
+  abonnementBeredsk(rnwFil, brukernavn='beredskap', reshID=0,
+                                valgtRHF = 'Alle'),
+  InfluensaRapp = list(
+    synopsis = "Influensarapport",
+    fun = "abonnementBeredsk",
+    paramNames <- c('rnwFil', "valgtRHF"),
+    paramValues <- c('Koronarapport', as.character(input$valgtRHFabb)) #valgtRHF) #
+  ),
+  SecondReport = list(
+    synopsis = "Influensarapport",
+    fun = "fun2",
+    paramNames = c("organization", "topic", "outputFormat"),
+    paramValues = c(700720, "leisure", "pdf")
+  )
+),
+
+
+## make a list of organization names and numbers
+#orgs <- list(OrgOne = 111111, OrgTwo = 222222)
+#tilsvarer: sykehusValg
+
+## client user interface function
+shiny::fluidPage(
+  shiny::sidebarLayout(
+    shiny::sidebarPanel(
+      autoReportFormatInput("test"),
+      autoReportOrgInput("test"),
+      autoReportInput("test")
+    ),
+    shiny::mainPanel(
+      autoReportUI("test")
+    )
+  )
+),
+
+
 
 
   ) # navbarPage
@@ -822,6 +870,24 @@ server <- function(input, output, session) {
     rapbase::deleteAutoReport(selectedRepId)
     subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
   })
+
+  #------------Utsending-----------------
+
+    org <- autoReportOrgServer("test", sykehusValg)
+    format <- autoReportFormatServer("test")
+
+    # set reactive parameters overriding those in the reports list
+  paramNames <- shiny::reactive(c("organization", "outputFormat"))
+  paramValues <- shiny::reactive(c(org$value(), format()))
+  #paramNames <- shiny::reactive(c('rnwFil', 'brukernavn', "valgtRHF"))
+  #paramValues <- shiny::reactive(c(rnwFil, brukernavn, as.character(input$valgtRHFabb)) )
+
+
+    autoReportServer(
+      id = "test", registryName = "intensivberedskap", type = "dispatchment",
+      org = org$value, paramNames = paramNames, paramValues = paramValues,
+      reports = reports, orgs = sykehusValg, eligible = TRUE
+    )
 
 
   #---------------- Alders- og kjønnsfordeling #####################

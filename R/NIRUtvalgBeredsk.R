@@ -17,13 +17,14 @@
 #' @return
 #' @export
 NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, minald=0, maxald=110, #enhetsUtvalg=0,
-                             bekr=9, skjemastatus=9, resp=9, datovar='InnDato',
+                             bekr=9, skjemastatus=9, resp=9, respIN=9, datovar='InnDato',
                              dodInt=9, reshID=0, valgtRHF='Alle', velgAvd=0) {
 
 
   if (bekr %in% 0:1){RegData <- subset(RegData, RegData$Bekreftet==bekr)}
   if (skjemastatus %in% 1:2){RegData <- subset(RegData, RegData$FormStatus==skjemastatus)}
   if (resp %in% 1:2){RegData <- subset(RegData, RegData$MechanicalRespirator==resp)}
+  if (respIN %in% 1:2){RegData <- subset(RegData, RegData$MechanicalRespirator==respIN)}
   if (dodInt %in% 0:1){RegData <- subset(RegData, RegData$DischargedIntensiveStatus==dodInt)}
   if (erMann %in% 0:1){
     vec <- (RegData$erMann == erMann)
@@ -51,6 +52,7 @@ NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, minald=0, 
     if (skjemastatus %in% 0:5){paste('Skjemastatus:',
                                      c('ingen', 'kladd', 'ferdigstilt', '','slettet', 'returnert')[skjemastatus+1])},
     if (resp %in% 1:2){c('Fått respiratorbehandling', 'Ikke fått respiratorbehandling')[resp]},
+    if (respIN %in% 1:2){c('Invasiv respiratorbehandling', 'Non-invasiv respiratorbehandling')[resp]},
     if (erMann %in% 0:1) {paste0('Kjønn: ', c('Kvinner', 'Menn')[erMann+1])},
     if (dodInt %in% 0:1) {paste0('Status ut fra intensiv: ', c('Levende','Død')[as.numeric(dodInt)+1])},
     if (valgtRHF != 'Alle'){paste('Valgt RHF:', valgtRHF)},

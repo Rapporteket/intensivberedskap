@@ -57,6 +57,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,MechanicalRespirator
 ,MechanicalRespiratorEnd
 ,MechanicalRespiratorStart
+,MechanicalrespiratorType  #Lagt til på Rapp 13.des -21
 ,MoreThan24Hours
 ,Morsdato
 ,MorsdatoOppdatert

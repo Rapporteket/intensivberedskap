@@ -49,7 +49,7 @@ if (valgtRHF!='Alle'){
 datoStart <- '2020-03-01'
 
 RHFtxt <-ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
-tittelRHF <- paste0('Covid-19rapportering fra NIPaR, ',
+tittelRHF <- paste0('Rapportering av Covid-19 fra NIPaR, ',
                paste0('registreringer fra ', RHFtxt))
 indFerdig <- which(RegData$FormStatus==2)
 antFerdig <- length(indFerdig)
