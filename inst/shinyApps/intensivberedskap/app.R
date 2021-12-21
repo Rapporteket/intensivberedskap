@@ -96,15 +96,15 @@ orgs <- as.list(orgs)
 reports <- list(
   CovidRapp = list(
     synopsis = "Resultater, Covid-19",
-    fun = "abonnementBeredsk", #DENNE MÅ SKRIVES SOM FØR
+    fun = "abonnementBeredsk",
     paramNames = c('rnwFil', "valgtRHF"),
-    paramValues = c('Koronarapport', 'Alle')
+    paramValues = c('BeredskapCorona', 'Alle')
   ),
   InfluensaRapp = list(
     synopsis = "Influensarapport",
     fun = "abonnementBeredsk",
     paramNames = c('rnwFil', "valgtRHF"),
-    paramValues = c('Influensarapport', 'Alle')
+    paramValues = c('NIRinfluensa', 'Alle')
   )
 )
 
@@ -520,7 +520,7 @@ server <- function(input, output, session) {
 
   #-----------Div serveroppstart------------------
   if (context %in% c('QA', 'PRODUCTION')){
-    raplog::appLogger(session = session, msg = "Starter Corona-app")}
+    rapbase::appLogger(session = session, msg = "Starter Corona-app")}
 
   reshID <- ifelse(paaServer, as.numeric(rapbase::getUserReshId(session)), 42088921) # 42088921
 

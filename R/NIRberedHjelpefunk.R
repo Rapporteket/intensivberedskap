@@ -51,9 +51,9 @@ abonnementBeredsk <- function(rnwFil, brukernavn='beredskap', reshID=0,
 #Parametre ligger ikke lenger i liste...
 #  valgtRHF <- valgtRHF[[1]]
 #  reshID <- reshID[[1]]
-  rapbase::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
-                    reshId = reshID,
-                    msg = "starter Abonnement: Corona-rapport")
+  # rapbase::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
+  #                   reshId = reshID,
+  #                   msg = "starter Abonnement: Corona-rapport")
   filbase <- substr(rnwFil, 1, nchar(rnwFil)-4)
   tmpFile <- paste0(filbase, Sys.Date(),'_',digest::digest(brukernavn), '.Rnw')
   src <- normalizePath(system.file(rnwFil, package=Rpakke))
@@ -65,9 +65,9 @@ abonnementBeredsk <- function(rnwFil, brukernavn='beredskap', reshID=0,
 
   #gc() #Opprydning gc-"garbage collection"
   utfil <- paste0(dir, '/', substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf')
-  rapbase::subLogger(author = brukernavn, registryName = 'NIR - beredskap',
-                    reshId = reshID,
-                    msg = paste("Leverer: ", utfil))
+  # rapbase::subLogger(author = brukernavn, registryName = 'NIR - beredskap',
+  #                   reshId = reshID,
+  #                   msg = paste("Leverer: ", utfil))
   return(utfil)
 }
 
