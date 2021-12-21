@@ -87,6 +87,26 @@ names(enhetsNivaa) <- c('RHF', 'HF', 'Sykehus')
 sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
 sesongValg <- sort(unique(InfluData$Sesong)) #sesongValg <- rev(c('2018-19', '2019-20', '2020-21', '2021-22', '20')),
 
+## parametre til utsending
+orgs <- rhfNavn
+names(orgs) <- orgs
+orgs <- as.list(orgs)
+
+## make a list for report metadata
+reports <- list(
+  CovidRapp = list(
+    synopsis = "Resultater, Covid-19",
+    fun = "abonnementBeredsk", #DENNE MÅ SKRIVES SOM FØR
+    paramNames = c('rnwFil', "valgtRHF"),
+    paramValues = c('Koronarapport', 'Alle')
+  ),
+  InfluensaRapp = list(
+    synopsis = "Influensarapport",
+    fun = "abonnementBeredsk",
+    paramNames = c('rnwFil', "valgtRHF"),
+    paramValues = c('Influensarapport', 'Alle')
+  )
+)
 
 
 source(system.file("shinyApps/intensivberedskap/R/koronafigurer_modul.R", package = "intensivberedskap"), encoding = 'UTF-8')
@@ -405,9 +425,14 @@ tabPanel(title = 'Influensa',
              ), #tab abonnement
 
 #-----------Registeradmin.------------
-             tabPanel(p("Registeradmin.",
-                        title='Data til artikkel'),
-                      value = 'Registeradmin.',
+             tabPanel(p("Registeradmin."),
+                        value = 'Registeradmin.',
+
+                        tabsetPanel(
+                          tabPanel(p('Oversiktsdata',
+                                     title='Data til artikkel'),
+                                   value = 'Oversiktsdata',
+
                       sidebarLayout(
                         sidebarPanel(width = 4,
                                      h3('Data fra beredskapsskjema og tilhørende intensivskjema'),
@@ -466,58 +491,24 @@ tabPanel(title = 'Influensa',
                       )
              ), #tab artikkelarb
 
-#------------Utsending-----------------------
-#Skal inn under registeradm.
+             tabPanel(p('Utsendinger',
+                        title = 'Administrer utsending av rapporter'),
+                      value = 'Utsendinger',
 
-## make a list for report metadata
-# reports <- list(
-#   CovidRapp = list(
-#     synopsis = "Resultater, Covid-19",
-#     fun = "abonnementBeredsk", #DENNE MÅ SKRIVES SOM FØR?
-#     paramNames <- c('rnwFil', "valgtRHF"),
-#     paramValues <- c('Koronarapport', as.character(input$valgtRHFabb)) #valgtRHF) #
-#   ),
-#   abonnementBeredsk(rnwFil, brukernavn='beredskap', reshID=0,
-#                                 valgtRHF = 'Alle'),
-#   InfluensaRapp = list(
-#     synopsis = "Influensarapport",
-#     fun = "abonnementBeredsk",
-#     paramNames <- c('rnwFil', "valgtRHF"),
-#     paramValues <- c('Koronarapport', as.character(input$valgtRHFabb)) #valgtRHF) #
-#   ),
-#   SecondReport = list(
-#     synopsis = "Influensarapport",
-#     fun = "fun2",
-#     paramNames = c("organization", "topic", "outputFormat"),
-#     paramValues = c(700720, "leisure", "pdf")
-#   )
-# ),
-#
-#
-# ## make a list of organization names and numbers
-# #orgs <- list(OrgOne = 111111, OrgTwo = 222222)
-# #tilsvarer: sykehusValg
-#
-# ## client user interface function
-# shiny::fluidPage(
-#   shiny::sidebarLayout(
-#     shiny::sidebarPanel(
-#       autoReportFormatInput("test"),
-#       autoReportOrgInput("test"),
-#       autoReportInput("test")
-#     ),
-#     shiny::mainPanel(
-#       autoReportUI("test")
-#     )
-#   )
-# )
-
-
-
-
+               shiny::sidebarLayout(
+                 shiny::sidebarPanel(
+                     autoReportOrgInput("beredUts"), #Definert slik at RHF benyttes
+                   autoReportInput("beredUts")
+                 ),
+                 shiny::mainPanel(
+                   autoReportUI("beredUts")
+                 )
+               )
+             ) #Tab utsending
+             ) #tabset
+             ) #hovedark Registeradm
   ) # navbarPage
 ) # tagList
-
 
 
 
@@ -873,22 +864,19 @@ server <- function(input, output, session) {
 
   #------------Utsending-----------------
 
-  #   org <- autoReportOrgServer("test", sykehusValg)
-  #   format <- autoReportFormatServer("test")
-  #
-  #   # set reactive parameters overriding those in the reports list
-  # paramNames <- shiny::reactive(c("organization", "outputFormat"))
-  # paramValues <- shiny::reactive(c(org$value(), format()))
-  # #paramNames <- shiny::reactive(c('rnwFil', 'brukernavn', "valgtRHF"))
-  # #paramValues <- shiny::reactive(c(rnwFil, brukernavn, as.character(input$valgtRHFabb)) )
-  #
-  #
-  #   autoReportServer(
-  #     id = "test", registryName = "intensivberedskap", type = "dispatchment",
-  #     org = org$value, paramNames = paramNames, paramValues = paramValues,
-  #     reports = reports, orgs = sykehusValg, eligible = TRUE
-  #   )
+  org <- autoReportOrgServer("beredUts", orgs)
 
+
+  # set reactive parameters overriding those in the reports list
+  paramNames <- shiny::reactive("valgtRHF")
+  paramValues <- shiny::reactive(org$value())
+
+
+  autoReportServer(
+    id = "beredUts", registryName = "rapbase", type = "dispatchment",
+    org = org$value, paramNames = paramNames, paramValues = paramValues,
+    reports = reports, orgs = orgs, eligible = TRUE
+  )
 
   #---------------- Alders- og kjønnsfordeling #####################
   output$FigurAldersfordeling <- renderPlot({

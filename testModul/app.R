@@ -7,11 +7,6 @@ orgs <- c('Alle', as.character(sort(unique(CoroData$RHF))))
 names(orgs) <- orgs
 orgs <- as.list(orgs)
 
-# orgs <- list( #
-#   OrgOne = 111111,
-#   OrgTwo = 222222
-# )
-
 
 ## make a list for report metadata
 reports <- list(
@@ -19,14 +14,14 @@ reports <- list(
     synopsis = "Resultater, Covid-19",
     fun = "abonnementBeredsk", #DENNE MÅ SKRIVES SOM FØR
     paramNames = c('rnwFil', "valgtRHF"),
-    paramValues = c('Koronarapport', 'Alle') #valgtRHF) #
+    paramValues = c('Koronarapport', 'Alle')
   ),
   #abonnementBeredsk(rnwFil, brukernavn='beredskap', reshID=0, valgtRHF = 'Alle'),
   InfluensaRapp = list(
     synopsis = "Influensarapport",
     fun = "abonnementBeredsk",
     paramNames = c('rnwFil', "valgtRHF"),
-    paramValues = c('Koronarapport', 'Alle') #valgtRHF) #
+    paramValues = c('Koronarapport', 'Alle')
   ),
   SecondReport = list(
     synopsis = "Influensarapport",
@@ -43,11 +38,11 @@ ui <- shiny::fluidPage(
       # selectInput(inputId = "valgtRHFsub", label="Velg RHF",
       #             choices = orgs
       # ),
-      autoReportOrgInput("test"), #Kan definere det slik at RHF benyttes
-      autoReportInput("test")
+      autoReportOrgInput("beredUts"),
+      autoReportInput("beredUts")
     ),
     shiny::mainPanel(
-      autoReportUI("test")
+      autoReportUI("beredUts")
     )
   )
 )
@@ -55,19 +50,18 @@ ui <- shiny::fluidPage(
 ## server function
 server <- function(input, output, session) {
 
-  org <- autoReportOrgServer("test", orgs) #Bytt ut test med aktuelt navn for utsending, beredsk.
+  org <- autoReportOrgServer("beredUts", orgs)
 
 
   # set reactive parameters overriding those in the reports list
-  paramNames <- shiny::reactive("valgtRHF") #Hvorfor reaktiv når verdien statisk..
-  #paramValues <- shiny::reactive(c(org$value(), format()))
+  paramNames <- shiny::reactive("valgtRHF")
   #paramValues <- shiny::reactive(c(input$valgtRHFsub()))
   paramValues <- shiny::reactive(org$value())
 
   #shiny::reactive(print(org))
 
   autoReportServer(
-    id = "test", registryName = "rapbase", type = "dispatchment",
+    id = "beredUts", registryName = "rapbase", type = "dispatchment",
     org = org$value, paramNames = paramNames, paramValues = paramValues,
     #org = org$value, paramNames = paramNames, paramValues = paramValues,
     reports = reports, orgs = orgs, eligible = TRUE

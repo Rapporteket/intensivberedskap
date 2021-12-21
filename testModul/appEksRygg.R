@@ -3,17 +3,6 @@
 ui <- shiny::fluidPage(
   shiny::sidebarLayout(
      shiny::sidebarPanel(
-    #   h4('Lage abonnementslister for utsendinger'),
-    #   uiOutput("reportUts"),
-    #   uiOutput("freqUts"),
-    #   uiOutput("ReshUts"),
-    #   h5('E-postmottagere legges inn en og en. Trykk legg til e-postmottager for hver gang.
-    #                        Når du har lagt til alle, trykker du på lag utsending. '),
-    #   textInput("email", "Epostmottakere:"),
-    #   uiOutput("editEmail"),
-    #   htmlOutput("recipients"),
-    #   tags$hr(),
-    #   uiOutput("makeDispatchment"), #utsending
        h4('Lage abonnementslister for utsendinger'),
        uiOutput("reportUts"),
        uiOutput("freqUts"),
@@ -106,12 +95,6 @@ server <- function(input, output, session) {
                 c("Kvartalsrapport"),
                 selected = dispatchment$report)
   })
-  ## ui: velg rolle
-  # output$rolleUts <- renderUI({
-  #   selectInput("dispatchmentRole", "Rolle/nivå:",
-  #               c("LU", "LC", "SC"),
-  #               selected = dispatchment$rolle)
-  # })
   ## ui: velg enhet
   output$ReshUts <- renderUI({
     selectInput("dispatchmentResh", "Avdelingstilhørighet:",
@@ -194,12 +177,6 @@ server <- function(input, output, session) {
       dispatchment$report <- rep$synopsis
   })
 
-
-  ## slett eksisterende abonnement
-  # observeEvent(input$del_button, {
-  #   selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
-  #   rapbase::deleteAutoReport(selectedRepId)
-  #   rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)})
 
   # Slett eksisterende auto rapport (alle typer)
   observeEvent(input$del_button, {
