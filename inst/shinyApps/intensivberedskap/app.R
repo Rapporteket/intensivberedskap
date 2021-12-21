@@ -873,7 +873,7 @@ server <- function(input, output, session) {
 
 
   autoReportServer(
-    id = "beredUts", registryName = "rapbase", type = "dispatchment",
+    id = "beredUts", registryName = "intensivberedskap", type = "dispatchment",
     org = org$value, paramNames = paramNames, paramValues = paramValues,
     reports = reports, orgs = orgs, eligible = TRUE
   )
