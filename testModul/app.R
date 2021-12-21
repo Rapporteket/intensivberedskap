@@ -4,6 +4,8 @@ CoroData <- NIRPreprosessBeredsk(RegData = NIRberedskDataSQL(kobleInt = 0))
 
 ## make a list of organization names and numbers
 orgs <- c('Alle', as.character(sort(unique(CoroData$RHF))))
+names(orgs) <- orgs
+orgs <- as.list(orgs)
 
 # orgs <- list( #
 #   OrgOne = 111111,
@@ -16,15 +18,15 @@ reports <- list(
   CovidRapp = list(
     synopsis = "Resultater, Covid-19",
     fun = "abonnementBeredsk", #DENNE MÅ SKRIVES SOM FØR
-    paramNames <- c('rnwFil', "valgtRHF"),
-    paramValues <- c('Koronarapport', 'Alle') #valgtRHF) #
+    paramNames = c('rnwFil', "valgtRHF"),
+    paramValues = c('Koronarapport', 'Alle') #valgtRHF) #
   ),
   #abonnementBeredsk(rnwFil, brukernavn='beredskap', reshID=0, valgtRHF = 'Alle'),
   InfluensaRapp = list(
     synopsis = "Influensarapport",
     fun = "abonnementBeredsk",
-    paramNames <- c('rnwFil', "valgtRHF"),
-    paramValues <- c('Koronarapport', 'Alle') #valgtRHF) #
+    paramNames = c('rnwFil', "valgtRHF"),
+    paramValues = c('Koronarapport', 'Alle') #valgtRHF) #
   ),
   SecondReport = list(
     synopsis = "Influensarapport",
@@ -38,12 +40,10 @@ reports <- list(
 ui <- shiny::fluidPage(
   shiny::sidebarLayout(
     shiny::sidebarPanel(
-      autoReportFormatInput("test"),
-      uiOutput("valgtRHFsub"),
       # selectInput(inputId = "valgtRHFsub", label="Velg RHF",
       #             choices = orgs
       # ),
-      #autoReportOrgInput("test"), #Kan definere det slik at RHF benyttes
+      autoReportOrgInput("test"), #Kan definere det slik at RHF benyttes
       autoReportInput("test")
     ),
     shiny::mainPanel(
@@ -54,29 +54,21 @@ ui <- shiny::fluidPage(
 
 ## server function
 server <- function(input, output, session) {
-#  org <- autoReportOrgServer("test", orgs) #Bytt ut test med aktuelt navn for utsending, beredsk.
-  org <- shiny::reactive(as.character(input$valgtRHFsub))
-  ## ui: velg enhet
-  output$valgtRHFsub <- renderUI({
-    selectInput("valgtRHFsub", "Valgt RHF:",
-                orgs,
-                selected = 'Alle')
-  })
 
-  format <- autoReportFormatServer("test")
+  org <- autoReportOrgServer("test", orgs) #Bytt ut test med aktuelt navn for utsending, beredsk.
 
 
   # set reactive parameters overriding those in the reports list
-  paramNames <- shiny::reactive("organization", "format") #Hvorfor reaktiv når verdien statisk..
+  paramNames <- shiny::reactive("valgtRHF") #Hvorfor reaktiv når verdien statisk..
   #paramValues <- shiny::reactive(c(org$value(), format()))
   #paramValues <- shiny::reactive(c(input$valgtRHFsub()))
-  paramValues <- shiny::reactive(c(as.character(input$valgtRHFsub)), 'pdf')
+  paramValues <- shiny::reactive(org$value())
 
   #shiny::reactive(print(org))
 
   autoReportServer(
     id = "test", registryName = "rapbase", type = "dispatchment",
-    org = org, paramNames = paramNames, paramValues = paramValues,
+    org = org$value, paramNames = paramNames, paramValues = paramValues,
     #org = org$value, paramNames = paramNames, paramValues = paramValues,
     reports = reports, orgs = orgs, eligible = TRUE
   )
