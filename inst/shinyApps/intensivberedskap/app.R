@@ -98,13 +98,13 @@ reports <- list(
     synopsis = "Resultater, Covid-19",
     fun = "abonnementBeredsk",
     paramNames = c('rnwFil', "valgtRHF"),
-    paramValues = c('BeredskapCorona', 'Alle')
+    paramValues = c('BeredskapCorona.Rnw', 'Alle')
   ),
   InfluensaRapp = list(
     synopsis = "Influensarapport",
     fun = "abonnementBeredsk",
     paramNames = c('rnwFil', "valgtRHF"),
-    paramValues = c('NIRinfluensa', 'Alle')
+    paramValues = c('NIRinfluensa.Rnw', 'Alle')
   )
 )
 
