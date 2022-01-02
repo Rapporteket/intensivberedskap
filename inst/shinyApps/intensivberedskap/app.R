@@ -87,26 +87,6 @@ names(enhetsNivaa) <- c('RHF', 'HF', 'Sykehus')
 sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
 sesongValg <- sort(unique(InfluData$Sesong)) #sesongValg <- rev(c('2018-19', '2019-20', '2020-21', '2021-22', '20')),
 
-## parametre til utsending
-orgs <- rhfNavn
-names(orgs) <- orgs
-orgs <- as.list(orgs)
-
-## make a list for report metadata
-reports <- list(
-  CovidRapp = list(
-    synopsis = "Resultater, Covid-19",
-    fun = "abonnementBeredsk",
-    paramNames = c('rnwFil', "valgtRHF"),
-    paramValues = c('BeredskapCorona.Rnw', 'Alle')
-  ),
-  InfluensaRapp = list(
-    synopsis = "Influensarapport",
-    fun = "abonnementBeredsk",
-    paramNames = c('rnwFil', "valgtRHF"),
-    paramValues = c('NIRinfluensa.Rnw', 'Alle')
-  )
-)
 
 
 source(system.file("shinyApps/intensivberedskap/R/koronafigurer_modul.R", package = "intensivberedskap"), encoding = 'UTF-8')
@@ -864,8 +844,28 @@ server <- function(input, output, session) {
 
   #------------Utsending-----------------
 
-  org <- autoReportOrgServer("beredUts", orgs)
+  ## parametre til utsending
+  orgs <- rhfNavn
+  names(orgs) <- orgs
+  orgs <- as.list(orgs)
 
+  ## make a list for report metadata
+  reports <- list(
+    CovidRapp = list(
+      synopsis = "Resultater, Covid-19",
+      fun = "abonnementBeredsk",
+      paramNames = c('rnwFil', "valgtRHF"),
+      paramValues = c('BeredskapCorona.Rnw', 'Alle')
+    ),
+    InfluensaRapp = list(
+      synopsis = "Influensarapport",
+      fun = "abonnementBeredsk",
+      paramNames = c('rnwFil', "valgtRHF"),
+      paramValues = c('NIRinfluensa.Rnw', 'Alle')
+    )
+  )
+
+  org <- autoReportOrgServer("beredUts", orgs)
 
   # set reactive parameters overriding those in the reports list
   paramNames <- shiny::reactive("valgtRHF")

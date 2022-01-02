@@ -170,6 +170,17 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                                                              units = 'hours') > 12))), #Hvilket opphold som er siste reinnleggelse på respirator
                    MechanicalRespiratorStartSiste = nth(MechanicalRespiratorStart, ReinnRespNaar+1, order_by = MechanicalRespiratorStart),
                    #NB: MechanicalRespiratorStart/End finnes ikke i intensivskjema.
+
+                   MT1 = sum(MechanicalrespiratorType==1)>0,
+                   MT2 = sum(MechanicalrespiratorType==2)>0,
+                   #NB: Må ta bort de som ikke har vært på respirator...
+                   #Type: -1:ikke utfylt, 1-invasiv, 2-non-invasiv
+                   InvNonIBegge = ifelse(MechanicalRespirator
+                     ifelse(MT1&MT2, 3,
+                                         ifelse(MT2, 2,
+                                                ifelse(MT1, 1, -1))),
+
+
                    MechanicalRespiratorStart = first(MechanicalRespiratorStart, order_by = MechanicalRespiratorStart),
                    MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
                    EcmoStart = sort(EcmoStart)[1], #sort tar ikke med NA-verdier.
@@ -199,6 +210,9 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
          )
    } #aggPers
 
+   # pers <- RegData$PersonId[RegData$InvNonIBegge==1 & RegData$AntRegPrPas>1]
+   # test <- BeredDataRaa[which(BeredDataRaa$PersonId %in% pers), c('PersonId','MechanicalrespiratorType')]
+   # tab <- table(test)
 
    if (kobleInt==1){
       # #Fjerner  uten intensivskjema

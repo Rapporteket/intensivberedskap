@@ -97,6 +97,11 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
   ResptidNaaGjsn <- mean(ResptidNaa[ResptidNaa < 90], na.rm=T)
   #sjekkLiggetidResp <- as.numeric(mean(difftime(Sys.Date(), RegData$Innleggelsestidspunkt[respLiggere], units='days')))
 
+  #MechanicalrespiratorType: -1:ikke utfylt, 1-invasiv, 2-non-invasiv
+  NonInvNaa <- RegData$MechanicalrespiratorType==2 #respLiggere & (
+  AntNonInvNaa <- sum(NonInvNaa)
+  AntInvNaa <- sum(respLiggere & RegData$MechanicalrespiratorType==1)
+
   ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) )
   AntIECMONaa <- sum(ECMOLiggere) #sum(!(is.na(RegData$EcmoStart))) - sum(!(is.na(RegData$EcmoEnd)))
   ECMOtidNaa <- as.numeric(difftime(Sys.Date(), RegData$EcmoStart[ECMOLiggere],
@@ -105,9 +110,11 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
                            mean(ECMOtidNaa[ECMOtidNaa < 90], na.rm=T))
 
   TabHjelp <- rbind(
+    'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaaGjsn),
     'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn),
     'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaaGjsn),
-    'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaaGjsn)
+    'Pustehjelp på tett maske' = c(AntNonInvNaa*(c(1, 100/AntPaaIntNaa)), ''),
+    'Invasiv respiratorstøtte' = c(AntInvNaa*(c(1, 100/AntPaaIntNaa)), '')
   )
   colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn.)')
   TabHjelp[1:2,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')

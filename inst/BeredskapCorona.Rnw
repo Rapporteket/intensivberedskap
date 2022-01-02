@@ -49,8 +49,9 @@ if (valgtRHF!='Alle'){
 datoStart <- '2020-03-01'
 
 RHFtxt <-ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
-tittelRHF <- paste0('Rapportering av Covid-19 fra NIPaR, ',
-               paste0('registreringer fra ', RHFtxt))
+tittelRHF <- paste0('Norsk intensiv- og pandemiregister (NIPaR) \n',
+                   'Automatisk generert rapport - intensivbehandlede pasienter med covid-19. \n',
+               paste0('Registreringer fra ', RHFtxt))
 indFerdig <- which(RegData$FormStatus==2)
 antFerdig <- length(indFerdig)
 antSkjema <- dim(RegData)[1]
@@ -68,7 +69,7 @@ AntBekr <- sum(RegData$Bekreftet==1)
 
 \begin{document}
 
-\title[Norsk Intensiv- og pandemiregister, covid-19 \\\today] {%\textit{Covid-19data, NIPaR} \\
+\title[NIPaR Covid-19 på intensiv \\\today] {%\textit{Covid-19data, NIPaR} \\
 \Sexpr{tittelRHF}}
 
 \maketitle
@@ -79,25 +80,36 @@ AntBekr <- sum(RegData$Bekreftet==1)
 \begin{tiny}
 
 \begin{frame}[fragile] {Hva er dette?}
-Dette er en automatisk generert rapport fra Norsk Intensiv- og pandemiregister (NIPaR).
-Dokumentet inneholder oppsummering av covid-19tilfeller hos pasienter som
-kvalifiserer for rapportering til NIPaR.
-Mistenkte og bekreftede covid-19tilfeller er rapportert i eget skjema i registeret, og data fra dette skjemaet danner grunnlaget for denne rapporten.
-\\
+Dette er en automatisk generert rapport fra Norsk intensiv- og pandemiregister (NIPaR). Dokumentet inneholder oversikt over intensivbehandlede pasienter med covid-19 i Norge. I denne sammenhengen betyr det at pasienten behandles på et intensiv- eller overvåkningsareal og fyller kriterier for intensivpasienter i NIPaR. Disse pasientene trenger som regel mer oksygentilførsel og pustehjelp enn det man får bare med nesekateter eller annet åpent oksygensystem, som kan brukes mange steder i et sykehus.
+Datagrunnlaget er oppdatert med alle registreringer gjort inntil 4 timer før rapporten ble lastet ned.
 
-%\bf{Merk at:}
+Rapporten baserer seg på bekreftede tilfeller, det vil si tilfeller der det er påvist smitte med SARS-CoV-2. I dokumentet skilles det ikke på om skjema er ferdigstilt eller ikke, dersom ikke annet er oppgitt.
+(Det er \Sexpr{N-antFerdig}
+av de \Sexpr{N} skjemaene som ikke er ferdigstilt.)
+
+Rapporten gir en oversikt over:
 \begin{itemize}
-\item Tabellene skiller ikke på om et skjema er ferdigstilt eller ikke. Det er \Sexpr{N-antFerdig}
-av de \Sexpr{N} skjemaene som ikke er ferdigstilt.
-\item Skjema uten spesifikasjon av diagnose, er kategorisert som mistenkte covid-19tilfeller.
-\item Det er registrert \Sexpr{AntBekr} med bekreftet covid-19. Av disse er \Sexpr{DodBekr} døde.
-\item Rapporten er basert på alle registreringer gjort inntil 4 timer før rapporten ble lastet ned.
-\Sexpr{RegILimboTxt}
+\item Antall pasienter inneliggende på intensiv i dag, inkludert antall med ulike typer pustehjelp.
+\item Antall pasienter inneliggende på intensiv per helseforetak.
+\item Antall pasienter innlagt på intensiv siste 20 dager og totalt hittil i pandemien i hvert regionale helseforetak.
+\item Fordeling av alder og kjønn totalt på rapporteringstidspunktet.
+\item Fordeling av risikofaktorer totalt på rapporteringstidspunktet.
+\item Liggetid på intensiv, tid med pustehjelp, alder og dødelighet på intensiv for intensivopphold som er ferdigstilte. At et opphold er ferdigstilt vil si at opplysningene er kontrollert og ferdig registrert.
 \end{itemize}
+
+% \begin{itemize}
+% \item Tabellene skiller ikke på om et skjema er ferdigstilt eller ikke.
+% \item Skjema uten spesifikasjon av diagnose, er kategorisert som mistenkte covid-19tilfeller.
+% \item Det er registrert \Sexpr{AntBekr} med bekreftet covid-19. Av disse er \Sexpr{DodBekr} døde.
+% \item Rapporten er basert på alle registreringer gjort inntil 4 timer før rapporten ble lastet ned.
+% \Sexpr{RegILimboTxt}
+% \end{itemize}
+
+Rapporten er kjørt for Rolle: XX   ; Enhetsnivå:  YY  ; Enhet: Lystun
 
 \end{frame}
 
-\begin{frame}[fragile] {Covid-19 på respirator/ECMO}
+\begin{frame}[fragile] {Antall inneliggende og pasienter med pustehjelp}
 Oversikt over antall som ligger i respirator/ECMO på intensiv. (Registreringer uten ut-tid fra intensiv.)
 
 <<'RespiratorECMO', results='asis'>>=
@@ -106,7 +118,7 @@ Oversikt over antall som ligger i respirator/ECMO på intensiv. (Registreringer 
 xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
                digits=0,
                align = c('l','r','r','r'),
-               caption='Bruk av respirator/ECMO.')
+               caption='Bruk av pustehjelp/ECMO.')
 
 @
 \end{frame}
