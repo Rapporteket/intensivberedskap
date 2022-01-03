@@ -172,21 +172,24 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
   #  test <- sprintf('%.2f',c(x[2],x[5]))
   # test <- med_IQR(ECMOtid)
   TabFerdigeReg <- rbind(
-    'ECMO-tid (døgn)' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/N))),
-    'Respiratortid (døgn)' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/N))),
-    'Liggetid (døgn)' = c(med_IQR(Liggetid), N, ''),
     'Alder (år)' = c(med_IQR(Alder), N, ''),
+    'Liggetid (døgn)' = c(med_IQR(Liggetid), N, ''),
+    'Respiratortid (døgn)' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/N))),
+    'ECMO-tid (døgn)' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/N))),
     'Døde' = c('','','',AntDod, paste0(sprintf('%.f',100*AntDod/N),'%'))
   )
   #TabFerdigeReg[TabFerdigeReg==NA]<-""
   colnames(TabFerdigeReg) <- c('Gj.sn', 'Median', 'IQR', 'Antall pasienter', 'Andel pasienter')
-  TabFerdigeReg[c(1:2),'Andel pasienter'] <-
-    paste0(sprintf('%.0f', as.numeric(TabFerdigeReg[c(1:2),'Andel pasienter'])),'%')
+  TabFerdigeReg[c(3:4),'Andel pasienter'] <-
+    paste0(sprintf('%.0f', as.numeric(TabFerdigeReg[c(3:4),'Andel pasienter'])),'%')
   xtable::xtable(TabFerdigeReg,
                  digits=0,
                  align = c('l','r','r','c', 'r','r'),
-                 caption='Ferdigstilte pasienter
-                 IQR (Inter quartile range) - 50% av pasientene er i dette intervallet.')
+                 caption='Verdier på rapporteringstidspunktet.
+                 For pasienter overflyttet mellom intensivavdelinger, er samlede verdier
+                 talt med (total liggetid, total respiratortid).
+                 IQR (inter quartile range) betyr at 25% av oppholdene er under minste verdi,
+                 50% av oppholdene er i intervallet, og 25% av oppholdene er over høyeste verdi.')
   return(invisible(UtData <- list(Tab=TabFerdigeReg,
                                   utvalgTxt=UtData$utvalgTxt,
                                   Ntest=N)))
@@ -214,22 +217,6 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
   Ntest <- dim(UtData$RegData)[1]
   RegData <- UtData$RegData
 
-
-  # TabRisiko <- rbind(
-  #   Kreft = tapply(RegData$Kreft, Tidsvariabel, FUN=sum, na.rm = T),
-  #   'Nedsatt immunforsvar' = tapply(RegData$IsImpairedImmuneSystemIncludingHivPatient, Tidsvariabel, FUN=sum, na.rm = T),
-  #   Diabetes	= tapply(RegData$Diabetes, Tidsvariabel, FUN=sum, na.rm = T),
-  #   Hjertesykdom = tapply(RegData$IsHeartDiseaseIncludingHypertensionPatient, Tidsvariabel, FUN=sum, na.rm = T),
-  #   'Fedme (KMI>30)' =	tapply(RegData$IsObesePatient, Tidsvariabel, FUN=sum, na.rm = T),
-  #   Astma	= tapply(RegData$Astma, Tidsvariabel, FUN=sum, na.rm = T),
-  #   'Kronisk lungesykdom' = tapply(RegData$IsChronicLungDiseasePatient, Tidsvariabel, FUN=sum, na.rm = T),
-  #   Nyresykdom =	tapply(RegData$IsKidneyDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
-  #   Leversykdom = tapply(RegData$IsLiverDiseaseIncludingFailurePatient, Tidsvariabel, FUN=sum, na.rm = T),
-  #   'Nevrologisk/nevromusk.' = tapply(RegData$IsChronicNeurologicNeuromuscularPatient, Tidsvariabel, FUN=sum, na.rm = T),
-  #   Graviditet	= tapply(RegData$Graviditet, Tidsvariabel, FUN=sum, na.rm = T),
-  #   'Røyker' =	tapply(RegData$IsActiveSmoker, Tidsvariabel, FUN=sum, na.rm = T),
-  #   'Pasienter med risikofaktorer' = tapply(RegData$IsRiskFactor, Tidsvariabel, FUN=sum, na.rm = T)
-  # )
   TabRisiko <- rbind(
     Kreft = sum(RegData$Kreft, na.rm = T),
     'Nedsatt immunforsvar' = sum(RegData$IsImpairedImmuneSystemIncludingHivPatient, na.rm = T),
@@ -247,15 +234,16 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
   )
 
   if (Ntest>3){
-    TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
-      TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
-    colnames(TabRisiko) <- 'Sum'
+    # TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
+    # TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
+    # colnames(TabRisiko) <- 'Sum'
     TabRisiko <- cbind(TabRisiko,
-                       'Andel' = paste0(sprintf('%.0f', 100*TabRisiko[,"Sum"]/dim(RegData)[1]),'%'))
+                       'Andel' = paste0(sprintf('%.0f', 100*TabRisiko/dim(RegData)[1]),'%')) #[,"Sum"]
 
 
     TabRisiko <- rbind(TabRisiko,
-                       'Tot. antall (N)' = c(dim(RegData)[1], ''))
+                       'Pasienter, totalt' = c(dim(RegData)[1], ''))
+    colnames(TabRisiko) <- c('Antall pasienter', 'Antall pasienter')
 
   }
   return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
@@ -299,20 +287,22 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,resp=9,
   #grtxt <- c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))#paste(gr,sep='-')
   levels(RegData$AldersGr) <- grtxt #c(levels(RegData$AldersGr)[-length(gr)], paste0(max(gr),'+'))
   TabAlder <- table(RegData$AldersGr, RegData$EnhetsNivaaVar)
-  TabAlder <- addmargins(TabAlder) #switch(enhetsNivaa, RHF = 'Totalt', HF = paste0(valgtRHF, ', totalt'))
+  TabAlder <- addmargins(TabAlder, FUN = list(Totalt = sum), quiet = TRUE) #switch(enhetsNivaa, RHF = 'Totalt', HF = paste0(valgtRHF, ', totalt'))
   TabAlderPst <-prop.table(TabAlder[-nrow(TabAlder),],2)*100
   #paste0(sprintf('%.0f', as.numeric(TabHjelp[1:2,'Andel'])),'%')
 
      TabAlderAlle <- cbind(
-       'Antall, tot.' = TabAlder[,'Sum'],
-       'Andel, tot.' = paste0(sprintf('%.0f', c(TabAlderPst[,'Sum'], 100)), ' %')
+       'Antall, tot.' = TabAlder[,'Totalt'],
+       'Andel, tot.' = paste0(sprintf('%.0f', c(TabAlderPst[,'Totalt'], 100)), ' %')
      )
      TabAlderUt <-  if (valgtRHF %in% levels(RegData$RHF)){
        TabAlderUt <- cbind(
          'Antall, eget RHF' = TabAlder[ ,valgtRHF],
          'Andel, eget RHF' = paste0(sprintf('%.0f', c(TabAlderPst[ ,valgtRHF], 100)), ' %'),
          TabAlderAlle)
-       } else {TabAlderAlle}
+     } else {
+         colnames(TabAlderAlle) <- c('Antall pasienter', 'Andel pasienter')
+         }
 
   return(invisible(UtData <-
                      list(Tab=TabAlderUt,
