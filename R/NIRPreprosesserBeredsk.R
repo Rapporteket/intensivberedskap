@@ -175,12 +175,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    MT2 = sum(MechanicalrespiratorType==2)>0,
                    #NB: Må ta bort de som ikke har vært på respirator...
                    #Type: -1:ikke utfylt, 1-invasiv, 2-non-invasiv
-                   InvNonIBegge = ifelse(MechanicalRespirator
-                     ifelse(MT1&MT2, 3,
-                                         ifelse(MT2, 2,
-                                                ifelse(MT1, 1, -1))),
-
-
+                   InvNonIBegge = ifelse(MT1&MT2, 3,
+                                                ifelse(MT2, 2,
+                                                       ifelse(MT1, 1, -1))),
+                   MechanicalrespiratorTypeSiste = last(MechanicalrespiratorType, order_by = FormDate),
                    MechanicalRespiratorStart = first(MechanicalRespiratorStart, order_by = MechanicalRespiratorStart),
                    MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
                    EcmoStart = sort(EcmoStart)[1], #sort tar ikke med NA-verdier.

@@ -118,10 +118,33 @@ Oversikt over antall som ligger i respirator/ECMO på intensiv. (Registreringer 
 xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
                digits=0,
                align = c('l','r','r','r'),
-               caption='Bruk av pustehjelp/ECMO.')
+               caption = 'Totalt antall inneliggende pasienter og totalt antall med pustehjelp.
+               Gjennomsnittlig liggetid og gjennomsnittlig samlet tid med mekanisk ventilasjonsstøtte (invasiv og med tett maske).')
+               #'Bruk av pustehjelp/ECMO.')
 
 @
 \end{frame}
+
+
+\begin{frame}[fragile] {Antall inneliggende per HF}
+Antall inneliggende pasienter per helseforetak på rapporteringstidspunktet. (Pasienter hvor ut-tid fra intensiv ikke er registrert.)
+
+<<'InneliggendePrHF', results='asis'>>=
+
+inneligg <- is.na(RegDataAlle$DateDischargedIntensive)
+RegHF <- RegDataAlle[inneligg,] %>%
+  dplyr::group_by(RHFut, HFut) %>%
+  dplyr::summarise('Antall pasienter' = n())
+colnames(RegHF) <- gsub('ut', '', colnames(RegHF))
+print(xtable::xtable(RegHF, row.names=FALSE, digits=0,
+                     caption='Antall inneliggende intensivpasienter i hvert helseforetak'),
+      include.rownames = FALSE)
+
+@
+\end{frame}
+
+
+
 
 \begin{frame}[fragile] {Ferdigstilte registreringer, bekreftede}
 %Oversikt over ferdigstilte registreringer for bekreftede covid-19-tilfeller.
@@ -138,22 +161,6 @@ xtable::xtable(FerdigBekr$Tab,
  @
 \end{frame}
 
-
-
-\begin{frame}[fragile] {Antall inneliggende per HF}
-Oversikt over antall som ligger på intensiv. (Registreringer uten ut-tid fra intensiv.)
-
-<<'InneliggendePrHF', results='asis'>>=
-
-inneligg <- is.na(RegDataAlle$DateDischargedIntensive)
-RegHF <- RegDataAlle[inneligg,] %>% dplyr::group_by(RHFut, HFut) %>% dplyr::summarise(Antall = n())
-colnames(RegHF) <- gsub('ut', '', colnames(RegHF))
-print(xtable::xtable(RegHF, row.names=FALSE, digits=0,
-                     caption='Antall inneliggende i hvert HF.'),
-      include.rownames = FALSE)
-
-@
-\end{frame}
 
 
 
