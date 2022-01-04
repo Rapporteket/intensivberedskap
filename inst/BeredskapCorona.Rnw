@@ -34,6 +34,8 @@ paaServer <- context %in% c("DEV", "TEST", "QA", "PRODUCTION")
 
 <<'tilrettelegg', include=FALSE>>=
 #NB: Har benyttet FormDate benyttes som hoveddato. Gjelder også influensa
+#Bekreftede tilfeller:
+CoroData <- CoroData[which(CoroData$Diagnosis %in% 100:103), ]
 CoroData$RHF <- as.character(CoroData$RHF)
 RegDataOpph <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 0)
 RegData <- NIRPreprosessBeredsk(RegData=CoroData)
@@ -43,7 +45,6 @@ RegDataAlleOpph <- RegDataOpph
 if (valgtRHF!='Alle'){
   RegData <- subset(RegData, RegData$RHF == valgtRHF)
   RegDataOpph <- subset(RegDataOpph, RegDataOpph$RHF == valgtRHF)
-  #RegData$RHF <- as.character(RegData$RHF) #Gjøres tidligere
   enhetsNivaa <- 'RHF' #Endres til HF når får på plass tekstdeling i kolonnenavn
   }
 datoStart <- '2020-03-01'
@@ -57,7 +58,7 @@ antFerdig <- length(indFerdig)
 antSkjema <- dim(RegData)[1]
 N <- antSkjema
 AntDode <- sum(RegData$DischargedIntensiveStatus==1)
-DodBekr <- sum(RegData[which(RegData$Bekreftet==1), ]$DischargedIntensiveStatus==1)
+#DodBekr <- sum(RegData[which(RegData$Bekreftet==1), ]$DischargedIntensiveStatus==1)
 #AntBekr <- sum(RegData$Bekreftet==1)
 
 # Registreringer i limbo
@@ -80,7 +81,7 @@ DodBekr <- sum(RegData[which(RegData$Bekreftet==1), ]$DischargedIntensiveStatus=
 \begin{tiny}
 
 \begin{frame}[fragile] {Hva er dette?}
-Dette er en automatisk generert rapport fra Norsk intensiv- og pandemiregister (NIPaR). Dokumentet inneholder oversikt over intensivbehandlede pasienter med covid-19 i Norge. I denne sammenhengen betyr det at pasienten behandles på et intensiv- eller overvåkningsareal og fyller kriterier for intensivpasienter i NIPaR. Disse pasientene trenger som regel mer oksygentilførsel og pustehjelp enn det man får bare med nesekateter eller annet åpent oksygensystem, som kan brukes mange steder i et sykehus.
+Dette er en automatisk generert rapport fra Norsk intensiv- og pandemiregister (NIPaR). Dokumentet inneholder oversikt over intensivbehandlede pasienter med covid-19 i Norge. I denne sammenhengen betyr det at pasienten behandles på et intensiv- eller overvåkningsareal og fyller kriterier for intensivpasienter i NIPaR. Disse pasientene trenger som regel mer oksygentilførsel og pustehjelp enn det man får bare med nesekateter eller annet åpent oksygensystem, som kan brukes mange steder i et sykehus.\\
 Datagrunnlaget er oppdatert med alle registreringer gjort inntil 4 timer før rapporten ble lastet ned.
 
 Rapporten baserer seg på bekreftede tilfeller, det vil si tilfeller der det er påvist smitte med SARS-CoV-2. I dokumentet skilles det ikke på om skjema er ferdigstilt eller ikke, dersom ikke annet er oppgitt.
@@ -105,7 +106,7 @@ Rapporten gir en oversikt over:
 % \Sexpr{RegILimboTxt}
 % \end{itemize}
 
-Rapporten er kjørt for Rolle: XX   ; Enhetsnivå:  YY  ; Enhet: Lystun
+Rapporten er kjørt for Rolle: (parameter som per nå ikke sendes inn i rapporten)   ; Enhetsnivå:  \Sexpr{ifelse(valgtRHF=='Alle', 'Hele landet', 'RHF')}  ; Enhet: \Sexpr{valgtRHF}
 
 \end{frame}
 
@@ -138,8 +139,8 @@ RegHF <- RegDataAlle[inneligg,] %>%
 
 colnames(RegHF) <- gsub('ut', '', colnames(RegHF))
 Totalt <- c('', 'Totalt', sum(RegHF$`Antall pasienter`))
-rbind(as.data.frame(RegHF),
-      Totalt)
+RegHF <- rbind(as.data.frame(RegHF),
+              Totalt)
 print(xtable::xtable(rbind(as.data.frame(RegHF), Totalt), row.names=FALSE, digits=0,
                      caption='Antall inneliggende intensivpasienter i hvert helseforetak'),
       include.rownames = FALSE)
@@ -152,36 +153,30 @@ print(xtable::xtable(rbind(as.data.frame(RegHF), Totalt), row.names=FALSE, digit
 
 \begin{frame}[fragile] {Antall registrerte opphold per dag}
 
-% Registrerte tilfeller per dag og totalt antall tilfeller.
-% Registreringer hvor diagnose ikke er angitt, er klassifiserte som mistenkte tilfeller.
-
 <<'TabTot', results='asis'>>=
-#TabRHF <- table(RegData$Dag, RegData$RHF)
-#xtable::xtable(addmargins(TabRHF), digits=0, caption='Covid-19tilfeller per uke i hvert RHF')
-
   TidsVar <- 'Dag'
   RegDataAlleOpph$EnhetsNivaaVar <- as.factor(RegDataAlleOpph[ ,enhetsNivaa])
-
 
 if (valgtRHF=='Alle'){
 TabTidEnh <- ftable(RegDataAlleOpph[ , c(TidsVar, enhetsNivaa)], #, 'Korona'
                     row.vars =TidsVar)
-
 navnEnh <- levels(RegDataAlleOpph$EnhetsNivaaVar) #unique(RegData$EnhetsNivaaVar)
 TabTidEnh <- as.matrix(TabTidEnh)
-#colnames(TabTidEnh) <- rep(c('M','B'), length(navnEnh)) #letters[1:8]
 
 TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
-add.to.row <- list(pos = list(-1), command = NULL)
-add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
+# add.to.row <- list(pos = list(-1), command = NULL)
+# add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
 
 AntRader <- dim(TabTidEnh)[1]
 
-print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
+#print(
+  xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
                      #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-		caption=paste0('Antall nye opphold siste 20 dager, samt totalt antall fra 10. mars 2020 til rapporteringstidspuktet')),
- 		add.to.row = add.to.row,
-		sanitize.rownames.function = identity)
+		caption='Antall nye opphold siste 20 dager, samt totalt antall fra 10. mars 2020 til rapporteringstidspuktet.'
+		)
+# ,
+#  		add.to.row = add.to.row,
+# 		sanitize.rownames.function = identity)
 } else {
   RegDataAlleOpph$TidsVar <- as.factor(RegDataAlleOpph[,TidsVar])
   TabTidEnh <- cbind(
@@ -191,9 +186,8 @@ print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
   TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN=sum, quiet=TRUE)
   AntRader <- dim(TabTidEnh)[1]
   xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
-		caption='Antall nye opphold siste 20 dager, samt totalt antall fra 10. mars 2020 til rapporteringstidspuktet')
+		caption='Antall nye opphold siste 20 dager, samt totalt antall fra 10. mars 2020 til rapporteringstidspuktet.')
 }
-
 @
 \end{frame}
 
@@ -206,8 +200,8 @@ RegHF <- RegDataAlle %>%
 
 colnames(RegHF) <- gsub('ut', '', colnames(RegHF))
 Totalt <- c('', 'Totalt', sum(RegHF$`Antall pasienter`))
-rbind(as.data.frame(RegHF),
-      Totalt)
+RegHF <- rbind(as.data.frame(RegHF),
+               Totalt)
 print(xtable::xtable(rbind(as.data.frame(RegHF), Totalt), row.names=FALSE, digits=0,
                      caption='Totalt antall registrerte intensivopphold fra 10. mars 2020 til rapporteringstidspunktet.'),
       include.rownames = FALSE)
@@ -244,7 +238,7 @@ xtable::xtable(TabAlder,
 
 <<'AlderKjonn', results='asis'>>=
 dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder',
-                              valgtRHF= valgtRHF,
+                              valgtRHF= valgtRHF, bekr = 1,
                               outfile = 'AlderKjonn.pdf')
 @
 
@@ -282,7 +276,7 @@ if (dim(RegData)[1]>2) {
 
 
 
-\begin{frame}[fragile] {Ferdigstilte registreringer, bekreftede}
+\begin{frame}[fragile] {Resultater for ferdigstilte opphold}
 %Oversikt over ferdigstilte registreringer for bekreftede covid-19-tilfeller.
 
 <<'Ferdigstilte', results='asis'>>=
@@ -294,8 +288,8 @@ xtable::xtable(FerdigBekr$Tab,
                caption = paste0('Verdier på rapporteringstidspunktet.
                For pasienter overflyttet mellom intensivavdelinger, er samlede verdier talt med
                (dvs. total liggetid, total respiratortid).
-               IQR (inter quartile range) betyr at 25% av oppholdene er under minste verdi,
-               50% av oppholdene er i intervallet, og 25% av oppholdene er over høyeste verdi.')
+               IQR (inter quartile range) betyr at 25 \\% av oppholdene er under minste verdi,
+               50 \\% av oppholdene er i intervallet, og 25 \\% av oppholdene er over høyeste verdi.')
                )
  @
 \end{frame}

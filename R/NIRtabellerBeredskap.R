@@ -243,7 +243,7 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
 
     TabRisiko <- rbind(TabRisiko,
                        'Pasienter, totalt' = c(dim(RegData)[1], ''))
-    colnames(TabRisiko) <- c('Antall pasienter', 'Antall pasienter')
+    colnames(TabRisiko) <- c('Antall pasienter', 'Andel pasienter')
 
   }
   return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
@@ -295,13 +295,15 @@ TabAlder <- function(RegData, valgtRHF='Alle', bekr=9, skjemastatus=9,resp=9,
        'Antall, tot.' = TabAlder[,'Totalt'],
        'Andel, tot.' = paste0(sprintf('%.0f', c(TabAlderPst[,'Totalt'], 100)), ' %')
      )
-     TabAlderUt <-  if (valgtRHF %in% levels(RegData$RHF)){
+
+     if (valgtRHF %in% levels(RegData$RHF)){
        TabAlderUt <- cbind(
          'Antall, eget RHF' = TabAlder[ ,valgtRHF],
          'Andel, eget RHF' = paste0(sprintf('%.0f', c(TabAlderPst[ ,valgtRHF], 100)), ' %'),
          TabAlderAlle)
      } else {
          colnames(TabAlderAlle) <- c('Antall pasienter', 'Andel pasienter')
+         TabAlderUt <- TabAlderAlle
          }
 
   return(invisible(UtData <-

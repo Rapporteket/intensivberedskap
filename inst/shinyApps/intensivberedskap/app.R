@@ -153,7 +153,7 @@ ui <- tagList(
                                    # ),
                       ),
                       mainPanel(width = 9,
-                                shinyalert::useShinyalert(),
+                                #shinyalert::useShinyalert(),
                                 appNavbarUserWidget(user = uiOutput("appUserName"),
                                                     organization = uiOutput("appOrgName"),
                                                     addUserInfo = TRUE),
