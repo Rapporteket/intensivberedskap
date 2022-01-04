@@ -182,8 +182,7 @@ print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
 		caption=paste0('Antall nye opphold siste 20 dager, samt totalt antall fra 10. mars 2020 til rapporteringstidspuktet')),
  		add.to.row = add.to.row,
 		sanitize.rownames.function = identity)
-}
-  else {
+} else {
   RegDataAlleOpph$TidsVar <- as.factor(RegDataAlleOpph[,TidsVar])
   TabTidEnh <- cbind(
     table(RegDataAlleOpph[RegDataAlleOpph$RHF==valgtRHF, 'TidsVar']), #c('TidsVar', 'Korona')
@@ -200,7 +199,7 @@ print(xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
 
 
 \begin{frame}[fragile] {Registrerte opphold i hvert helseforetak}
-<<'InneliggendePrHF', results='asis'>>=
+<<'OpphPrHF', results='asis'>>=
 RegHF <- RegDataAlle %>%
   dplyr::group_by(RHFut, HFut) %>%
   dplyr::summarise('Antall pasienter' = n())
@@ -223,7 +222,7 @@ print(xtable::xtable(rbind(as.data.frame(RegHF), Totalt), row.names=FALSE, digit
 
 <<'VisTabAlder', results='asis'>>=
   Alder <- round(summary(RegData$Alder))
-txtAlder <- if (dim(RegData[1]>2){paste0('Alderen er mellom ',
+txtAlder <- if (dim(RegData)[1]>2){paste0('Alderen er mellom ',
                            Alder[1], ' og ', Alder[6], ' år med en gjennomsnittsalder på ',
                            Alder[4], ' år.')} else {''}
 @
@@ -245,7 +244,7 @@ xtable::xtable(TabAlder,
 
 <<'AlderKjonn', results='asis'>>=
 dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder',
-                              valgtRHF= valgtRHF, dodInt=as.numeric(input$dodInt),
+                              valgtRHF= valgtRHF,
                               outfile = 'AlderKjonn.pdf')
 @
 
@@ -263,16 +262,16 @@ dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder',
 \begin{frame}[fragile] {Risikofaktorer}
 
 <<'Risikofaktorer', results='asis'>>=
-if (AntBekr>2) {
+if (dim(RegData)[1]>2) {
   txtRisiko <- ''
-    TabRisiko <- RisikofaktorerTab(RegData=RegData[which(RegData$Korona=='B'), ])$Tab
+    TabRisiko <- RisikofaktorerTab(RegData=RegData)$Tab
     xtable::xtable(TabRisiko,
                    digits=0,
                    align = c('l',rep('r',ncol(TabRisiko))),
                    caption='Hyppighet av risikofaktorer på rapporteringstidspunktet.
                    Pasienter kan ha mer enn èn risikofaktor.')
 } else {
-  txtRisiko <- paste0('Det er registrert færre enn 3 bekreftede tilfeller i region ',
+  txtRisiko <- paste0('Det er registrert færre enn 3 tilfeller i region ',
                       valgtRHF, '.')
 }
 
@@ -288,12 +287,15 @@ if (AntBekr>2) {
 
 <<'Ferdigstilte', results='asis'>>=
 #oppsumFerdigeRegTab(RegData=RegData, valgtRHF=valgtRHF)$Tab
-FerdigBekr <- oppsumFerdigeRegTab(RegData=RegData, bekr=1, valgtRHF=valgtRHF)
+FerdigBekr <- oppsumFerdigeRegTab(RegData=RegData, valgtRHF=valgtRHF)
 xtable::xtable(FerdigBekr$Tab,
                digits=0,
-               align = c('l','r','r','c', 'r','r')
-                , caption=paste0('Ferdigstilte forløp, bekreftede tilfeller (',  FerdigBekr$Ntest,' skjema).
-                 IQR (Inter quartile range) betyr at 50 \\% av oppholdene er i dette intervallet.')
+               align = c('l','r','r','c', 'r','r'),
+               caption = paste0('Verdier på rapporteringstidspunktet.
+               For pasienter overflyttet mellom intensivavdelinger, er samlede verdier talt med
+               (dvs. total liggetid, total respiratortid).
+               IQR (inter quartile range) betyr at 25% av oppholdene er under minste verdi,
+               50% av oppholdene er i intervallet, og 25% av oppholdene er over høyeste verdi.')
                )
  @
 \end{frame}
