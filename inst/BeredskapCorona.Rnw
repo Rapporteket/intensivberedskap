@@ -23,6 +23,10 @@ library(lubridate)
 library(xtable)
 @
 
+% Registeret ønsker nå tre nivåer (jan. 2022). Vi må derfor endre parameter til
+% enhetsNivaa. For å klare oss med to parametre, vil reshID avgjøre hvilket RHF/HF som kjøres.
+% Inngangsparametre, per 9.jan. 2022: reshID=0 og valgtRHF = 'Alle'
+% Inngangsparametre, etter 9.jan. 2022: reshID=0 og enhetsNivaa = 'Alle'/'RHF'/'HF'
 
 <<'hentDataOgTilrettelegg', include=FALSE>>=
 context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
@@ -39,20 +43,39 @@ CoroData <- CoroData[which(CoroData$Diagnosis %in% 100:103), ]
 CoroData$RHF <- as.character(CoroData$RHF)
 RegDataOpph <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 0)
 RegData <- NIRPreprosessBeredsk(RegData=CoroData)
-enhetsNivaa <- 'RHF'
 RegDataAlle <- RegData
 RegDataAlleOpph <- RegDataOpph
-if (valgtRHF!='Alle'){
-  RegData <- subset(RegData, RegData$RHF == valgtRHF)
-  RegDataOpph <- subset(RegDataOpph, RegDataOpph$RHF == valgtRHF)
-  enhetsNivaa <- 'RHF' #Endres til HF når får på plass tekstdeling i kolonnenavn
-  }
-datoStart <- '2020-03-01'
 
-RHFtxt <-ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
-tittelRHF <- paste0('Norsk intensiv- og pandemiregister (NIPaR) \n',
-                   'Automatisk generert rapport - intensivbehandlede pasienter med covid-19. \n',
-               paste0('Registreringer fra ', RHFtxt))
+#Inngangsparametre: (tidl. valgtRHF)
+#enhetsNivaa  #'Alle', 'RHF', HF
+#reshID <- 700720
+
+
+# if (valgtRHF!='Alle'){
+#   RegData <- subset(RegData, RegData$RHF == valgtRHF)
+#   RegDataOpph <- subset(RegDataOpph, RegDataOpph$RHF == valgtRHF)
+#   enhetsNivaa <- 'RHF' #Endres til HF når får på plass tekstdeling i kolonnenavn
+#   }
+
+if (enhetsNivaa != 'Alle'){
+  RegData <- subset(RegData, RegData[ , enhetsNivaa] == RegData[match(reshID, RegData$ReshId), enhetsNivaa])
+  RegDataOpph <- subset(RegDataOpph, RegDataOpph[ , enhetsNivaa] == RegDataOpph[match(reshID, RegDataOpph$ReshId), enhetsNivaa])
+  }
+visningsNivaaLav <- ifelse(enhetsNivaa=='HF', 'sykehus', 'HF')
+
+
+enhet <- switch(enhetsNivaa,   #ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
+                    Alle = 'hele landet',
+                    RHF = RegData$RHF[match(reshID, RegData$ReshId)],
+                    HF = RegData$HF[match(reshID, RegData$ReshId)]
+)
+
+enhetTxt <- ifelse(enhetsNivaa=='RHF',  paste0('Helse ', enhet, ' RHF'), enhet)
+
+tittelEnh <- paste0('Norsk intensiv- og pandemiregister (NIPaR) \n',
+                   'Automatisk generert rapport \n
+                   Intensivbehandlede pasienter med covid-19 \n',
+               paste0('Registreringer fra ', enhetTxt))
 indFerdig <- which(RegData$FormStatus==2)
 antFerdig <- length(indFerdig)
 antSkjema <- dim(RegData)[1]
@@ -64,14 +87,14 @@ AntDode <- sum(RegData$DischargedIntensiveStatus==1)
 # Registreringer i limbo
     AntLimbo <- sum((!(is.na(RegData$DateDischargedIntensive)) & (RegData$FormStatus!=2)))
     RegILimboTxt <- if (AntLimbo>0) {
-      paste0('\\item Det er ', AntLimbo, ' skjema i ', RHFtxt,
+      paste0('\\item Det er ', AntLimbo, ' skjema i ', enhet,
              ' som mangler ferdigstillelse. Dvs. opphold registrert som utskrevet, uten at skjema er ferdigstilt.')} else {''}
 @
 
 \begin{document}
 
 \title[NIPaR Covid-19 på intensiv \\\today] {%\textit{Covid-19data, NIPaR} \\
-\Sexpr{tittelRHF}}
+\Sexpr{tittelEnh}}
 
 \maketitle
 
@@ -84,7 +107,7 @@ AntDode <- sum(RegData$DischargedIntensiveStatus==1)
 Dette er en automatisk generert rapport fra Norsk intensiv- og pandemiregister (NIPaR). Dokumentet inneholder oversikt over intensivbehandlede pasienter med covid-19 i Norge. I denne sammenhengen betyr det at pasienten behandles på et intensiv- eller overvåkningsareal og fyller kriterier for intensivpasienter i NIPaR. Disse pasientene trenger som regel mer oksygentilførsel og pustehjelp enn det man får bare med nesekateter eller annet åpent oksygensystem, som kan brukes mange steder i et sykehus.\\
 Datagrunnlaget er oppdatert med alle registreringer gjort inntil 4 timer før rapporten ble lastet ned.
 
-Rapporten baserer seg på bekreftede tilfeller, det vil si tilfeller der det er påvist smitte med SARS-CoV-2. I dokumentet skilles det ikke på om skjema er ferdigstilt eller ikke, dersom ikke annet er oppgitt.
+Rapporten baserer seg på bekreftede tilfeller, det vil si tilfeller der det er påvist smitte med SARS-CoV-2. I dokumentet skilles det ikke på om skjema er ferdigstilt eller ikke, dersom ikke annet er oppgitt. At et opphold er ferdigstilt vil si at opplysningene er kontrollert og ferdig registrert.
 (Det er \Sexpr{N-antFerdig}
 av de \Sexpr{N} skjemaene som ikke er ferdigstilt.)
 
@@ -95,7 +118,7 @@ Rapporten gir en oversikt over:
 \item Antall pasienter innlagt på intensiv siste 20 dager og totalt hittil i pandemien i hvert regionale helseforetak.
 \item Fordeling av alder og kjønn totalt på rapporteringstidspunktet.
 \item Fordeling av risikofaktorer totalt på rapporteringstidspunktet.
-\item Liggetid på intensiv, tid med pustehjelp, alder og dødelighet på intensiv for intensivopphold som er ferdigstilte. At et opphold er ferdigstilt vil si at opplysningene er kontrollert og ferdig registrert.
+\item Liggetid på intensiv, tid med pustehjelp, alder og dødelighet på intensiv for intensivopphold som er ferdigstilte.
 \end{itemize}
 
 % \begin{itemize}
@@ -106,12 +129,13 @@ Rapporten gir en oversikt over:
 % \Sexpr{RegILimboTxt}
 % \end{itemize}
 
-Rapporten er kjørt for Rolle: (parameter som per nå ikke sendes inn i rapporten)   ; Enhetsnivå:  \Sexpr{ifelse(valgtRHF=='Alle', 'Hele landet', 'RHF')}  ; Enhet: \Sexpr{valgtRHF}
+Rapporten er kjørt for Enhetsnivå:  \Sexpr{ifelse(enhetsNivaa == 'Alle', 'Hele landet', enhetsNivaa)}, Enhet: \Sexpr{enhet}
 
 \end{frame}
 
-\begin{frame}[fragile] {Antall inneliggende og pasienter med pustehjelp}
-Oversikt over antall som ligger i respirator/ECMO på intensiv. (Registreringer uten ut-tid fra intensiv.)
+\begin{frame}[fragile] {Antall inneliggende og med pustehjelp}
+Antall inneliggende pasienter og med pustehjelp på rapporteringstidspunktet. (Registreringer uten ut-tid fra intensiv.)
+
 
 <<'RespiratorECMO', results='asis'>>=
 
@@ -127,22 +151,29 @@ xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
 \end{frame}
 
 
-\begin{frame}[fragile] {Antall inneliggende per HF}
+\begin{frame}[fragile] {Antall inneliggende per \Sexpr{visningsNivaaLav}}
 Antall inneliggende pasienter per helseforetak på rapporteringstidspunktet. (Definisjon på inneliggende: Pasienter hvor ut-tid fra intensiv ikke er registrert.)
 
 <<'InneliggendePrHF', results='asis'>>=
+#Viser inneliggende pr HF eller inneliggende pr sykehus hvis enhetsnivå er HF
+    RegDataDum <- if (enhetsNivaa == 'HF') {RegData} else {RegDataAlle}
 
-inneligg <- is.na(RegDataAlle$DateDischargedIntensive)
-RegHF <- RegDataAlle[inneligg,] %>%
-  dplyr::group_by(RHFut, HFut) %>%
+inneligg <- is.na(RegDataDum$DateDischargedIntensive)
+RegHF <- if (enhetsNivaa == 'HF') {
+  RegDataDum[inneligg,] %>%
+  dplyr::group_by(ShNavnUt) %>%
   dplyr::summarise('Antall pasienter' = n())
+  } else {
+    RegDataDum[inneligg,] %>%
+      dplyr::group_by(RHFut, HFut) %>%
+      dplyr::summarise('Antall pasienter' = n())}
 
 colnames(RegHF) <- gsub('ut', '', colnames(RegHF))
 Totalt <- c('', 'Totalt', sum(RegHF$`Antall pasienter`))
 #RegHF <- rbind(as.data.frame(RegHF), Totalt)
-print(xtable::xtable(rbind(as.data.frame(RegHF), Totalt), row.names=FALSE, digits=0,
-                     caption='Antall inneliggende intensivpasienter i hvert helseforetak'),
-      include.rownames = FALSE)
+print(xtable::xtable(rbind(as.data.frame(RegHF), Totalt), digits=0,
+                     caption = paste0('Antall inneliggende intensivpasienter i hver enhet') )
+                     ,include.rownames = FALSE)
 
 @
 \end{frame}
@@ -154,10 +185,14 @@ print(xtable::xtable(rbind(as.data.frame(RegHF), Totalt), row.names=FALSE, digit
 
 <<'TabTot', results='asis'>>=
   TidsVar <- 'Dag'
-  RegDataAlleOpph$EnhetsNivaaVar <- as.factor(RegDataAlleOpph[ ,enhetsNivaa])
+EnhetsNivaaVar <- switch(enhetsNivaa,
+                         Alle = 'RHF',
+                         RHF = 'HF',
+                         HF = 'ShNavn')
+  RegDataAlleOpph$EnhetsNivaaVar <- as.factor(RegDataAlleOpph[ ,EnhetsNivaaVar])
 
-if (valgtRHF=='Alle'){
-TabTidEnh <- ftable(RegDataAlleOpph[ , c(TidsVar, enhetsNivaa)], #, 'Korona'
+if (enhetsNivaa=='Alle'){
+TabTidEnh <- ftable(RegDataAlleOpph[ , c(TidsVar, 'RHF')], #, 'Korona'
                     row.vars =TidsVar)
 navnEnh <- levels(RegDataAlleOpph$EnhetsNivaaVar) #unique(RegData$EnhetsNivaaVar)
 TabTidEnh <- as.matrix(TabTidEnh)
@@ -178,10 +213,11 @@ AntRader <- dim(TabTidEnh)[1]
 # 		sanitize.rownames.function = identity)
 } else {
   RegDataAlleOpph$TidsVar <- as.factor(RegDataAlleOpph[,TidsVar])
+
   TabTidEnh <- cbind(
-    table(RegDataAlleOpph[RegDataAlleOpph$RHF==valgtRHF, 'TidsVar']), #c('TidsVar', 'Korona')
+    table(RegDataAlleOpph[RegDataAlleOpph$EnhetsNivaaVar==enhet, 'TidsVar']), #c('TidsVar', 'Korona')
     'Hele landet' = table(RegDataAlleOpph$TidsVar))
-  colnames(TabTidEnh) <- c(valgtRHF, 'Hele landet')
+  colnames(TabTidEnh) <- c(enhet, 'Hele landet')
   TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN=sum, quiet=TRUE)
   AntRader <- dim(TabTidEnh)[1]
   xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
@@ -236,7 +272,7 @@ xtable::xtable(TabAlder,
 
 <<'AlderKjonn', results='asis'>>=
 dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder',
-                              valgtRHF= valgtRHF, bekr = 1,
+                              #valgtRHF= valgtRHF, bekr = 1,
                               outfile = 'AlderKjonn.pdf')
 @
 

@@ -7,8 +7,11 @@ library(intensivberedskap)
 # CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                        stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 #CoroData <- NIRberedskDataSQL()
-valgtRHF <- 'Alle'
-valgtRHF <- as.character(NIRPreprosessBeredsk(NIRberedskDataSQL())$RHF[3])
+# valgtRHF <- 'Alle'
+# valgtRHF <- as.character(NIRPreprosessBeredsk(NIRberedskDataSQL())$RHF[3])
+# 9.jan. 2022: Endrer til parametre reshID og enhetsNivaa
+reshID <- 700720
+enhetsNivaa <- 'RHF'
 #setwd('C:/ResultattjenesteGIT/intensivberedskap/')
 #knit('C:/ResultattjenesteGIT/intensivberedskap/inst/BeredskapCorona.Rnw', encoding = 'UTF-8')
 tools::texi2pdf(file='BeredskapCorona.tex')

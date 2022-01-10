@@ -112,10 +112,11 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
 
   TabHjelp <- rbind(
     'På intensiv nå' = c(AntPaaIntNaa,'', LiggetidNaaGjsn),
-    'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn),
+
     'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaaGjsn),
-    'Pustehjelp på tett maske' = c(AntNonInvNaa*(c(1, 100/AntPaaIntNaa)), ''),
-    'Invasiv respiratorstøtte' = c(AntInvNaa*(c(1, 100/AntPaaIntNaa)), '')
+    '...Pustehjelp på tett maske' = c(AntNonInvNaa*(c(1, 100/AntPaaIntNaa)), ''),
+    '...Invasiv respiratorstøtte' = c(AntInvNaa*(c(1, 100/AntPaaIntNaa)), ''),
+    'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn)
   )
   colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn.)')
   TabHjelp[2:5,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[2:5,'Andel'])),'%')
