@@ -11,7 +11,7 @@ library(intensivberedskap)
 # valgtRHF <- as.character(NIRPreprosessBeredsk(NIRberedskDataSQL())$RHF[3])
 # 9.jan. 2022: Endrer til parametre reshID og enhetsNivaa
 reshID <- 700720
-enhetsNivaa <- 'RHF'
+enhetsNivaa <- 'HF'
 #setwd('C:/ResultattjenesteGIT/intensivberedskap/')
 #knit('C:/ResultattjenesteGIT/intensivberedskap/inst/BeredskapCorona.Rnw', encoding = 'UTF-8')
 tools::texi2pdf(file='BeredskapCorona.tex')

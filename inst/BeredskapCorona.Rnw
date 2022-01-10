@@ -41,28 +41,25 @@ paaServer <- context %in% c("DEV", "TEST", "QA", "PRODUCTION")
 #Bekreftede tilfeller:
 CoroData <- CoroData[which(CoroData$Diagnosis %in% 100:103), ]
 CoroData$RHF <- as.character(CoroData$RHF)
-RegDataOpph <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 0)
-RegData <- NIRPreprosessBeredsk(RegData=CoroData)
-RegDataAlle <- RegData
-RegDataAlleOpph <- RegDataOpph
+RegDataAlle <- NIRPreprosessBeredsk(RegData=CoroData)
+RegDataAlleOpph <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 0)
 
-#Inngangsparametre: (tidl. valgtRHF)
+TidsVar <- 'Dag'
+RegDataAlleOpph$TidsVar <- as.factor(RegDataAlleOpph[,TidsVar])
+
+
+if (enhetsNivaa != 'Alle'){ #Alle, RHF, HF
+  RegData <- subset(RegDataAlle, RegDataAlle[ , enhetsNivaa] == RegDataAlle[match(reshID, RegDataAlle$ReshId), enhetsNivaa])
+  RegDataOpph <- subset(RegDataAlleOpph,
+                        RegDataAlleOpph[ , enhetsNivaa] == RegDataAlleOpph[match(reshID, RegDataAlleOpph$ReshId), enhetsNivaa])
+} else {
+    RegData <- RegDataAlle
+    RegDataOpph <- RegDataAlleOpph
+  }
+
+#Inngangsparametre: (tidl. kun valgtRHF = 'Alle'/ett RHF)
 #enhetsNivaa  #'Alle', 'RHF', HF
 #reshID <- 700720
-
-
-# if (valgtRHF!='Alle'){
-#   RegData <- subset(RegData, RegData$RHF == valgtRHF)
-#   RegDataOpph <- subset(RegDataOpph, RegDataOpph$RHF == valgtRHF)
-#   enhetsNivaa <- 'RHF' #Endres til HF når får på plass tekstdeling i kolonnenavn
-#   }
-
-if (enhetsNivaa != 'Alle'){
-  RegData <- subset(RegData, RegData[ , enhetsNivaa] == RegData[match(reshID, RegData$ReshId), enhetsNivaa])
-  RegDataOpph <- subset(RegDataOpph, RegDataOpph[ , enhetsNivaa] == RegDataOpph[match(reshID, RegDataOpph$ReshId), enhetsNivaa])
-  }
-visningsNivaaLav <- ifelse(enhetsNivaa=='HF', 'sykehus', 'HF')
-
 
 enhet <- switch(enhetsNivaa,   #ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
                     Alle = 'hele landet',
@@ -158,22 +155,23 @@ Antall inneliggende pasienter per helseforetak på rapporteringstidspunktet. (De
 #Viser inneliggende pr HF eller inneliggende pr sykehus hvis enhetsnivå er HF
     RegDataDum <- if (enhetsNivaa == 'HF') {RegData} else {RegDataAlle}
 
-inneligg <- is.na(RegDataDum$DateDischargedIntensive)
-RegHF <- if (enhetsNivaa == 'HF') {
-  RegDataDum[inneligg,] %>%
-  dplyr::group_by(ShNavnUt) %>%
-  dplyr::summarise('Antall pasienter' = n())
-  } else {
-    RegDataDum[inneligg,] %>%
-      dplyr::group_by(RHFut, HFut) %>%
-      dplyr::summarise('Antall pasienter' = n())}
+    inneligg <- is.na(RegDataDum$DateDischargedIntensive)
+    RegHF <- if (enhetsNivaa == 'HF') {
+      RegDataDum[inneligg,] %>%
+        dplyr::group_by(SykehusUt) %>%
+        dplyr::summarise('Antall pasienter' = n())
+    } else {
+      RegDataDum[inneligg,] %>%
+        dplyr::group_by(RHFut, HFut) %>%
+        dplyr::summarise('Antall pasienter' = n())
+      }
 
-colnames(RegHF) <- gsub('ut', '', colnames(RegHF))
-Totalt <- c('', 'Totalt', sum(RegHF$`Antall pasienter`))
-#RegHF <- rbind(as.data.frame(RegHF), Totalt)
-print(xtable::xtable(rbind(as.data.frame(RegHF), Totalt), digits=0,
-                     caption = paste0('Antall inneliggende intensivpasienter i hver enhet') )
-                     ,include.rownames = FALSE)
+    colnames(RegHF) <- gsub('ut', '', colnames(RegHF))
+    Totalt <- c('', 'Totalt', sum(RegHF$`Antall pasienter`))
+    #RegHF <- rbind(as.data.frame(RegHF), Totalt)
+    print(xtable::xtable(rbind(as.data.frame(RegHF), Totalt), digits=0,
+                         caption = paste0('Antall inneliggende intensivpasienter i hver enhet') )
+          ,include.rownames = FALSE)
 
 @
 \end{frame}
@@ -184,12 +182,11 @@ print(xtable::xtable(rbind(as.data.frame(RegHF), Totalt), digits=0,
 \begin{frame}[fragile] {Antall registrerte opphold per dag}
 
 <<'TabTot', results='asis'>>=
-  TidsVar <- 'Dag'
+    #Vise bare RHF og landet for RHF-nivå som før..? Pga. veldig lange HF-navn
 EnhetsNivaaVar <- switch(enhetsNivaa,
                          Alle = 'RHF',
                          RHF = 'HF',
-                         HF = 'ShNavn')
-  RegDataAlleOpph$EnhetsNivaaVar <- as.factor(RegDataAlleOpph[ ,EnhetsNivaaVar])
+                         HF = 'Sykehus')
 
 if (enhetsNivaa=='Alle'){
 TabTidEnh <- ftable(RegDataAlleOpph[ , c(TidsVar, 'RHF')], #, 'Korona'
@@ -200,7 +197,6 @@ TabTidEnh <- as.matrix(TabTidEnh)
 TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
 # add.to.row <- list(pos = list(-1), command = NULL)
 # add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
-
 AntRader <- dim(TabTidEnh)[1]
 
 #print(
@@ -212,12 +208,21 @@ AntRader <- dim(TabTidEnh)[1]
 #  		add.to.row = add.to.row,
 # 		sanitize.rownames.function = identity)
 } else {
-  RegDataAlleOpph$TidsVar <- as.factor(RegDataAlleOpph[,TidsVar])
+
+  RegDataOpph$EnhetsNivaaVar <- as.factor(RegDataOpph[ ,EnhetsNivaaVar]) #RegDataOpph = RegDataOpphAlle for enhetsnivå 'Alle'
+
+    TabEnh <- table(RegDataOpph[RegDataOpph$EnhetsNivaaVar == enhet,
+                                c('TidsVar', 'EnhetsNivaaVar')]) #c('TidsVar', 'Korona')
+  antEnh <- dim(TabEnh)[2]
+    TabEnh <- addmargins(TabEnh, margin=2, sum)
+
+  #colnames(TabTidEnh) <- c(enhet, 'Hele landet')
+  colnames(TabEnh) <- c(colnames(TabEnh)[1:antEnh], enhet)
 
   TabTidEnh <- cbind(
-    table(RegDataAlleOpph[RegDataAlleOpph$EnhetsNivaaVar==enhet, 'TidsVar']), #c('TidsVar', 'Korona')
-    'Hele landet' = table(RegDataAlleOpph$TidsVar))
-  colnames(TabTidEnh) <- c(enhet, 'Hele landet')
+                  TabEnh,
+                  'Hele landet' = table(RegDataAlleOpph$TidsVar))
+
   TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN=sum, quiet=TRUE)
   AntRader <- dim(TabTidEnh)[1]
   xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,

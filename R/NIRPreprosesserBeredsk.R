@@ -195,6 +195,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    HF = first(HF, order_by = FormDate),
                    ShNavnUt = last(HelseenhetKortnavn, order_by = FormDate),
                    ShNavn = first(HelseenhetKortnavn, order_by = FormDate),
+                   SykehusUt = last(Sykehus, order_by = FormDate),
+                   Sykehus = first(Sykehus, order_by = FormDate),
                    FormDateUt = last(FormDate, order_by = FormDate),
                    FormDate = first(FormDate, order_by = FormDate),
                    RespTid = ifelse(sum(RespTid, na.rm = T) > 0, sum(RespTid, na.rm = T), NA),
