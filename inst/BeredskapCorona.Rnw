@@ -297,9 +297,9 @@ dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder',
 \begin{figure}[ht]
 
 %\scalebox{0.5}
-\centering \includegraphics[scale=0.2]{AlderKjonn.pdf}
-\centering \includegraphics[scale=0.2]{AlderKjonn2mnd.pdf}
-\caption{Fordeling av kjønn i ulike aldersgrupper på rapporteringstidspunktet.}
+\centering \includegraphics[scale=0.25]{AlderKjonn.pdf}
+\centering \includegraphics[scale=0.25]{AlderKjonn2mnd.pdf}
+\caption{Fordeling av kjønn i ulike aldersgrupper på rapporteringstidspunktet, for hele tidsperioden og siste 2 måneder.}
 \end{figure}
 
 \end{frame}
@@ -312,8 +312,6 @@ dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder',
 <<'Risikofaktorer', results='asis'>>=
 if (dim(RegData)[1]>2) {
   txtRisiko <- ''
-
-
     if (enhetsNivaa == 'HF') {
       TabRisiko <- RisikofaktorerTab(RegData=RegDataAlle[RegDataAlle$RHF==egetRHF,])$Tab
       colnames(TabRisiko) <- paste0(c('Antall', 'Andel'), ', ', egetRHF)
@@ -337,12 +335,49 @@ if (dim(RegData)[1]>2) {
 } else {
   txtRisiko <- paste0('Det er registrert færre enn 3 tilfeller i ', enhetTxt, '.')
 }
-
 @
 
 \Sexpr{txtRisiko}
+
 \end{frame}
 
+
+\begin{frame}[fragile] {Risikofaktorer siste 2 måneder}
+
+<<'Risikofaktorer2mnd', results='asis'>>=
+RegDataAlle2m <- RegDataAlle[which(RegDataAlle$InnDato >= as.Date(Sys.Date()-60)), ]
+RegData2m <- RegData[which(RegData$InnDato >= as.Date(Sys.Date()-60)), ]
+
+if (dim(RegData)[1]>2) {
+  txtRisiko <- ''
+    if (enhetsNivaa == 'HF') {
+      TabRisiko <- RisikofaktorerTab(RegData=RegDataAlle2m[RegDataAlle2m$RHF==egetRHF,])$Tab
+      colnames(TabRisiko) <- paste0(c('Antall', 'Andel'), ', ', egetRHF)
+    } else {
+      TabRisiko <- RisikofaktorerTab(RegData=RegDataAlle2m)$Tab
+    }
+
+  if (enhetsNivaa %in% c('RHF', 'HF')) {
+     TabRisikoEget <- RisikofaktorerTab(RegData=RegData2m)$Tab
+     colnames(TabRisikoEget) <- paste0(c('Antall', 'Andel'), ', eget', enhetsNivaa)
+     TabRisiko <- cbind(
+       TabRisikoEget,
+       TabRisiko
+     )
+  }
+    xtable::xtable(TabRisiko,
+                   digits=0,
+                   align = c('l',rep('r',ncol(TabRisiko))),
+                   caption='Hyppighet av risikofaktorer på rapporteringstidspunktet, siste to måneder.
+                   Pasienter kan ha mer enn èn risikofaktor.')
+} else {
+  txtRisiko <- paste0('Det er registrert færre enn 3 tilfeller i ', enhetTxt, '.')
+}
+@
+
+\Sexpr{txtRisiko}
+
+\end{frame}
 
 
 \begin{frame}[fragile] {Resultater for ferdigstilte opphold, \Sexpr{enhet}}
