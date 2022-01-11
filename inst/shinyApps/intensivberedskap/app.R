@@ -730,7 +730,7 @@ server <- function(input, output, session) {
                          dodInt=as.numeric(input$dodInt),
                          resp=as.numeric(input$resp),
                          erMann=as.numeric(input$erMann),
-                         bekr=as.numeric(input$bekr),
+                         #bekr=as.numeric(input$bekr),
                          skjemastatus=as.numeric(input$skjemastatus)
     )
     # output$tabAlder<- renderTable({xtable::xtable(TabAlder$Tab)}, rownames = T, digits=0, spacing="xs")
