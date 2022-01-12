@@ -3,25 +3,26 @@
 #'
 #' @param rnwFil Navn på fila som skal kjøres. Angis uten ending (\emph{dvs uten  ".Rnw"})
 #' @param reshID Aktuell reshid
+#' @param enhetsNivaa Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'
 #' @param filnavn dummy
 #' @param datoFra dato
-#' @param Rpakke hvilken R-pakke fila som lager rapporten ligger i
 #' @param parametre Liste med valgfrie parametre, avhengig av type rapport
 #'
 #' @return Full path of file produced
 #' @export
 
-henteSamlerapporterBered <- function(filnavn, rnwFil, reshID=0, Rpakke='intensivberedskap',
-                                     valgtRHF = 'Alle', #rolle='LU',
+henteSamlerapporterBered <- function(filnavn, rnwFil, #Rpakke='intensivberedskap', Flyttet 12.jan 2022
+                                     valgtRHF = 'Alle', #Brukes ikke fra ca 12.jan. 2022
+                                     reshID=0,
+                                     enhetsNivaa = 'Alle',
                                 datoFra=Sys.Date()-180, datoTil=Sys.Date()) {
-  #valgtRHF <- ifelse(rolle=='SC', valgtRHF=valgtRHF, }
+
+  reshID <- as.numeric(reshID)
   tmpFile <- paste0('tmp',rnwFil)
-  src <- normalizePath(system.file(rnwFil, package=Rpakke))
+  src <- normalizePath(system.file(rnwFil, package='intensivberedskap'))
   # gå til tempdir. Har ikke skriverettigheter i arbeidskatalog
-  #owd <-
   setwd(tempdir())
   file.copy(src, tmpFile, overwrite = TRUE)
-
   knitr::knit2pdf(tmpFile)
 
   gc() #Opprydning gc-"garbage collection"
@@ -36,21 +37,20 @@ henteSamlerapporterBered <- function(filnavn, rnwFil, reshID=0, Rpakke='intensiv
 #'
 #' @param rnwFil Navn på fila som skal kjøres. Angis MED filending (\emph{dvs "filnavn.Rnw"})
 #' @param reshID Aktuell reshid
+#' @param enhetsNivaa Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'
 #' @param datoFra dato
 #' @param Rpakke hvilken R-pakke fila som lager rapporten ligger i
 #' @param parametre Liste med valgfrie parametre, avhengig av type rapport
 #'
 #' @return Full path of file produced
 #' @export
-abonnementBeredsk <- function(rnwFil, brukernavn='beredskap', reshID=0,
-                              valgtRHF = 'Alle',
-                       #datoFra=Sys.Date()-180, datoTil=Sys.Date(),
+abonnementBeredsk <- function(rnwFil, brukernavn='beredskap',
+                              valgtRHF = 'Alle', #Brukes ikke fra ca 12.jan. 2022
+                              reshID=0,
+                              enhetsNivaa = 'Alle',
+                              #datoFra=Sys.Date()-180, datoTil=Sys.Date(),
                        Rpakke='intensivberedskap') {
 
-  #function(baseName, reshId, registryName,author, hospitalName, type) {
-#Parametre ligger ikke lenger i liste...
-#  valgtRHF <- valgtRHF[[1]]
-#  reshID <- reshID[[1]]
   # rapbase::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
   #                   reshId = reshID,
   #                   msg = "starter Abonnement: Corona-rapport")
@@ -120,7 +120,7 @@ return(UtData <- BeredIntRaa)
 
 #' Funksjon som henter filer som skal sendes til FHI. To filer fra intensivopphold
 #' og to filer fra sykehusopphold. Dvs. Ei fil for hvert opphold og ei aggregert til
-#' person, for hvert register
+#' person, for hvert register. IKKE i bruk på beredskap. Filer sendes fra Pandemi...
 #'
 #' @param zipFilNavn Navn på fila som skal kjøres. DataFHIPanBered, Testfil
 #' @param brukernavn Innlogget brukernavn

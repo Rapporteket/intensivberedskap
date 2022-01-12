@@ -7,9 +7,9 @@
 henteSamlerapporterBered(
   filnavn,
   rnwFil,
-  reshID = 0,
-  Rpakke = "intensivberedskap",
   valgtRHF = "Alle",
+  reshID = 0,
+  enhetsNivaa = "Alle",
   datoFra = Sys.Date() - 180,
   datoTil = Sys.Date()
 )
@@ -21,7 +21,7 @@ henteSamlerapporterBered(
 
 \item{reshID}{Aktuell reshid}
 
-\item{Rpakke}{hvilken R-pakke fila som lager rapporten ligger i}
+\item{enhetsNivaa}{Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'}
 
 \item{datoFra}{dato}
 

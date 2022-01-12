@@ -81,8 +81,8 @@ sykehusValg <- unique(CoroData$ReshId)[sykehusNavn$ix]
 sykehusValg <- c(0,sykehusValg)
 names(sykehusValg) <- c('Ikke valgt',sykehusNavn$x)
 #updateTextInput(session, inputId, label = NULL, value = NULL). Hvis input skal endres som flge av et annet input.
-enhetsNivaa <- c('RHF', 'HF', 'ShNavn')
-names(enhetsNivaa) <- c('RHF', 'HF', 'Sykehus')
+enhetsNivaa <- c('Alle', 'RHF', 'HF')
+names(enhetsNivaa) <- c('Hele landet', 'RHF', 'HF')
 
 sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
 sesongValg <- sort(unique(InfluData$Sesong)) #sesongValg <- rev(c('2018-19', '2019-20', '2020-21', '2021-22', '20')),
@@ -110,8 +110,11 @@ ui <- tagList(
                                    downloadButton(outputId = 'CoroRapp.pdf', label='Last ned covid-19rapport', class = "butt"),
                                    tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                                    br(),
+                                   selectInput(inputId = "valgtNivaa", label="Velg enhetsnivå for rapporten",
+                                               choices = enhetsNivaa
+                                   ),
                                    br(),
-                                   h3('Gjør filtreringer/utvalg:'),
+                                   h4('Gjør filtreringer/utvalg i tabeller og figurer:'),
                                    #br(),
 
                                    selectInput(inputId = "valgtRHF", label="Velg RHF",
@@ -392,9 +395,12 @@ tabPanel(title = 'Influensa',
                                                       Ukentlig="Ukentlig-week",
                                                       Daglig="Daglig-DSTday"),
                                                  selected = "Ukentlig-week"),
-                                     selectInput(inputId = "valgtRHFabb", label="Velg RHF",
-                                                 choices = rhfNavn
-                                     ),
+                                     selectInput(inputId = "valgtNivaaAbb", label="Velg enhetsnivå",
+                                                              choices = enhetsNivaa
+                                                  ),
+                                     # selectInput(inputId = "valgtRHFabb", label="Velg RHF",
+                                     #             choices = rhfNavn
+                                     # ),
                                      actionButton("subscribe", "Bestill!")
                         ),
                         mainPanel(
@@ -513,8 +519,8 @@ server <- function(input, output, session) {
     egetShNavn <- as.character(CoroData$ShNavn[indReshEgen])
     egetRHF <- as.character(CoroData$RHF[indReshEgen])
     egetHF <- as.character(CoroData$HF[indReshEgen])
-    egenLokalitet <- c(0, 2, 4, 7)
-    names(egenLokalitet) <- c('hele landet', egetShNavn, egetRHF)
+    # egenLokalitet <- c(0, 2, 4, 7)
+    # names(egenLokalitet) <- c('hele landet', egetShNavn, egetHF, egetRHF)
   } else {
     egetRHF <- 'Ukjent'
   }
@@ -537,12 +543,13 @@ server <- function(input, output, session) {
      #print(brukernavn)
   })
   if (rolle != 'SC') {
-    updateSelectInput(session, "valgtRHF",
-                      choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
+    updateSelectInput(session, "valgtRHF",        #Skal utgå...
+                       choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
                                                         egetRHF))))
-    #CoroData$RHF[match(reshID, CoroData$ReshId)]))
-    updateSelectInput(session, "valgtRHFabb",
-                      choices = egetRHF) #unique(c('Alle', egetRHF)))
+    updateSelectInput(session, "valgtNivaaAbb",
+                      choices = 'HF')
+    #UTgår, jan22: updateSelectInput(session, "valgtRHFabb",
+    #                   choices = egetRHF)
     #CoroData$RHF[match(reshID, CoroData$ReshId)]))
   }
 
@@ -569,14 +576,16 @@ server <- function(input, output, session) {
 
   #-------- Laste ned Samlerapport------------
   observe({
-    valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHF))
+    #valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHF))
+    #valgtNivaa <- ifelse(rolle == 'LU', 'HF', as.character(input$valgtNivaa))
+
     output$CoroRapp.pdf <- downloadHandler(
       filename = function(){
         paste0('CoronaRapport', Sys.time(), '.pdf')},
       content = function(file){
         henteSamlerapporterBered(file, rnwFil="BeredskapCorona.Rnw",
-                                 #rolle = rolle,
-                                 valgtRHF = valgtRHF, #as.character(input$valgtRHF),
+                                 enhetsNivaa = as.character(input$valgtNivaa),
+                                 #valgtRHF = valgtRHF,
                                  reshID = reshID) #Vurder å ta med tidsinndeling eller startdato
       }
     )
@@ -725,8 +734,10 @@ server <- function(input, output, session) {
     output$utvalgRisiko <- renderUI({h5(HTML(paste0(RisikoTab$utvalgTxt, '<br />'))) #tagList()
     })
 
-    TabAlder <- TabAlder(RegData=CoroData,
+    TabAlder <- TabAlderGml(RegData=CoroData,
                          valgtRHF= input$valgtRHF, #egetRHF, #
+                         #reshID = reshID,
+                         #enhetsNivaa = input$enhetsNivaa,
                          dodInt=as.numeric(input$dodInt),
                          resp=as.numeric(input$resp),
                          erMann=as.numeric(input$erMann),
@@ -810,18 +821,14 @@ server <- function(input, output, session) {
       synopsis <- "NIR-Beredskap/Rapporteket: Influensarapport"
       rnwFil <- "NIRinfluensa.Rnw" #Navn på fila
     }
-    # fun <- "abonnementKorona"
-    # paramNames <- c('rnwFil', 'brukernavn', "reshID") #, "valgtEnhet")
-    # paramValues <- c(rnwFil, brukernavn, reshID) #, as.character(input$valgtEnhetabb))
-
 
     if (input$subscriptionRep == "Koronarapport") {
       synopsis <- "NIR-Beredskap/Rapporteket: Coronarapport"
       rnwFil <- "BeredskapCorona.Rnw" #Navn på fila
     }
     fun <- "abonnementBeredsk"
-    paramNames <- c('rnwFil', 'brukernavn', "reshID", "valgtRHF")
-    paramValues <- c(rnwFil, brukernavn, reshID, as.character(input$valgtRHFabb)) #valgtRHF) #
+    paramNames <- c('rnwFil', 'brukernavn', "reshID", 'enhetsNivaa') #"valgtRHF")
+    paramValues <- c(rnwFil, brukernavn, reshID, as.character(input$valgtRHFabb), as.character(input$valgtNivaaAbb)) #valgtRHF) #
 
     # test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
     #                       reshID=105460, valgtRHF = as.character(input$valgtRHFabb))

@@ -10,8 +10,9 @@ has the effect of providing the parameters as class
 abonnementBeredsk(
   rnwFil,
   brukernavn = "beredskap",
-  reshID = 0,
   valgtRHF = "Alle",
+  reshID = 0,
+  enhetsNivaa = "Alle",
   Rpakke = "intensivberedskap"
 )
 }
@@ -19,6 +20,8 @@ abonnementBeredsk(
 \item{rnwFil}{Navn på fila som skal kjøres. Angis MED filending (\emph{dvs "filnavn.Rnw"})}
 
 \item{reshID}{Aktuell reshid}
+
+\item{enhetsNivaa}{Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'}
 
 \item{Rpakke}{hvilken R-pakke fila som lager rapporten ligger i}
 
