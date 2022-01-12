@@ -167,15 +167,17 @@ på rapporteringstidspunktet.
         dplyr::summarise(.groups='rowwise',
           'Antall pasienter' = n())
       colnames(RegHF) <- c('Sykehus', 'Antall pasienter')
+      Totalt <- c('Totalt', sum(RegHF$`Antall pasienter`))
     } else {
       RegHF <- RegDataDum[inneligg,] %>%
         dplyr::group_by(RHFut, HFut) %>%
         dplyr::summarise(
           'Antall pasienter' = n())
+      Totalt <- c('', 'Totalt', sum(RegHF$`Antall pasienter`))
       }
 
     colnames(RegHF) <- gsub('ut', '', colnames(RegHF))
-    Totalt <- c('', 'Totalt', sum(RegHF$`Antall pasienter`))
+
     #RegHF <- rbind(as.data.frame(RegHF), Totalt)
     print(xtable::xtable(rbind(as.data.frame(RegHF), Totalt), digits=0,
                          caption = paste0('Antall inneliggende intensivpasienter i hver enhet') )
@@ -249,6 +251,8 @@ AntRader <- dim(TabTidEnh)[1]
         dplyr::group_by(SykehusUt) %>%
         dplyr::summarise('Antall pasienter' = n())
       colnames(RegHF) <- c('Sykehus', 'Antall pasienter')
+      RegHF <- rbind(as.data.frame(RegHF),
+                     c('Totalt', sum(RegHF$`Antall pasienter`)))
     } else {
       RegHF <- RegDataAlle %>%
         dplyr::group_by(RHFut, HFut) %>%
