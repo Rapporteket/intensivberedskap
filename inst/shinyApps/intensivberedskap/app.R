@@ -82,7 +82,7 @@ sykehusValg <- c(0,sykehusValg)
 names(sykehusValg) <- c('Ikke valgt',sykehusNavn$x)
 #updateTextInput(session, inputId, label = NULL, value = NULL). Hvis input skal endres som flge av et annet input.
 enhetsNivaa <- c('Alle', 'RHF', 'HF')
-names(enhetsNivaa) <- c('Hele landet', 'RHF', 'HF')
+names(enhetsNivaa) <- c('Hele landet', 'eget RHF', 'egetHF')
 
 sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
 sesongValg <- sort(unique(InfluData$Sesong)) #sesongValg <- rev(c('2018-19', '2019-20', '2020-21', '2021-22', '20')),

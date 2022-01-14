@@ -30,33 +30,38 @@ library(xtable)
 % Inngangsparametre, etter 9.jan. 2022: reshID=0 og enhetsNivaa = 'Alle'/'RHF'/'HF'
 
 <<'hentDataOgTilrettelegg', include=FALSE>>=
-context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
-paaServer <- context %in% c("DEV", "TEST", "QA", "PRODUCTION")
-  if (paaServer) {
-    CoroData <- NIRberedskDataSQL()
-    } #hente data
-@
-
-<<'tilrettelegg', include=FALSE>>=
+CoroData <- NIRberedskDataSQL()
 #NB: Har benyttet FormDate benyttes som hoveddato. Gjelder også influensa
 #Bekreftede tilfeller:
-CoroData <- CoroData[which(CoroData$Diagnosis %in% 100:103), ]
+indBekr <- which(CoroData$Diagnosis %in% 100:103)
+antUbekr <- length(unique(CoroData$PatientInRegistryGuid[-indBekr]))
+#CoroData <- CoroData[which(CoroData$Diagnosis %in% 100:103), ]
 CoroData$RHF <- as.character(CoroData$RHF)
 RegDataAlle <- NIRPreprosessBeredsk(RegData=CoroData)
 RegDataAlleOpph <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 0)
+@
+
+<<'tilrettelegg', include=FALSE>>=
 
 TidsVar <- 'Dag'
 RegDataAlleOpph$TidsVar <- as.factor(RegDataAlleOpph[,TidsVar])
 
 
 if (enhetsNivaa != 'Alle'){ #Alle, RHF, HF
-  RegData <- subset(RegDataAlle, RegDataAlle[ , enhetsNivaa] == RegDataAlle[match(reshID, RegDataAlle$ReshId), enhetsNivaa])
+  enhetsNivaaUt <- paste0(enhetsNivaa, 'ut')
+  RegData <- subset(RegDataAlle, RegDataAlle[ , enhetsNivaaUt] ==
+                      RegDataAlle[match(reshID, RegDataAlle$ReshId), enhetsNivaaUt])
   RegDataOpph <- subset(RegDataAlleOpph,
                         RegDataAlleOpph[ , enhetsNivaa] == RegDataAlleOpph[match(reshID, RegDataAlleOpph$ReshId), enhetsNivaa])
 } else {
     RegData <- RegDataAlle
     RegDataOpph <- RegDataAlleOpph
-  }
+}
+
+test <- RegDataOpph %>%
+         dplyr::group_by(RHF, HF, Sykehus) %>%
+        dplyr::summarise(.groups='rowwise',
+          'Antall pasienter' = n())
 
 #Inngangsparametre: (tidl. kun valgtRHF = 'Alle'/ett RHF)
 #enhetsNivaa  #'Alle', 'RHF', HF
@@ -64,8 +69,8 @@ if (enhetsNivaa != 'Alle'){ #Alle, RHF, HF
 reshID <- format(reshID, scientific = FALSE)
 advarsel <- ifelse(reshID %in% c(0, unique(RegDataAlle$ReshId)), '',
                    'NB; Ingen registreringer på angitt reshID')
-egetRHF <- RegData$RHF[match(reshID, RegData$ReshId)]
-egetHF <- RegData$HF[match(reshID, RegData$ReshId)]
+egetRHF <- RegDataAlleOpph$RHF[match(reshID, RegDataAlleOpph$ReshId)]
+egetHF <- RegDataAlleOpph$HF[match(reshID, RegDataAlleOpph$ReshId)]
 
 enhet <- switch(enhetsNivaa,   #ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
                     Alle = 'hele landet',
@@ -84,8 +89,7 @@ tittelEnh <- paste0('Norsk intensiv- og pandemiregister (NIPaR) \n',
                advarsel)
 indFerdig <- which(RegData$FormStatus==2)
 antFerdig <- length(indFerdig)
-antSkjema <- dim(RegData)[1]
-N <- antSkjema
+N <- dim(RegData)[1]
 AntDode <- sum(RegData$DischargedIntensiveStatus==1)
 #DodBekr <- sum(RegData[which(RegData$Bekreftet==1), ]$DischargedIntensiveStatus==1)
 #AntBekr <- sum(RegData$Bekreftet==1)
@@ -113,7 +117,7 @@ AntDode <- sum(RegData$DischargedIntensiveStatus==1)
 Dette er en automatisk generert rapport fra Norsk intensiv- og pandemiregister (NIPaR). Dokumentet inneholder oversikt over intensivbehandlede pasienter med covid-19 i Norge. I denne sammenhengen betyr det at pasienten behandles på et intensiv- eller overvåkningsareal og fyller kriterier for intensivpasienter i NIPaR. Disse pasientene trenger som regel mer oksygentilførsel og pustehjelp enn det man får bare med nesekateter eller annet åpent oksygensystem, som kan brukes mange steder i et sykehus.\\
 Datagrunnlaget er oppdatert med alle registreringer gjort inntil 4 timer før rapporten ble lastet ned.
 
-Rapporten baserer seg på bekreftede tilfeller, det vil si tilfeller der det er påvist smitte med SARS-CoV-2. I dokumentet skilles det ikke på om skjema er ferdigstilt eller ikke, dersom ikke annet er oppgitt. At et opphold er ferdigstilt vil si at opplysningene er kontrollert og ferdig registrert.
+Rapporten baserer seg på alle registrerte tilfeller, hvorav \Sexpr{antUbekr} ikke har påvist smitte med SARS-CoV-2. I dokumentet skilles det ikke på om skjema er ferdigstilt eller ikke, dersom ikke annet er oppgitt. At et opphold er ferdigstilt vil si at opplysningene er kontrollert og ferdig registrert.
 (Det er \Sexpr{N-antFerdig}
 av de \Sexpr{N} skjemaene som ikke er ferdigstilt.) \\
 
@@ -158,18 +162,18 @@ på rapporteringstidspunktet.
 
 <<'InneliggendePrHF', results='asis',warnings=FALSE>>=
 #Viser inneliggende pr HF eller inneliggende pr sykehus hvis enhetsnivå er HF
-    RegDataDum <- if (enhetsNivaa == 'HF') {RegData} else {RegDataAlle}
 
-    inneligg <- is.na(RegDataDum$DateDischargedIntensive)
+
     if (enhetsNivaa == 'HF') {
-      RegHF <- RegDataDum[inneligg,] %>%
+      RegHF <- RegData[inneligg,] %>%
         dplyr::group_by(SykehusUt) %>%
         dplyr::summarise(.groups='rowwise',
           'Antall pasienter' = n())
       colnames(RegHF) <- c('Sykehus', 'Antall pasienter')
       Totalt <- c('Totalt', sum(RegHF$`Antall pasienter`))
     } else {
-      RegHF <- RegDataDum[inneligg,] %>%
+      inneligg <- is.na(RegDataAlle$DateDischargedIntensive)
+      RegHF <- RegDataAlle[inneligg,] %>%
         dplyr::group_by(RHFut, HFut) %>%
         dplyr::summarise(
           'Antall pasienter' = n())
@@ -193,7 +197,7 @@ på rapporteringstidspunktet.
 
 <<'TabTot', results='asis'>>=
     #Vise bare RHF og landet for RHF-nivå som før..? Pga. veldig lange HF-navn
-EnhetsNivaaVar <- switch(enhetsNivaa,
+EnhetsNivaaVarOpph <- switch(enhetsNivaa,
                          Alle = 'RHF',
                          RHF = 'HF',
                          HF = 'Sykehus')
@@ -201,7 +205,7 @@ EnhetsNivaaVar <- switch(enhetsNivaa,
 if (enhetsNivaa=='Alle'){
 TabTidEnh <- ftable(RegDataAlleOpph[ , c(TidsVar, 'RHF')], #, 'Korona'
                     row.vars =TidsVar)
-navnEnh <- levels(RegDataAlleOpph$EnhetsNivaaVar) #unique(RegData$EnhetsNivaaVar)
+navnEnh <- unique(RegDataAlleOpph$EnhetsNivaaVarOpph)
 TabTidEnh <- as.matrix(TabTidEnh)
 
 TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
@@ -219,10 +223,10 @@ AntRader <- dim(TabTidEnh)[1]
 # 		sanitize.rownames.function = identity)
 } else {
 
-  RegDataOpph$EnhetsNivaaVar <- as.factor(RegDataOpph[ ,EnhetsNivaaVar]) #RegDataOpph = RegDataOpphAlle for enhetsnivå 'Alle'
-  TabEnh <-
-      table(RegDataOpph[RegDataOpph$EnhetsNivaaVar == enhet,
-                                c('TidsVar', 'EnhetsNivaaVar')]) #c('TidsVar', 'Korona')
+  RegDataOpph$EnhetsNivaaVarOpph <- as.factor(RegDataOpph[ ,EnhetsNivaaVarOpph]) #RegDataOpph = RegDataOpphAlle for enhetsnivå 'Alle'
+  TabEnh <- table(RegDataOpph[, c('TidsVar', 'EnhetsNivaaVarOpph')])
+      # table(RegDataOpph[RegDataOpph$EnhetsNivaaOpph == enhet,
+      #                           c('TidsVar', 'EnhetsNivaaVarOpph')])
 
   antEnh <- dim(TabEnh)[2]
     TabEnh <- addmargins(TabEnh, margin=2, sum)
@@ -243,7 +247,7 @@ AntRader <- dim(TabTidEnh)[1]
 \end{frame}
 
 
-\begin{frame}[fragile] {Registrerte opphold i hvert \Sexpr{visningsNivaaLav}}
+\begin{frame}[fragile] {Registrerte pasienter i hvert \Sexpr{visningsNivaaLav}}
 <<'OpphPrHF', results='asis'>>=
     #RegDataDum <- if (enhetsNivaa == 'HF') {RegData} else {RegDataAlle}
     if (enhetsNivaa == 'HF') {

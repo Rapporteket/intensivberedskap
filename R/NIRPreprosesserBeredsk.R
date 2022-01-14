@@ -113,7 +113,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    Alder = Alder[1],
                    AgeAdmitted = AgeAdmitted[1],
                    PatientGender = PatientGender[1],
-                   Morsdato = sort(Morsdato)[1],
+                   Morsdato = Morsdato[1], #sort(Morsdato)[1],
                    DischargedIntensiveStatus = sort(DischargedIntensiveStatus, decreasing = T)[1], #max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
                    Overf = max(Overf),
                    Astma  = sum(Astma)>0,

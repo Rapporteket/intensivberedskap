@@ -244,7 +244,7 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
 
     TabRisiko <- rbind(TabRisiko,
                        'Pasienter, totalt' = c(dim(RegData)[1], ''))
-    colnames(TabRisiko) <- c('Antall pasienter', 'Andel pasienter')
+    colnames(TabRisiko) <- c('Antall', 'Andel') #c('Antall pasienter', 'Andel pasienter')
 
   }
   return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))
