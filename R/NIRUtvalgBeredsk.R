@@ -29,7 +29,7 @@ NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, minald=0, 
   if (erMann %in% 0:1){
     vec <- (RegData$erMann == erMann)
     RegData <- subset(RegData, vec)}
-  if (valgtRHF != 'Alle'){RegData <- subset(RegData, RegData$RHF == valgtRHF)}
+  if (valgtRHF != 'Alle'){RegData <- subset(RegData, RegData$RHFut == valgtRHF)}
 
   if(minald>0 | maxald<110) {RegData <- subset(RegData,
                                                RegData$Alder >= minald & RegData$Alder <= maxald)}
