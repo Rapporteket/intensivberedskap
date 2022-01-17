@@ -117,7 +117,9 @@ AntDode <- sum(RegData$DischargedIntensiveStatus==1)
 Dette er en automatisk generert rapport fra Norsk intensiv- og pandemiregister (NIPaR). Dokumentet inneholder oversikt over intensivbehandlede pasienter med covid-19 i Norge. I denne sammenhengen betyr det at pasienten behandles på et intensiv- eller overvåkningsareal og fyller kriterier for intensivpasienter i NIPaR. Disse pasientene trenger som regel mer oksygentilførsel og pustehjelp enn det man får bare med nesekateter eller annet åpent oksygensystem, som kan brukes mange steder i et sykehus.\\
 Datagrunnlaget er oppdatert med alle registreringer gjort inntil 4 timer før rapporten ble lastet ned.
 
-Rapporten baserer seg på alle registrerte tilfeller, hvorav \Sexpr{antUbekr} ikke har påvist smitte med SARS-CoV-2. I dokumentet skilles det ikke på om skjema er ferdigstilt eller ikke, dersom ikke annet er oppgitt. At et opphold er ferdigstilt vil si at opplysningene er kontrollert og ferdig registrert.
+Rapporten baserer seg på alle registrerte tilfeller, hvorav \Sexpr{antUbekr} ikke har påvist smitte med SARS-CoV-2,
+men er registrert på grunnlag av sterk klinisk mistanke. \\
+I dokumentet skilles det ikke på om skjema er ferdigstilt eller ikke, dersom ikke annet er oppgitt. At et opphold er ferdigstilt vil si at opplysningene er kontrollert og ferdig registrert.
 (Det er \Sexpr{N-antFerdig}
 av de \Sexpr{N} skjemaene som ikke er ferdigstilt.) \\
 
@@ -280,7 +282,7 @@ print(
 
 \begin{frame}[fragile] {Aldersfordeling}
 
-<<'VisTabAlder', results='asis'>>=
+<<'AlderInfo', results='asis'>>=
   Alder <- round(summary(RegData$Alder))
 txtAlder <- if (dim(RegData)[1]>2){paste0('Alderen er mellom ',
                            Alder[1], ' og ', Alder[6], ' år med en gjennomsnittsalder på ',
@@ -288,14 +290,14 @@ txtAlder <- if (dim(RegData)[1]>2){paste0('Alderen er mellom ',
 @
 
 \Sexpr{txtAlder}
-
 <<'TabAlder', results='asis'>>=
-TabAlder <- TabAlder(RegData=RegDataAlle, reshID = reshID, enhetsNivaa = enhetsNivaa)$Tab
+TabAlder <- TabAlder(RegData=RegDataAlle, reshID = reshID,
+                     enhetsNivaa = enhetsNivaa, sens=1)$Tab
 
 xtable::xtable(TabAlder,
                digits = 0,
                align = c('l', rep('r', dim(TabAlder)[2])),
-               caption='Fordeling i aldersgrupper på rapporteringstidspunktet.')
+               caption='Fordeling i aldersgrupper blant intensivpasienter på rapporteringstidspunktet.')
 @
 \end{frame}
 
@@ -303,22 +305,24 @@ xtable::xtable(TabAlder,
 \begin{frame}[fragile] {Kjønnsfordeling }
 
 <<'AlderKjonn', results='asis'>>=
-datoFra2mnd <- as.Date(Sys.Date()-60)
-datoTil2mnd <- as.Date(Sys.Date()-61)
-dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder',
-                              datoTil = datoTil2mnd,
+datoFraXmnd <- as.Date(Sys.Date()-90)
+datoTilXmnd <- as.Date(Sys.Date()-91)
+# FigFordelingKjonnsdelt(RegData = RegDataAlle[1:110,], minN = 3)
+dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder', minN=3,
+                              datoTil = datoTilXmnd,
                               outfile = 'AlderKjonn.pdf')
-dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder',
-                              datoFra = datoFra2mnd,
-                              outfile = 'AlderKjonn2mnd.pdf')
+dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder', minN=3,
+                              datoFra = datoFraXmnd,
+                              outfile = 'AlderKjonnXmnd.pdf')
 @
 
 \begin{figure}[ht]
 
 %\scalebox{0.5}
 \centering \includegraphics[scale=0.25]{AlderKjonn.pdf}
-\centering \includegraphics[scale=0.25]{AlderKjonn2mnd.pdf}
-\caption{Fordeling av kjønn i ulike aldersgrupper på rapporteringstidspunktet, for hele tidsperioden og siste 2 måneder.}
+\centering \includegraphics[scale=0.25]{AlderKjonnXmnd.pdf}
+\caption{Fordeling av kjønn i ulike aldersgrupper blant intensivpasienter på rapporteringstidspunktet,
+for hele tidsperioden og siste tre måneder.}
 \end{figure}
 
 \end{frame}
@@ -329,20 +333,22 @@ dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder',
 \begin{frame}[fragile] {Risikofaktorer}
 
 <<'Risikofaktorer', results='asis'>>=
-RegDataAlleU2m <- RegDataAlle[which(RegDataAlle$InnDato <= datoTil2mnd), ]
-RegDataU2m <- RegData[which(RegData$InnDato <= datoTil2mnd), ]
+RegDataAlleUXm <- RegDataAlle[which(RegDataAlle$InnDato <= datoTilXmnd), ]
 
-if (dim(RegDataU2m)[1]>2) {
-  txtRisiko <- ''
+RegDataUXm <- RegData[which(RegData$InnDato <= datoTilXmnd), ]
+
+txtRisiko <- ''
+
+#if (dim(RegDataAlleUXm)[1]>2) {
     if (enhetsNivaa == 'HF') {
-      TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleU2m[RegDataAlleU2m$RHF==egetRHF,])$Tab
+      TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleUXm[RegDataAlleUXm$RHF==egetRHF,], sens=1)$Tab
       colnames(TabRisiko) <- paste0(c('Antall', 'Andel'), ', ', egetRHF)
     } else {
-      TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleU2m)$Tab
+      TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleUXm)$Tab
     }
 
   if (enhetsNivaa %in% c('RHF', 'HF')) {
-     TabRisikoEget <- RisikofaktorerTab(RegData=RegDataU2m)$Tab
+     TabRisikoEget <- RisikofaktorerTab(RegData=RegDataUXm, sens=1)$Tab
      colnames(TabRisikoEget) <- paste0(c('Antall', 'Andel'), ', eget', enhetsNivaa)
      TabRisiko <- cbind(
        TabRisikoEget,
@@ -352,23 +358,23 @@ if (dim(RegDataU2m)[1]>2) {
     xtable::xtable(TabRisiko,
                    digits=0,
                    align = c('l',rep('r',ncol(TabRisiko))),
-                   caption='Hyppighet av risikofaktorer på inntil 2 måneder før rapporteringstidspunktet.
-                   Pasienter kan ha mer enn èn risikofaktor.')
-} else {
-  txtRisiko <- paste0('Det er registrert færre enn 3 tilfeller i ', enhetTxt, '.')
-}
+                   caption=paste0('Hyppighet av risikofaktorer blant intensivpasienter fra pandemistart
+                   til ', datoFraXmnd,'. Pasienter kan ha mer enn èn risikofaktor.'))
+# } else {
+#   txtRisiko <- paste0('Det er registrert færre enn tre tilfeller i ', enhetTxt, '.')
+# }
 @
 
-\Sexpr{txtRisiko}
+% \Sexpr{txtRisiko}
 
 \end{frame}
 
 
-\begin{frame}[fragile] {Risikofaktorer siste 2 måneder}
+\begin{frame}[fragile] {Risikofaktorer siste tre måneder}
 
-<<'Risikofaktorer2mnd', results='asis'>>=
-RegDataAlle2m <- RegDataAlle[which(RegDataAlle$InnDato >= datoFra2mnd), ]
-RegData2m <- RegData[which(RegData$InnDato >= datoFra2mnd), ]
+<<'RisikofaktorerXmnd', results='asis'>>=
+RegDataAlle2m <- RegDataAlle[which(RegDataAlle$InnDato >= datoFraXmnd), ]
+RegData2m <- RegData[which(RegData$InnDato >= datoFraXmnd), ]
 
 if (dim(RegData)[1]>2) {
   txtRisiko <- ''
@@ -390,8 +396,8 @@ if (dim(RegData)[1]>2) {
     xtable::xtable(TabRisiko,
                    digits=0,
                    align = c('l',rep('r',ncol(TabRisiko))),
-                   caption='Hyppighet av risikofaktorer på rapporteringstidspunktet, siste to måneder.
-                   Pasienter kan ha mer enn èn risikofaktor.')
+                   caption='Hyppighet av risikofaktorer blant intensivpasienter siste tre måneder
+                   før rapporteringstidspunktet. Pasienter kan ha mer enn èn risikofaktor.')
 } else {
   txtRisiko <- paste0('Det er registrert færre enn 3 tilfeller i ', enhetTxt, '.')
 }
@@ -411,7 +417,7 @@ FerdigBekr <- oppsumFerdigeRegTab(RegData=RegData)
 xtable::xtable(FerdigBekr$Tab,
                digits=0,
                align = c('l','r','r','c', 'r','r'),
-               caption = paste0('Verdier basert på registreringer fra pandemistart og fram til ',datoTil2mnd,'.
+               caption = paste0('Verdier basert på intensivpasienter fra pandemistart til ', datoTilXmnd,'.
                For pasienter overflyttet mellom intensivavdelinger, er samlede verdier talt med
                (dvs. total liggetid, total respiratortid).
                IQR (inter quartile range) betyr at 25 \\% av oppholdene er under minste verdi,
@@ -421,15 +427,15 @@ xtable::xtable(FerdigBekr$Tab,
 \end{frame}
 
 
-\begin{frame}[fragile] {Resultater for ferdigstilte opphold, siste to måneder}
+\begin{frame}[fragile] {Resultater for ferdigstilte opphold, siste tre måneder}
 
-<<'Ferdigstilte2mnd', results='asis'>>=
+<<'FerdigstilteXmnd', results='asis'>>=
 #oppsumFerdigeRegTab(RegData=RegData, valgtRHF=valgtRHF)$Tab
-FerdigBekr <- oppsumFerdigeRegTab(RegData=RegData, datoFra = datoFra2mnd)
+FerdigBekr <- oppsumFerdigeRegTab(RegData=RegData, datoFra = datoFraXmnd)
 xtable::xtable(FerdigBekr$Tab,
                digits=0,
                align = c('l','r','r','c', 'r','r'),
-               caption = paste0('Verdier for siste to måneder, på rapporteringstidspunktet.
+               caption = paste0('Verdier basert på intensivpasienter siste tre måneder før rapporteringstidspunktet.
                For pasienter overflyttet mellom intensivavdelinger, er samlede verdier talt med
                (dvs. total liggetid, total respiratortid).
                IQR (inter quartile range) betyr at 25 \\% av oppholdene er under minste verdi,

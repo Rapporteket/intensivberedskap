@@ -209,7 +209,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
 #' @return
 RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(), reshID=0,
                               erMann=9, bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle',
-                              resp=9, minald=0, maxald=110, velgAvd=0){ #tidsenhet='Totalt',
+                              resp=9, minald=0, maxald=110, velgAvd=0, sens=0){ #tidsenhet='Totalt',
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, datoFra=datoFra, datoTil=datoTil, erMann=erMann, #enhetsUtvalg=0, minald=0, maxald=110,
                              bekr=bekr, skjemastatus=skjemastatus,dodInt=dodInt,
@@ -218,7 +218,7 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
   Ntest <- dim(UtData$RegData)[1]
   RegData <- UtData$RegData
 
-  TabRisiko <- rbind(
+  AntRisiko <- rbind(
     Kreft = sum(RegData$Kreft, na.rm = T),
     'Nedsatt immunforsvar' = sum(RegData$IsImpairedImmuneSystemIncludingHivPatient, na.rm = T),
     Diabetes	= sum(RegData$Diabetes, na.rm = T),
@@ -235,13 +235,13 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
   )
 
   if (Ntest>3){
-    # TabRisiko <- as.table(addmargins(TabRisiko, margin = 2))
-    # TabRisiko <- as.matrix(TabRisiko[,"Sum"], ncol=1)
-    # colnames(TabRisiko) <- 'Sum'
-    TabRisiko <- cbind(TabRisiko,
-                       'Andel' = paste0(sprintf('%.0f', 100*TabRisiko/dim(RegData)[1]),'%')) #[,"Sum"]
+    under3 <- which(AntRisiko < 3)
 
-
+    TabRisiko <- cbind(AntRisiko,
+                       'Andel' = paste0(sprintf('%.0f', 100*AntRisiko/dim(RegData)[1]),'%')) #[,"Sum"]
+    if (sens==1){
+    TabRisiko[under3, ] <- c(rep('<3', length(under3)), rep('', length(under3)))
+      }
     TabRisiko <- rbind(TabRisiko,
                        'Pasienter, totalt' = c(dim(RegData)[1], ''))
     colnames(TabRisiko) <- c('Antall', 'Andel') #c('Antall pasienter', 'Andel pasienter')
@@ -317,6 +317,7 @@ TabAlderGml <- function(RegData, valgtRHF='Alle',
 #' @param RegData datatabell, beredskapsdata
 #' @param reshID avdelingsresh
 #' @param enhetsNivaa enhetsnivå
+#' @param sens maskere celler <3. 0-nei, 1-ja
 #' @inheritParams NIRUtvalgBeredsk
 #'
 #' @return
@@ -325,7 +326,7 @@ TabAlderGml <- function(RegData, valgtRHF='Alle',
 #' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
 TabAlder <- function(RegData, reshID=0, enhetsNivaa='Alle',
                      skjemastatus=9, resp=9, bekr=9,
-                     dodInt=9,erMann=9){
+                     dodInt=9,erMann=9, sens=0){
 
   #HF-nivå skal se eget HF og eget RHF. Filterer derfor på RHF for HF
   egetRHF <- ifelse (enhetsNivaa=='HF',
@@ -350,8 +351,8 @@ enhet <- switch(enhetsNivaa,   #
 )
 
 N <- dim(RegData)[1]
-gr <- seq(0, 90, ifelse(N<100, 25, 10) )
-grtxt <-  if(N<100){
+gr <- seq(0, 90, ifelse((N<100 & sens==0), 25, 10) )
+grtxt <-  if(N<100 & sens==0){
   c('0-24', '25-49', "50-74", "75+")
   } else {
     c('0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+')
@@ -364,17 +365,26 @@ TabAlder <- cbind(
   'Antall pas.' = AlderAlle,
   'Andel pas.' = paste0(sprintf('%.0f', AlderAllePst), ' %'))
 TabAlder <- rbind(TabAlder, 'Totalt' = c(N, ''))
-txt <- ifelse(enhetsNivaa == 'HF', egetRHF, 'hele landet')
+if (sens == 1) {
+  under3 <- which(AlderAlle<3)
+  TabAlder[under3,] <- c(rep('<3', length(under3)), rep('', length(under3))) #c('<3', '')
+  }
 
+txt <- ifelse(enhetsNivaa == 'HF', egetRHF, 'hele landet')
 colnames(TabAlder) <- paste0(c('Antall', 'Andel'), paste0(', ', txt))
 
 if (enhetsNivaa %in% c('RHF', 'HF')) {
   RegData$EnhetsNivaaVar <- RegData[ , enhetsNivaa]
   AlderEget <- table(RegData$AldersGr[RegData$EnhetsNivaaVar == enhet])
+  AlderEgetPst <- prop.table(AlderEget)*100
   TabAlderEget <- cbind(
     'Antall pas., eget' = AlderEget,
-    'Andel pas., eget' = paste0(sprintf('%.0f', AlderEget), ' %'))
+    'Andel pas., eget' = paste0(sprintf('%.0f', prop.table(AlderEget)*100), ' %'))
   TabAlderEget <- rbind(TabAlderEget, 'Totalt' = c(sum(AlderEget), ''))
+  if (sens==1){
+    under3 <- which(AlderEget<3)
+    TabAlderEget[under3,] <- c(rep('<3', length(under3)), rep('', length(under3))) #c('<3','') #
+    }
 
   colnames(TabAlderEget) <- paste0(c('Antall', 'Andel'), paste0(', eget ', enhetsNivaa))
 

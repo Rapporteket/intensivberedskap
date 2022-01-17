@@ -395,7 +395,7 @@ tabPanel(title = 'Influensa',
                                                       Ukentlig="Ukentlig-week",
                                                       Daglig="Daglig-DSTday"),
                                                  selected = "Ukentlig-week"),
-                                     selectInput(inputId = "valgtNivaaAbb", label="Velg enhetsnivå",
+                                     selectInput(inputId = "valgtNivaaAbb", label="Velg enhetsnivå for rapporten",
                                                               choices = enhetsNivaa
                                                   ),
                                      # selectInput(inputId = "valgtRHFabb", label="Velg RHF",
@@ -543,11 +543,11 @@ server <- function(input, output, session) {
      #print(brukernavn)
   })
   if (rolle != 'SC') {
-    updateSelectInput(session, "valgtRHF",        #Skal utgå...
-                       choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
-                                                        egetRHF))))
-    updateSelectInput(session, "valgtNivaaAbb",
-                      choices = 'HF')
+    # updateSelectInput(session, "valgtRHF",        #Skal utgå...
+    #                    choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
+    #                                                     egetRHF))))
+    # updateSelectInput(session, "valgtNivaaAbb",                       choices = 'HF')
+
     #UTgår, jan22: updateSelectInput(session, "valgtRHFabb",
     #                   choices = egetRHF)
     #CoroData$RHF[match(reshID, CoroData$ReshId)]))
@@ -754,9 +754,6 @@ server <- function(input, output, session) {
   #Ferdigstilte beredskapsskjema uten ferdigstilt intensivskjema:
   #reshSe <- ifelse(rolle == 'SC', 0, reshID)
   observe({
-    #print(input$datoValgMI[1])
-    #print(input$datoValgMI[2])
-    #print(input$datoFraMI)
 
   ManglerIntSkjemaTab <- ManglerIntSkjema(reshID = ifelse(rolle == 'SC', 0, reshID)
                                           ,datoFra = input$datoFraMI)
@@ -828,7 +825,7 @@ server <- function(input, output, session) {
     }
     fun <- "abonnementBeredsk"
     paramNames <- c('rnwFil', 'brukernavn', "reshID", 'enhetsNivaa') #"valgtRHF")
-    paramValues <- c(rnwFil, brukernavn, reshID, as.character(input$valgtRHFabb), as.character(input$valgtNivaaAbb)) #valgtRHF) #
+    paramValues <- c(rnwFil, brukernavn, reshID, as.character(input$valgtNivaaAbb)) #valgtRHF) #as.character(input$valgtRHFabb),
 
     # test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
     #                       reshID=105460, valgtRHF = as.character(input$valgtRHFabb))
@@ -852,8 +849,8 @@ server <- function(input, output, session) {
   #------------Utsending-----------------
 
   ## parametre til utsending
-  orgs <- rhfNavn
-  names(orgs) <- orgs
+  orgs <- sykehusValg #rhfNavn. sykehusValg har enhetsnavn med verdi resh
+  #names(orgs) <- orgs
   orgs <- as.list(orgs)
 
   ## make a list for report metadata
@@ -861,8 +858,8 @@ server <- function(input, output, session) {
     CovidRapp = list(
       synopsis = "Resultater, Covid-19",
       fun = "abonnementBeredsk",
-      paramNames = c('rnwFil', "valgtRHF"),
-      paramValues = c('BeredskapCorona.Rnw', 'Alle')
+      paramNames = c('rnwFil', 'reshID', 'enhetsNivaa'), #"valgtRHF"),
+      paramValues = c('BeredskapCorona.Rnw', as.numeric(input$reshIDuts), as.character(valgtNivaaUts) ) #'Alle')
     ),
     InfluensaRapp = list(
       synopsis = "Influensarapport",

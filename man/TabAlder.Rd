@@ -12,7 +12,8 @@ TabAlder(
   resp = 9,
   bekr = 9,
   dodInt = 9,
-  erMann = 9
+  erMann = 9,
+  sens = 0
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ TabAlder(
 \item{dodInt}{død på intensiv 0-nei, 1-ja}
 
 \item{erMann}{kjønn, 0-kvinne, 1-mann}
+
+\item{sens}{maskere celler <3. 0-nei, 1-ja}
 }
 \value{
 

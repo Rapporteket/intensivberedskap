@@ -52,11 +52,12 @@ FigTidEnhet <- function(AntTab, outfile=''){
 #' Kan gereraliseres til andre variabler og grupperingsvar.
 #'
 #' @param TabAlder Dataramme med nødvendige figurparametre
+#' @param minN Maskerer verdier under <3
 #'
 #' @return
 #' @export
 FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', datoFra='2020-03-01', datoTil = Sys.Date(),
-                                   valgtRHF='Alle', bekr=9, skjemastatus=9, resp=9,
+                                   valgtRHF='Alle', bekr=9, skjemastatus=9, resp=9, minN = 0,
                      dodInt=9,erMann=9, grvar='PatientGender', outfile=''){#enhetsNivaa='RHF'
 
   #if (valgtRHF != 'Alle'){RegData$RHF <- factor(RegData$RHF, levels=unique(c(levels(as.factor(RegData$RHF)), valgtRHF)))}
@@ -79,6 +80,7 @@ FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', datoFra='2020-03-0
   N <- dim(RegData)[1]
   if (valgtVar=='Alder') {
     gr <- seq(0, 90, ifelse(N<100, 25, 10) )
+
     RegData$Gr <- cut(RegData$Alder, breaks=c(gr, 110), include.lowest=TRUE, right=FALSE)
     grtxt <- if(N<100){c('0-24', '25-49', "50-74", "75+")} else {
       c('0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90+')}
@@ -89,18 +91,26 @@ FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', datoFra='2020-03-0
   AntHovedTab <- tidyr::as_tibble(as.data.frame.matrix(addmargins(table(RegData[, c("Gr", "PatientGender")]))), rownames=valgtVar)
   NHoved <- rowSums(AntHoved)
 
+  if (minN > 0){
+    #library(Hmisc)
+    # gr <- seq(0, 90, 10)
+    # RegData$Gr2 <- Hmisc::cut2(RegData$Alder, breaks=c(gr, 110), #include.lowest=TRUE, right=FALSE,
+    #                   m=c(3,1000), minmax=TRUE)
+    #table(RegData$Gr2)
+    #finne grupper > ant
+
+    #AntHoved <- table(RegData[, c("PatientGender", "Gr")])
+    underAnt <- sort(union(which(AntHoved[1,] < minN), which(AntHoved[2,] < minN)))
+    AntHoved[ ,underAnt] <- 0
+    grtxtMin <- rep('', length(grtxt))
+    grtxtMin[underAnt] <- '<3'
+  }
+
+
   tittel <- "Aldersfordeling";
   FigTypUt <- rapFigurer::figtype(outfile=outfile, pointsizePDF=12)
   retn <- 'V'; cexgr<-1
 
-  # if (min(NHoved) < 5) {
-  #   farger <- FigTypUt$farger
-  #   plot.new()
-  #   # title(tittel)	#, line=-6)
-  #   legend('topleft',utvalgTxt, bty='n', cex=0.9, text.col=farger[1])
-  #   text(0.5, 0.6, 'Færre enn 5 registreringer i egen- eller sammenlikningsgruppa', cex=1.2)
-  #   if ( outfile != '') {dev.off()}
-  # } else {
     NutvTxt <- length(utvalgTxt)
     vmarg <- switch(retn, V=0, H=max(0, strwidth(grtxt, units='figure', cex=cexgr)*0.7))
     par('fig'=c(vmarg, 1, 0, 1-0.02*(NutvTxt-1+length(tittel)-1)))	#Har alltid datoutvalg med
@@ -110,7 +120,9 @@ FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', datoFra='2020-03-0
     pos <- barplot(AntHoved, beside=TRUE, las=1, ylab="Antall pasienter",
                    cex.axis=cexgr, cex.sub=cexgr,	cex.lab=cexgr, # ,	names.arg=grtxt, cex.names=cexgr,sub=subtxt,
                    col=farger[c(1,2)], border='white', ylim=c(0, ymax), xaxt='n')
-    mtext(at=colMeans(pos), grtxt, side=1, las=1, cex=cexgr, adj=0.5, line=0.5)
+    mtext(at = colMeans(pos), grtxt, side=1, las=1, cex=cexgr, adj=0.5, line=0.5)
+    mtext(at = colMeans(pos), grtxtMin, line = -1,side=1) #, side=1, las=1, cex=cexgr, adj=0.5, line=0.5))
+    #text(c(colMeans(pos),0), grtxtMin, adj=1) #, side=1, las=1, cex=cexgr, adj=0.5, line=0.5))
 
     legend('topright', paste0(levels(RegData[,grvar]), ', N=', NHoved), bty='n',
            fill=farger[c(1,2)], border=NA, ncol=1, cex=1)
@@ -128,8 +140,6 @@ FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', datoFra='2020-03-0
 
   AntHovedTab$Andel <- paste0(round(AntHovedTab$Sum/AntHovedTab$Sum[dim(AntHovedTab)[1]]*100), ' %')
   names(AntHovedTab)[(dim(AntHovedTab)[2]-1):dim(AntHovedTab)[2]] <- c("Antall", "Andel")
-  # names(AntHovedTab)[2:(dim(AntHovedTab)[2]-2)] <- paste0("Ant. ", names(AntHovedTab)[2:(dim(AntHovedTab)[2]-2)])
-  # xtable::xtable(AntHovedTab)
 
   return(AntHovedTab)
 }
