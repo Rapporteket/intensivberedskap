@@ -76,6 +76,14 @@ InfluData <- NIRsqlPreInfluensa() #InfluDataRaa #intensiv::NIRPreprosess(RegData
 #sykehusValg <- c(0,unique(CoroData$ReshId))[sykehusNavn$ix]
 rhfNavn <- c('Alle', as.character(sort(unique(CoroData$RHF))))
 hfNavn <- sort(unique(CoroData$HF)) #, index.return=T)
+navnUtsending <- c('Hele landet', paste0('RHF: ', rhfNavn[-1]), paste0('HF: ', hfNavn))
+
+# HFind <- match(hfNavn, CoroData$HF)
+# RHFind <- match(rhfNavn[-1], CoroData$RHF)
+#ReshIdNivaa <- c(0, CoroData$ReshId[RHFind], CoroData$ReshId[HFind])
+# navn <- c('Hele landet', paste0('RHF: ', rhfNavn[-1]), paste0('HF: ', hfNavn))
+# names(ReshIdNivaa) <- navn
+
 sykehusNavn <- sort(unique(CoroData$ShNavn), index.return=T)
 sykehusValg <- unique(CoroData$ReshId)[sykehusNavn$ix]
 sykehusValg <- c(0,sykehusValg)
@@ -83,6 +91,8 @@ names(sykehusValg) <- c('Ikke valgt',sykehusNavn$x)
 #updateTextInput(session, inputId, label = NULL, value = NULL). Hvis input skal endres som flge av et annet input.
 enhetsNivaa <- c('Alle', 'RHF', 'HF')
 names(enhetsNivaa) <- c('Hele landet', 'eget RHF', 'egetHF')
+
+
 
 sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
 sesongValg <- sort(unique(InfluData$Sesong)) #sesongValg <- rev(c('2018-19', '2019-20', '2020-21', '2021-22', '20')),
@@ -849,17 +859,17 @@ server <- function(input, output, session) {
   #------------Utsending-----------------
 
   ## parametre til utsending
-  orgs <- sykehusValg #rhfNavn. sykehusValg har enhetsnavn med verdi resh
-  #names(orgs) <- orgs
+  orgs <- navnUtsending #rhfNavn. sykehusValg har enhetsnavn med verdi resh
+  names(orgs) <- orgs
   orgs <- as.list(orgs)
 
   ## make a list for report metadata
   reports <- list(
     CovidRapp = list(
       synopsis = "Resultater, Covid-19",
-      fun = "abonnementBeredsk",
-      paramNames = c('rnwFil', 'reshID', 'enhetsNivaa'), #"valgtRHF"),
-      paramValues = c('BeredskapCorona.Rnw', as.numeric(input$reshIDuts), as.character(valgtNivaaUts) ) #'Alle')
+      fun = "abonnementBeredsk", #Lag egen funksjon for utsending
+      paramNames = c('rnwFil', 'nivaaNavn'), #"valgtRHF"),
+      paramValues = c('BeredskapCorona.Rnw', 'tom' ) #'Alle')
     ),
     InfluensaRapp = list(
       synopsis = "Influensarapport",
@@ -869,10 +879,12 @@ server <- function(input, output, session) {
     )
   )
 
+  # orgResh <- autoReportOrgServer("beredUtsResh", orgs)
+  # orgNivaa <- autoReportOrgServer("beredUtsNivaa", nivaa)
   org <- autoReportOrgServer("beredUts", orgs)
 
   # set reactive parameters overriding those in the reports list
-  paramNames <- shiny::reactive("valgtRHF")
+  paramNames <- shiny::reactive("nivaaNavn")
   paramValues <- shiny::reactive(org$value())
 
 

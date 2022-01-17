@@ -48,9 +48,21 @@ abonnementBeredsk <- function(rnwFil, brukernavn='beredskap',
                               valgtRHF = 'Alle', #Brukes ikke fra ca 12.jan. 2022
                               reshID=0,
                               enhetsNivaa = 'Alle',
+                              nivaaNavn = 'tom',
                               #datoFra=Sys.Date()-180, datoTil=Sys.Date(),
                        Rpakke='intensivberedskap') {
 
+  if (nivaaNavn != 'tom') {
+    if (nivaaNavn == 'Alle') {
+      enhetsNivaa <- 'Alle'
+      reshID <- 0
+      } else {
+        ReshHF <- CoroData$ReshId[match(nivaaNavn, CoroData$HF)] #Finner første indeks for treff
+        ReshRHF <- CoroData$ReshId[match(nivaaNavn, CoroData$RHF)]
+        enhetsNivaa <- ifelse(!is.na(ReshHF), 'HF', ifelse(!is.na(ReshRHF), 'RHF', 'Alle')) #
+        reshID <- sort(c(ReshHF, ReshRHF,0),decreasing = T)[1]
+        }
+  }
   # rapbase::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
   #                   reshId = reshID,
   #                   msg = "starter Abonnement: Corona-rapport")

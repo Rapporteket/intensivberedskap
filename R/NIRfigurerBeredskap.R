@@ -90,6 +90,7 @@ FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', datoFra='2020-03-0
   AntHoved <- table(RegData[, c("PatientGender", "Gr")])
   AntHovedTab <- tidyr::as_tibble(as.data.frame.matrix(addmargins(table(RegData[, c("Gr", "PatientGender")]))), rownames=valgtVar)
   NHoved <- rowSums(AntHoved)
+  grtxtMin <- ''
 
   if (minN > 0){
     #library(Hmisc)
