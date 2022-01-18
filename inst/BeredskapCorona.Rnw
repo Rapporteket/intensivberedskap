@@ -408,7 +408,7 @@ if (dim(RegData)[1]>2) {
 \end{frame}
 
 
-\begin{frame}[fragile] {Resultater for ferdigstilte opphold, \Sexpr{enhet}}
+\begin{frame}[fragile] {Resultater for ferdigstilte opphold, \Sexpr{enhetTxt}}
 %Oversikt over ferdigstilte registreringer for bekreftede covid-19-tilfeller.
 
 <<'Ferdigstilte', results='asis'>>=

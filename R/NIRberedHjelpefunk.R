@@ -31,26 +31,32 @@ henteSamlerapporterBered <- function(filnavn, rnwFil, #Rpakke='intensivberedskap
 }
 
 #' Funksjon som produserer rapporten som skal sendes til mottager.
-#' (The actual call to this function is made through do.call and
-#' has the effect of providing the parameters as class
-#' \emph{list}. Verdier gis inn som listeparametre
+#' Nødvendig info til Covid-rapporten er reshID og enhetsNivaa
 #'
 #' @param rnwFil Navn på fila som skal kjøres. Angis MED filending (\emph{dvs "filnavn.Rnw"})
-#' @param reshID Aktuell reshid
-#' @param enhetsNivaa Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'
-#' @param datoFra dato
 #' @param Rpakke hvilken R-pakke fila som lager rapporten ligger i
-#' @param parametre Liste med valgfrie parametre, avhengig av type rapport
+#' @param valgtRHF Fases ut, men beholdes for at gamle abonnement skal kunne kjøre.
+#' @param nivaaNavn navn på det aktuelle HF/RHF, evt. "Alle" (= hele landet)
 #'
 #' @return Full path of file produced
 #' @export
 abonnementBeredsk <- function(rnwFil, brukernavn='beredskap',
-                              valgtRHF = 'Alle', #Brukes ikke fra ca 12.jan. 2022
-                              reshID=0,
-                              enhetsNivaa = 'Alle',
-                              nivaaNavn = 'tom',
-                              #datoFra=Sys.Date()-180, datoTil=Sys.Date(),
+                              valgtRHF = 'tom', #'Alle', #Brukes ikke fra ca 12.jan. 2022
+                              #reshID=0, Beregnes alltid ut fra HF/RHF-navn
+                              #enhetsNivaa = 'Alle',
+                              nivaaNavn = 'tom', #Benyttes både for abonnement og utsending
                        Rpakke='intensivberedskap') {
+
+  # reshID Aktuell reshid
+# enhetsNivaa Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'
+
+# FLYTTE OMREGNING TIL RESH OG NIVÅ TIL SELVE RAPPORTEN...?
+
+#For å ta høyde for abonnement bestilt før jan. 2022
+  if (valgtRHF != 'tom') {
+    enhetsNivaa <- 'RHF'
+    reshID <- ifelse(valgtRHF != 'Alle', CoroData$ReshId[match(valgtRHF, CoroData$RHF)], 0)
+  }
 
   if (nivaaNavn != 'tom') {
     if (nivaaNavn == 'Alle') {
