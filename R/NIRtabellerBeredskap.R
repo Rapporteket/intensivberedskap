@@ -118,7 +118,7 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
     '...Invasiv respiratorstøtte' = c(AntInvNaa*(c(1, 100/AntPaaIntNaa)), ''),
     'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn)
   )
-  colnames(TabHjelp) <- c('Antall', 'Andel', 'Liggetid (gj.sn.)')
+  colnames(TabHjelp) <- c('Antall', 'Andel', 'Tid (gj.sn.)')
   TabHjelp[2:5,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[2:5,'Andel'])),'%')
   TabHjelp[c(1,2,5), 3] <- paste0(sprintf('%.1f', as.numeric(TabHjelp[c(1,2,5), 3])), ' døgn')
   xtable::xtable(TabHjelp,
@@ -244,7 +244,7 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
       }
     TabRisiko <- rbind(TabRisiko,
                        'Pasienter, totalt' = c(dim(RegData)[1], ''))
-    colnames(TabRisiko) <- c('Antall', 'Andel') #c('Antall pasienter', 'Andel pasienter')
+    colnames(TabRisiko) <- c('Ant.', 'Andel') #c('Antall pasienter', 'Andel pasienter')
 
   }
   return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))

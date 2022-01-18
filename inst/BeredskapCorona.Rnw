@@ -151,8 +151,8 @@ xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
                digits=0,
                align = c('l','r','r','r'),
                caption = 'Totalt antall inneliggende pasienter og totalt antall med pustehjelp.
-               Gjennomsnittlig liggetid og gjennomsnittlig samlet tid med mekanisk ventilasjonsstøtte (invasiv og med tett maske).')
-               #'Bruk av pustehjelp/ECMO.')
+               Gjennomsnittlig liggetid, gjennomsnittlig samlet tid med
+               mekanisk ventilasjonsstøtte (invasiv og med tett maske) og gjennomsnittlig ECMO-tid.')
 
 @
 \end{frame}
@@ -178,7 +178,7 @@ på rapporteringstidspunktet.
       inneligg <- is.na(RegDataAlle$DateDischargedIntensive)
       RegHF <- RegDataAlle[inneligg,] %>%
         dplyr::group_by(RHFut, HFut) %>%
-        dplyr::summarise(
+        dplyr::summarise(.groups='rowwise',
           'Antall pasienter' = n())
       Totalt <- c('', 'Totalt', sum(RegHF$`Antall pasienter`))
       }
@@ -250,8 +250,8 @@ AntRader <- dim(TabTidEnh)[1]
 \end{frame}
 
 
-\begin{frame}[fragile] {Registrerte pasienter i hvert \Sexpr{visningsNivaaLav}}
-<<'OpphPrHF', results='asis'>>=
+\begin{frame}[fragile] {Antall registrerte pasienter i hvert \Sexpr{visningsNivaaLav}}
+<<'OpphPrHF', results='asis', warnings=FALSE>>=
     #RegDataDum <- if (enhetsNivaa == 'HF') {RegData} else {RegDataAlle}
     if (enhetsNivaa == 'HF') {
       RegHF <- RegData %>%
@@ -271,7 +271,7 @@ AntRader <- dim(TabTidEnh)[1]
     }
 print(
   xtable::xtable(RegHF , digits=0,
-                 caption='Totalt antall registrerte intensivopphold fra 10. mars 2020 til rapporteringstidspunktet.')
+                 caption='Totalt antall registrerte intensivpasienter fra 10. mars 2020 til rapporteringstidspunktet.')
       ,include.rownames = FALSE)
 @
 \end{frame}
@@ -284,7 +284,7 @@ print(
 
 <<'AlderInfo', results='asis'>>=
   Alder <- round(summary(RegData$Alder))
-txtAlder <- if (dim(RegData)[1]>2){paste0('Alderen er mellom ',
+txtAlder <- if (dim(RegData)[1]>2){paste0('Alderen i ', enhetTxt,' er mellom ',
                            Alder[1], ' og ', Alder[6], ' år med en gjennomsnittsalder på ',
                            Alder[4], ' år.')} else {''}
 @
