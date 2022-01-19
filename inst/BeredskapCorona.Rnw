@@ -29,7 +29,7 @@ library(xtable)
 % Inngangsparametre, per 9.jan. 2022: reshID=0 og valgtRHF = 'Alle'
 % Inngangsparametre, etter 9.jan. 2022: reshID=0 og enhetsNivaa = 'Alle'/'RHF'/'HF'
 
-<<'hentDataOgTilrettelegg', include=FALSE>>=
+<<'hentData', include=FALSE>>=
 CoroData <- NIRberedskDataSQL()
 #NB: Har benyttet FormDate benyttes som hoveddato. Gjelder også influensa
 #Bekreftede tilfeller:
@@ -39,6 +39,26 @@ antUbekr <- length(unique(CoroData$PatientInRegistryGuid[-indBekr]))
 CoroData$RHF <- as.character(CoroData$RHF)
 RegDataAlle <- NIRPreprosessBeredsk(RegData=CoroData)
 RegDataAlleOpph <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 0)
+
+#OMREGNING TIL RESH OG NIVÅ
+#For å ta høyde for abonnement bestilt før jan. 2022
+ if (valgtRHF != 'tom') {
+    enhetsNivaa <- 'RHF'
+    reshID <- ifelse(valgtRHF != 'Alle', CoroData$ReshId[match(valgtRHF, CoroData$RHF)], 0)
+  }
+
+  if (nivaaNavn != 'tom') {
+    if (nivaaNavn == 'Alle') {
+      enhetsNivaa <- 'Alle'
+      reshID <- 0
+      } else {
+        ReshHF <- CoroData$ReshId[match(nivaaNavn, CoroData$HF)] #Finner første indeks for treff
+        ReshRHF <- CoroData$ReshId[match(nivaaNavn, CoroData$RHF)]
+        enhetsNivaa <- ifelse(!is.na(ReshHF), 'HF', ifelse(!is.na(ReshRHF), 'RHF', 'Alle')) #
+        reshID <- sort(c(ReshHF, ReshRHF,0),decreasing = T)[1]
+        }
+  }
+
 @
 
 <<'tilrettelegg', include=FALSE>>=

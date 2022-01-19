@@ -36,39 +36,21 @@ henteSamlerapporterBered <- function(filnavn, rnwFil, #Rpakke='intensivberedskap
 #' @param rnwFil Navn på fila som skal kjøres. Angis MED filending (\emph{dvs "filnavn.Rnw"})
 #' @param Rpakke hvilken R-pakke fila som lager rapporten ligger i
 #' @param valgtRHF Fases ut, men beholdes for at gamle abonnement skal kunne kjøre.
-#' @param nivaaNavn navn på det aktuelle HF/RHF, evt. "Alle" (= hele landet)
+#' @param reshID Bestillers resh-id. Benyttes for abonnement, ikke utsendinger
+#' @param nivaaNavn navn på det aktuelle HF/RHF, evt. "Alle" (= hele landet). Benyttes for utsendinger.
 #'
 #' @return Full path of file produced
 #' @export
 abonnementBeredsk <- function(rnwFil, brukernavn='beredskap',
                               valgtRHF = 'tom', #'Alle', #Brukes ikke fra ca 12.jan. 2022
-                              #reshID=0, Beregnes alltid ut fra HF/RHF-navn
-                              #enhetsNivaa = 'Alle',
-                              nivaaNavn = 'tom', #Benyttes både for abonnement og utsending
+                              reshID=0, #Beregnes ut fra HF/RHF-navn for utsending, men benyttes direkte for abonnement
+                              enhetsNivaa = 'Alle', #For abonnement
+                              nivaaNavn = 'tom', #Benyttes både for utsending
                        Rpakke='intensivberedskap') {
 
   # reshID Aktuell reshid
 # enhetsNivaa Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'
 
-# FLYTTE OMREGNING TIL RESH OG NIVÅ TIL SELVE RAPPORTEN...?
-
-#For å ta høyde for abonnement bestilt før jan. 2022
-  if (valgtRHF != 'tom') {
-    enhetsNivaa <- 'RHF'
-    reshID <- ifelse(valgtRHF != 'Alle', CoroData$ReshId[match(valgtRHF, CoroData$RHF)], 0)
-  }
-
-  if (nivaaNavn != 'tom') {
-    if (nivaaNavn == 'Alle') {
-      enhetsNivaa <- 'Alle'
-      reshID <- 0
-      } else {
-        ReshHF <- CoroData$ReshId[match(nivaaNavn, CoroData$HF)] #Finner første indeks for treff
-        ReshRHF <- CoroData$ReshId[match(nivaaNavn, CoroData$RHF)]
-        enhetsNivaa <- ifelse(!is.na(ReshHF), 'HF', ifelse(!is.na(ReshRHF), 'RHF', 'Alle')) #
-        reshID <- sort(c(ReshHF, ReshRHF,0),decreasing = T)[1]
-        }
-  }
   # rapbase::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
   #                   reshId = reshID,
   #                   msg = "starter Abonnement: Corona-rapport")

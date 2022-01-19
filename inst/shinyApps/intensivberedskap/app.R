@@ -393,36 +393,33 @@ tabPanel(title = 'Influensa',
                       value = 'Abonnement',
 
 
-                      # sidebarLayout(
-                      #   sidebarPanel(width = 3,
-                      #                selectInput("subscriptionRep", "Dokument:", c("Koronarapport", "Influensarapport")),
-                      #                selectInput("subscriptionFreq", "Frekvens:",
-                      #                            list(Månedlig="Månedlig-month",
-                      #                                 Ukentlig="Ukentlig-week",
-                      #                                 Daglig="Daglig-DSTday"),
-                      #                            selected = "Ukentlig-week"),
-                      #                selectInput(inputId = "valgtNivaaAbb", label="Velg enhetsnivå for rapporten",
-                      #                                         choices = enhetsNivaa
-                      #                             ),
-                      #                # selectInput(inputId = "valgtRHFabb", label="Velg RHF",
-                      #                #             choices = rhfNavn
-                      #                # ),
-                      #                actionButton("subscribe", "Bestill!")
-                      #   ),
-                      #   mainPanel(
-                      #     h4('NB: Abonnementet løper til det sies opp. '),
-                      #     uiOutput("subscriptionContent")
-                      #   )
-                      # )
                       sidebarLayout(
-                        sidebarPanel(
-                          autoReportOrgInput("beredAbb"), #Definert slik at RHFnavn/HFnavn benyttes
-                          autoReportInput("beredAbb")
+                        sidebarPanel(width = 3,
+                                     selectInput("subscriptionRep", "Dokument:", c("Koronarapport", "Influensarapport")),
+                                     selectInput("subscriptionFreq", "Frekvens:",
+                                                 list(Månedlig="Månedlig-month",
+                                                      Ukentlig="Ukentlig-week",
+                                                      Daglig="Daglig-DSTday"),
+                                                 selected = "Ukentlig-week"),
+                                     selectInput(inputId = "valgtNivaaAbb", label="Velg enhetsnivå for rapporten",
+                                                              choices = enhetsNivaa
+                                                  ),
+                                     actionButton("subscribe", "Bestill!")
                         ),
-                        shiny::mainPanel(
-                          autoReportUI("beredAbb")
+                        mainPanel(
+                          h4('NB: Abonnementet løper til det sies opp. '),
+                          uiOutput("subscriptionContent")
                         )
                       )
+                      # sidebarLayout(
+                      #   sidebarPanel(
+                      #     autoReportOrgInput("beredAbb"), #Definert slik at RHFnavn/HFnavn benyttes
+                      #     autoReportInput("beredAbb")
+                      #   ),
+                      #   shiny::mainPanel(
+                      #     autoReportUI("beredAbb")
+                      #   )
+                      # )
              ), #tab abonnement
 
 #-----------Registeradmin.------------
@@ -791,111 +788,112 @@ server <- function(input, output, session) {
   #------------------ Abonnement ----------------------------------------------
 
 #-----I bruk til 18.jan. 2022-------------
-  # ## reaktive verdier for å holde rede på endringer som skjer mens
-  # ## applikasjonen kjører
+  ## reaktive verdier for å holde rede på endringer som skjer mens
+  ## applikasjonen kjører
+
+  subscription <- reactiveValues(
+    tab = rapbase::makeAutoReportTab(session, type = "subscription"))
+
+  ## lag tabell over gjeldende status for abonnement
+  output$activeSubscriptions <- DT::renderDataTable(
+    subscription$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
+    rownames = FALSE, options = list(dom = 't')
+  )
+
+  ## lag side som viser status for abonnement, også når det ikke finnes noen
+  output$subscriptionContent <- renderUI({
+    fullName <- rapbase::getUserFullName(session)
+    if (length(subscription$subscriptionTab) == 0) {
+      p(paste("Ingen aktive abonnement for", fullName))
+    } else {
+      tagList(
+        p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
+                rapbase::getUserEmail(session), ":")),
+        DT::dataTableOutput("activeSubscriptions")
+      )
+    }
+  })
+
+
+  ## nye abonnement
+  observeEvent (input$subscribe, { #MÅ HA
+    owner <- rapbase::getUserName(session)
+    interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
+    intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
+    organization <- rapbase::getUserReshId(session)
+    runDayOfYear <- rapbase::makeRunDayOfYearSequence(
+      interval = interval
+    )
+    email <- rapbase::getUserEmail(session)
+
+    if (input$subscriptionRep == "Influensarapport") {
+      synopsis <- "NIR-Beredskap: Influensarapport"
+      rnwFil <- "NIRinfluensa.Rnw" #Navn på fila
+    }
+
+    if (input$subscriptionRep == "Koronarapport") {
+      synopsis <- "NIR-Beredskap: Resultater, Covid-19"
+      rnwFil <- "BeredskapCorona.Rnw" #Navn på fila
+    }
+    fun <- "abonnementBeredsk"
+    paramNames <- c('rnwFil', "reshID", 'enhetsNivaa') #'brukernavn', "reshID", "valgtRHF")
+    paramValues <- c(rnwFil, reshID, input$valgtNivaaAbb) #'brukernavn', "reshID", "valgtRHF")
+
+     # test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw",
+     #                       reshID=105460, enhetsNivaa = as.character(input$valgtNivaaAbb))
+
+    rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
+                              fun = fun, paramNames = paramNames,
+                              paramValues = paramValues, owner = owner,
+                              email = email, organization = organization,
+                              runDayOfYear = runDayOfYear, interval = interval,
+                              intervalName = intervalName)
+    subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
+  })
+
+  ## slett eksisterende abonnement
+  observeEvent(input$del_button, {
+    selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
+    rapbase::deleteAutoReport(selectedRepId)
+    subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
+  })
+
+
+#--------Start modul, abonnement
+  # #KAN IKKE BRUKE MODUL. RAPPORTLISTA VISER BARE EGEN RESHID, IKKE PARAMETERVALG
+  # egneEnhetsNivaa <- c('Alle', paste0('Helse ', egetRHF, ' RHF'), egetHF)
+  # orgsAbb <- egneEnhetsNivaa #rhfNavn. sykehusValg har enhetsnavn med verdi resh
+  # names(orgsAbb) <- orgsAbb
+  # orgsAbb <- as.list(orgsAbb)
   #
-  # subscription <- reactiveValues(
-  #   tab = rapbase::makeAutoReportTab(session, type = "subscription"))
-  #
-  # ## lag tabell over gjeldende status for abonnement
-  # output$activeSubscriptions <- DT::renderDataTable(
-  #   subscription$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
-  #   rownames = FALSE, options = list(dom = 't')
+  # ## make a list for report metadata
+  # reports <- list(
+  #   CovidRapp = list(
+  #     synopsis = "Resultater, Covid-19",
+  #     fun = "abonnementBeredsk", #Lag egen funksjon for utsending
+  #     paramNames = c('rnwFil', 'nivaaNavn'), #"valgtRHF"),
+  #     paramValues = c('BeredskapCorona.Rnw', 'tom' ) #'Alle')
+  #   ),
+  #   InfluensaRapp = list(
+  #     synopsis = "Influensarapport",
+  #     fun = "abonnementBeredsk",
+  #     paramNames = c('rnwFil', "nivaaNavn"),
+  #     paramValues = c('NIRinfluensa.Rnw', 'Alle')
+  #   )
   # )
   #
-  # ## lag side som viser status for abonnement, også når det ikke finnes noen
-  # output$subscriptionContent <- renderUI({
-  #   fullName <- rapbase::getUserFullName(session)
-  #   if (length(subscription$subscriptionTab) == 0) {
-  #     p(paste("Ingen aktive abonnement for", fullName))
-  #   } else {
-  #     tagList(
-  #       p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
-  #               rapbase::getUserEmail(session), ":")),
-  #       DT::dataTableOutput("activeSubscriptions")
-  #     )
-  #   }
-  # })
+  # orgAbb <- autoReportOrgServer("beredAbb", orgsAbb)
+  #
+  # # set reactive parameters overriding those in the reports list
+  # paramNames <- shiny::reactive("nivaaNavn")
+  # paramValues <- shiny::reactive(orgAbb$value())
   #
   #
-  # ## nye abonnement
-  # observeEvent (input$subscribe, { #MÅ HA
-  #   owner <- rapbase::getUserName(session)
-  #   interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
-  #   intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
-  #   organization <- rapbase::getUserReshId(session)
-  #   runDayOfYear <- rapbase::makeRunDayOfYearSequence(
-  #     interval = interval
-  #   )
-  #   email <- rapbase::getUserEmail(session)
-  #
-  #   if (input$subscriptionRep == "Influensarapport") {
-  #     synopsis <- "NIR-Beredskap/Rapporteket: Influensarapport"
-  #     rnwFil <- "NIRinfluensa.Rnw" #Navn på fila
-  #   }
-  #
-  #   if (input$subscriptionRep == "Koronarapport") {
-  #     synopsis <- "NIR-Beredskap/Rapporteket: Coronarapport"
-  #     rnwFil <- "BeredskapCorona.Rnw" #Navn på fila
-  #   }
-  #   fun <- "abonnementBeredsk"
-  #   paramNames <- c('rnwFil', 'brukernavn', "reshID", 'enhetsNivaa') #"valgtRHF")
-  #   paramValues <- c(rnwFil, brukernavn, reshID, as.character(input$valgtNivaaAbb)) #valgtRHF) #as.character(input$valgtRHFabb),
-  #
-  #   # test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
-  #   #                       reshID=105460, valgtRHF = as.character(input$valgtRHFabb))
-  #
-  #   rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
-  #                             fun = fun, paramNames = paramNames,
-  #                             paramValues = paramValues, owner = owner,
-  #                             email = email, organization = organization,
-  #                             runDayOfYear = runDayOfYear, interval = interval,
-  #                             intervalName = intervalName)
-  #   subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
-  # })
-  #
-  # ## slett eksisterende abonnement
-  # observeEvent(input$del_button, {
-  #   selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
-  #   rapbase::deleteAutoReport(selectedRepId)
-  #   subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
-  # })
-
-#---Slutt, kode fram til 18.jan. 2022
-#--------Start modul, abonnement---------------
-  egneEnhetsNivaa <- c('Alle', paste0('Helse ', egetRHF, ' RHF'), egetHF)
-  orgsAbb <- egneEnhetsNivaa #rhfNavn. sykehusValg har enhetsnavn med verdi resh
-  names(orgsAbb) <- orgsAbb
-  orgsAbb <- as.list(orgsAbb)
-
-  ## make a list for report metadata
-  reports <- list(
-    CovidRapp = list(
-      synopsis = "Resultater, Covid-19",
-      fun = "abonnementBeredsk", #Lag egen funksjon for utsending
-      paramNames = c('rnwFil', 'nivaaNavn'), #"valgtRHF"),
-      paramValues = c('BeredskapCorona.Rnw', 'tom' ) #'Alle')
-    ),
-    InfluensaRapp = list(
-      synopsis = "Influensarapport",
-      fun = "abonnementBeredsk",
-      paramNames = c('rnwFil', "nivaaNavn"),
-      paramValues = c('NIRinfluensa.Rnw', 'Alle')
-    )
-  )
-
-  orgAbb <- autoReportOrgServer("beredAbb", orgsAbb)
-
-  # set reactive parameters overriding those in the reports list
-  paramNames <- shiny::reactive("nivaaNavn")
-  paramValues <- shiny::reactive(orgAbb$value())
-
-
-  autoReportServer(
-    id = "beredAbb", registryName = "intensivberedskap", type = "subscription",
-    org = orgAbb$value, paramNames = paramNames, paramValues = paramValues,
-    reports = reports, orgs = orgsAbb, eligible = TRUE
-  )
+  # autoReportServer(
+  #   id = "beredAbb", registryName = "intensivberedskap", type = "subscription",
+  #   org = orgAbb$value, paramNames = paramNames, paramValues = paramValues,
+  #   reports = reports, orgs = orgsAbb, eligible = TRUE
+  # )
 
   #------------Utsending-----------------
 
@@ -910,13 +908,13 @@ server <- function(input, output, session) {
       synopsis = "Resultater, Covid-19",
       fun = "abonnementBeredsk", #Lag egen funksjon for utsending
       paramNames = c('rnwFil', 'nivaaNavn'), #"valgtRHF"),
-      paramValues = c('BeredskapCorona.Rnw', 'tom' ) #'Alle')
+      paramValues = c('BeredskapCorona.Rnw', 'Alle' ) #'Alle')
     ),
     InfluensaRapp = list(
       synopsis = "Influensarapport",
       fun = "abonnementBeredsk",
-      paramNames = c('rnwFil', "valgtRHF"),
-      paramValues = c('NIRinfluensa.Rnw', 'Alle')
+      paramNames = c('rnwFil'),
+      paramValues = c('NIRinfluensa.Rnw')
     )
   )
 
