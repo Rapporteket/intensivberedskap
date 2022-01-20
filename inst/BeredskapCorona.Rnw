@@ -367,7 +367,7 @@ txtRisiko <- ''
       TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleUXm[RegDataAlleUXm$RHF==egetRHF,], sens=1)$Tab
       colnames(TabRisiko) <- paste0(c('Antall', 'Andel'), ', ', egetRHF)
     } else {
-      TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleUXm)$Tab
+      TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleUXm, sens=1)$Tab
     }
 
   if (enhetsNivaa %in% c('RHF', 'HF')) {
