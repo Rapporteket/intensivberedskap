@@ -5,17 +5,18 @@
 #' @param reshID Aktuell reshid
 #' @param enhetsNivaa Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'
 #' @param filnavn dummy
-#' @param datoFra dato
-#' @param parametre Liste med valgfrie parametre, avhengig av type rapport
 #'
 #' @return Full path of file produced
 #' @export
 
 henteSamlerapporterBered <- function(filnavn, rnwFil, #Rpakke='intensivberedskap', Flyttet 12.jan 2022
-                                     valgtRHF = 'Alle', #Brukes ikke fra ca 12.jan. 2022
                                      reshID=0,
-                                     enhetsNivaa = 'Alle',
-                                datoFra=Sys.Date()-180, datoTil=Sys.Date()) {
+                                     enhetsNivaa = 'Alle'){
+
+#valgtRHF = 'tom', #Brukes ikke fra ca 12.jan. 2022#nivaaNavn = 'tom')
+#datoFra=Sys.Date()-180,
+#datoTil=Sys.Date())
+  # @param nivaaNavn bare med fordi den må få verdi i Rnw-fila
 
   reshID <- as.numeric(reshID)
   tmpFile <- paste0('tmp',rnwFil)

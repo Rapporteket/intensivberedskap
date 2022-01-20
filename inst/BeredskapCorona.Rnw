@@ -43,12 +43,13 @@ RegDataAlleOpph <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 0)
 
 #OMREGNING TIL RESH OG NIVÅ
 #For å ta høyde for abonnement bestilt før jan. 2022
- if (valgtRHF != 'tom') {
+if (exists('valgtRHF')) {
+if (valgtRHF != 'tom') {
     enhetsNivaa <- 'RHF'
     reshID <- ifelse(valgtRHF != 'Alle', RegDataAlle$ReshId[match(valgtRHF, RegDataAlle$RHF)], 0)
-  }
+  }}
 
-nivaaNavn <- "Helse Møre og Romsdal HF"
+if (exists('nivaaNavn')){
   if (nivaaNavn != 'tom') {
     if (nivaaNavn == 'Alle') {
       enhetsNivaa <- 'Alle'
@@ -59,7 +60,7 @@ nivaaNavn <- "Helse Møre og Romsdal HF"
         enhetsNivaa <- ifelse(!is.na(ReshHF), 'HF', ifelse(!is.na(ReshRHF), 'RHF', 'Alle')) #
         reshID <- sort(c(ReshHF, ReshRHF,0),decreasing = T)[1]
         }
-  }
+  }}
 
 @
 

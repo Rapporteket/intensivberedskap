@@ -591,7 +591,9 @@ server <- function(input, output, session) {
   observe({
     #valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHF))
     #valgtNivaa <- ifelse(rolle == 'LU', 'HF', as.character(input$valgtNivaa))
-
+    # test <- henteSamlerapporterBered('dummy', rnwFil="BeredskapCorona.Rnw",
+    #                          enhetsNivaa = 'RHF',
+    #                            reshID = 706078)
     output$CoroRapp.pdf <- downloadHandler(
       filename = function(){
         paste0('CoronaRapport', Sys.time(), '.pdf')},
@@ -599,7 +601,7 @@ server <- function(input, output, session) {
         henteSamlerapporterBered(file, rnwFil="BeredskapCorona.Rnw",
                                  enhetsNivaa = as.character(input$valgtNivaa),
                                  #valgtRHF = valgtRHF,
-                                 reshID = reshID) #Vurder å ta med tidsinndeling eller startdato
+                                 reshID = reshID)
       }
     )
     })
@@ -607,7 +609,7 @@ server <- function(input, output, session) {
       filename = function(){
         paste0('InfluensaRapport', Sys.time(), '.pdf')},
       content = function(file){
-        henteSamlerapporterBered(file, rnwFil="NIRinfluensa.Rnw") #Vurder å ta med tidsinndeling eller startdato
+        henteSamlerapporterBered(file, rnwFil="NIRinfluensa.Rnw")
       }
     )
 
@@ -840,10 +842,9 @@ server <- function(input, output, session) {
     paramNames <- c('rnwFil', "reshID", 'enhetsNivaa') #'brukernavn', "reshID", "valgtRHF")
     paramValues <- c(rnwFil, reshID, input$valgtNivaaAbb) #'brukernavn', "reshID", "valgtRHF")
 
-   #   test <- intensivberedskap::abonnementBeredsk(rnwFil="BeredskapCorona.Rnw",
-                                #valgtRHF = 'Nord',
-                               # nivaaNavn = 'Helse Møre og Romsdal HF')
-                            #reshID=105460, enhetsNivaa = as.character(input$valgtNivaaAbb))
+     # test <- intensivberedskap::abonnementBeredsk(rnwFil="BeredskapCorona.Rnw",
+     #                                              enhetsNivaa = 'RHF', #as.character(input$valgtNivaaAbb)
+     #                                              reshID=706078)
 
     rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
                               fun = fun, paramNames = paramNames,

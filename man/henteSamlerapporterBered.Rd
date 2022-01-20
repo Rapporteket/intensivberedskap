@@ -7,7 +7,6 @@
 henteSamlerapporterBered(
   filnavn,
   rnwFil,
-  valgtRHF = "Alle",
   reshID = 0,
   enhetsNivaa = "Alle",
   datoFra = Sys.Date() - 180,
