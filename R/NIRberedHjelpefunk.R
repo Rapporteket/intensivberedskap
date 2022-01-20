@@ -13,11 +13,6 @@ henteSamlerapporterBered <- function(filnavn, rnwFil, #Rpakke='intensivberedskap
                                      reshID=0,
                                      enhetsNivaa = 'Alle'){
 
-#valgtRHF = 'tom', #Brukes ikke fra ca 12.jan. 2022#nivaaNavn = 'tom')
-#datoFra=Sys.Date()-180,
-#datoTil=Sys.Date())
-  # @param nivaaNavn bare med fordi den må få verdi i Rnw-fila
-
   reshID <- as.numeric(reshID)
   tmpFile <- paste0('tmp',rnwFil)
   src <- normalizePath(system.file(rnwFil, package='intensivberedskap'))
@@ -30,6 +25,7 @@ henteSamlerapporterBered <- function(filnavn, rnwFil, #Rpakke='intensivberedskap
   file.copy(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), filnavn)
   # file.rename(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), file)
 }
+
 
 #' Funksjon som produserer rapporten som skal sendes til mottager.
 #' Nødvendig info til Covid-rapporten er reshID og enhetsNivaa
