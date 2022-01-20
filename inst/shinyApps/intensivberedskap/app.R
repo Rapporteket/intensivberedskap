@@ -76,6 +76,7 @@ InfluData <- NIRsqlPreInfluensa() #InfluDataRaa #intensiv::NIRPreprosess(RegData
 #sykehusValg <- c(0,unique(CoroData$ReshId))[sykehusNavn$ix]
 rhfNavn <- c('Alle', as.character(sort(unique(CoroData$RHF))))
 hfNavn <- sort(unique(CoroData$HF)) #, index.return=T)
+navnUtsendingVerdi <- c(rhfNavn, hfNavn)
 navnUtsending <- c('Hele landet', paste0('RHF: ', rhfNavn[-1]), paste0('HF: ', hfNavn))
 
 sykehusNavn <- sort(unique(CoroData$ShNavn), index.return=T)
@@ -839,8 +840,10 @@ server <- function(input, output, session) {
     paramNames <- c('rnwFil', "reshID", 'enhetsNivaa') #'brukernavn', "reshID", "valgtRHF")
     paramValues <- c(rnwFil, reshID, input$valgtNivaaAbb) #'brukernavn', "reshID", "valgtRHF")
 
-     # test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw",
-     #                       reshID=105460, enhetsNivaa = as.character(input$valgtNivaaAbb))
+   #   test <- intensivberedskap::abonnementBeredsk(rnwFil="BeredskapCorona.Rnw",
+                                #valgtRHF = 'Nord',
+                               # nivaaNavn = 'Helse Møre og Romsdal HF')
+                            #reshID=105460, enhetsNivaa = as.character(input$valgtNivaaAbb))
 
     rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
                               fun = fun, paramNames = paramNames,
@@ -898,8 +901,8 @@ server <- function(input, output, session) {
   #------------Utsending-----------------
 
   ## parametre til utsending
-  orgs <- navnUtsending #rhfNavn. sykehusValg har enhetsnavn med verdi resh
-  names(orgs) <- orgs
+  orgs <- navnUtsendingVerdi #rhfNavn. sykehusValg har enhetsnavn med verdi resh
+  names(orgs) <- navnUtsending
   orgs <- as.list(orgs)
 
   ## make a list for report metadata

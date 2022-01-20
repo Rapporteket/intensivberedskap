@@ -37,19 +37,29 @@ henteSamlerapporterBered <- function(filnavn, rnwFil, #Rpakke='intensivberedskap
 #' @param Rpakke hvilken R-pakke fila som lager rapporten ligger i
 #' @param valgtRHF Fases ut, men beholdes for at gamle abonnement skal kunne kjøre.
 #' @param reshID Bestillers resh-id. Benyttes for abonnement, ikke utsendinger
+#' @param enhetsNivaa Enhetsnivå: "Alle" (= hele landet), 'HF', 'RHF'
 #' @param nivaaNavn navn på det aktuelle HF/RHF, evt. "Alle" (= hele landet). Benyttes for utsendinger.
 #'
 #' @return Full path of file produced
 #' @export
-abonnementBeredsk <- function(rnwFil, brukernavn='beredskap',
-                              valgtRHF = 'tom', #'Alle', #Brukes ikke fra ca 12.jan. 2022
-                              reshID=0, #Beregnes ut fra HF/RHF-navn for utsending, men benyttes direkte for abonnement
-                              enhetsNivaa = 'Alle', #For abonnement
-                              nivaaNavn = 'tom', #Benyttes både for utsending
-                       Rpakke='intensivberedskap') {
+abonnementBeredsk <- function(rnwFil,
+                              brukernavn='beredskap',
+                              valgtRHF = 'tom',  #'Alle', #Brukes ikke fra ca 12.jan. 2022
+                              reshID=0,  #Beregnes ut fra HF/RHF-navn for utsending, men benyttes direkte for abonnement
+                              enhetsNivaa = 'Alle',  #For abonnement
+                              nivaaNavn = 'tom',  #Benyttes for utsending
+                              Rpakke='intensivberedskap') {
 
   # reshID Aktuell reshid
 # enhetsNivaa Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'
+  # print(valgtRHF)
+  # print(reshID)
+  # print(enhetsNivaa)
+  # print(nivaaNavn)
+  # valgtRHF <- "Nord"
+  # reshID <- 0
+  # enhetsNivaa <- "Alle"
+  # nivaaNavn <- "Helse Møre og Romsdal HF"
 
   # rapbase::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
   #                   reshId = reshID,

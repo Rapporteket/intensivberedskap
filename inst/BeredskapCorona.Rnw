@@ -40,20 +40,22 @@ CoroData$RHF <- as.character(CoroData$RHF)
 RegDataAlle <- NIRPreprosessBeredsk(RegData=CoroData)
 RegDataAlleOpph <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 0)
 
+
 #OMREGNING TIL RESH OG NIVÅ
 #For å ta høyde for abonnement bestilt før jan. 2022
  if (valgtRHF != 'tom') {
     enhetsNivaa <- 'RHF'
-    reshID <- ifelse(valgtRHF != 'Alle', CoroData$ReshId[match(valgtRHF, CoroData$RHF)], 0)
+    reshID <- ifelse(valgtRHF != 'Alle', RegDataAlle$ReshId[match(valgtRHF, RegDataAlle$RHF)], 0)
   }
 
+nivaaNavn <- "Helse Møre og Romsdal HF"
   if (nivaaNavn != 'tom') {
     if (nivaaNavn == 'Alle') {
       enhetsNivaa <- 'Alle'
       reshID <- 0
       } else {
-        ReshHF <- CoroData$ReshId[match(nivaaNavn, CoroData$HF)] #Finner første indeks for treff
-        ReshRHF <- CoroData$ReshId[match(nivaaNavn, CoroData$RHF)]
+        ReshHF <- RegDataAlle$ReshId[match(nivaaNavn, RegDataAlle$HF)] #Finner første indeks for treff
+        ReshRHF <- RegDataAlle$ReshId[match(nivaaNavn, RegDataAlle$RHF)]
         enhetsNivaa <- ifelse(!is.na(ReshHF), 'HF', ifelse(!is.na(ReshRHF), 'RHF', 'Alle')) #
         reshID <- sort(c(ReshHF, ReshRHF,0),decreasing = T)[1]
         }

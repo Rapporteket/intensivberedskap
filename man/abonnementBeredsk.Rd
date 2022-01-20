@@ -3,38 +3,35 @@
 \name{abonnementBeredsk}
 \alias{abonnementBeredsk}
 \title{Funksjon som produserer rapporten som skal sendes til mottager.
-(The actual call to this function is made through do.call and
-has the effect of providing the parameters as class
-\emph{list}. Verdier gis inn som listeparametre}
+Nødvendig info til Covid-rapporten er reshID og enhetsNivaa}
 \usage{
 abonnementBeredsk(
   rnwFil,
   brukernavn = "beredskap",
-  valgtRHF = "Alle",
+  valgtRHF = "tom",
   reshID = 0,
   enhetsNivaa = "Alle",
+  nivaaNavn = "tom",
   Rpakke = "intensivberedskap"
 )
 }
 \arguments{
 \item{rnwFil}{Navn på fila som skal kjøres. Angis MED filending (\emph{dvs "filnavn.Rnw"})}
 
-\item{reshID}{Aktuell reshid}
+\item{valgtRHF}{Fases ut, men beholdes for at gamle abonnement skal kunne kjøre.}
 
-\item{enhetsNivaa}{Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'}
+\item{reshID}{Bestillers resh-id. Benyttes for abonnement, ikke utsendinger}
+
+\item{enhetsNivaa}{Enhetsnivå: "Alle" (= hele landet), 'HF', 'RHF'}
+
+\item{nivaaNavn}{navn på det aktuelle HF/RHF, evt. "Alle" (= hele landet). Benyttes for utsendinger.}
 
 \item{Rpakke}{hvilken R-pakke fila som lager rapporten ligger i}
-
-\item{datoFra}{dato}
-
-\item{parametre}{Liste med valgfrie parametre, avhengig av type rapport}
 }
 \value{
 Full path of file produced
 }
 \description{
 Funksjon som produserer rapporten som skal sendes til mottager.
-(The actual call to this function is made through do.call and
-has the effect of providing the parameters as class
-\emph{list}. Verdier gis inn som listeparametre
+Nødvendig info til Covid-rapporten er reshID og enhetsNivaa
 }
