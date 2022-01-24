@@ -47,17 +47,11 @@ abonnementBeredsk <- function(rnwFil,
                               nivaaNavn = 'tom',  #Benyttes for utsending
                               Rpakke='intensivberedskap') {
 
-  # reshID Aktuell reshid
-# enhetsNivaa Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'
-  # print(valgtRHF)
-  # print(reshID)
-  # print(enhetsNivaa)
-  # print(nivaaNavn)
-  # valgtRHF <- "Nord"
-  # reshID <- 0
-  # enhetsNivaa <- "Alle"
-  # nivaaNavn <- "Helse Møre og Romsdal HF"
-
+  if (rnwFil %in% c('Alle_BeredskapCorona.Rnw', 'RHF_BeredskapCorona.Rnw', 'HF_BeredskapCorona.Rnw')) {
+    dum <- strsplit(rnwFil,'_')
+    rnwFil <- 'BeredskapCorona.Rnw'
+    enhetsNivaa <- dum[[1]][1]
+  }
   # rapbase::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
   #                   reshId = reshID,
   #                   msg = "starter Abonnement: Corona-rapport")
