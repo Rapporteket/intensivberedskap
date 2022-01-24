@@ -69,6 +69,7 @@ if (exists('nivaaNavn')){
 TidsVar <- 'Dag'
 RegDataAlleOpph$TidsVar <- as.factor(RegDataAlleOpph[,TidsVar])
 
+ifelse(reshID %in% c(0, unique(RegDataAlle$ReshId)), enhetsNivaa <- 'Alle') {
 
 if (enhetsNivaa != 'Alle'){ #Alle, RHF, HF
   enhetsNivaaUt <- paste0(enhetsNivaa, 'ut')
@@ -90,8 +91,7 @@ if (enhetsNivaa != 'Alle'){ #Alle, RHF, HF
 #enhetsNivaa  #'Alle', 'RHF', HF
 #reshID <- 700720
 reshID <- format(reshID, scientific = FALSE)
-advarsel <- ifelse(reshID %in% c(0, unique(RegDataAlle$ReshId)), '',
-                   'NB; Ingen registreringer på angitt reshID')
+
 egetRHF <- RegDataAlleOpph$RHF[match(reshID, RegDataAlleOpph$ReshId)]
 egetHF <- RegDataAlleOpph$HF[match(reshID, RegDataAlleOpph$ReshId)]
 
@@ -108,8 +108,7 @@ enhetTxt <- ifelse(enhetsNivaa=='RHF',  paste0('Helse ', enhet, ' RHF'), enhet)
 tittelEnh <- paste0('Norsk intensiv- og pandemiregister (NIPaR) \n',
                    'Automatisk generert rapport \n
                    Intensivbehandlede pasienter med covid-19 \n',
-               paste0('Registreringer fra ', enhetTxt),
-               advarsel)
+               paste0('Registreringer fra ', enhetTxt))
 indFerdig <- which(RegData$FormStatus==2)
 antFerdig <- length(indFerdig)
 N <- dim(RegData)[1]

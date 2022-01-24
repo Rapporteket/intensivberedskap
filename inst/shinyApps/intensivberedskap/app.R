@@ -903,7 +903,7 @@ server <- function(input, output, session) {
     )
   )
 
-     #test <- intensivberedskap::abonnementBeredsk(rnwFil='HF_BeredskapCorona.Rnw', reshID=706078)
+     test <- intensivberedskap::abonnementBeredsk(rnwFil='HF_BeredskapCorona.Rnw', reshID=123456)
 
   #orgAbb <- autoReportOrgServer("beredAbb", orgsAbb)
 
