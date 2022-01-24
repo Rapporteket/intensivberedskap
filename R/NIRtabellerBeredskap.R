@@ -102,6 +102,7 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
   nonInvLiggere <- respLiggere & RegData$MechanicalrespiratorTypeSiste==2
   AntNonInvNaa <- sum(nonInvLiggere)
   AntInvNaa <- sum(respLiggere & RegData$MechanicalrespiratorTypeSiste==1)
+  AntUkjInv <- sum(respLiggere & RegData$MechanicalrespiratorTypeSiste==-1)
 
   ECMOLiggere <- inneliggere & is.na(RegData$EcmoEnd) & !(is.na(RegData$EcmoStart) )
   AntIECMONaa <- sum(ECMOLiggere)
@@ -116,11 +117,12 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
     'På respirator nå' = c(AntIrespNaa*(c(1, 100/AntPaaIntNaa)), ResptidNaaGjsn),
     '...Pustehjelp på tett maske' = c(AntNonInvNaa*(c(1, 100/AntPaaIntNaa)), ''),
     '...Invasiv respiratorstøtte' = c(AntInvNaa*(c(1, 100/AntPaaIntNaa)), ''),
+    '...Ikke oppgitt pustehjelp' = c(AntUkjInv*(c(1, 100/AntPaaIntNaa)), ''),
     'På ECMO nå' = c(AntIECMONaa*(c(1, 100/AntPaaIntNaa)), ECMOtidNaaGjsn)
   )
   colnames(TabHjelp) <- c('Antall', 'Andel', 'Tid (gj.sn.)')
-  TabHjelp[2:5,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[2:5,'Andel'])),'%')
-  TabHjelp[c(1,2,5), 3] <- paste0(sprintf('%.1f', as.numeric(TabHjelp[c(1,2,5), 3])), ' døgn')
+  TabHjelp[2:6,'Andel'] <- paste0(sprintf('%.0f', as.numeric(TabHjelp[2:6,'Andel'])),'%')
+  TabHjelp[c(1,2,6), 3] <- paste0(sprintf('%.1f', as.numeric(TabHjelp[c(1,2,6), 3])), ' døgn')
   xtable::xtable(TabHjelp,
                  digits=0,
                  align = c('l','r','r','r'),
@@ -244,7 +246,7 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
       }
     TabRisiko <- rbind(TabRisiko,
                        'Pasienter, totalt' = c(dim(RegData)[1], ''))
-    colnames(TabRisiko) <- c('Ant.', 'Andel') #c('Antall pasienter', 'Andel pasienter')
+    colnames(TabRisiko) <- c('Antall', 'Andel') #c('Antall pasienter', 'Andel pasienter')
 
   }
   return(UtData <- list(Tab=TabRisiko, utvalgTxt=UtData$utvalgTxt, Ntest=Ntest))

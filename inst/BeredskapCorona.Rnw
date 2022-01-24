@@ -69,7 +69,7 @@ if (exists('nivaaNavn')){
 TidsVar <- 'Dag'
 RegDataAlleOpph$TidsVar <- as.factor(RegDataAlleOpph[,TidsVar])
 
-ifelse(reshID %in% c(0, unique(RegDataAlle$ReshId)), enhetsNivaa <- 'Alle') {
+if (!(reshID %in% c(0, unique(RegDataAlle$ReshId)))) {enhetsNivaa <- 'Alle'}
 
 if (enhetsNivaa != 'Alle'){ #Alle, RHF, HF
   enhetsNivaaUt <- paste0(enhetsNivaa, 'ut')
@@ -163,8 +163,7 @@ Enhet: \Sexpr{enhet}
 \end{frame}
 
 \begin{frame}[fragile] {Antall inneliggende og med pustehjelp}
-Antall inneliggende pasienter og med pustehjelp på rapporteringstidspunktet. (Registreringer uten ut-tid fra intensiv.)
-
+Antall inneliggende pasienter og antall med pustehjelp på rapporteringstidspunktet. (Registreringer uten ut-tid fra intensiv.)
 
 <<'RespiratorECMO', results='asis'>>=
 
@@ -306,7 +305,7 @@ print(
 
 <<'AlderInfo', results='asis'>>=
   Alder <- round(summary(RegData$Alder))
-txtAlder <- if (dim(RegData)[1]>2){paste0('Alderen i ', enhetTxt,' er mellom ',
+txtAlder <- if (dim(RegData)[1]>2){paste0('Aldersfordelingen i ', enhetTxt,' er mellom ',
                            Alder[1], ' og ', Alder[6], ' år med en gjennomsnittsalder på ',
                            Alder[4], ' år.')} else {''}
 @
@@ -367,21 +366,26 @@ txtRisiko <- ''
       colnames(TabRisiko) <- paste0(c('Antall', 'Andel'), ', ', egetRHF)
     } else {
       TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleUXm, sens=1)$Tab
+      colnames(TabRisiko) <- paste0(c('Antall', 'Andel'), ', hele landet')
     }
 
   if (enhetsNivaa %in% c('RHF', 'HF')) {
      TabRisikoEget <- RisikofaktorerTab(RegData=RegDataUXm, sens=1)$Tab
-     colnames(TabRisikoEget) <- paste0(c('Antall', 'Andel'), ', eget', enhetsNivaa)
+     colnames(TabRisikoEget) <- paste0(c('Antall', 'Andel'), ', eget ', enhetsNivaa)
      TabRisiko <- cbind(
        TabRisikoEget,
        TabRisiko
      )
   }
+bredde <- 4.4/ncol(TabRisiko)
+colnames(TabRisiko) <- paste0(paste0("\\multicolumn{1}{p{", bredde, "cm}}{"), colnames(TabRisiko),'}')
+  print(
     xtable::xtable(TabRisiko,
                    digits=0,
                    align = c('l',rep('r',ncol(TabRisiko))),
                    caption=paste0('Hyppighet av risikofaktorer blant intensivpasienter fra pandemistart
                    til ', datoFraXmnd,'. Pasienter kan ha mer enn èn risikofaktor.'))
+    , sanitize.colnames.function = identity)
 # } else {
 #   txtRisiko <- paste0('Det er registrert færre enn tre tilfeller i ', enhetTxt, '.')
 # }
@@ -403,8 +407,10 @@ if (dim(RegData)[1]>2) {
     if (enhetsNivaa == 'HF') {
       TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleXm[RegDataAlleXm$RHF==egetRHF,], sens = 1)$Tab
       colnames(TabRisiko) <- paste0(c('Antall', 'Andel'), ', ', egetRHF)
+
     } else {
       TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleXm, sens = 1)$Tab
+      colnames(TabRisiko) <- paste0(c('Antall', 'Andel'), ', hele landet')
     }
 
   if (enhetsNivaa %in% c('RHF', 'HF')) {
@@ -415,11 +421,15 @@ if (dim(RegData)[1]>2) {
        TabRisiko
      )
   }
-    xtable::xtable(TabRisiko,
+
+  bredde <- 4.4/ncol(TabRisiko)
+  colnames(TabRisiko) <- paste0(paste0("\\multicolumn{1}{p{", bredde, "cm}}{"), colnames(TabRisiko),'}')
+  print(xtable::xtable(TabRisiko,
                    digits=0,
-                   align = c('l',rep('r',ncol(TabRisiko))),
+                   align = c('l', rep('r', ncol(TabRisiko))),
                    caption='Hyppighet av risikofaktorer blant intensivpasienter siste tre måneder
                    før rapporteringstidspunktet. Pasienter kan ha mer enn èn risikofaktor.')
+          , sanitize.colnames.function = identity)
 } else {
   txtRisiko <- paste0('Det er registrert færre enn 3 tilfeller i ', enhetTxt, '.')
 }

@@ -872,19 +872,19 @@ server <- function(input, output, session) {
   ## make a list for report metadata
   reports <- list(
     CovidRappAlle = list(
-      synopsis = "Resultater, Covid-19: Hele landet",
+      synopsis = "Intensivpasienter med Covid-19: Hele landet",
       fun = "abonnementBeredsk", #Lag egen funksjon for utsending
       paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
       paramValues = c('Alle_BeredskapCorona.Rnw', reshID) #'Alle')
     ),
     CovidRappRHF = list(
-      synopsis = "Resultater, Covid-19: RHF",
+      synopsis = "Intensivpasienter med Covid-19: RHF",
       fun = "abonnementBeredsk", #Lag egen funksjon for utsending
       paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
       paramValues = c('RHF_BeredskapCorona.Rnw', reshID) #'Alle')
     ),
     CovidRappHF = list(
-      synopsis = "Resultater, Covid-19: HF",
+      synopsis = "Intensivpasienter med Covid-19: HF",
       fun = "abonnementBeredsk", #Lag egen funksjon for utsending
       paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
       paramValues = c('HF_BeredskapCorona.Rnw', reshID) #'Alle')
