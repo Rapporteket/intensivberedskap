@@ -405,11 +405,11 @@ if (dim(RegData)[1]>2) {
       TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleXm[RegDataAlleXm$RHF==egetRHF,], sens = 1)$Tab
       colnames(TabRisiko) <- paste0(c('Antall', 'Andel'), ', ', egetRHF)
     } else {
-      TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleXm)$Tab
+      TabRisiko <- RisikofaktorerTab(RegData=RegDataAlleXm, sens = 1)$Tab
     }
 
   if (enhetsNivaa %in% c('RHF', 'HF')) {
-     TabRisikoEget <- RisikofaktorerTab(RegData=RegDataXm)$Tab
+     TabRisikoEget <- RisikofaktorerTab(RegData=RegDataXm, sens = 1)$Tab
      colnames(TabRisikoEget) <- paste0(c('Antall', 'Andel'), ', eget', enhetsNivaa)
      TabRisiko <- cbind(
        TabRisikoEget,
