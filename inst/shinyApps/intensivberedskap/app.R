@@ -929,7 +929,7 @@ server <- function(input, output, session) {
   ## make a list for report metadata
   reports <- list(
     CovidRapp = list(
-      synopsis = "Resultater, Covid-19",
+      synopsis = "Intensivpasienter med Covid-19",
       fun = "abonnementBeredsk", #Lag egen funksjon for utsending
       paramNames = c('rnwFil', 'nivaaNavn'), #"valgtRHF"),
       paramValues = c('BeredskapCorona.Rnw', 'Alle' ) #'Alle')
