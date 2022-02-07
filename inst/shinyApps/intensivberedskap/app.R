@@ -829,11 +829,6 @@ server <- function(input, output, session) {
 
 
 #--------Start modul, abonnement
-  # #KAN IKKE BRUKE MODUL. RAPPORTLISTA VISER BARE EGEN RESHID, IKKE PARAMETERVALG
-  # orgsAbb <- egneEnhetsNivaa #rhfNavn. sykehusValg har enhetsnavn med verdi resh
-  # names(orgsAbb) <- orgsAbb
-  # orgsAbb <- as.list(orgsAbb)
-
   alleResh <- unique(CoroDataRaa$UnitId)
   Navn <- CoroDataRaa$HelseenhetKortnavn[match(alleResh, CoroDataRaa$UnitId)]
   names(alleResh) <- Navn
@@ -842,19 +837,19 @@ server <- function(input, output, session) {
   ## make a list for report metadata
   reports <- list(
     CovidRappAlle = list(
-      synopsis = "Intensivpasienter med Covid-19: Hele landet",
+      synopsis = "Intensivpasienter med covid-19: Hele landet",
       fun = "abonnementBeredsk", #Lag egen funksjon for utsending
       paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
       paramValues = c('Alle_BeredskapCorona.Rnw', reshID) #'Alle')
     ),
     CovidRappRHF = list(
-      synopsis = "Intensivpasienter med Covid-19: RHF",
+      synopsis = "Intensivpasienter med covid-19: RHF",
       fun = "abonnementBeredsk", #Lag egen funksjon for utsending
       paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
       paramValues = c('RHF_BeredskapCorona.Rnw', reshID) #'Alle')
     ),
     CovidRappHF = list(
-      synopsis = "Intensivpasienter med Covid-19: HF",
+      synopsis = "Intensivpasienter med covid-19: HF",
       fun = "abonnementBeredsk", #Lag egen funksjon for utsending
       paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
       paramValues = c('HF_BeredskapCorona.Rnw', reshID) #'Alle')
@@ -872,16 +867,6 @@ server <- function(input, output, session) {
       paramValues = c('NIRinfluensa.Rnw')
     )
   )
-
-     test <- intensivberedskap::abonnementBeredsk(rnwFil='HF_BeredskapCorona.Rnw', reshID=123456)
-
-  #orgAbb <- autoReportOrgServer("beredAbb", orgsAbb)
-
-  # set reactive parameters overriding those in the reports list
-  # paramNames <- shiny::reactive("reshID")
-  # paramValues <- shiny::reactive(orgAbb$value())
-
-
 
   autoReportServer(
     id = "beredAbb", registryName = "intensivberedskap", type = "subscription",
