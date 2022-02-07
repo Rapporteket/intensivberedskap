@@ -72,8 +72,6 @@ InfluData <- NIRsqlPreInfluensa() #InfluDataRaa #intensiv::NIRPreprosess(RegData
 
 
 #Definere utvalgsinnhold
-#sykehusNavn <- sort(c('',unique(CoroData$ShNavn)), index.return=T)
-#sykehusValg <- c(0,unique(CoroData$ReshId))[sykehusNavn$ix]
 rhfNavn <- c('Alle', as.character(sort(unique(CoroData$RHF))))
 hfNavn <- sort(unique(CoroData$HF)) #, index.return=T)
 navnUtsendingVerdi <- c(rhfNavn, hfNavn)
@@ -225,11 +223,7 @@ ui <- tagList(
                                        'Bukleie' = 'bukleie',
                                        'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring',
                                        'Frailty index' = 'frailtyIndex',
-                                      # 'Inklusjonskriterier' = 'inklKrit',
-                                      # 'Isolasjon, type' = 'isolering',
-                                      # 'Isolasjon, varighet' = 'isoleringDogn',
                                        'Liggetid' = 'liggetid',
-                                       'NEMS-skår per døgn' = 'NEMS24',
                                        'Primærårsak' = 'PrimaryReasonAdmitted',
                                       'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
                                       'Registreringsforsinkelse, utskriving' = 'regForsinkelseUt',
@@ -388,25 +382,6 @@ tabPanel(title = 'Influensa',
                         title='Bestill automatisk utsending av rapporter på e-post'),
                       value = 'Abonnement',
 
-
-                      # sidebarLayout(
-                      #   sidebarPanel(width = 3,
-                      #                selectInput("subscriptionRep", "Dokument:", c("Koronarapport", "Influensarapport")),
-                      #                selectInput("subscriptionFreq", "Frekvens:",
-                      #                            list(Månedlig="Månedlig-month",
-                      #                                 Ukentlig="Ukentlig-week",
-                      #                                 Daglig="Daglig-DSTday"),
-                      #                            selected = "Ukentlig-week"),
-                      #                selectInput(inputId = "valgtNivaaAbb", label="Velg enhetsnivå for rapporten",
-                      #                                         choices = enhetsNivaa
-                      #                             ),
-                      #                actionButton("subscribe", "Bestill!")
-                      #   ),
-                      #   mainPanel(
-                      #     h4('NB: Abonnementet løper til det sies opp. '),
-                      #     uiOutput("subscriptionContent")
-                      #   )
-                      # )
                       sidebarLayout(
                         sidebarPanel(
                           #autoReportOrgInput("beredAbb"), #ReshId
@@ -457,17 +432,10 @@ tabPanel(title = 'Influensa',
                                      dateRangeInput(inputId = 'datovalgForsink', start = startDato, end = idag, #'2020-05-10',
                                                     label = "Tidsperiode", separator="t.o.m.", language="nb"
                                      ),
-
-
-
                         ),
                         mainPanel(
                           h3('Bekreftede Covidpasienter, t.o.m. dagens dato'),
-                          #med innleggelsesdato t.o.m. 10.mai 2020, div resultater'),
                           br(),
-                          #h4('Last ned oppsummeringsdata. Ikke så pen tabell...'),
-                          #downloadButton(outputId = 'lastNed_BeredIntOppsumTab', label = 'Last ned oppsummeringstall'),
-                          #br(),
                           br(),
                           h4('Div andeler...'),
                           tableOutput('tabAndeler'),
@@ -551,6 +519,10 @@ server <- function(input, output, session) {
      #print(brukernavn)
   })
   if (rolle != 'SC') {
+    updateSelectInput(session, "valgtRHF",
+                       choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
+                                                        egetRHF))))
+
     # updateSelectInput(session, "valgtRHF",        #Skal utgå...
     #                    choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
     #                                                     egetRHF))))
@@ -586,9 +558,7 @@ server <- function(input, output, session) {
   observe({
     #valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHF))
     #valgtNivaa <- ifelse(rolle == 'LU', 'HF', as.character(input$valgtNivaa))
-    # test <- henteSamlerapporterBered('dummy', rnwFil="BeredskapCorona.Rnw",
-    #                          enhetsNivaa = 'RHF',
-    #                            reshID = 706078)
+
     output$CoroRapp.pdf <- downloadHandler(
       filename = function(){
         paste0('CoronaRapport', Sys.time(), '.pdf')},
@@ -929,7 +899,7 @@ server <- function(input, output, session) {
   ## make a list for report metadata
   reports <- list(
     CovidRapp = list(
-      synopsis = "Intensivpasienter med Covid-19",
+      synopsis = "Intensivpasienter med covid-19",
       fun = "abonnementBeredsk", #Lag egen funksjon for utsending
       paramNames = c('rnwFil', 'nivaaNavn'), #"valgtRHF"),
       paramValues = c('BeredskapCorona.Rnw', 'Alle' ) #'Alle')
