@@ -4,7 +4,7 @@
 \alias{sendInfluDataFHI}
 \title{Funksjon som henter filer som skal sendes til FHI. To filer fra intensivopphold
 og to filer fra sykehusopphold. Dvs. Ei fil for hvert opphold og ei aggregert til
-person, for hvert register}
+person, for hvert register. IKKE i bruk på beredskap. Filer sendes fra Pandemi...}
 \usage{
 sendInfluDataFHI(zipFilNavn = "Testfil", brukernavn = "testperson")
 }
@@ -19,5 +19,5 @@ Filsti til fil med filsti til zip...
 \description{
 Funksjon som henter filer som skal sendes til FHI. To filer fra intensivopphold
 og to filer fra sykehusopphold. Dvs. Ei fil for hvert opphold og ei aggregert til
-person, for hvert register
+person, for hvert register. IKKE i bruk på beredskap. Filer sendes fra Pandemi...
 }

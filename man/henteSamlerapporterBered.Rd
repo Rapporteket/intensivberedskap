@@ -4,15 +4,7 @@
 \alias{henteSamlerapporterBered}
 \title{Funksjon som produserer rapporten som skal sendes til mottager.}
 \usage{
-henteSamlerapporterBered(
-  filnavn,
-  rnwFil,
-  reshID = 0,
-  Rpakke = "intensivberedskap",
-  valgtRHF = "Alle",
-  datoFra = Sys.Date() - 180,
-  datoTil = Sys.Date()
-)
+henteSamlerapporterBered(filnavn, rnwFil, reshID = 0, enhetsNivaa = "Alle")
 }
 \arguments{
 \item{filnavn}{dummy}
@@ -21,11 +13,7 @@ henteSamlerapporterBered(
 
 \item{reshID}{Aktuell reshid}
 
-\item{Rpakke}{hvilken R-pakke fila som lager rapporten ligger i}
-
-\item{datoFra}{dato}
-
-\item{parametre}{Liste med valgfrie parametre, avhengig av type rapport}
+\item{enhetsNivaa}{Enhetsnivå, 'Alle'-hele landet, 'RHF', 'HF'}
 }
 \value{
 Full path of file produced

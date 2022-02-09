@@ -17,7 +17,8 @@ RisikofaktorerTab(
   resp = 9,
   minald = 0,
   maxald = 110,
-  velgAvd = 0
+  velgAvd = 0,
+  sens = 0
 )
 }
 \arguments{

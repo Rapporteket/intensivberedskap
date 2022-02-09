@@ -113,7 +113,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    Alder = Alder[1],
                    AgeAdmitted = AgeAdmitted[1],
                    PatientGender = PatientGender[1],
-                   Morsdato = sort(Morsdato)[1],
+                   Morsdato = Morsdato[1], #sort(Morsdato)[1],
                    DischargedIntensiveStatus = sort(DischargedIntensiveStatus, decreasing = T)[1], #max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
                    Overf = max(Overf),
                    Astma  = sum(Astma)>0,
@@ -170,13 +170,22 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                                                              units = 'hours') > 12))), #Hvilket opphold som er siste reinnleggelse på respirator
                    MechanicalRespiratorStartSiste = nth(MechanicalRespiratorStart, ReinnRespNaar+1, order_by = MechanicalRespiratorStart),
                    #NB: MechanicalRespiratorStart/End finnes ikke i intensivskjema.
+
+                   MT1 = sum(MechanicalrespiratorType==1)>0,
+                   MT2 = sum(MechanicalrespiratorType==2)>0,
+                   #NB: Må ta bort de som ikke har vært på respirator...
+                   #Type: -1:ikke utfylt, 1-invasiv, 2-non-invasiv
+                   InvNonIBegge = ifelse(MT1&MT2, 3,
+                                                ifelse(MT2, 2,
+                                                       ifelse(MT1, 1, -1))),
+                   MechanicalrespiratorTypeSiste = last(MechanicalrespiratorType, order_by = FormDate),
                    MechanicalRespiratorStart = first(MechanicalRespiratorStart, order_by = MechanicalRespiratorStart),
                    MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
                    EcmoStart = sort(EcmoStart)[1], #sort tar ikke med NA-verdier.
                    DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
                    MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
                    EcmoEnd = sort(EcmoEnd, decreasing = T)[1], #sort(NA) gir tom, men sort(NA)[1] gir NA
-                   ECMOTid = sum(ECMOTid, na.rm = T),
+                   ECMOTid = ifelse(sum(!is.na(ECMOTid))>0, sum(ECMOTid, na.rm = T), NA), #Ellers får vi 0 på tomme
                    Municipal = first(Municipal, order_by = FormDate),
                    MunicipalNumber = first(MunicipalNumber, order_by = FormDate),
                    ReshId = first(ReshId, order_by = FormDate),
@@ -186,9 +195,11 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    HF = first(HF, order_by = FormDate),
                    ShNavnUt = last(HelseenhetKortnavn, order_by = FormDate),
                    ShNavn = first(HelseenhetKortnavn, order_by = FormDate),
+                   SykehusUt = last(Sykehus, order_by = FormDate),
+                   Sykehus = first(Sykehus, order_by = FormDate),
                    FormDateUt = last(FormDate, order_by = FormDate),
                    FormDate = first(FormDate, order_by = FormDate),
-                   RespTid = sum(RespTid, na.rm = T),
+                   RespTid = ifelse(sum(RespTid, na.rm = T) > 0, sum(RespTid, na.rm = T), NA),
                   #    ifelse(ReinnResp==0 ,
                    #                  difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = 'days'),
                    #                  difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = 'days') - ReinnRespTid/24),
@@ -199,13 +210,17 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
          )
    } #aggPers
 
+   # pers <- RegData$PersonId[RegData$InvNonIBegge==1 & RegData$AntRegPrPas>1]
+   # test <- BeredDataRaa[which(BeredDataRaa$PersonId %in% pers), c('PersonId','MechanicalrespiratorType')]
+   # tab <- table(test)
+
    if (kobleInt==1){
       # #Fjerner  uten intensivskjema
-      # pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-      # skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
-      # indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
-      # test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
-      # if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
+      pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
+      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
+      indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
+      test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
+      if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
 
       if (aggPers == 1){
          # indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)

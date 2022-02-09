@@ -35,7 +35,7 @@ library(intensivberedskap)
 # -	Skjemastatus ? (tal på skjema i kladd vs ferdigstilte)
 
 
-InfluData <- intensivberedskap::NIRsqlInfluensa(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1)
+InfluData <- intensivberedskap::NIRsqlPreInfluensa(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1)
 
 sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
 InfluData <- InfluData[which(InfluData$Sesong %in% sesongNaa), ]

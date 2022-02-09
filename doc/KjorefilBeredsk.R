@@ -7,16 +7,23 @@ library(intensivberedskap)
 # CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                        stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 #CoroData <- NIRberedskDataSQL()
-valgtRHF <- 'Alle'
-valgtRHF <- as.character(NIRPreprosessBeredsk(NIRberedskDataSQL())$RHF[3])
+# valgtRHF <- 'Alle'
+# valgtRHF <- as.character(NIRPreprosessBeredsk(NIRberedskDataSQL())$RHF[3])
+# 9.jan. 2022: Endrer til parametre reshID og enhetsNivaa
+reshID <- 107717 #700720 #107717 #
+enhetsNivaa <- 'HF'
 #setwd('C:/ResultattjenesteGIT/intensivberedskap/')
 #knit('C:/ResultattjenesteGIT/intensivberedskap/inst/BeredskapCorona.Rnw', encoding = 'UTF-8')
 #tools::texi2pdf(file='BeredskapCorona.tex')
-knitr::knit2pdf('~/intensivberedskap/inst/NIRinfluensa.Rnw') #, encoding = 'UTF-8')
+#knitr::knit('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'UTF-8')
+knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'UTF-8')
 
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 library(intensivberedskap)
+
+PasientID = "3644198B-F158-EC11-A978-00155D0B4D1A"
+
 
 RegDataRaa <- NIRberedskDataSQL(kobleInt = 1)
 RegData <- NIRPreprosessBeredsk(RegDataRaa, kobleInt = 1)
@@ -30,10 +37,10 @@ ReinnNaar = max(which(difftime(sort(test$FormDate)[2:2],
                                test$DateDischargedIntensive[order(test$FormDate)][1],
                                                    units = 'hours') > 12))+1
 ReinnNaar = ifelse(Reinn==0  , 1,
-                   ifelse(sum(is.na(test$DateDischargedIntensive))>0
+                   ifelse(sum(is.na(test$DateDischargedIntensive))>0,
                      max(which(difftime(sort(FormDate)[2:AntRegPrPas],
                                                    DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
-                                                   units = 'hours') > 12))+1)
+                                                   units = 'hours') > 12))+1))
 
 test <- CoroData[!is.na(CoroData$EcmoStart) & CoroData$RHF=='Vest',
                  c("RHF", 'HF',"ShNavn",'HFut', "ShNavnUt", "FormStatus", "FormDate", "DateDischargedIntensive")]

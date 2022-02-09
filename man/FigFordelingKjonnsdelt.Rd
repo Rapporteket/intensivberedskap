@@ -7,10 +7,13 @@
 FigFordelingKjonnsdelt(
   RegData,
   valgtVar = "Alder",
+  datoFra = "2020-03-01",
+  datoTil = Sys.Date(),
   valgtRHF = "Alle",
   bekr = 9,
   skjemastatus = 9,
   resp = 9,
+  minN = 0,
   dodInt = 9,
   erMann = 9,
   grvar = "PatientGender",
@@ -18,6 +21,8 @@ FigFordelingKjonnsdelt(
 )
 }
 \arguments{
+\item{minN}{Maskerer verdier under <3}
+
 \item{TabAlder}{Dataramme med nødvendige figurparametre}
 }
 \value{

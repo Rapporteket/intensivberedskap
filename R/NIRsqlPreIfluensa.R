@@ -10,7 +10,7 @@
 #'
 #' @export
 #'
-NIRsqlInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1) {
+NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1) {
 
 
     query <- paste0('SELECT *

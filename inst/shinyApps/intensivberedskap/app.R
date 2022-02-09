@@ -28,7 +28,7 @@ startDato <- '2020-03-01'  #paste0(as.numeric(format(idag-90, "%Y")), '-01-01')
 #AarNaa <- as.numeric(format(idag, "%Y"))
 
 regTitle <- ifelse(paaServer,
-                   paste0('Norsk Intensivregister, Beredskapsregistrering ',ifelse(context=='QA', 'QA','')),
+                   paste0('Norsk Intensiv- og pandemiregister, Beredskapsregistrering ',ifelse(context=='QA', 'QA','')),
                    'Norsk Intensivregister med FIKTIVE data')
 
 #---------Hente data------------
@@ -55,7 +55,7 @@ if (paaServer) {
 CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
 BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
 
-BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1) #1159 pasienter, 121 manger int: 1047
 
 if (dim(BeredIntRaa)[1]>0) {
   BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1)
@@ -65,53 +65,22 @@ if (dim(BeredIntRaa)[1]>0) {
 queryInflu <- paste0('SELECT * FROM InfluensaFormDataContract')
 #InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
 #InfluDataRaa <- InfluDataRaa[which(as.Date(InfluDataRaa$FormDate) < '2020-08-01'), ]
-InfluData <- intensivberedskap::NIRsqlInfluensa() #InfluDataRaa #intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
-
-# InfluData$Influensa <- factor(NA, levels = c('Mistenkt', 'Bekreftet'))
-# #--Identifiser J10 og J11 i ICD10-variablene.
-# indBekreftet <- which(InfluData$ICD10_1 %in% c(9:12))
-# indMistenkt <- which(InfluData$ICD10_1 %in% c(-1,13:16))
-# InfluData$Influensa[indMistenkt] <- 'Mistenkt'
-# InfluData$Influensa[indBekreftet] <- 'Bekreftet'
-#
-# InfluData$Bekr <- as.numeric(InfluData$Influensa)-1
-#
-# #InfluData$RHF <- sub('Helse ', '', InfluData$RHF)
-# InfluData$RHF <- factor(InfluData$RHF,
-#                         levels= c('Helse Nord', 'Helse Midt-Norge', 'Helse Vest', 'Helse Sør-Øst', 'Privat'),
-#                         labels = c('Nord', 'Midt', 'Vest', 'Sør-Øst', 'Privat'))
-
-# #Legge på tidsenheter
-# InfluData$InnDato <- as.Date(InfluData$FormDate) #, tz='UTC', format = '%Y-%m-%d"')
-# InfluData$UkeNr <- format(InfluData$InnDato, '%V')
-# InfluData$UkeAar <- format(InfluData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
-# InfluData$UkeAar <- as.factor(InfluData$UkeAar)
-#
-# #InfluData$RHF <- factor(InfluData$RHF)
-#
-# InfluData$Sesong <- 'diverse'
-# InfluData$Sesong[(InfluData$InnDato >= '2018-10-01') & (InfluData$InnDato <= '2019-05-19')] <- '2018-19'
-# InfluData$Sesong[(InfluData$InnDato >= '2019-09-30') & (InfluData$InnDato <= '2020-05-17')] <- '2019-20'
-# InfluData$Sesong[(InfluData$InnDato >= '2020-09-28') & (InfluData$InnDato <= '2021-05-23')] <- '2020-21'
-# InfluData$Sesong[(InfluData$InnDato >= '2021-10-05') & (InfluData$InnDato <= '2022-05-23')] <- '2021-22'
-# InfluData$Sesong <- factor(InfluData$Sesong,levels = c('2018-19', '2019-20', '2020-21', '2021-22', 'utenfor sesong'))
+InfluData <- NIRsqlPreInfluensa() #InfluDataRaa #intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
 
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------
 
 
 #Definere utvalgsinnhold
-#sykehusNavn <- sort(c('',unique(CoroData$ShNavn)), index.return=T)
-#sykehusValg <- c(0,unique(CoroData$ReshId))[sykehusNavn$ix]
 rhfNavn <- c('Alle', as.character(sort(unique(CoroData$RHF))))
 hfNavn <- sort(unique(CoroData$HF)) #, index.return=T)
-sykehusNavn <- sort(unique(CoroData$ShNavn), index.return=T)
-sykehusValg <- unique(CoroData$ReshId)[sykehusNavn$ix]
-sykehusValg <- c(0,sykehusValg)
-names(sykehusValg) <- c('Ikke valgt',sykehusNavn$x)
-#updateTextInput(session, inputId, label = NULL, value = NULL). Hvis input skal endres som flge av et annet input.
-enhetsNivaa <- c('RHF', 'HF', 'ShNavn')
-names(enhetsNivaa) <- c('RHF', 'HF', 'Sykehus')
+navnUtsendingVerdi <- c(rhfNavn, hfNavn)
+navnUtsending <- c('Hele landet', paste0('RHF: ', rhfNavn[-1]), paste0('HF: ', hfNavn))
+
+enhetsNivaa <- c('Alle', 'RHF', 'HF')
+names(enhetsNivaa) <- c('Hele landet', 'eget RHF', 'egetHF')
+
+
 
 sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
 sesongValg <- sort(unique(InfluData$Sesong)) #sesongValg <- rev(c('2018-19', '2019-20', '2020-21', '2021-22', '20')),
@@ -136,11 +105,14 @@ ui <- tagList(
                                    # h3('Coronarapport med samling av resultater'),
                                    # h5('Coronarapporten kan man få regelmessig tilsendt på e-post.
                                    #    Gå til fanen "Abonnement" for å bestille dette.'),
-                                   downloadButton(outputId = 'CoroRapp.pdf', label='Last ned Coronarapport', class = "butt"),
+                                   downloadButton(outputId = 'CoroRapp.pdf', label='Last ned covid-19rapport', class = "butt"),
                                    tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
                                    br(),
+                                   selectInput(inputId = "valgtNivaa", label="Velg enhetsnivå for rapporten",
+                                               choices = enhetsNivaa
+                                   ),
                                    br(),
-                                   h3('Gjør filtreringer/utvalg:'),
+                                   h4('Gjør filtreringer/utvalg i tabeller og figurer:'),
                                    #br(),
 
                                    selectInput(inputId = "valgtRHF", label="Velg RHF",
@@ -182,7 +154,7 @@ ui <- tagList(
                                    # ),
                       ),
                       mainPanel(width = 9,
-                                shinyalert::useShinyalert(),
+                                #shinyalert::useShinyalert(),
                                 appNavbarUserWidget(user = uiOutput("appUserName"),
                                                     organization = uiOutput("appOrgName"),
                                                     addUserInfo = TRUE),
@@ -251,11 +223,7 @@ ui <- tagList(
                                        'Bukleie' = 'bukleie',
                                        'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring',
                                        'Frailty index' = 'frailtyIndex',
-                                      # 'Inklusjonskriterier' = 'inklKrit',
-                                      # 'Isolasjon, type' = 'isolering',
-                                      # 'Isolasjon, varighet' = 'isoleringDogn',
                                        'Liggetid' = 'liggetid',
-                                       'NEMS-skår per døgn' = 'NEMS24',
                                        'Primærårsak' = 'PrimaryReasonAdmitted',
                                       'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
                                       'Registreringsforsinkelse, utskriving' = 'regForsinkelseUt',
@@ -303,8 +271,12 @@ ui <- tagList(
                title = 'Datakvalitet',
                value = 'Datakvalitet',
                sidebarLayout(
-                 sidebarPanel(width = 2
-                 ),
+                 sidebarPanel(width = 2,
+                   dateInput(inputId = 'datoFraMI', label = "Fra dato: ",
+                             value = as.character(Sys.Date()-365)) #, min = startDato, max = Sys.Date())
+                   # dateRangeInput(inputId = 'datovalgMI', start = startDato, end = Sys.Date(),
+                   #                label = "Tidsperiode", separator="t.o.m.", language="nb")
+                ),
                  mainPanel(
                    h4('Ferdistilte beredskapsskjema som mangler ferdigstillelse av tilhørende intensivskjema'),
                    br(),
@@ -328,7 +300,7 @@ tabPanel(title = 'Influensa',
           sidebarPanel(id = 'brukervalgInfluensa',
                        width = 3,
                        #uiOutput('CoroRappTxt'),
-                       h3(paste0('Influensarapport med samling av resultater for sesongen ', sesongNaa, ')')),
+                       h3(paste0('Influensarapport med samling av resultater for sesongen ', sesongNaa)),
                        h5('(Influensasesong oppdateres automatisk når det registreres data for en ny sesong)'),
                         h5('Influensarapporten kan man få regelmessig tilsendt på e-post.
                            Gå til fanen "Abonnement" for å bestille dette.'),
@@ -373,12 +345,12 @@ tabPanel(title = 'Influensa',
                        br(),
                        br(),
 
-                       h3('Data til FHI'),
-                       h4('Inntil automatsik dataoverføring til FHI er på plass, kan tilsvarende data lastes ned'),
-                       downloadButton("lastNed_DataFHI", "Last ned Influensadata, FHI"),
-                       br(),
-                       br(),
-                       br(),
+                       # h3('Data til FHI'),
+                       # h4('Inntil automatsik dataoverføring til FHI er på plass, kan tilsvarende data lastes ned'),
+                       # downloadButton("lastNed_DataFHI", "Last ned Influensadata, FHI"),
+                       # br(),
+                       # br(),
+                       # br(),
 
                        # selectInput("hvilkeFilerTilFHI", "Data:", c("Influensadata" = "InfluDataFHI",
                        #                                             "Testfil" = "Testfil")),
@@ -409,30 +381,27 @@ tabPanel(title = 'Influensa',
              tabPanel(p("Abonnement",
                         title='Bestill automatisk utsending av rapporter på e-post'),
                       value = 'Abonnement',
+
                       sidebarLayout(
-                        sidebarPanel(width = 3,
-                                     selectInput("subscriptionRep", "Dokument:", c("Koronarapport", "Influensarapport")),
-                                     selectInput("subscriptionFreq", "Frekvens:",
-                                                 list(Månedlig="Månedlig-month",
-                                                      Ukentlig="Ukentlig-week",
-                                                      Daglig="Daglig-DSTday"),
-                                                 selected = "Ukentlig-week"),
-                                     selectInput(inputId = "valgtRHFabb", label="Velg RHF",
-                                                 choices = rhfNavn
-                                     ),
-                                     actionButton("subscribe", "Bestill!")
+                        sidebarPanel(
+                          #autoReportOrgInput("beredAbb"), #ReshId
+                          autoReportInput("beredAbb")
                         ),
-                        mainPanel(
-                          h4('NB: Abonnementet løper til det sies opp. '),
-                          uiOutput("subscriptionContent")
+                        shiny::mainPanel(
+                          autoReportUI("beredAbb")
                         )
                       )
              ), #tab abonnement
 
 #-----------Registeradmin.------------
-             tabPanel(p("Registeradmin.",
-                        title='Data til artikkel'),
-                      value = 'Registeradmin.',
+             tabPanel(p("Registeradmin."),
+                        value = 'Registeradmin.',
+
+                        tabsetPanel(
+                          tabPanel(p('Oversiktsdata',
+                                     title='Data til artikkel'),
+                                   value = 'Oversiktsdata',
+
                       sidebarLayout(
                         sidebarPanel(width = 4,
                                      h3('Data fra beredskapsskjema og tilhørende intensivskjema'),
@@ -463,17 +432,10 @@ tabPanel(title = 'Influensa',
                                      dateRangeInput(inputId = 'datovalgForsink', start = startDato, end = idag, #'2020-05-10',
                                                     label = "Tidsperiode", separator="t.o.m.", language="nb"
                                      ),
-
-
-
                         ),
                         mainPanel(
                           h3('Bekreftede Covidpasienter, t.o.m. dagens dato'),
-                          #med innleggelsesdato t.o.m. 10.mai 2020, div resultater'),
                           br(),
-                          #h4('Last ned oppsummeringsdata. Ikke så pen tabell...'),
-                          #downloadButton(outputId = 'lastNed_BeredIntOppsumTab', label = 'Last ned oppsummeringstall'),
-                          #br(),
                           br(),
                           h4('Div andeler...'),
                           tableOutput('tabAndeler'),
@@ -489,12 +451,26 @@ tabPanel(title = 'Influensa',
                           downloadButton(outputId = 'lastNed_tabForsink', label='Last ned tabell') #, class = "butt")
                         )
                       )
-             ) #tab artikkelarb
+             ), #tab artikkelarb
 
+             tabPanel(p('Utsendinger',
+                        title = 'Administrer utsending av rapporter'),
+                      value = 'Utsendinger',
 
+               shiny::sidebarLayout(
+                 shiny::sidebarPanel(
+                     autoReportOrgInput("beredUts"), #Definert slik at RHFnavn/HFnavn benyttes
+                   autoReportInput("beredUts")
+                 ),
+                 shiny::mainPanel(
+                   autoReportUI("beredUts")
+                 )
+               )
+             ) #Tab utsending
+             ) #tabset
+             ) #hovedark Registeradm
   ) # navbarPage
 ) # tagList
-
 
 
 
@@ -506,7 +482,7 @@ server <- function(input, output, session) {
 
   #-----------Div serveroppstart------------------
   if (context %in% c('QA', 'PRODUCTION')){
-    raplog::appLogger(session = session, msg = "Starter Corona-app")}
+    rapbase::appLogger(session = session, msg = "Starter Corona-app")}
 
   reshID <- ifelse(paaServer, as.numeric(rapbase::getUserReshId(session)), 42088921) # 42088921
 
@@ -519,12 +495,12 @@ server <- function(input, output, session) {
     egetShNavn <- as.character(CoroData$ShNavn[indReshEgen])
     egetRHF <- as.character(CoroData$RHF[indReshEgen])
     egetHF <- as.character(CoroData$HF[indReshEgen])
-    egenLokalitet <- c(0, 2, 4, 7)
-    names(egenLokalitet) <- c('hele landet', egetShNavn, egetRHF)
+    # egenLokalitet <- c(0, 2, 4, 7)
+    # names(egenLokalitet) <- c('hele landet', egetShNavn, egetHF, egetRHF)
   } else {
     egetRHF <- 'Ukjent'
   }
-  egetRHF <- ifelse(rolle=='SC', 'Alle', egetRHF)
+  #18.jan. 2022 egetRHF <- ifelse(rolle=='SC', 'Alle', egetRHF)
 
   observe({
     if ((rolle != 'SC') & !(finnesEgenResh)) { #
@@ -544,11 +520,16 @@ server <- function(input, output, session) {
   })
   if (rolle != 'SC') {
     updateSelectInput(session, "valgtRHF",
-                      choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
+                       choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
                                                         egetRHF))))
-    #CoroData$RHF[match(reshID, CoroData$ReshId)]))
-    updateSelectInput(session, "valgtRHFabb",
-                      choices = egetRHF) #unique(c('Alle', egetRHF)))
+
+    # updateSelectInput(session, "valgtRHF",        #Skal utgå...
+    #                    choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
+    #                                                     egetRHF))))
+    # updateSelectInput(session, "valgtNivaaAbb",                       choices = 'HF')
+
+    #UTgår, jan22: updateSelectInput(session, "valgtRHFabb",
+    #                   choices = egetRHF)
     #CoroData$RHF[match(reshID, CoroData$ReshId)]))
   }
 
@@ -575,15 +556,17 @@ server <- function(input, output, session) {
 
   #-------- Laste ned Samlerapport------------
   observe({
-    valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHF))
+    #valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHF))
+    #valgtNivaa <- ifelse(rolle == 'LU', 'HF', as.character(input$valgtNivaa))
+
     output$CoroRapp.pdf <- downloadHandler(
       filename = function(){
         paste0('CoronaRapport', Sys.time(), '.pdf')},
       content = function(file){
         henteSamlerapporterBered(file, rnwFil="BeredskapCorona.Rnw",
-                                 #rolle = rolle,
-                                 valgtRHF = valgtRHF, #as.character(input$valgtRHF),
-                                 reshID = reshID) #Vurder å ta med tidsinndeling eller startdato
+                                 enhetsNivaa = as.character(input$valgtNivaa),
+                                 #valgtRHF = valgtRHF,
+                                 reshID = reshID)
       }
     )
     })
@@ -591,7 +574,7 @@ server <- function(input, output, session) {
       filename = function(){
         paste0('InfluensaRapport', Sys.time(), '.pdf')},
       content = function(file){
-        henteSamlerapporterBered(file, rnwFil="NIRinfluensa.Rnw") #Vurder å ta med tidsinndeling eller startdato
+        henteSamlerapporterBered(file, rnwFil="NIRinfluensa.Rnw")
       }
     )
 
@@ -663,7 +646,7 @@ server <- function(input, output, session) {
     output$tabInneliggHF <- renderTable({
       if (rolle == 'LU') {CoroData <- CoroData[which(CoroData$RHF == egetRHF), ]}
       inneligg <- is.na(CoroData$DateDischargedIntensive)
-      RegHF <- CoroData[inneligg,] %>% dplyr::group_by(RHFut, HFut) %>% dplyr::summarise(Antall = n())
+      RegHF <- CoroData[inneligg,] %>% dplyr::group_by(RHFut, HFut) %>% dplyr::summarise(Antall = n(), .groups = 'keep')
       colnames(RegHF) <- c('RHF', 'HF', 'Antall')
       RegHF
     }, rownames = F, digits = 0)
@@ -731,12 +714,14 @@ server <- function(input, output, session) {
     output$utvalgRisiko <- renderUI({h5(HTML(paste0(RisikoTab$utvalgTxt, '<br />'))) #tagList()
     })
 
-    TabAlder <- TabAlder(RegData=CoroData,
+    TabAlder <- TabAlderGml(RegData=CoroData,
                          valgtRHF= input$valgtRHF, #egetRHF, #
+                         #reshID = reshID,
+                         #enhetsNivaa = input$enhetsNivaa,
                          dodInt=as.numeric(input$dodInt),
                          resp=as.numeric(input$resp),
                          erMann=as.numeric(input$erMann),
-                         bekr=as.numeric(input$bekr),
+                         #bekr=as.numeric(input$bekr),
                          skjemastatus=as.numeric(input$skjemastatus)
     )
     # output$tabAlder<- renderTable({xtable::xtable(TabAlder$Tab)}, rownames = T, digits=0, spacing="xs")
@@ -748,10 +733,15 @@ server <- function(input, output, session) {
   #------------------Datakvalitet-----------------------
   #Ferdigstilte beredskapsskjema uten ferdigstilt intensivskjema:
   #reshSe <- ifelse(rolle == 'SC', 0, reshID)
-  ManglerIntSkjemaTab <- ManglerIntSkjema(reshID = ifelse(rolle == 'SC', 0, reshID))
+  observe({
+
+  ManglerIntSkjemaTab <- ManglerIntSkjema(reshID = ifelse(rolle == 'SC', 0, reshID)
+                                          ,datoFra = input$datoFraMI)
+                                          #,datoFra = input$datoValgMI[1], datoTil = input$datoValgMI[2])
   ManglerIntSkjemaTab$FormDate <- as.character(ManglerIntSkjemaTab$FormDate)
 
   output$tabManglerIntSkjema <- if (dim(ManglerIntSkjemaTab)[1]>0){
+
     renderTable(ManglerIntSkjemaTab, rownames = F, digits=0, spacing="xs") } else {
       renderText('Alle intensivskjema ferdigstilt')}
 
@@ -762,84 +752,165 @@ server <- function(input, output, session) {
     content = function(file, filename){
       write.csv2(ManglerIntSkjemaTab, file, row.names = F, na = '')
     })
-
+  })
   #------------------ Abonnement ----------------------------------------------
+
+#-----I bruk til 18.jan. 2022-------------
   ## reaktive verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
-  # rv <- reactiveValues(
-  #   subscriptionTab = rapbase::makeUserSubscriptionTab(session))
 
-  subscription <- reactiveValues(
-    tab = rapbase::makeAutoReportTab(session, type = "subscription"))
+  # subscription <- reactiveValues(
+  #   tab = rapbase::makeAutoReportTab(session, type = "subscription"))
+  #
+  # ## lag tabell over gjeldende status for abonnement
+  # output$activeSubscriptions <- DT::renderDataTable(
+  #   subscription$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
+  #   rownames = FALSE, options = list(dom = 't')
+  # )
+  #
+  # ## lag side som viser status for abonnement, også når det ikke finnes noen
+  # output$subscriptionContent <- renderUI({
+  #   fullName <- rapbase::getUserFullName(session)
+  #   if (length(subscription$subscriptionTab) == 0) {
+  #     p(paste("Ingen aktive abonnement for", fullName))
+  #   } else {
+  #     tagList(
+  #       p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
+  #               rapbase::getUserEmail(session), ":")),
+  #       DT::dataTableOutput("activeSubscriptions")
+  #     )
+  #   }
+  # })
+  #
+  #
+  # ## nye abonnement
+  # observeEvent (input$subscribe, { #MÅ HA
+  #   owner <- rapbase::getUserName(session)
+  #   interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
+  #   intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
+  #   organization <- rapbase::getUserReshId(session)
+  #   runDayOfYear <- rapbase::makeRunDayOfYearSequence(
+  #     interval = interval
+  #   )
+  #   email <- rapbase::getUserEmail(session)
+  #
+  #   if (input$subscriptionRep == "Influensarapport") {
+  #     synopsis <- "NIR-Beredskap: Influensarapport"
+  #     rnwFil <- "NIRinfluensa.Rnw" #Navn på fila
+  #   }
+  #
+  #   if (input$subscriptionRep == "Koronarapport") {
+  #     synopsis <- "NIR-Beredskap: Resultater, Covid-19"
+  #     rnwFil <- "BeredskapCorona.Rnw" #Navn på fila
+  #   }
+  #   fun <- "abonnementBeredsk"
+  #   paramNames <- c('rnwFil', "reshID", 'enhetsNivaa') #'brukernavn', "reshID", "valgtRHF")
+  #   paramValues <- c(rnwFil, reshID, input$valgtNivaaAbb) #'brukernavn', "reshID", "valgtRHF")
+  #
+  #    # test <- intensivberedskap::abonnementBeredsk(rnwFil="BeredskapCorona.Rnw",
+  #    #                                              enhetsNivaa = 'RHF', #as.character(input$valgtNivaaAbb)
+  #    #                                              reshID=706078)
+  #
+  #   rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
+  #                             fun = fun, paramNames = paramNames,
+  #                             paramValues = paramValues, owner = owner,
+  #                             email = email, organization = organization,
+  #                             runDayOfYear = runDayOfYear, interval = interval,
+  #                             intervalName = intervalName)
+  #   subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
+  # })
+  #
+  # ## slett eksisterende abonnement
+  # observeEvent(input$del_button, {
+  #   selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
+  #   rapbase::deleteAutoReport(selectedRepId)
+  #   subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
+  # })
 
-  ## lag tabell over gjeldende status for abonnement
-  output$activeSubscriptions <- DT::renderDataTable(
-    subscription$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
-    rownames = FALSE, options = list(dom = 't')
+
+#--------Start modul, abonnement
+  alleResh <- unique(CoroDataRaa$UnitId)
+  Navn <- CoroDataRaa$HelseenhetKortnavn[match(alleResh, CoroDataRaa$UnitId)]
+  names(alleResh) <- Navn
+  orgsAbb <- as.list(alleResh)
+
+  ## make a list for report metadata
+  reports <- list(
+    CovidRappAlle = list(
+      synopsis = "Intensivpasienter med covid-19: Hele landet",
+      fun = "abonnementBeredsk", #Lag egen funksjon for utsending
+      paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
+      paramValues = c('Alle_BeredskapCorona.Rnw', reshID) #'Alle')
+    ),
+    CovidRappRHF = list(
+      synopsis = "Intensivpasienter med covid-19: RHF",
+      fun = "abonnementBeredsk", #Lag egen funksjon for utsending
+      paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
+      paramValues = c('RHF_BeredskapCorona.Rnw', reshID) #'Alle')
+    ),
+    CovidRappHF = list(
+      synopsis = "Intensivpasienter med covid-19: HF",
+      fun = "abonnementBeredsk", #Lag egen funksjon for utsending
+      paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
+      paramValues = c('HF_BeredskapCorona.Rnw', reshID) #'Alle')
+    ),
+    # CovidRapp = list(
+    #   synopsis = "Resultater, Covid-19",
+    #   fun = "abonnementBeredsk", #Lag egen funksjon for utsending
+    #   paramNames = c('rnwFil', 'nivaaNavn'), #"valgtRHF"),
+    #   paramValues = c('BeredskapCorona.Rnw') #'Alle')
+    # ),
+    InfluensaRapp = list(
+      synopsis = "Influensarapport",
+      fun = "abonnementBeredsk",
+      paramNames = c('rnwFil'),
+      paramValues = c('NIRinfluensa.Rnw')
+    )
   )
 
-  ## lag side som viser status for abonnement, også når det ikke finnes noen
-  output$subscriptionContent <- renderUI({
-    fullName <- rapbase::getUserFullName(session)
-    if (length(subscription$subscriptionTab) == 0) {
-      p(paste("Ingen aktive abonnement for", fullName))
-    } else {
-      tagList(
-        p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
-                rapbase::getUserEmail(session), ":")),
-        DT::dataTableOutput("activeSubscriptions")
-      )
-    }
-  })
+  autoReportServer(
+    id = "beredAbb", registryName = "intensivberedskap", type = "subscription",
+    org = orgAbb$value, paramNames = paramNames, paramValues = paramValues,
+    reports = reports, orgs = orgsAbb, eligible = TRUE
+  )
 
+  #------------Utsending-----------------
 
-  ## nye abonnement
-  observeEvent (input$subscribe, { #MÅ HA
-    owner <- rapbase::getUserName(session)
-    interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
-    intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
-    organization <- rapbase::getUserReshId(session)
-    runDayOfYear <- rapbase::makeRunDayOfYearSequence(
-      interval = interval
+  ## parametre til utsending
+  orgs <- navnUtsendingVerdi #rhfNavn. sykehusValg har enhetsnavn med verdi resh
+  names(orgs) <- navnUtsending
+  orgs <- as.list(orgs)
+
+  ## make a list for report metadata
+  reports <- list(
+    CovidRapp = list(
+      synopsis = "Intensivpasienter med covid-19",
+      fun = "abonnementBeredsk", #Lag egen funksjon for utsending
+      paramNames = c('rnwFil', 'nivaaNavn'), #"valgtRHF"),
+      paramValues = c('BeredskapCorona.Rnw', 'Alle' ) #'Alle')
+    ),
+    InfluensaRapp = list(
+      synopsis = "Influensarapport",
+      fun = "abonnementBeredsk",
+      paramNames = c('rnwFil'),
+      paramValues = c('NIRinfluensa.Rnw')
     )
-    email <- rapbase::getUserEmail(session)
+  )
 
-    if (input$subscriptionRep == "Influensarapport") {
-      synopsis <- "NIR-Beredskap/Rapporteket: Influensarapport"
-      rnwFil <- "NIRinfluensa.Rnw" #Navn på fila
-    }
-    # fun <- "abonnementKorona"
-    # paramNames <- c('rnwFil', 'brukernavn', "reshID") #, "valgtEnhet")
-    # paramValues <- c(rnwFil, brukernavn, reshID) #, as.character(input$valgtEnhetabb))
+  # orgResh <- autoReportOrgServer("beredUtsResh", orgs)
+  # orgNivaa <- autoReportOrgServer("beredUtsNivaa", nivaa)
+  org <- autoReportOrgServer("beredUts", orgs)
+
+  # set reactive parameters overriding those in the reports list
+  paramNames <- shiny::reactive("nivaaNavn")
+  paramValues <- shiny::reactive(org$value())
 
 
-    if (input$subscriptionRep == "Koronarapport") {
-      synopsis <- "NIR-Beredskap/Rapporteket: Coronarapport"
-      rnwFil <- "BeredskapCorona.Rnw" #Navn på fila
-    }
-    fun <- "abonnementBeredsk"
-    paramNames <- c('rnwFil', 'brukernavn', "reshID", "valgtRHF")
-    paramValues <- c(rnwFil, brukernavn, reshID, as.character(input$valgtRHFabb)) #valgtRHF) #
-
-    # test <- abonnementBeredsk(rnwFil="BeredskapCorona.Rnw", brukernavn='tullebukk',
-    #                       reshID=105460, valgtRHF = as.character(input$valgtRHFabb))
-
-    rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
-                              fun = fun, paramNames = paramNames,
-                              paramValues = paramValues, owner = owner,
-                              email = email, organization = organization,
-                              runDayOfYear = runDayOfYear, interval = interval,
-                              intervalName = intervalName)
-    subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
-  })
-
-  ## slett eksisterende abonnement
-  observeEvent(input$del_button, {
-    selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
-    rapbase::deleteAutoReport(selectedRepId)
-    subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
-  })
-
+  autoReportServer(
+    id = "beredUts", registryName = "intensivberedskap", type = "dispatchment",
+    org = org$value, paramNames = paramNames, paramValues = paramValues,
+    reports = reports, orgs = orgs, eligible = TRUE
+  )
 
   #---------------- Alders- og kjønnsfordeling #####################
   output$FigurAldersfordeling <- renderPlot({
@@ -982,25 +1053,25 @@ server <- function(input, output, session) {
   )
 
 
-  #Send filer til FHI: kopi fra korona
-  output$lastNed_filstiDataNHN <- downloadHandler(
-    filename = function(){
-      paste0('Filsti', Sys.time(), '.csv')},
-    content = function(file, filename){
-      Filsti <- sendInfluDataFHI(zipFilNavn=input$hvilkeFilerTilFHI) #brukernavn = brukernavn)
-      write.csv2(x=Filsti, file, row.names = F, na = '') #x - r-objektet
-    })
-
-  #Manuell nedlasting av FHI-data (influensa)
-  InfluensadataFHI <- lagInfluDataFHI()
-
-  output$lastNed_DataFHI <- downloadHandler(
-    filename = function(){
-      paste0('DataInfluensaFHI.', Sys.Date(), '.csv')
-    },
-    content = function(file, filename){
-      write.csv2(InfluensadataFHI, file, row.names = F, na = '')
-    })
+  # #Send filer til FHI: kopi fra korona
+  # output$lastNed_filstiDataNHN <- downloadHandler(
+  #   filename = function(){
+  #     paste0('Filsti', Sys.time(), '.csv')},
+  #   content = function(file, filename){
+  #     Filsti <- sendInfluDataFHI(zipFilNavn=input$hvilkeFilerTilFHI) #brukernavn = brukernavn)
+  #     write.csv2(x=Filsti, file, row.names = F, na = '') #x - r-objektet
+  #   })
+  #
+  # #Manuell nedlasting av FHI-data (influensa)
+  # InfluensadataFHI <- lagInfluDataFHI()
+  #
+  # output$lastNed_DataFHI <- downloadHandler(
+  #   filename = function(){
+  #     paste0('DataInfluensaFHI.', Sys.Date(), '.csv')
+  #   },
+  #   content = function(file, filename){
+  #     write.csv2(InfluensadataFHI, file, row.names = F, na = '')
+  #   })
 
 
   #Abonnement, filer til FHI kopi fra korona
