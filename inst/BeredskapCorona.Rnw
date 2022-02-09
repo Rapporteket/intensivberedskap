@@ -231,14 +231,13 @@ TabTidEnh <- as.matrix(TabTidEnh)
 TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
 # add.to.row <- list(pos = list(-1), command = NULL)
 # add.to.row$command <- paste0(paste0('& \\multicolumn{2}{l}{', navnEnh, '} ', collapse=''), '\\\\\n')
-AntRader <- dim(TabTidEnh)[1]
 
 #print(
-  xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
-                     #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-		caption='Antall nye intensivpasienter siste 20 dager, samt totalt antall fra pandemistart til rapporteringstidspuktet.
-		(Overføringer er ikke med.)'
-		)
+#   xtable::xtable(TabTidEnh[(max(1,AntRader-20)):AntRader, ], digits=0,
+#                      #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
+# 		caption='Antall nye intensivpasienter siste 20 dager, samt totalt antall fra pandemistart til rapporteringstidspuktet.
+# 		(Overføringer er ikke med.)'
+# 		)
 # ,
 #  		add.to.row = add.to.row,
 # 		sanitize.rownames.function = identity)
@@ -258,10 +257,15 @@ AntRader <- dim(TabTidEnh)[1]
   TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN= list(Totalt=sum), quiet=TRUE)
   if(enhetsNivaa == 'RHF') {TabTidEnh <- TabTidEnh[,-antEnh:-1]}
 
-  AntRader <- dim(TabTidEnh)[1]
+#   AntRader <- dim(TabTidEnh)[1]
+#   xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
+# 		caption='Antall nye intensivpasienter siste 20 dager, samt totalt antall fra pandemistart til rapporteringstidspuktet.')
+}
+    AntRader <- dim(TabTidEnh)[1]
   xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
-		caption='Antall nye intensivpasienter siste 20 dager, samt totalt antall fra pandemistart til rapporteringstidspuktet.')
-  }
+		caption='Antall nye intensivpasienter siste 20 dager, samt totalt antall fra pandemistart til rapporteringstidspuktet.
+		Ved eventuelle overføringer, er pasientens tilhørighet basert på første opphold')
+
 @
 \end{frame}
 
@@ -289,7 +293,8 @@ AntRader <- dim(TabTidEnh)[1]
     }
 print(
   xtable::xtable(RegHF , digits=0,
-                 caption='Totalt antall registrerte intensivpasienter fra 10. mars 2020 til rapporteringstidspunktet.')
+                 caption='Totalt antall registrerte intensivpasienter fra pandemistart til rapporteringstidspunktet.
+                 Ved eventuelle overføringer, er pasientens tilhørighet er basert på siste opphold.')
       ,include.rownames = FALSE)
 @
 \end{frame}
