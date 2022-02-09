@@ -264,7 +264,7 @@ TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), qu
     AntRader <- dim(TabTidEnh)[1]
   xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
 		caption='Antall nye intensivpasienter siste 20 dager, samt totalt antall fra pandemistart til rapporteringstidspuktet.
-		Ved eventuelle overføringer, er pasientens tilhørighet basert på første opphold')
+		Ved eventuelle overføringer, er pasientens tilhørighet basert på første opphold.')
 
 @
 \end{frame}
@@ -345,7 +345,7 @@ dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder', minN=3,
 \centering \includegraphics[scale=0.25]{AlderKjonn.pdf}
 \centering \includegraphics[scale=0.25]{AlderKjonnXmnd.pdf}
 \caption{Fordeling av kjønn i ulike aldersgrupper blant intensivpasienter på rapporteringstidspunktet,
-for hele tidsperioden og siste tre måneder. Søylene maskeres hvis det er færre enn tre kvinner eller menn.}
+for hele tidsperioden og siste tre måneder. Søylene maskeres hvis det er færre enn tre kvinner eller menn ei ei aldersgruppe.}
 \end{figure}
 
 \end{frame}
