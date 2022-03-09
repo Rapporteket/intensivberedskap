@@ -107,8 +107,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
       #NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først
       #  På respirator antar man at hvis de ligger på respirator når de overflyttes
       #PasientID=="EE983306-AE04-EB11-A96D-00155D0B4D16"
-      RegDataRed <- RegData %>% group_by(PasientID) %>%
-         summarise(PersonId = PersonId[1],
+      RegDataRed <- RegData %>% dplyr::group_by(PasientID) %>%
+         dplyr::summarise(PersonId = PersonId[1],
                    PersonIdBC19Hash = PersonIdBC19Hash[1],
                    Alder = Alder[1],
                    AgeAdmitted = AgeAdmitted[1],
@@ -131,10 +131,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    Graviditet = sum(Graviditet)>0,
                    Kreft = sum(Kreft)>0,
                    Bekreftet = max(Bekreftet),
-                   AntRegPrPas = n(),
-                   CreationDate = first(CreationDate, order_by = FormDate),
+                   AntRegPrPas = dplyr::n(),
+                   CreationDate = dplyr::first(CreationDate, order_by = FormDate),
                    FormStatus = min(FormStatus), #1-kladd, 2-ferdigstilt
-                   FirstTimeClosed = first(FirstTimeClosed, order_by = FormDate),
+                   FirstTimeClosed = dplyr::first(FirstTimeClosed, order_by = FormDate),
                    #Justering av liggetid mht. reinnleggelse:
                    ReinnTid = ifelse((AntRegPrPas > 1) & sum(is.na(DateDischargedIntensive))>0, #(FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
                                      sort(difftime(sort(FormDate)[2:AntRegPrPas], #sort hopper over NA
@@ -155,7 +155,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                                       max(which(difftime(sort(FormDate)[2:AntRegPrPas],
                                                       DateDischargedIntensive[order(FormDate)][1:(AntRegPrPas-1)],
                                                       units = 'hours') > 12))+1), #Hvilke opphold som er reinnleggelse
-                   FormDateSiste = nth(FormDate, ReinnNaar, order_by = FormDate),
+                   FormDateSiste = dplyr::nth(FormDate, ReinnNaar, order_by = FormDate),
                    #Justering av respiratortid mht. reinnleggelse. NB: Kan være reinnlagt på respirator selv om ikke reinnlagt på intensiv.
                    AntRespPas = length(MechanicalRespiratorStart)-sum(is.na(MechanicalRespiratorStart)), #sum(MechanicalRespirator==1, na.rm=T), #
                    ReinnRespTid = ifelse((AntRespPas > 1) & (FormStatus==2), #Tid mellom utskrivning og neste innleggelse.
@@ -168,7 +168,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                                           max(which(difftime(MechanicalRespiratorStart[order(MechanicalRespiratorStart)][2:AntRespPas],
                                                              MechanicalRespiratorEnd[order(MechanicalRespiratorStart)][1:(AntRespPas-1)],
                                                              units = 'hours') > 12))), #Hvilket opphold som er siste reinnleggelse på respirator
-                   MechanicalRespiratorStartSiste = nth(MechanicalRespiratorStart, ReinnRespNaar+1, order_by = MechanicalRespiratorStart),
+                   MechanicalRespiratorStartSiste = dplyr::nth(MechanicalRespiratorStart, ReinnRespNaar+1, order_by = MechanicalRespiratorStart),
                    #NB: MechanicalRespiratorStart/End finnes ikke i intensivskjema.
 
                    MT1 = sum(MechanicalrespiratorType==1)>0,
@@ -178,27 +178,27 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
                    InvNonIBegge = ifelse(MT1&MT2, 3,
                                                 ifelse(MT2, 2,
                                                        ifelse(MT1, 1, -1))),
-                   MechanicalrespiratorTypeSiste = last(MechanicalrespiratorType, order_by = FormDate),
-                   MechanicalRespiratorStart = first(MechanicalRespiratorStart, order_by = MechanicalRespiratorStart),
+                   MechanicalrespiratorTypeSiste = dplyr::last(MechanicalrespiratorType, order_by = FormDate),
+                   MechanicalRespiratorStart = dplyr::first(MechanicalRespiratorStart, order_by = MechanicalRespiratorStart),
                    MechanicalRespirator = min(MechanicalRespirator), #1-ja, 2-nei
                    EcmoStart = sort(EcmoStart)[1], #sort tar ikke med NA-verdier.
-                   DateDischargedIntensive = last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
-                   MechanicalRespiratorEnd = last(MechanicalRespiratorEnd, order_by = FormDate),
+                   DateDischargedIntensive = dplyr::last(DateDischargedIntensive, order_by = FormDate), #max(DateDischargedIntensive), # sort(DateDischargedIntensive, decreasing = T)[1],
+                   MechanicalRespiratorEnd = dplyr::last(MechanicalRespiratorEnd, order_by = FormDate),
                    EcmoEnd = sort(EcmoEnd, decreasing = T)[1], #sort(NA) gir tom, men sort(NA)[1] gir NA
                    ECMOTid = ifelse(sum(!is.na(ECMOTid))>0, sum(ECMOTid, na.rm = T), NA), #Ellers får vi 0 på tomme
-                   Municipal = first(Municipal, order_by = FormDate),
-                   MunicipalNumber = first(MunicipalNumber, order_by = FormDate),
-                   ReshId = first(ReshId, order_by = FormDate),
-                   RHFut = last(RHF, order_by = FormDate),
-                   RHF = first(RHF, order_by = FormDate),
-                   HFut = last(HF, order_by = FormDate),
-                   HF = first(HF, order_by = FormDate),
-                   ShNavnUt = last(HelseenhetKortnavn, order_by = FormDate),
-                   ShNavn = first(HelseenhetKortnavn, order_by = FormDate),
-                   SykehusUt = last(Sykehus, order_by = FormDate),
-                   Sykehus = first(Sykehus, order_by = FormDate),
-                   FormDateUt = last(FormDate, order_by = FormDate),
-                   FormDate = first(FormDate, order_by = FormDate),
+                   Municipal = dplyr::first(Municipal, order_by = FormDate),
+                   MunicipalNumber = dplyr::first(MunicipalNumber, order_by = FormDate),
+                   ReshId = dplyr::first(ReshId, order_by = FormDate),
+                   RHFut = dplyr::last(RHF, order_by = FormDate),
+                   RHF = dplyr::first(RHF, order_by = FormDate),
+                   HFut = dplyr::last(HF, order_by = FormDate),
+                   HF = dplyr::first(HF, order_by = FormDate),
+                   ShNavnUt = dplyr::last(HelseenhetKortnavn, order_by = FormDate),
+                   ShNavn = dplyr::first(HelseenhetKortnavn, order_by = FormDate),
+                   SykehusUt = dplyr::last(Sykehus, order_by = FormDate),
+                   Sykehus = dplyr::first(Sykehus, order_by = FormDate),
+                   FormDateUt = dplyr::last(FormDate, order_by = FormDate),
+                   FormDate = dplyr::first(FormDate, order_by = FormDate),
                    RespTid = ifelse(sum(RespTid, na.rm = T) > 0, sum(RespTid, na.rm = T), NA),
                   #    ifelse(ReinnResp==0 ,
                    #                  difftime(MechanicalRespiratorEnd, MechanicalRespiratorStart, units = 'days'),
@@ -226,61 +226,62 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
          # indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)
          # if (length(indManglerIntPas)>0) {RegDataRed <- RegDataRed[-indManglerIntPas, ]}
 
-         RegDataRedInt <- RegData %>% group_by(PasientID) %>%
-            summarise(
-               ExtendedHemodynamicMonitoring = first(ExtendedHemodynamicMonitoring, order_by=FormDate),
-               ARDS = sum(grepl('J80', c(ICD10_1, ICD10_2, ICD10_3, ICD10_4, ICD10_5)))>0,
-               Bilirubin = first(Bilirubin, order_by=FormDate),
-               BrainDamage = first(BrainDamage, order_by=FormDate),
-               Bukleie = sum(Bukleie, na.rm=T),
-               ChronicDiseases = first(ChronicDiseases, order_by=FormDate),
-               DaysAdmittedIntensiv = sum(DaysAdmittedIntensiv, na.rm=T),
-               Diagnosis = first(Diagnosis, order_by=FormDate),
-               Eeg = first(Eeg, order_by=FormDate), #Fjernes fra datadump
-               FrailtyIndex = mean(FrailtyIndex, na.rm = T),
-               Glasgow = first(Glasgow, order_by=FormDate),
-               Hco3 = first(Hco3, order_by=FormDate),
-               Iabp = first(Iabp, order_by=FormDate),
-               #Icp = first(Icp, order_by=FormDate), #Fjernes fra datadump
-               #Hyperbar = first(Hyperbar, order_by=FormDate), #Fjernes fra datadump
-               HeartRate = first(HeartRate, order_by=FormDate),
-               #Impella = sum(Impella, na.rm = T), #Hvis ja på en: ja, #Logisk variabel. Alle har False eller tom
-               Intermitterende = sum(Intermitterende, na.rm = T), #Hvis ja på en: ja
-               IntermitterendeDays = sum(IntermitterendeDays, na.rm = T),
-               InvasivVentilation = sum(InvasivVentilation, na.rm = T),
-               #Isolation = first(Isolation, order_by=FormDate), #Hvis ja på en: ja. Ikke mulig 1-nei, 2-5 ulike årsaker
-               IsolasjonLuft = ifelse(sum(Isolation==3)>0, 1,0), #ifelse(Isolation , -1, ifelse(Isolation==3, 1,0)), #3 - dråpesmitte
-               IsolasjonDagerLuft = ifelse(IsolasjonLuft==1, sum(IsolationDaysTotal), 0),
-               #IsolationDaysTotal = sum(IsolationDaysTotal, na.rm = T),
-               KidneyReplacingTreatment = min(KidneyReplacingTreatment), # 1-ja, 2-nei, -1 ikke svart
-               Kontinuerlig = sum(Kontinuerlig), #Logisk variabel
-               KontinuerligDays = sum(KontinuerligDays, na.rm = T),
-               # hvis ja på en Leverdialyse = first(Leverdialyse, order_by=FormDate), #Ta ut av datadump
-               #Leukocytes = first(Leukocytes, order_by=FormDate),
-               MvOrCpap = first(MvOrCpap, order_by=FormDate),
-               Nas = sum(Nas),
-               NEMS = sum(Nems),
-               NO = sum(No), #Hvis ja: ja, logisk var
-               NonInvasivVentilation = sum(NonInvasivVentilation, na.rm=T),
-               #Oscillator = first(Oscillator, order_by=FormDate),
-               Potassium = first(Potassium, order_by=FormDate),
-               #PersonId = PersonId[1],
-               PrimaryReasonAdmitted = first(PrimaryReasonAdmitted, order_by=FormDate),
-               RespiratortidInt = sum(respiratortid, na.rm = T),
-               Saps2Score = first(Saps2Score, order_by=FormDate),
-               Saps2ScoreNumber = first(Saps2ScoreNumber, order_by=FormDate),
-               SerumUreaOrBun = first(SerumUreaOrBun, order_by=FormDate),
-               ShType = first(ShType, order_by=FormDate),
-               Sodium = first(Sodium, order_by=FormDate),
-               SystolicBloodPressure = first(SystolicBloodPressure, order_by=FormDate),
-               Temperature = first(Temperature, order_by=FormDate),
-               #TerapetiskHypotermi = first(TerapetiskHypotermi, order_by=FormDate),
-               Trakeostomi = ifelse(sum(Trakeostomi %in% 2:3)>0, #Trakeostomitype reg. først.
-                                    Trakeostomi[which(Trakeostomi>1)], 1),
-               TypeOfAdmission = first(TypeOfAdmission, order_by=FormDate),
-               UrineOutput = first(UrineOutput, order_by=FormDate),
-               VasoactiveInfusion = min(VasoactiveInfusion), #1-ja, 2-nei. Hvis ja på en:ja
-            )
+         RegDataRedInt <- RegData %>%
+           dplyr::group_by(PasientID) %>%
+           dplyr::summarise(
+             ExtendedHemodynamicMonitoring = dplyr::first(ExtendedHemodynamicMonitoring, order_by=FormDate),
+             ARDS = sum(grepl('J80', c(ICD10_1, ICD10_2, ICD10_3, ICD10_4, ICD10_5)))>0,
+             Bilirubin = dplyr::first(Bilirubin, order_by=FormDate),
+             BrainDamage = dplyr::first(BrainDamage, order_by=FormDate),
+             Bukleie = sum(Bukleie, na.rm=T),
+             ChronicDiseases = dplyr::first(ChronicDiseases, order_by=FormDate),
+             DaysAdmittedIntensiv = sum(DaysAdmittedIntensiv, na.rm=T),
+             Diagnosis = dplyr::first(Diagnosis, order_by=FormDate),
+             Eeg = dplyr::first(Eeg, order_by=FormDate), #Fjernes fra datadump
+             FrailtyIndex = mean(FrailtyIndex, na.rm = T),
+             Glasgow = dplyr::first(Glasgow, order_by=FormDate),
+             Hco3 = dplyr::first(Hco3, order_by=FormDate),
+             Iabp = dplyr::first(Iabp, order_by=FormDate),
+             #Icp = first(Icp, order_by=FormDate), #Fjernes fra datadump
+             #Hyperbar = first(Hyperbar, order_by=FormDate), #Fjernes fra datadump
+             HeartRate = dplyr::first(HeartRate, order_by=FormDate),
+             #Impella = sum(Impella, na.rm = T), #Hvis ja på en: ja, #Logisk variabel. Alle har False eller tom
+             Intermitterende = sum(Intermitterende, na.rm = T), #Hvis ja på en: ja
+             IntermitterendeDays = sum(IntermitterendeDays, na.rm = T),
+             InvasivVentilation = sum(InvasivVentilation, na.rm = T),
+             #Isolation = first(Isolation, order_by=FormDate), #Hvis ja på en: ja. Ikke mulig 1-nei, 2-5 ulike årsaker
+             IsolasjonLuft = ifelse(sum(Isolation==3)>0, 1,0), #ifelse(Isolation , -1, ifelse(Isolation==3, 1,0)), #3 - dråpesmitte
+             IsolasjonDagerLuft = ifelse(IsolasjonLuft==1, sum(IsolationDaysTotal), 0),
+             #IsolationDaysTotal = sum(IsolationDaysTotal, na.rm = T),
+             KidneyReplacingTreatment = min(KidneyReplacingTreatment), # 1-ja, 2-nei, -1 ikke svart
+             Kontinuerlig = sum(Kontinuerlig), #Logisk variabel
+             KontinuerligDays = sum(KontinuerligDays, na.rm = T),
+             # hvis ja på en Leverdialyse = first(Leverdialyse, order_by=FormDate), #Ta ut av datadump
+             #Leukocytes = first(Leukocytes, order_by=FormDate),
+             MvOrCpap = dplyr::first(MvOrCpap, order_by=FormDate),
+             Nas = sum(Nas),
+             NEMS = sum(Nems),
+             NO = sum(No), #Hvis ja: ja, logisk var
+             NonInvasivVentilation = sum(NonInvasivVentilation, na.rm=T),
+             #Oscillator = first(Oscillator, order_by=FormDate),
+             Potassium = dplyr::first(Potassium, order_by=FormDate),
+             #PersonId = PersonId[1],
+             PrimaryReasonAdmitted = dplyr::first(PrimaryReasonAdmitted, order_by=FormDate),
+             RespiratortidInt = sum(respiratortid, na.rm = T),
+             Saps2Score = dplyr::first(Saps2Score, order_by=FormDate),
+             Saps2ScoreNumber = dplyr::first(Saps2ScoreNumber, order_by=FormDate),
+             SerumUreaOrBun = dplyr::first(SerumUreaOrBun, order_by=FormDate),
+             ShType = dplyr::first(ShType, order_by=FormDate),
+             Sodium = dplyr::first(Sodium, order_by=FormDate),
+             SystolicBloodPressure = dplyr::first(SystolicBloodPressure, order_by=FormDate),
+             Temperature = dplyr::first(Temperature, order_by=FormDate),
+             #TerapetiskHypotermi = first(TerapetiskHypotermi, order_by=FormDate),
+             Trakeostomi = ifelse(sum(Trakeostomi %in% 2:3)>0, #Trakeostomitype reg. først.
+                                  Trakeostomi[which(Trakeostomi>1)], 1),
+             TypeOfAdmission = dplyr::first(TypeOfAdmission, order_by=FormDate),
+             UrineOutput = dplyr::first(UrineOutput, order_by=FormDate),
+             VasoactiveInfusion = min(VasoactiveInfusion), #1-ja, 2-nei. Hvis ja på en:ja
+           )
          RegData <- data.frame(cbind(RegDataRed, RegDataRedInt))
       } #aggPers
    } #kobletInt
