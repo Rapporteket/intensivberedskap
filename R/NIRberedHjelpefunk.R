@@ -52,7 +52,7 @@ abonnementBeredsk <- function(rnwFil,
     rnwFil <- 'BeredskapCorona.Rnw'
     enhetsNivaa <- dum[[1]][1]
   }
-  # rapbase::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
+  # raplog::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
   #                   reshId = reshID,
   #                   msg = "starter Abonnement: Corona-rapport")
   filbase <- substr(rnwFil, 1, nchar(rnwFil)-4)
@@ -66,7 +66,7 @@ abonnementBeredsk <- function(rnwFil,
 
   #gc() #Opprydning gc-"garbage collection"
   utfil <- paste0(dir, '/', substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf')
-  # rapbase::subLogger(author = brukernavn, registryName = 'NIR - beredskap',
+  # raplog::subLogger(author = brukernavn, registryName = 'NIR - beredskap',
   #                   reshId = reshID,
   #                   msg = paste("Leverer: ", utfil))
   return(utfil)
@@ -134,7 +134,7 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
   # zipFilNavn <- zipFilNavn[[1]]
   regNavnlog <- 'NIRberedskap'
 
-  rapbase::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
+  raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
                     msg = paste0("Vil lage filer for dataoverføring: ", zipFilNavn))
 
   #opprKat <- getwd()
@@ -145,7 +145,7 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
   if (zipFilNavn == 'InfluDataFHI') {
     Filer <- intensivberedskap::lagInfluDataFHI()
 
-    rapbase::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
+    raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
                       msg = paste0("Har hentet ekte filer for sending til FHI"))
 
     datasett <- c('InfluDataFHI')
@@ -154,7 +154,7 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
       write.table(Fil, file = paste0(fil, '.csv'),
                   fileEncoding = 'UTF-8', row.names=F, sep=';', na='')}
 
-    rapbase::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
+    raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
                       msg = paste0("Har lagret ekte filer for sending til FHI"))
 
     #utils::zip(zipfile = zipFilNavn, files = paste0(datasett, '.csv')) #'PandemiBeredskapTilFHI'
@@ -172,7 +172,7 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
     write.table(Testfil2, file = paste('Testfil2.csv'),
                 fileEncoding = 'UTF-8', row.names=F, sep=';', na='')
 
-    rapbase::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
+    raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
                       msg = paste0("Har lagret testfiler"))
     #utils::zip(zipfile = paste0(zipFilNavn), files = c('Testfil1.csv', 'Testfil2.csv'))
     #utils::zip(zipfile = file.path(kat, zipFilNavn), files = c(file.path(kat, 'Testfil1.csv'), file.path(kat, 'Testfil2.csv')))
@@ -185,7 +185,7 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
   }
   zipfilSti <- paste0(kat, '/', zipFilNavn, '.zip')
 
-  rapbase::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
+  raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
                     msg = paste0("Har laget zip-fil: ", zipfilSti))
 
   #For each recipient a list of available vessels (transport methods) is defined and must include relevant credentials.
@@ -198,9 +198,9 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
                declaration = paste0("HerErJeg_hilsen_", zipFilNavn))
   # test <- warnings()
   # if (length(test) >0 ){
-  # rapbase::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
+  # raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
   #                  msg = warnings()) #, utfil))}
-  rapbase::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
+  raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
                     msg = paste("Har levert data til NHN/FHI ")) #, utfil))
   write.table(zipfilSti, file = 'zipfilSti.csv',fileEncoding = 'UTF-8')
   utfilsti <- paste0(kat, '/', 'zipfilSti.csv')
