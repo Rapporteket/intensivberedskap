@@ -736,7 +736,7 @@ server <- function(input, output, session) {
 
   ManglerIntSkjemaTab <- ManglerIntSkjema(reshID = ifelse(rolle == 'SC', 0, reshID)
                                           ,datoFra = input$datoFraMI)
-                                          #,datoFra = input$datoValgMI[1], datoTil = input$datoValgMI[2])
+
   ManglerIntSkjemaTab$FormDate <- as.character(ManglerIntSkjemaTab$FormDate)
 
   output$tabManglerIntSkjema <- if (dim(ManglerIntSkjemaTab)[1]>0){
@@ -752,81 +752,8 @@ server <- function(input, output, session) {
       write.csv2(ManglerIntSkjemaTab, file, row.names = F, na = '')
     })
   })
+
   #------------------ Abonnement ----------------------------------------------
-
-#-----I bruk til 18.jan. 2022-------------
-  ## reaktive verdier for å holde rede på endringer som skjer mens
-  ## applikasjonen kjører
-
-  # subscription <- reactiveValues(
-  #   tab = rapbase::makeAutoReportTab(session, type = "subscription"))
-  #
-  # ## lag tabell over gjeldende status for abonnement
-  # output$activeSubscriptions <- DT::renderDataTable(
-  #   subscription$subscriptionTab, server = FALSE, escape = FALSE, selection = 'none',
-  #   rownames = FALSE, options = list(dom = 't')
-  # )
-  #
-  # ## lag side som viser status for abonnement, også når det ikke finnes noen
-  # output$subscriptionContent <- renderUI({
-  #   fullName <- rapbase::getUserFullName(session)
-  #   if (length(subscription$subscriptionTab) == 0) {
-  #     p(paste("Ingen aktive abonnement for", fullName))
-  #   } else {
-  #     tagList(
-  #       p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
-  #               rapbase::getUserEmail(session), ":")),
-  #       DT::dataTableOutput("activeSubscriptions")
-  #     )
-  #   }
-  # })
-  #
-  #
-  # ## nye abonnement
-  # observeEvent (input$subscribe, { #MÅ HA
-  #   owner <- rapbase::getUserName(session)
-  #   interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
-  #   intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
-  #   organization <- rapbase::getUserReshId(session)
-  #   runDayOfYear <- rapbase::makeRunDayOfYearSequence(
-  #     interval = interval
-  #   )
-  #   email <- rapbase::getUserEmail(session)
-  #
-  #   if (input$subscriptionRep == "Influensarapport") {
-  #     synopsis <- "NIR-Beredskap: Influensarapport"
-  #     rnwFil <- "NIRinfluensa.Rnw" #Navn på fila
-  #   }
-  #
-  #   if (input$subscriptionRep == "Koronarapport") {
-  #     synopsis <- "NIR-Beredskap: Resultater, Covid-19"
-  #     rnwFil <- "BeredskapCorona.Rnw" #Navn på fila
-  #   }
-  #   fun <- "abonnementBeredsk"
-  #   paramNames <- c('rnwFil', "reshID", 'enhetsNivaa') #'brukernavn', "reshID", "valgtRHF")
-  #   paramValues <- c(rnwFil, reshID, input$valgtNivaaAbb) #'brukernavn', "reshID", "valgtRHF")
-  #
-  #    # test <- intensivberedskap::abonnementBeredsk(rnwFil="BeredskapCorona.Rnw",
-  #    #                                              enhetsNivaa = 'RHF', #as.character(input$valgtNivaaAbb)
-  #    #                                              reshID=706078)
-  #
-  #   rapbase::createAutoReport(synopsis = synopsis, package = 'intensivberedskap',
-  #                             fun = fun, paramNames = paramNames,
-  #                             paramValues = paramValues, owner = owner,
-  #                             email = email, organization = organization,
-  #                             runDayOfYear = runDayOfYear, interval = interval,
-  #                             intervalName = intervalName)
-  #   subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
-  # })
-  #
-  # ## slett eksisterende abonnement
-  # observeEvent(input$del_button, {
-  #   selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
-  #   rapbase::deleteAutoReport(selectedRepId)
-  #   subscription$subscriptionTab <- rapbase::makeAutoReportTab(session, type = "subscription") #makeUserSubscriptionTab(session)
-  # })
-
-
 #--------Start modul, abonnement
   alleResh <- unique(CoroDataRaa$UnitId)
   Navn <- CoroDataRaa$HelseenhetKortnavn[match(alleResh, CoroDataRaa$UnitId)]
@@ -869,7 +796,7 @@ server <- function(input, output, session) {
 
   autoReportServer(
     id = "beredAbb", registryName = "intensivberedskap", type = "subscription",
-    org = orgAbb$value, paramNames = paramNames, paramValues = paramValues,
+    org = orgAbb$value, paramNames = paramNames, paramValues = paramValues, #Ta bort org = orgAbb$value?
     reports = reports, orgs = orgsAbb, eligible = TRUE
   )
 
@@ -889,7 +816,7 @@ server <- function(input, output, session) {
       paramValues = c('BeredskapCorona.Rnw', 'Alle' ) #'Alle')
     ),
     InfluensaRapp = list(
-      synopsis = "Influensarapport",
+      synopsis = "Rapporteket-NIR-beredskap:Influensarapport",
       fun = "abonnementBeredsk",
       paramNames = c('rnwFil'),
       paramValues = c('NIRinfluensa.Rnw')
