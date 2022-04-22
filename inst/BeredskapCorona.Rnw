@@ -345,7 +345,7 @@ dum <- FigFordelingKjonnsdelt(RegData = RegData, valgtVar = 'Alder', minN=3,
 \centering \includegraphics[scale=0.25]{AlderKjonn.pdf}
 \centering \includegraphics[scale=0.25]{AlderKjonnXmnd.pdf}
 \caption{Fordeling av kjønn i ulike aldersgrupper blant intensivpasienter på rapporteringstidspunktet,
-for hele tidsperioden og siste tre måneder. Søylene maskeres hvis det er færre enn tre kvinner eller menn ei ei aldersgruppe.}
+for hele tidsperioden og siste tre måneder. Søylene maskeres hvis det er færre enn tre kvinner eller menn i ei aldersgruppe.}
 \end{figure}
 
 \end{frame}
