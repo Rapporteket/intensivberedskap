@@ -332,7 +332,7 @@ tabPanel(title = 'Influensa',
                        #             step = 10
                        # ),
                        # br(),
-                       actionButton("tilbakestillValg", label="Tilbakestill valg"),
+                       actionButton("tilbakestillValgInflu", label="Tilbakestill valg"),
 
                        # selectInput(inputId = 'enhetsGruppe', label='Enhetgruppe',
                        #             choices = c("RHF"=1, "HF"=2, "Sykehus"=3)
@@ -967,7 +967,7 @@ server <- function(input, output, session) {
   }) #observe
 
 #---------------Influensa-------------------------
-  observeEvent(input$tilbakestillValg, shinyjs::reset("brukervalgInfluensa"))
+  observeEvent(input$tilbakestillValgInflu, shinyjs::reset("brukervalgInfluensa"))
 
   output$tabInfluUkeRHF <- renderTable({
     TabUkeRHFinflu <- InfluensaUkeRHF(RegData=InfluData, bekr=as.numeric(input$bekrInf),

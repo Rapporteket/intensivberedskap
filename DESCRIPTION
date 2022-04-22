@@ -1,7 +1,7 @@
 Package: intensivberedskap
-Title: What the Package Does (One Line, Title Case)
-Version: 1.11.0
-Date: 2022-02-09
+Title: Resultater og app for Covid-pasienter på intensiv
+Version: 1.11.1
+Date: 2022-04-22
 Authors@R: 
     person(given = "Lena Ringstad",
            family = "Olsen",
@@ -27,6 +27,7 @@ Imports:
     knitr,
     lifecycle,
     lubridate,
+    magrittr,
     plyr,
     rapbase,
     rapFigurer,
