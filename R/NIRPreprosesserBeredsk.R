@@ -12,7 +12,7 @@
 #'
 #' @export
 #'
-NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, reshID=reshID)
+NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFlereForlop=0)	#, reshID=reshID)
 {
    # Bør legge inn sjekk som endrer kobleInt til 1 hvis det opplagt er med variabler fra intensivskjema
    # eller gi feilmelding om at her ser det ut til å være intensivvariabler.
@@ -102,6 +102,28 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    #------SLÅ SAMMEN TIL PER PASIENT
    #Respiratortider skal hentes fra intensivskjema
    #sum(grepl('J80', BeredIntRaa[ ,c('ICD10_1', 'ICD10_2', 'ICD10_3', 'ICD10_4', 'ICD10_5')]))
+
+   #Identifisere pasienter med flere innleggelser
+   if (tellFlereForlop==1) { #Tar med flere forløp for hver pasient
+
+     RegData$Dato <- as.Date(RegData$FormDate)
+
+     #Identifiserer inntil 3 forløp
+     PasFlere <- RegData %>% dplyr::group_by(PasientID) %>%
+       dplyr::summarise(.groups = 'drop',
+                        SkjemaGUID = SkjemaGUID,
+                        InnNr0 = ifelse(Dato-min(Dato)>90, 2, 1),
+                        InnNr = ifelse(InnNr0>1, ifelse(Dato - min(Dato[InnNr0==2])>90, 3, 2), 1),
+                        PasientID = paste0(PasientID, '_', InnNr)
+                        #Tid = as.numeric(Dato-min(Dato))
+       )
+
+     RegData <- merge(RegData[ ,-which(names(RegData)=="PasientID")], PasFlere, by='SkjemaGUID')
+     #which(RegData$InnNr==2)
+     #Test <- RegData[c(1:10, which(RegData$InnNr==2)),c("PasientID", "PasientIDny")]
+     #For testing: RegData$Dato[RegData$PasientID=='EAC1F8C2-B10F-EC11-A974-00155D0B4D1A'][3:4] <- as.Date(c('2023-01-02', '2024-01-03'))
+   }
+
 
    if (aggPers == 1) {
       #NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først

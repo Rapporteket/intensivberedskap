@@ -4,7 +4,12 @@
 \alias{NIRPreprosessBeredsk}
 \title{Preprosesser data fra Intensivregisteret}
 \usage{
-NIRPreprosessBeredsk(RegData = RegData, kobleInt = 0, aggPers = 1)
+NIRPreprosessBeredsk(
+  RegData = RegData,
+  kobleInt = 0,
+  aggPers = 1,
+  tellFlereForlop = 0
+)
 }
 \arguments{
 \item{RegData}{Beredskapsskjema}
