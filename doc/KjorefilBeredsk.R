@@ -1,6 +1,19 @@
 #Husk neste gang oppdaterer pakken intensiv:
 #Felles preprosessfil, felles hentSamlerapport (Rpakke som innparameter)
 
+CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
+CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
+ind2 <- grep('_2', CoroData$PasientID) #[1] 1318 1988
+pas <- CoroData$PersonId[ind2]
+CoroDataRaa[CoroDataRaa$PersonId %in% pas, c('PersonId', 'FormDate')]
+CoroData[CoroData$PersonId %in% pas, c('PersonId', 'FormDate', 'PasientID')]
+
+BeredIntRaa[BeredIntRaa$PersonId %in% pas, c('PersonId', 'FormDate', 'AgeAdmitted')]
+pasUint <- unique(BeredIntRaa$PersonId[is.na(BeredIntRaa$PatientInRegistryGuidInt)])
+pas %in% pasUint
+BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+BeredIntPas[BeredIntPas$PersonId %in% pas, c('PersonId', 'FormDate', 'PasientID')]
+#Konklusjon: Begge forløp mangler intensivskjema. OK!
 
 library(knitr)
 library(intensivberedskap)

@@ -37,13 +37,13 @@ regTitle <- ifelse(paaServer,
   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
 
 #Bruk resh før preprosesserer
-CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
+CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
 BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
 
 BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
 
 if (dim(BeredIntRaa)[1]>0) {
-  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1)
+  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
 }
 
 #Influensadata# MÅ GJØRES I EI preprosess-fil eller i spørringa som henter data!!

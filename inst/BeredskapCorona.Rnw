@@ -37,7 +37,7 @@ indBekr <- which(CoroData$Diagnosis %in% 100:103)
 antUbekr <- length(unique(CoroData$PatientInRegistryGuid[-indBekr]))
 #CoroData <- CoroData[which(CoroData$Diagnosis %in% 100:103), ]
 CoroData$RHF <- as.character(CoroData$RHF)
-RegDataAlle <- NIRPreprosessBeredsk(RegData=CoroData)
+RegDataAlle <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 1, tellFlereForlop = 1)
 RegDataAlleOpph <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 0)
 
 

@@ -6,6 +6,7 @@
 #'
 #' @param RegData Beredskapsskjema
 #' @param kobleInt koble på data fra intensivskjema. Hvis koblede data, filtreres registreringer uten intensivskjema bort.
+#' Kobling skjer før eventuell aggregering til forløp.
 #' 'bered': beredskap (korona), 'influ': influensa
 #'
 #' @return Data En liste med det filtrerte datasettet (og sykehusnavnet som tilsvarer reshID, ikke pt)
