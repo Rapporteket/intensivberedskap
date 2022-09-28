@@ -130,7 +130,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
       #NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først
       #  På respirator antar man at hvis de ligger på respirator når de overflyttes
       #PasientID=="EE983306-AE04-EB11-A96D-00155D0B4D16"
-      RegDataRed <- RegData %>% dplyr::group_by(PasientID) %>%
+      RegDataRed <- RegData %>% dplyr::group_by(PasientID) %>% #Pasienter med flere forløp har nå forløp angitt med xx_forløpsnr
          dplyr::summarise(PersonId = PersonId[1],
                    PersonIdBC19Hash = PersonIdBC19Hash[1],
                    Alder = Alder[1],
