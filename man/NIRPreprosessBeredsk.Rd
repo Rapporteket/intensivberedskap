@@ -15,6 +15,7 @@ NIRPreprosessBeredsk(
 \item{RegData}{Beredskapsskjema}
 
 \item{kobleInt}{koble på data fra intensivskjema. Hvis koblede data, filtreres registreringer uten intensivskjema bort.
+Kobling skjer før eventuell aggregering til forløp.
 'bered': beredskap (korona), 'influ': influensa}
 }
 \value{
