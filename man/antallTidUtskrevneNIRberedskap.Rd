@@ -37,9 +37,6 @@ antallTidUtskrevneNIRberedskap(
 
 \item{velgAvd}{valgt reshID}
 }
-\value{
-
-}
 \description{
 Antall avdøde per tidsenhet (basert på avdøddato) og enhetsnivå. Filtreringer kan også gjøres.
 }

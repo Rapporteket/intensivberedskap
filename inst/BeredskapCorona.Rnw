@@ -35,7 +35,6 @@ CoroData <- NIRberedskDataSQL()
 #Bekreftede tilfeller:
 indBekr <- which(CoroData$Diagnosis %in% 100:103)
 antUbekr <- length(unique(CoroData$PatientInRegistryGuid[-indBekr]))
-#CoroData <- CoroData[which(CoroData$Diagnosis %in% 100:103), ]
 CoroData$RHF <- as.character(CoroData$RHF)
 RegDataAlle <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 1, tellFlereForlop = 1)
 RegDataAlleOpph <- NIRPreprosessBeredsk(RegData=CoroData, aggPers = 0)
@@ -81,11 +80,6 @@ if (enhetsNivaa != 'Alle'){ #Alle, RHF, HF
     RegData <- RegDataAlle
     RegDataOpph <- RegDataAlleOpph
 }
-
-# test <- RegDataAlleOpph %>%
-#          dplyr::group_by(RHF, HF, Sykehus) %>%
-#         dplyr::summarise(.groups='rowwise',
-#           'Antall intensivpasienter' = n())
 
 #Inngangsparametre: (tidl. kun valgtRHF = 'Alle'/ett RHF)
 #enhetsNivaa  #'Alle', 'RHF', HF

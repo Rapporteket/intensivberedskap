@@ -35,9 +35,6 @@ TabAlder(
 
 \item{sens}{maskere celler <3. 0-nei, 1-ja}
 }
-\value{
-
-}
 \description{
 Aldersfordeling, tabell
 }

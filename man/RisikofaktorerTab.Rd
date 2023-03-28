@@ -30,9 +30,6 @@ RisikofaktorerTab(
 
 \item{valgtRHF}{'Alle' (standard), RHF-navn uten 'Helse '}
 }
-\value{
-
-}
 \description{
 Tabell med oversikt over tilstander som medfører økt risiko ved Coronasmitte
 }

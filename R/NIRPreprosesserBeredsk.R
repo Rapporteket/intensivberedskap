@@ -109,12 +109,12 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
      RegData$Dato <- as.Date(RegData$FormDate)
 
-     #Identifiserer inntil 3 forløp
+     #Identifiserer inntil 4 forløp
      PasFlere <- RegData %>% dplyr::group_by(PasientID) %>%
-       dplyr::summarise(.groups = 'drop',
-                        SkjemaGUID = SkjemaGUID,
-                        InnNr0 = ifelse(Dato-min(Dato)>90, 2, 1),
-                        InnNr = ifelse(InnNr0>1, ifelse(Dato - min(Dato[InnNr0==2])>90, 3, 2), 1),
+       dplyr::reframe(SkjemaGUID = SkjemaGUID,
+                        InnNr2 = ifelse(Dato-min(Dato)>90, 2, 1),
+                        InnNr3 = ifelse(InnNr2 > 1, ifelse(Dato - min(Dato[InnNr2==2])>90, 3, 2), 1),
+                        InnNr   =   ifelse(InnNr3>2, ifelse(Dato - min(Dato[InnNr3==3])>90, 4, 3), InnNr3),
                         PasientID = paste0(PasientID, '_', InnNr)
                         #Tid = as.numeric(Dato-min(Dato))
        )
