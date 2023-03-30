@@ -30,9 +30,6 @@ oppsumFerdigeRegTab(
 
 \item{dodInt}{død på intensiv 0-nei, 1-ja}
 }
-\value{
-
-}
 \description{
 Ferdigstilte registreringer
 }

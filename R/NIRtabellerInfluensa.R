@@ -22,12 +22,20 @@ InfluData <- RegData
 
 
   if (alleUker==1){
-    uker <- switch(sesong,
-                   '2018-19' = seq(as.Date('2018-10-01'), as.Date('2019-05-19'), "weeks"),
-                   '2019-20' = seq(as.Date( '2019-09-30'), as.Date('2020-05-17'), "weeks"),
-                   '2020-21' = seq(as.Date( '2020-09-28'), as.Date('2021-05-23'), "weeks"),
-                   '2021-22' = seq(as.Date('2021-10-04'), min(Sys.Date(), as.Date('2022-05-22')), "weeks")
-                   )
+    startU40 <- c('2017-10-02', '2018-10-01', '2019-09-30', '2020-09-28', '2021-10-04', '2022-10-03',
+                  '2023-10-02', '2024-09-30', '2025-09-29', '2026-09-28', '2027-10-04', '2028-10-02')
+    sluttU20 <- c('2018-05-20', '2019-05-19', '2020-05-17', '2021-05-23', '2022-05-22', '2023-05-21',
+                  '2024-05-19', '2025-05-18', '2026-05-17', '2027-05-23', '2028-05-21', '2029-05-20')
+    sesonger <- paste0(2017:2028,'-',18:29)
+    ind <- which(sesonger == sesong)
+    uker <- seq(as.Date(startU40[ind]), as.Date(sluttU20[ind]), "weeks") #sesong,
+                   #
+    # uker <- switch(sesong,
+    #                '2018-19' = seq(as.Date('2018-10-01'), as.Date('2019-05-19'), "weeks"),
+    #                '2019-20' = seq(as.Date( '2019-09-30'), as.Date('2020-05-17'), "weeks"),
+    #                '2020-21' = seq(as.Date( '2020-09-28'), as.Date('2021-05-23'), "weeks"),
+    #                '2021-22' = seq(as.Date('2021-10-04'), min(Sys.Date(), as.Date('2022-05-22')), "weeks")
+    #                )
   InfluData$UkeAar <- factor(InfluData$UkeAar, levels=format(uker, '%G.%V'))
   }
 

@@ -6,13 +6,14 @@
 #'
 #' @param RegData Beredskapsskjema
 #' @param kobleInt koble på data fra intensivskjema. Hvis koblede data, filtreres registreringer uten intensivskjema bort.
+#' Kobling skjer før eventuell aggregering til forløp.
 #' 'bered': beredskap (korona), 'influ': influensa
 #'
 #' @return Data En liste med det filtrerte datasettet (og sykehusnavnet som tilsvarer reshID, ikke pt)
 #'
 #' @export
 #'
-NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, reshID=reshID)
+NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFlereForlop=0)	#, reshID=reshID)
 {
    # Bør legge inn sjekk som endrer kobleInt til 1 hvis det opplagt er med variabler fra intensivskjema
    # eller gi feilmelding om at her ser det ut til å være intensivvariabler.
@@ -103,11 +104,33 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1)	#, resh
    #Respiratortider skal hentes fra intensivskjema
    #sum(grepl('J80', BeredIntRaa[ ,c('ICD10_1', 'ICD10_2', 'ICD10_3', 'ICD10_4', 'ICD10_5')]))
 
+   #Identifisere pasienter med flere innleggelser
+   if (tellFlereForlop==1) { #Tar med flere forløp for hver pasient
+
+     RegData$Dato <- as.Date(RegData$FormDate)
+
+     #Identifiserer inntil 4 forløp
+     PasFlere <- RegData %>% dplyr::group_by(PasientID) %>%
+       dplyr::reframe(SkjemaGUID = SkjemaGUID,
+                        InnNr2 = ifelse(Dato-min(Dato)>90, 2, 1),
+                        InnNr3 = ifelse(InnNr2 > 1, ifelse(Dato - min(Dato[InnNr2==2])>90, 3, 2), 1),
+                        InnNr   =   ifelse(InnNr3>2, ifelse(Dato - min(Dato[InnNr3==3])>90, 4, 3), InnNr3),
+                        PasientID = paste0(PasientID, '_', InnNr)
+                        #Tid = as.numeric(Dato-min(Dato))
+       )
+
+     RegData <- merge(RegData[ ,-which(names(RegData)=="PasientID")], PasFlere, by='SkjemaGUID')
+     #which(RegData$InnNr==2)
+     #Test <- RegData[c(1:10, which(RegData$InnNr==2)),c("PasientID", "PasientIDny")]
+     #For testing: RegData$Dato[RegData$PasientID=='EAC1F8C2-B10F-EC11-A974-00155D0B4D1A'][3:4] <- as.Date(c('2023-01-02', '2024-01-03'))
+   }
+
+
    if (aggPers == 1) {
       #NB: Tidspunkt endres til en time før selv om velger tz='UTC' hvis formaterer først
       #  På respirator antar man at hvis de ligger på respirator når de overflyttes
       #PasientID=="EE983306-AE04-EB11-A96D-00155D0B4D16"
-      RegDataRed <- RegData %>% dplyr::group_by(PasientID) %>%
+      RegDataRed <- RegData %>% dplyr::group_by(PasientID) %>% #Pasienter med flere forløp har nå forløp angitt med xx_forløpsnr
          dplyr::summarise(PersonId = PersonId[1],
                    PersonIdBC19Hash = PersonIdBC19Hash[1],
                    Alder = Alder[1],

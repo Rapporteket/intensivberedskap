@@ -407,8 +407,8 @@ return(invisible(UtData <-
 #' @export
 ManglerIntSkjema <- function(reshID=0, datoFra='2020-03-01', datoTil=Sys.Date()){
   if (rapbase::isRapContext()) {
-    DataNIRraa <- intensiv::NIRRegDataSQL(datoFra = datoFra) #, datoTil = datoTil) #, datoTil = '2020-12-31') #Kun ferdigstilte intensivopphold sendes til Rapporteket
-    DataBeredskapRaa <- NIRberedskDataSQL(kobleInt = 0, datoFra = datoFra) #, datoTil = datoTil)
+    DataNIRraa <- intensiv::NIRRegDataSQL(datoFra = datoFra, datoTil = datoTil) #Kun ferdigstilte intensivopphold sendes til Rapporteket
+    DataBeredskapRaa <- NIRberedskDataSQL(kobleInt = 0, datoFra = datoFra, datoTil = datoTil)
   } else {
     DataNIRraa <- NIRraa[as.Date(NIRraa$DateAdmittedIntensive) >= '2020-03-01', ]
     DataBeredskapRaa <- CoroDataRaa

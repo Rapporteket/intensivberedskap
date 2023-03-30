@@ -6,9 +6,6 @@
 \usage{
 BeredskIntensivData()
 }
-\value{
-
-}
 \description{
 Koble med intensivdata. Ferdigstilte intensivdata. Kan inneholdeberedskapsdata i kladd
 }

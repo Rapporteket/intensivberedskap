@@ -27,9 +27,6 @@ TabAlderGml(
 
 \item{erMann}{kjønn, 0-kvinne, 1-mann}
 }
-\value{
-
-}
 \description{
 Aldersfordeling, tabell
 }

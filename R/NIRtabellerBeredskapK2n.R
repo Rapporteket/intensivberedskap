@@ -149,7 +149,7 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
                        'maaned' = format(aux$Tid, "%b %y")
     )
     aux <- aux %>% group_by(PasientID, Tid) %>%
-      summarise(er_inne = max(verdi))
+      dplyr::summarise(er_inne = max(verdi))
     aux <- aux %>% spread(key=Tid, value = er_inne)
     RegDataAlle <- merge(RegDataAlle[ , c("PasientID", "HFut", "RHFut")], aux, by = 'PasientID')
   }
@@ -177,7 +177,7 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
   } else {
     total <- RegData %>%
       group_by(EnhNivaaVis) %>%
-      summarise(Totalt = length(unique(PasientID))) %>%
+      dplyr::summarise(Totalt = length(unique(PasientID))) %>%
       tr_summarize_output(grvarnavn = 'Tid')
     TabTidEnh <-
       RegData[,c("EnhNivaaVis", names(datoer))] %>%

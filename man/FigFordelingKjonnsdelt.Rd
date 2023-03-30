@@ -25,9 +25,6 @@ FigFordelingKjonnsdelt(
 
 \item{TabAlder}{Dataramme med nødvendige figurparametre}
 }
-\value{
-
-}
 \description{
 Kan gereraliseres til andre variabler og grupperingsvar.
 }

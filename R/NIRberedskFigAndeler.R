@@ -50,7 +50,7 @@ NIRberedskFigAndeler  <- function(RegData, valgtVar='alder',
       rapbase::repLogger(session = list(...)[["session"]], msg = paste0('Fordelingsfigur: ',valgtVar))
    }
     # if (hentData == 1) {
-    #         RegData <- NIRPreprosessBeredsk(NIRberedskDataSQL(koble=1) )
+    #         RegData <- NIRPreprosessBeredsk(NIRberedskDataSQL(koble=1, aggPers = 1, tellFlereForlop=1) )
     #   }
 
 

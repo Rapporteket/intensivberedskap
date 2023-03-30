@@ -45,9 +45,6 @@ NIRUtvalgBeredsk(
 
 \item{enhetsUtvalg}{enhetsutvalg...}
 }
-\value{
-
-}
 \description{
 Returnerer filtrert dataramme og utvalgstekst
 }

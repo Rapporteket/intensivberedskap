@@ -55,7 +55,6 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 
     # Enhetsnivånavn
     RegData$RHF <- factor(RegData$RHF)
-    #RegData$RHF <- sub('Helse ', '', RegData$RHF)
     RegData$RHF <- factor(RegData$RHF,
                             levels= c('Helse Nord', 'Helse Midt-Norge', 'Helse Vest', 'Helse Sør-Øst', 'Privat'),
                             labels = c('Nord', 'Midt', 'Vest', 'Sør-Øst', 'Privat'))
@@ -70,25 +69,14 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
     RegData$DateDischargedIntensive <- as.POSIXlt(RegData$DateDischargedIntensive, tz= 'UTC',
                                                   format='%Y-%m-%d %H:%M:%S' )
 
-    # RegData$MechanicalRespiratorStart <- as.POSIXlt(RegData$MechanicalRespiratorStart,
-    #                                                 tz= 'UTC', format='%Y-%m-%d %H:%M:%S')
-    # RegData$MechanicalRespiratorEnd <- as.POSIXlt(RegData$MechanicalRespiratorEnd,
-    #                                               tz= 'UTC', format='%Y-%m-%d %H:%M:%S')
-
 
 
     #Legge på tidsenheter. Bruk factor hvis vil ha med tidsenheter uten registreringer - ikke standard!
     RegData$Aar <- format(RegData$InnDato, '%Y')
-    # RegData$Aar <- factor(format(RegData$InnDato, '%Y'),
-    #                       levels = min(as.numeric(format(RegData$InnDato, '%Y'))):max(as.numeric(format(RegData$InnDato, '%Y'))))
     RegData$UkeNr <- format(RegData$InnDato, '%V')
-    # RegData$UkeNr <- factor(format(RegData$InnDato, '%V.%Y'),
-    #                         levels = min(as.numeric(format(RegData$InnDato, '%V.%Y'))):max(as.numeric(format(RegData$InnDato, '%V.%Y'))))
     RegData$UkeAar <- format(RegData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
-    #RegData$UkeAar <- as.factor(RegData$UkeAar)
     RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$Innleggelsestidspunkt, tz= 'UTC',
                                                 format='%Y-%m-%d %H:%M:%S' )
-    #RegData$MndNum <- RegData$Innleggelsestidspunkt$mon +1
     RegData$MndAar <- format(RegData$Innleggelsestidspunkt, '%b%y')
     #RegData$Kvartal <- ceiling(RegData$MndNum/3)
     #RegData$Halvaar <- ceiling(RegData$MndNum/6)
@@ -108,22 +96,7 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
       ind <- which(RegData$InnDato >= as.Date(startU40[s]) & RegData$InnDato <= as.Date(sluttU20[s]))
         RegData$Sesong[ind] <- sesonger[s]
     }
-    #table(RegData$Sesong)
 
-
-   #    #Konvertere boolske variable fra tekst til boolske variable...
-   # LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
-   # LogVar <- unique(c(LogVarSjekk,
-   #                    "Astma", "Diabetes", "Graviditet", "IsActiveSmoker", "IsChronicLungDiseasePatient",
-   #                    "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
-   #                    "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-   #                    "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-   #                    "IsObesePatient", "IsRiskFactor", "Kreft",
-   #                    'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
-   #
-   # RegData[, intersect(names(RegData), LogVar)] <-
-   #    apply(RegData[, intersect(names(RegData), LogVar)], 2, as.logical)
-   #
 }
    return(invisible(RegData))
 }

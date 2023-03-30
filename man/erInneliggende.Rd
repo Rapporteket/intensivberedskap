@@ -11,9 +11,6 @@ erInneliggende(datoer, regdata)
 
 \item{regdata}{Dataramme som inneholder InnDato og Utdato per pasient}
 }
-\value{
-
-}
 \description{
 Returnerer TRUE for datoer pasienten er inneliggende
 }
