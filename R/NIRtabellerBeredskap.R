@@ -81,7 +81,6 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
 
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
                              erMann=erMann, bekr=bekr)
-  # dodInt=dodInt)$RegData velgAvd=velgAvd
   RegData <- UtData$RegData
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
