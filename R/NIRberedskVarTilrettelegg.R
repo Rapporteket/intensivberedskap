@@ -73,6 +73,24 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
                   xAkseTxt <- 'Aldersgrupper (år)'}
             sortAvtagende <- FALSE
       }
+      if (valgtVar %in% c('beredMpand_opph', 'beredMpand_pers')) {	#AndelGrVar/Tid
+        # beredskapsskjema der pasienten er å finne i pandemi.
+        if (valgtVar == 'beredMpand_opph') {
+        KoroData <- korona::KoronaPreprosesser(RegData=korona::KoronaDataSQL(),
+                                           aggPers=0, kobleBered=1)
+        tittel <- 'Beredskapsskjema med pandemiregistrering'
+      }
+        if (valgtVar == 'beredMpand_pers') {
+          KoroData <- korona::KoronaPreprosesser(RegData=korona::KoronaDataSQL(), aggPers=1, kobleBered=1, tellFlereForlop=1)
+          tittel <- 'Beredskapspasienter med pandemiregistrering'
+        }
+        BerSkjemaMpand <- sort(unique(KoroData$SkjemaGUIDBered))
+        #RegData <- intensivberedskap::NIRberedskDataSQL(datoTil = '2022-12-31')
+        indBeredMPan <- which(RegData$SkjemaGUID %in% BerSkjemaMpand)
+        RegData$Variabel[indBeredMPan] <- 1
+        varTxt <- 'med pandemireg.'
+      }
+
 
      if (valgtVar=='dod30d') { #AndelTid,AndelerGrVar
             RegData$Variabel <- RegData$Dod30
@@ -146,7 +164,7 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
             #xAkseTxt <- ''
       }
 
-      if (valgtVar=='frailtyIndex') { #Andeler
+       if (valgtVar=='frailtyIndex') { #Andeler
         #1:9 Veldig sprek - Terminalt syk
         tittel <- 'Skrøpelighets indeks ("frailty")'
         gr <- 1:9
