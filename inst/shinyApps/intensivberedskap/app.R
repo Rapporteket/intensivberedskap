@@ -7,15 +7,15 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
-library(shinyjs)
-library(magrittr)
-library(tidyverse)
-library(lubridate)
-library(rapbase)
-library(intensiv)
+# library(shiny)
+# library(shinyjs)
+# library(magrittr)
+# library(tidyverse)
+# library(lubridate)
+# library(rapbase)
+#library(intensiv)
 library(intensivberedskap)
-library(kableExtra)
+#library(kableExtra)
 
 addResourcePath('rap', system.file('www', package='rapbase'))
 context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
@@ -79,7 +79,7 @@ ui <- tagList(
 
 #------------Oversiktsside-----------------------------
              tabPanel("Oversikt",
-                      useShinyjs(),
+                      shinyjs::useShinyjs(),
                       sidebarPanel(id = 'brukervalgStartside',
                                    width = 3,
                                    uiOutput('CoroRappTxt'),

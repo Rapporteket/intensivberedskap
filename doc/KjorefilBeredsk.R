@@ -319,3 +319,12 @@ erInneliggendeMut <- function(datoer, regdata){
     # 107 = Mistenkt SARS-CoV-2 med annen organmanifestasjon
     #"Når ein opprettar eit Coronaskjema har ein per def. Mistanke om Corona. Vi meiner difor at skjema med verdi -1 også bør tellast med som mistenkt Corona." Antar dette også gjelder Corona.
 
+
+InfData <-   NIRsqlPreInfluensa()
+InfData <- rapbase::loadRegData(registryName = "nir", dbType = "mysql",
+                     query = 'select * FROM InfluensaFormDataContract')
+BerData <- rapbase::loadRegData(registryName = "nir", dbType = "mysql",
+                                query = 'select * FROM ReadinessFormDataContract')
+fellesnavn <- intersect(sort(names(InfData)), sort(names(BerData)))
+setdiff(sort(names(InfData)), fellesnavn)
+setdiff(sort(names(BerData)), fellesnavn)

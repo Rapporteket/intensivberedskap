@@ -30,6 +30,36 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 
     if (preprosess == 1) {
 
+      # Endre variabelnavn
+      names(RegData)[which(names(RegData) == 'AgeAdmitted')] <- 'Alder'
+      dplyr::rename(RegData, Diabetes=IsDiabeticPatient )
+      dplyr::rename(RegData, Astma=IsAsthmaticPatient )
+      dplyr::rename(RegData, Graviditet=IsPregnant )
+
+
+#Endre boolske variabler til boolske.. (Kommer inn som tekst)
+        LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
+        LogVar <- unique(c(LogVarSjekk,
+                           "Astma", "Diabetes", "Graviditet", "IsActiveSmoker", "IsChronicLungDiseasePatient",
+                           "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
+                           "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
+                           "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
+                           "IsObesePatient", "IsRiskFactor", "Kreft",
+                           'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
+
+        RegData[, intersect(names(RegData), LogVar)] <-
+          apply(RegData[, intersect(names(RegData), LogVar)], 2, as.logical)
+
+
+        RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
+                                               RegData$EcmoStart,
+                                               units = 'days'))
+        RegData$RespTid <- as.numeric(difftime(RegData$MechanicalRespiratorEnd,
+                                               RegData$MechanicalRespiratorStart,
+                                               units = 'days'))
+        RegData$Liggetid <- as.numeric(difftime(RegData$DateDischargedIntensive,
+                                                RegData$DateAdmittedIntensive,
+                                                units = 'days'))
     #Diagnoser: ICD10_1
     # -1 = Velg verdi
     # 9 = J10 Influensa som skyldes identifisert sesongvariabelt influensavirus
@@ -53,12 +83,11 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 
     RegData$Bekr <- as.numeric(RegData$Influensa)-1
 
+
     # Enhetsnivånavn
-    RegData$RHF <- factor(RegData$RHF)
     RegData$RHF <- factor(RegData$RHF,
                             levels= c('Helse Nord', 'Helse Midt-Norge', 'Helse Vest', 'Helse Sør-Øst', 'Privat'),
                             labels = c('Nord', 'Midt', 'Vest', 'Sør-Øst', 'Privat'))
-
 
 
     #Riktig format på datovariable:
@@ -72,6 +101,8 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 
 
     #Legge på tidsenheter. Bruk factor hvis vil ha med tidsenheter uten registreringer - ikke standard!
+    RegData$Dag <- factor(format(RegData$InnDato, '%d.%m.%y'),
+                          levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
     RegData$Aar <- format(RegData$InnDato, '%Y')
     RegData$UkeNr <- format(RegData$InnDato, '%V')
     RegData$UkeAar <- format(RegData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601

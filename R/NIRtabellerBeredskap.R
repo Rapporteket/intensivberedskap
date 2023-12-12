@@ -77,8 +77,13 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
 #' @return
 #' @export
 #'
-statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
+statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9, influ=0){
 
+  if (influ==1){
+    RegData$FormDateSiste <- RegData$FormDate
+    RegData$MechanicalRespiratorStartSiste <- RegData$MechanicalRespiratorStart
+    RegData$MechanicalrespiratorTypeSiste <- RegData$MechanicalRespiratorType
+  }
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
                              erMann=erMann, bekr=bekr)
   RegData <- UtData$RegData
