@@ -30,6 +30,7 @@ enhetsNivaa <- 'HF'
 #tools::texi2pdf(file='BeredskapCorona.tex')
 #knitr::knit('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'UTF-8')
 knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'UTF-8')
+knitr::knit2pdf('~/intensivberedskap/inst/NIRinfluensa.Rnw') #, encoding = 'UTF-8')
 
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
