@@ -24,6 +24,7 @@ henteSamlerapporterBered <- function(filnavn, rnwFil, #Rpakke='intensivberedskap
   gc() #Opprydning gc-"garbage collection"
   file.copy(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), filnavn)
   # file.rename(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), file)
+  # file.copy('tmpNIRinfluensa.pdf', '~/intensivberedskap/tmpNIRinfluensa.pdf')
 }
 
 
