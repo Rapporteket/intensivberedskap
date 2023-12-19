@@ -49,7 +49,7 @@ if (dim(BeredIntRaa)[1]>0) {
 #Influensadata# MÅ GJØRES I EI preprosess-fil eller i spørringa som henter data!!
 queryInflu <- paste0('SELECT * FROM InfluensaFormDataContract')
 InfluData <- NIRsqlPreInfluensa() #InfluDataRaa #intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
-
+#InfluData <- InfluDataAlle[]
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------
 
@@ -66,6 +66,8 @@ names(enhetsNivaa) <- c('Hele landet', 'eget RHF', 'egetHF')
 sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
 sesongValg <- sort(unique(InfluData$Sesong)) #sesongValg <- rev(c('2018-19', '2019-20', '2020-21', '2021-22', '20')),
 
+RHFvalgInflu <- c('Alle', unique(as.character(InfluData$RHF)))
+names(RHFvalgInflu) <- RHFvalgInflu
 
 
 source(system.file("shinyApps/intensivberedskap/R/koronafigurer_modul.R", package = "intensivberedskap"), encoding = 'UTF-8')
@@ -273,39 +275,75 @@ tabPanel(title = 'Influensa',
                        #uiOutput('CoroRappTxt'),
                        h3(paste0('Influensarapport med samling av resultater for sesongen ', sesongNaa)),
                        h5('(Influensasesong oppdateres automatisk når det registreres data for en ny sesong)'),
-                        h5('Influensarapporten kan man få regelmessig tilsendt på e-post.
-                           Gå til fanen "Abonnement" for å bestille dette.'),
                        br(),
                        downloadButton(outputId = 'InfluRapp.pdf', label='Last ned Influensarapport', class = "butt"),
                        tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
+                       h5('Influensarapporten kan man få regelmessig tilsendt på e-post.
+                           Gå til fanen "Abonnement" for å bestille dette.'),
                        br(),
                        br(),
-                       br(),
-                       h3('Gjør filtreringer/utvalg i tabellen til høyre:'),
+                       h3('Gjør filtreringer/utvalg i tabellene til høyre:'),
 
-                       selectInput(inputId = "sesongInf", label="Velg influensasesong",
-                                   choices = sesongValg
-                                   , selected = sesongNaa
-                       ),selectInput(inputId = "bekrInf", label="Bekreftet/Mistenkt",
+                       selectInput(inputId = "valgtRHFinflu", label="Velg RHF",
+                                   choices = RHFvalgInflu
+                                   #,selected = 'Alle'
+                       ),
+                       selectInput(inputId = "sesongInflu", label="Velg influensasesong",
+                                   choices = sesongValg, selected = sesongNaa),
+                       selectInput(inputId = "bekrInflu", label="Bekreftet/Mistenkt",
                                    choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
                        ),
-                       selectInput(inputId = "skjemastatusInf", label="Skjemastatus",
+                       selectInput(inputId = "skjemastatusInflu", label="Skjemastatus",
                                    choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
                        ),
-                       selectInput(inputId = "dodIntInf", label="Tilstand ut fra intensiv",
+                       selectInput(inputId = "erMannInflu", label="Kjønn",
+                                   choices = c("Begge"=9, "Kvinne"=0, "Mann"=1)
+                       ),
+                       selectInput(inputId = "dodIntInflu", label="Tilstand ut fra intensiv",
                                    choices = c("Alle"=9, "Død"=1, "Levende"=0, "Ukjent"=-1)
                        ),
                        actionButton("tilbakestillValgInflu", label="Tilbakestill valg"),
            ),
-          mainPanel(width = 9,
-                    h3('Resultater fra intensivregisterets influensaregistrering'),
-                    h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
-                    br(),
-                    tableOutput('tabInfluUkeRHF'),
-                    br(),
-                    fluidRow()
-          ) #main
+         mainPanel(width = 9,
+                   h3('Resultater fra intensivregisterets influensaregistrering'),
+                   h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
+                   h5('Siden er under utvikling... ', style = "color:red"),
+                   br(),
+
+                   fluidRow(
+                     column(width = 4,
+                            h4('Opphold uten registrert ut-tid fra intensiv'),
+                            #uiOutput('liggetidNaaInflu'),
+                            uiOutput('utvalgNaaInflu'),
+                            tableOutput('tabECMOrespiratorInflu')
+                      ),
+                     column(width=5, offset=1,
+                            uiOutput('tittelFerdigeRegInflu'),
+                            uiOutput('utvalgFerdigeRegInflu'),
+                            tableOutput('tabFerdigeRegInflu')
+                     )),
+
+                   #uiOutput('utvalgHovedInflu'),
+                   #tableOutput('tabTidEnhetInflu'),
+                   br(),
+                   # fluidRow(
+                   #   column(width=3,
+                   #          h3('RisikofaktorerInflu'),
+                   #          uiOutput('utvalgRisikoInflu'),
+                   #          tableOutput('tabRisikofaktorerInflu')),
+                   #   column(width=5, offset=1,
+                   #          h3('Alders- og kjønnsfordeling'),
+                   #          plotOutput("FigurAldersfordelingInflu", height="auto"),
+                   #          downloadButton("LastNedFigAldKjInflu", "Last ned figur"),
+                   #          downloadButton("lastNedAldKjInflu", "Last ned tabell")
+                   #          )
+                   #   ),
+                   h3('Antall registrerte opphold i valgt sesong'),
+                   tableOutput('tabInfluUkeRHF')
+
+                   ) #main
 ), #Influensaresultater
+
 #-----------Abonnement--------------------------------
              tabPanel(p("Abonnement",
                         title='Bestill automatisk utsending av rapporter på e-post'),
@@ -424,12 +462,10 @@ server <- function(input, output, session) {
     egetShNavn <- as.character(CoroData$ShNavn[indReshEgen])
     egetRHF <- as.character(CoroData$RHF[indReshEgen])
     egetHF <- as.character(CoroData$HF[indReshEgen])
-    # egenLokalitet <- c(0, 2, 4, 7)
-    # names(egenLokalitet) <- c('hele landet', egetShNavn, egetHF, egetRHF)
   } else {
     egetRHF <- 'Ukjent'
   }
-  #18.jan. 2022 egetRHF <- ifelse(rolle=='SC', 'Alle', egetRHF)
+    #18.jan. 2022 egetRHF <- ifelse(rolle=='SC', 'Alle', egetRHF)
 
   observe({
     if ((rolle != 'SC') & !(finnesEgenResh)) { #
@@ -437,16 +473,14 @@ server <- function(input, output, session) {
       shinyjs::hide(id = 'CoroRappTxt')
       hideTab(inputId = "hovedark", target = "Abonnement")
     }
-    if (!(brukernavn %in% c('lenaro', 'aed0903unn', 'kevin.thon',
-                            'Reidar', 'eabu', 'eivh', 'mariawa-he', 'helkri'))) {  #(brukernavn == 'jlaake') {
+    if (!(brukernavn %in% c('lenaro', 'kevin.thon',
+                            'Reidar', 'eabu', 'eivh', 'mariawa-he', 'helkri'))) {
       shinyjs::hide(id = 'lastNed_dataBeredNIRraa')
       shinyjs::hide(id = 'lastNed_dataBeredNIR')
     }
     if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'eivh', 'jlaake', 'mariawa-he', 'helkri'))) { #jlaake-ikke datafiler
       hideTab(inputId = "hovedark", target = "Registeradmin.")
-      #hideTab(inputId = "hovedark", target = "Fordelingsfigurer")
     }
-     #print(brukernavn)
   })
   if (rolle != 'SC') {
     updateSelectInput(session, "valgtRHF",
@@ -866,13 +900,114 @@ server <- function(input, output, session) {
   observeEvent(input$tilbakestillValgInflu, shinyjs::reset("brukervalgInfluensa"))
 
   output$tabInfluUkeRHF <- renderTable({
-    TabUkeRHFinflu <- InfluensaUkeRHF(RegData=InfluData, bekr=as.numeric(input$bekrInf),
-                                      skjemastatus=as.numeric(input$skjemastatusInf),
-                                      dodInt = as.numeric(input$dodIntInf),
-                                      #erMann = as.numeric(input$erMannInf),
-                                      sesong=input$sesongInf)
+    TabUkeRHFinflu <- InfluensaUkeRHF(RegData=InfluData, bekr=as.numeric(input$bekrInflu),
+                                      skjemastatus=as.numeric(input$skjemastatusInflu),
+                                      dodInt = as.numeric(input$dodIntInflu),
+                                      erMann = as.numeric(input$erMannInflu),
+                                      sesong=input$sesongInflu)
     xtable::xtable(TabUkeRHFinflu)}, rownames = T, digits=0, spacing="xs"
   )
+
+
+  observeEvent(input$tilbakestillValg, shinyjs::reset("brukervalgInflu"))
+
+
+  observe({
+
+    UtDataInflu <- InfluData[which(InfluData$Sesong == sesongNaa),]
+    UtDataInflu <- NIRUtvalgBeredsk(RegData=UtDataInflu,
+                              valgtRHF= as.character(input$valgtRHFinflu),
+                              skjemastatus=as.numeric(input$skjemastatusInflu),
+                            #resp=as.numeric(input$respInflu),
+                            bekr=as.numeric(input$bekrInflu),
+                             dodInt=as.numeric(input$dodIntInflu),
+                             erMann=as.numeric(input$erMannInflu)
+    )
+
+
+    utvalg <- if (length(UtDataInflu$utvalgTxt)>0) {
+      UtDataInflu$utvalgTxt
+    } else {'Alle registrerte '}
+    txt <- if(dim(UtDataInflu$RegData)[1]>2) {
+      paste0('For innlagte sesongen ', sesongNaa, ' er gjennomsnittsalderen <b>', round(mean(UtDataInflu$RegData$Alder, na.rm = T)), '</b> år og ',
+             round(100*mean(UtDataInflu$RegData$erMann, na.rm = T)), '% er menn. Antall døde: ',
+             sum(UtDataInflu$RegData$DischargedIntensiveStatus==1))
+    } else {''}
+
+    output$utvalgHovedInflu <- renderUI({
+      UtTekst <- tagList(
+        h5(HTML(paste0(utvalg, '<br />'))),
+        h4(HTML(paste0(txt, '<br />')))
+
+      )})
+
+    # visNdager <- nrow(AntTab$Tab)
+    # output$tabTidEnhetInflu <- renderTable({AntTab$Tab[(visNdager-10):visNdager,]}, rownames = T, digits=0, spacing="xs"
+    # )
+
+
+
+    #Tab status nå
+    statusNaaTabInflu <- statusECMOrespTab(RegData=UtDataInflu$RegData, influ=1
+                                      #     , sesong = input$sesongInflu
+                                      #      valgtRHF=input$valgtRHFinflu,
+                                      # erMann=as.numeric(input$erMannInflu),
+                                      # bekr=as.numeric(input$bekrInflu)
+                                      )
+    output$tabECMOrespiratorInflu <- renderTable({statusNaaTabInflu$Tab}, rownames = T, digits=0, spacing="xs")
+    output$utvalgNaaInflu <- renderUI({h5(HTML(paste0(statusNaaTabInflu$utvalgTxt, '<br />'))) })
+
+
+    #Tab ferdigstilte
+    TabFerdigInflu <- oppsumFerdigeRegTab(RegData=UtDataInflu$RegData
+                                     #valgtRHF=input$valgtRHFinflu,
+                                     #datoFra = input$datovalgStart[1],
+                                     #datoTil = input$datovalgStart[2],
+                                     #bekr = as.numeric(input$bekrInflu),
+                                     #resp=as.numeric(input$resp),
+                                     #dodInt=as.numeric(input$dodIntInflu),
+                                     #erMann=as.numeric(input$erMannInflu)
+                                     )
+
+    output$tabFerdigeRegInflu <- if (TabFerdigInflu$Ntest > 2){
+      renderTable({TabFerdigInflu$Tab}, rownames = T, digits=0, spacing="xs")} else {
+        renderText('Få registreringer (N<3)')}
+
+    output$utvalgFerdigeRegInflu <- renderUI({h5(HTML(paste0(TabFerdigInflu$utvalgTxt, '<br />'))) })
+    output$tittelFerdigeRegInflu <- renderUI(
+      h4(paste0('Ferdigstilte forløp (', TabFerdigInflu$Ntest, ' forløp)')))
+
+    # #Tab risiko
+    # RisikoTab <- RisikofaktorerTab(RegData=CoroData, #tidsenhet='Totalt',
+    #                                valgtRHF= input$valgtRHF,
+    #                                skjemastatus=as.numeric(input$skjemastatus),
+    #                                bekr=as.numeric(input$bekr),
+    #                                resp=as.numeric(input$resp),
+    #                                dodInt=as.numeric(input$dodInt),
+    #                                datoFra = input$datovalgStart[1],
+    #                                datoTil = input$datovalgStart[2],
+    #                                erMann=as.numeric(input$erMann),
+    #                                minald=as.numeric(input$alder[1]),
+    #                                maxald=as.numeric(input$alder[2]))
+    #
+    #
+    # output$tabRisikofaktorer <- if (RisikoTab$Ntest>2){
+    #   renderTable(RisikoTab$Tab, rownames = T, digits=0, spacing="xs") } else {
+    #     renderText('Få registreringer (N<3)')}
+    # output$utvalgRisiko <- renderUI({h5(HTML(paste0(RisikoTab$utvalgTxt, '<br />'))) #tagList()
+    # })
+    #
+    # TabAlder <- TabAlderGml(RegData=CoroData,
+    #                         valgtRHF= input$valgtRHF,
+    #                         dodInt=as.numeric(input$dodInt),
+    #                         resp=as.numeric(input$resp),
+    #                         erMann=as.numeric(input$erMann),
+    #                         skjemastatus=as.numeric(input$skjemastatus)
+    # )
+    # output$utvalgAlder <- renderUI({h5(HTML(paste0(TabAlder$utvalgTxt, '<br />'))) })
+  })
+
+
 
 
   #Abonnement, filer til FHI kopi fra korona

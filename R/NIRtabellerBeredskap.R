@@ -170,6 +170,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
   ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
   Alder <- summary(RegData$Alder, na.rm = T)
   AntDod <- sum(RegData$DischargedIntensiveStatus==1, na.rm=T)
+  AntRisiko <- sum(RegData$IsRiskFactor, na.rm = T)
 
   med_IQR <- function(x){
     #x[is.na(x)]<-0
@@ -183,6 +184,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
     'Liggetid (døgn)' = c(med_IQR(Liggetid), N, ''),
     'Respiratortid (døgn)' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/N))),
     'ECMO-tid (døgn)' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/N))),
+    'Har risikofaktor(er)' = c('','','',AntRisiko, paste0(sprintf('%.f',100*AntRisiko/N),'%')),
     'Døde' = c('','','',AntDod, paste0(sprintf('%.f',100*AntDod/N),'%'))
   )
   #TabFerdigeReg[TabFerdigeReg==NA]<-""

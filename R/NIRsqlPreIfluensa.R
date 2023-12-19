@@ -81,7 +81,8 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
     RegData$Influensa[indMistenkt] <- 'Mistenkt'
     RegData$Influensa[indBekreftet] <- 'Bekreftet'
 
-    RegData$Bekr <- as.numeric(RegData$Influensa)-1
+    RegData$Bekreftet <- as.numeric(RegData$Influensa)-1
+    RegData$erMann <- ifelse(RegData$PatientGender==1, 1, 0)
 
 
     # Enhetsnivånavn

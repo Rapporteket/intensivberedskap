@@ -38,8 +38,8 @@ if (!exists('InfluData')){
     InfluData <- intensivberedskap::NIRsqlPreInfluensa(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1)
     InfluData$RHFc <- as.character(InfluData$RHF)
 }
-# load('./inst/InfluDataDum.Rdata')
-# InfluData <- InfluDataDum
+ # load('./inst/InfluDataDum.Rdata')
+ # InfluData <- InfluDataDum
 
 # N <- dim(InfluData)[1]
 # InfluPas <- InfluData[sample(1:N, N) ,c("Alder", "PatientGender"]
@@ -51,7 +51,7 @@ if (!exists('InfluData')){
 # varSted <- c("Helseenhet", "HelseenhetID", "HelseenhetKortnavn", "HF", "ReshId",
 #              "ShNavn", "ShType", "RHF", "Sykehus")
 # InfluSted <-  InfluData[sample(1:N, N) , varSted]
-# varObs <- c("Bekr" ,   "DeadPatientDuring24Hours", "DischargedIntensiveStatus", "Influensa",
+# varObs <- c("Bekreftet" ,   "DeadPatientDuring24Hours", "DischargedIntensiveStatus", "Influensa",
 #             "IsActiveSmoker", "IsAsthmaticPatient", "IsCancerPatient",
 #             "IsChronicLungDiseasePatient", "IsChronicNeurologicNeuromuscularPatient", "IsDiabeticPatient",
 #             "IsEcmoTreatmentAdministered", "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
