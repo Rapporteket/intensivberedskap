@@ -66,8 +66,8 @@ if (!exists('InfluData')){
 # save(InfluDataDum, file = './inst/InfluDataDum.Rdata')
 # InfluDataDum$PatientGender <- sample(1:2, 678, replace = TRUE)
 
-sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
-InfluData <- InfluData[which(InfluData$Sesong %in% sesongNaa), ]
+sesongSiste <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
+InfluData <- InfluData[which(InfluData$Sesong %in% sesongSiste), ]
 
 
 # #Legge på tidsenheter
@@ -111,7 +111,7 @@ AntDode <- sum(InfluData$DischargedIntensiveStatus==1)
 \begin{document}
 
 \title[Influensa \\\today] {%\textit{Influensadata, NIR} \\
-Influensarapportering fra NIR, sesongen \Sexpr{sesongNaa} }
+Influensarapportering fra NIR, sesongen \Sexpr{sesongSiste} }
 
 \maketitle
 
@@ -245,7 +245,7 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
   command <- paste0(paste0('& \\multicolumn{2}{l}{', navnRHF, '} ', collapse=''), '\\\\\n')
   add.to.row$command <- command
   print(xtable::xtable(TabUkeRHF[indAntRader,], digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-                       caption=paste0('Influensatilfeller per uke og region sesongen ', sesongNaa,' (B - bekreftet, M - mistenkt)',
+                       caption=paste0('Influensatilfeller per uke og region sesongen ', sesongSiste,' (B - bekreftet, M - mistenkt)',
                                       ' Uker med 0 tilfeller vises ikke.')),
         #footnote= 'B-bekreftet, M-mistenkt',),
         add.to.row = add.to.row,
@@ -268,7 +268,7 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
   add.to.row$command <- command
   print(xtable::xtable(TabUkeRHFFerdig[indAntRader,], digits=0,
                        caption=paste0('Influensatilfeller per uke og region, basert på kun ferdigstilte influensaskjema, sesongen',
-                                      sesongNaa,'. (B - bekreftet, M - mistenkt)', ' Uker med 0 tilfeller vises ikke.')),
+                                      sesongSiste,'. (B - bekreftet, M - mistenkt)', ' Uker med 0 tilfeller vises ikke.')),
         add.to.row = add.to.row,
         sanitize.rownames.function = identity)
   @
@@ -281,7 +281,7 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
 
 <<'TabUkeTot', results='asis'>>=
   print(xtable::xtable(TabUkeTot[indAntRader,], digits=0, #align=c('l', rep('r', ncol(TabUkeTot))),
-                       caption=paste0('Antall influensatilfeller sesongen', sesongNaa, '.', ' Uker med 0 tilfeller vises ikke.')),
+                       caption=paste0('Antall influensatilfeller sesongen', sesongSiste, '.', ' Uker med 0 tilfeller vises ikke.')),
         #Totalt antall skjema er antall registrerte influensaskjema.'),
         sanitize.rownames.function = identity)
 @
@@ -291,7 +291,7 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
 
 <<'TabUkeTotferdig', results='asis'>>=
   print(xtable::xtable(TabUkeTotFerdig[indAntRader,], digits=0, #align=c('l', rep('r', ncol(TabUkeTot))),
-                       caption=paste0('Antall influensatilfeller basert på ferdigstilte skjema, sesongen', sesongNaa,'.',
+                       caption=paste0('Antall influensatilfeller basert på ferdigstilte skjema, sesongen', sesongSiste,'.',
                                       ' Uker med 0 tilfeller vises ikke.')),
         sanitize.rownames.function = identity)
 @

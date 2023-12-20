@@ -11,7 +11,7 @@
 #' @return
 #' @export
 #'
-InfluensaUkeRHF <- function(RegData, bekr=9, skjemastatus=9, dodInt=9, erMann=9, sesong='2021-22', alleUker=1){
+InfluensaUkeRHF <- function(RegData, bekr=9, skjemastatus=9, dodInt=9, erMann=9, sesong='2023-24', alleUker=1){
 
 InfluData <- RegData
   InfluData <- InfluData[InfluData$Sesong == sesong,]
