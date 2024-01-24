@@ -302,8 +302,8 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
         )
         RegData <- RegData[which(RegData$RegForsink>0), ] #which(!is.na(RegData$RegForsink))
         tittel <- switch(valgtVar,
-                         regForsinkelseInn='Tid fra første innleggelse på intensiv til opprettet beredskapsskjema',
-                         regForsinkelseUt = 'Tid fra utskriving intensiv til ferdigstilt beredskapsskjema')
+                         regForsinkelseInn='Tid fra første innleggelse på intensiv til opprettet innleggelsesskjema',
+                         regForsinkelseUt = 'Tid fra utskriving intensiv til ferdigstilt utskrivingsskjema')
         subtxt <- 'døgn'
         gr <- c(0,1:7,500) #gr <- c(seq(0, 90, 10), 1000)
         RegData$VariabelGr <- cut(RegData$RegForsink, breaks = gr, include.lowest = TRUE, right = TRUE)
@@ -334,12 +334,12 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
       }
 
       if (valgtVar == 'RespiratortidInt') { #andeler, gjsnGrVar, GjsnTid
-            RegData <- RegData[which(RegData$RespiratortidInt>0), ] # & (RegData$InnDato>=as.Date('2016-01-01', tz='UTC'))), ]
+            RegData <- RegData[which(RegData$RespiratortidInt>0), ]
             RegData$Variabel  <- as.numeric(RegData$RespiratortidInt)
             tittel <- 'Respiratortid'
             if (figurtype %in% c('gjsnGrVar', 'gjsnTid')) {
                   tittel <- 'respiratortid'}
-            gr <- c(0, 1, 2, 3, 4, 5, 6, 7, 14, 1000)#c(0, exp(seq(0,log(30),length.out = 6)), 500),1)
+            gr <- c(0, 1, 2, 3, 4, 5, 6, 7, 14, 1000) #c(0, exp(seq(0,log(30),length.out = 6)), 500),1)
             RegData$VariabelGr <- cut(RegData$RespiratortidInt, breaks=gr, include.lowest=TRUE, right=FALSE)
             grtxt <- c('(0-1)','[1-2)','[2-3)','[3-4)','[4-5)','[5-6)','[6-7)','[7-14)','14+')
             xAkseTxt <- 'Respiratortid (døgn)'

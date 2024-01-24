@@ -1,3 +1,24 @@
+#Fordelingsfigurer influensa (og beredskapsskjema)
+
+InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
+
+NIRberedskFigAndeler(RegData=InfluIntData, valgtVar= 'spesTiltak',
+                                  datoFra=0, datoTil=0,
+                                  enhetsNivaa='RHF', valgtEnhet='Alle', enhetsUtvalg=0,
+                                  outfile='', lagFig=1)
+
+c('alder',
+'ExtendedHemodynamicMonitoring',
+'frailtyIndex',
+'liggetid',
+'regForsinkelseInn',
+'respiratortidNonInv',
+'respiratortidInv',
+'Saps2ScoreNumber',
+'spesTiltak',
+'RespiratortidInt')
+
+
 #Husk neste gang oppdaterer pakken intensiv:
 #Felles preprosessfil, felles hentSamlerapport (Rpakke som innparameter)
 

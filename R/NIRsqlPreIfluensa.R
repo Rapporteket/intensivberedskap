@@ -10,7 +10,7 @@
 #'
 #' @export
 #'
-NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1) {
+NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1, kobleInt=0) {
 
 
     query <- paste0('SELECT *
@@ -24,9 +24,60 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
             WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
     #WHERE cast(DateAdmittedIntensive as date) >= \'', datoFra, '\' AND DateAdmittedIntensive <= \'', datoTil, '\'')
 
-    RegData <- rapbase::loadRegData(registryName = "nir", query = query, dbType = "mysql")
+    RegDataInf <- rapbase::loadRegData(registryName = "nir", query = query, dbType = "mysql")
 
     #startOfMonth<- function(x) {as.Date(format(x, "%Y-%m-01")) }
+    if (kobleInt == 1){
+      RegDataInf$HovedskjemaGUID <- toupper(RegDataInf$HovedskjemaGUID)
+      #Koble på intensivdata.
+      forsteReg <- min(as.Date(RegDataInf$FormDate))
+      queryInt <- paste0('select * from MainFormDataContract
+      WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'') #datoTil=Sys.Date(), '\'')
+      IntDataRaa <- rapbase::loadRegData(registryName= "nir", query=queryInt, dbType="mysql")
+      IntDataRaa <- dplyr::rename(.data = IntDataRaa, RespiratortidInt = Respirator)
+
+      #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
+      #Ved overføringer, kan det ene skjemaet være lagt inn i intensiv og det andre ikke. Vi får da trøbbel i aggregeringa.
+      #Velger derfor å ta flest mulig fra beredskapsskjema.
+      #Tar bort: (apr. 21, legger til...) 'DateAdmittedIntensive', 'DateDischargedIntensive',
+      # varFellesInt <- c('DaysAdmittedIntensiv',
+      #                   'DischargedIntensiveStatus',
+      #                   'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
+      #                   'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
+      #                   'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
+      #                   'DateAdmittedIntensive', 'DateDischargedIntensive',
+      #                   # 'FormStatus', 'ShNavn', 'PatientInRegistryGuid',
+      #                   'UnitId')
+      varFellesInt <-c("DateAdmittedIntensive", "DateDischargedIntensive",
+                       "DaysAdmittedIntensiv", "DeadPatientDuring24Hours", "DischargedIntensiveStatus",
+                       "ICD10_1", "ICD10_2",
+                       "MechanicalRespirator", "MoreThan24Hours",
+                       "Morsdato", "MorsdatoOppdatert", "MovedPatientToAnotherIntensivDuring24Hours",
+                       "PatientAge", "PatientGender",
+                       "TransferredStatus", "UnitId", "VasoactiveInfusion")
+      #varFellesInt <- intersect(sort(names(RegDataInf)), sort(names(IntDataRaa)))
+
+      #Tar bort variabler som skal hentes fra intensivskjema
+      RegDataInf <- RegDataInf[ ,-which(names(RegDataInf) %in% c(varFellesInt))] #, 'DischargedIntensiveStatus'
+
+      RegData <-  merge(RegDataInf, IntDataRaa[,-which(names(IntDataRaa) == 'ReshId')], suffixes = c('','Int'),
+                           by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = T, all.y=F)
+
+      #setdiff(c(varMed, varFellesInt, beregnVar), names(BeredIntRaa1))
+
+    } else {
+      RegData <- RegDataInf
+    }
+
+
+    if (kobleInt==1){
+      #Fjerner  skjema uten intensivskjema
+      pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
+      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
+      indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
+      #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
+      if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
+      }
 
     if (preprosess == 1) {
 
