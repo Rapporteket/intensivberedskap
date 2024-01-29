@@ -12,11 +12,10 @@
 #'
 NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobleInt=0 ) {
 
-
   varBeredsk <- c("UPPER(SkjemaGUID) AS SkjemaGUID
 -- ,AddressQuality
 ,AgeAdmitted
-, IsAsthmaticPatient AS Astma
+, IsAsthmaticPatient
 ,Birthdate
 -- ,CurrentMunicipalNumber
 ,CreationDate
@@ -24,7 +23,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,DateDischargedIntensive
 ,DaysAdmittedIntensiv
 ,DeadPatientDuring24Hours
-, IsDiabeticPatient AS Diabetes
+,IsDiabeticPatient
 ,Diagnosis
 -- ,DischargedIntensivStatus
 ,DischargedIntensiveStatus
@@ -35,7 +34,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,FormDate
 ,FormStatus
 ,FormTypeId
-, IsPregnant AS Graviditet
+,IsPregnant
 ,Helseenhet
 -- ,HelseenhetID
 ,HelseenhetKortnavn
@@ -52,7 +51,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,IsLiverDiseaseIncludingFailurePatient
 ,IsObesePatient
 ,IsRiskFactor
-, IsCancerPatient AS Kreft
+, IsCancerPatient
 ,LastUpdate
 ,MechanicalRespirator
 ,MechanicalRespiratorEnd
@@ -119,17 +118,17 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
     BeredIntRaa <- merge(BeredDataRaa, IntDataRaa[,-which(names(IntDataRaa) == 'ReshId')], suffixes = c('','Int'),
                           by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = T, all.y=F)
     #varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
-    # varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamage',
-    #             'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis',
+    # varMed <- c('Age', 'AgeAdmitted', 'IsAsthmaticPatient', 'Bilirubin', 'Birthdate', 'BrainDamage',
+    #             'Bukleie', 'ChronicDiseases', 'IsDiabeticPatient', 'Diagnosis',
     #             'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
-    #             'Glasgow', 'Graviditet', 'Hco3', 'HeartRate',
+    #             'Glasgow', 'IsPregnant', 'Hco3', 'HeartRate',
     #             'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
     #             'InvasivVentilation', 'IsActiveSmoker', 'IsChronicLungDiseasePatient',
     #             'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
     #             'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
     #             'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
     #             'IsObesePatient', 'Isolation', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
-    #             'Kontinuerlig', 'KontinuerligDays', 'Kreft', 'Leukocytes', 'MechanicalRespirator',
+    #             'Kontinuerlig', 'KontinuerligDays', 'IsCancerPatient', 'Leukocytes', 'MechanicalRespirator',
     #             'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'Municipal','MunicipalNumber',
     #             'MvOrCpap', 'Nas', 'Nems', 'NonInvasivVentilation',
     #             'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',

@@ -75,11 +75,11 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    #    mapping <- data.frame(verdiGML,verdiNY)
    #    LogVarSjekk <- names(Skjema)[unique(which(Skjema[1,] %in% verdiGML), which(Skjema[15,] %in% verdiGML))]
    #    LogVar <- unique(c(LogVarSjekk,
-   #                     "Astma", "Diabetes", "Graviditet", "IsActiveSmoker", "IsChronicLungDiseasePatient",
+   #                     "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
    #                     "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
    #                     "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
    #                     "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-   #                     "IsObesePatient", "IsRiskFactor", "Kreft"))
+   #                     "IsObesePatient", "IsRiskFactor", "IsCancerPatient"))
    #    if (length(LogVar)>0) {
    #       for (k in 1:length(LogVar)) {
    #          Skjema[,LogVar[k]] <- mapping$verdiNY[match(Skjema[,LogVar[k]], mapping$verdiGML)]
@@ -90,11 +90,11 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
    LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
    LogVar <- unique(c(LogVarSjekk,
-                      "Astma", "Diabetes", "Graviditet", "IsActiveSmoker", "IsChronicLungDiseasePatient",
+                      "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
                       "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
                       "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
                       "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-                      "IsObesePatient", "IsRiskFactor", "Kreft",
+                      "IsObesePatient", "IsRiskFactor", "IsCancerPatient",
                       'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
 
    RegData[, intersect(names(RegData), LogVar)] <-
@@ -139,8 +139,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
                    Morsdato = Morsdato[1], #sort(Morsdato)[1],
                    DischargedIntensiveStatus = sort(DischargedIntensiveStatus, decreasing = T)[1], #max(DischargedIntensiveStatus, na.rm = T), #0-levende, 1-død. Endret navn i MRS
                    Overf = max(Overf),
-                   Astma  = sum(Astma)>0,
-                   Diabetes = sum(Diabetes)>0,
+                   IsAsthmaticPatient  = sum(IsAsthmaticPatient)>0,
+                   IsDiabeticPatient = sum(IsDiabeticPatient)>0,
                    IsActiveSmoker  = sum(IsActiveSmoker)>0, #Opprinnelig navn fra MRS: IsActivSmoker
                    IsChronicLungDiseasePatient = sum(IsChronicLungDiseasePatient)>0,
                    IsChronicNeurologicNeuromuscularPatient = sum(IsChronicNeurologicNeuromuscularPatient)>0,
@@ -151,8 +151,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
                    IsLiverDiseaseIncludingFailurePatient = sum(IsLiverDiseaseIncludingFailurePatient)>0,
                    IsObesePatient = sum(IsObesePatient)>0,
                    IsRiskFactor = sum(IsRiskFactor)>0,
-                   Graviditet = sum(Graviditet)>0,
-                   Kreft = sum(Kreft)>0,
+                   IsPregnant = sum(IsPregnant)>0,
+                   IsCancerPatient = sum(IsCancerPatient)>0,
                    Bekreftet = max(Bekreftet),
                    AntRegPrPas = dplyr::n(),
                    CreationDate = dplyr::first(CreationDate, order_by = FormDate),

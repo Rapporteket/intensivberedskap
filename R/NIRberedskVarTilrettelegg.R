@@ -51,7 +51,6 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
       maxald <- 110
       tittel <- 'Mangler tittel'
       variable <- 'Ingen'
-      #deltittel <- ''
       RegData$Variabel <- 0
 
 
@@ -468,24 +467,7 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
         xAkseTxt <- 'Observert 30-dagers dødelighet / PIM-estimert dødelighet'
         sortAvtagende <- FALSE
       }
-      # if (valgtVar == 'trakeostomi') { #andelGrVar
-      #       #-1: Velg verdi, 1 = Nei, 2 = Ja – perkutan teknikk på intensiv/oppv., 3 = Ja – åpen teknikk (operativ)
-      #
-      #       RegData <- RegData[which(RegData$Trakeostomi %in% 1:3)
-      #                                %i% which(RegData$InnDato >= as.Date('2016-01-01', tz='UTC')), ] #Innført ila 2015
-      #       retn <- 'H'
-      #       tittel <- 'Trakeostomi utført'
-      #       RegData$Variabel[which(RegData$Trakeostomi %in% 2:3)] <- 1
-      #       cexgr <- 0.9
-      # }
-      # if (valgtVar == 'trakAapen') { #andelGrVar
-      #       RegData <- RegData[which(RegData$Trakeostomi %in% 2:3)
-      #                                %i%  which(RegData$InnDato >= as.Date('2016-01-01', tz='UTC')), ] #Innført ila 2015
-      #       retn <- 'H'
-      #       tittel <- 'Andel trakeostomier gjort åpent/operativt'
-      #       RegData$Variabel[which(RegData$Trakeostomi == 3)] <- 1
-      #       cexgr <- 0.9
-      # }
+
 
 
       #---------------KATEGORISKE
@@ -553,20 +535,36 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
             xAkseTxt <- 'Andel opphold (%)'
       }
 
-#---------------- PÅRØRENDESKJEMA----------------------------------
+
+      if (valgtVar == 'risikoFakt' ) {   # Andeler
+
+        tittel <- 'Risikofaktorer'
+        sortAvtagende <- T
+        retn <- 'H'
+        flerevar <- 1
+        variable <- c('IsCancerPatient', 'IsImpairedImmuneSystemIncludingHivPatient', 'IsDiabeticPatient',
+                      'IsHeartDiseaseIncludingHypertensionPatient', 'IsObesePatient', 'IsAsthmaticPatient',
+                      'IsChronicLungDiseasePatient', 'IsKidneyDiseaseIncludingFailurePatient',
+                      'IsLiverDiseaseIncludingFailurePatient', 'IsChronicNeurologicNeuromuscularPatient',
+                      'IsPregnant', 'IsActiveSmoker', 'IsRiskFactor')
+        grtxt <- c('Kreft', 'Nedsatt immunforsvar', 'Diabetes',
+                   'Hjertesykdom', 'Fedme (KMI>30)', 'Astma',
+                   'Kronisk lungesykdom', 'Nyresykdom',
+                   'Leversykdom', 'Nevrologisk/nevromusk.',
+                   'Graviditet', 'Røyker', 'Minst én risikofaktor')
+        # IsAsthmaticPatient
+        # IsPregnant
+        # IsDiabeticPatient
+        # IsCancerPatient
+        # for (var in variable) {
+        #   print(class(RegData[,var]))}
+        ind1 <- which(RegData[ ,variable] == TRUE, arr.ind=T) #Ja i alle variable
+        RegData[ ,variable] <- 0
+        RegData[ ,variable][ind1] <- 1
+        xAkseTxt <- 'Andel opphold (%)'
+}
 
 
-
-      # if (valgtVar == 'BehandlingHoeflighetRespektMedfoelelse') { #andeler,
-      #   RegData <- RegData[which(RegData$respiratortid>0), ] # & (RegData$InnDato>=as.Date('2016-01-01', tz='UTC'))), ]
-      #   RegData$Variabel  <- as.numeric(RegData$respiratortid)
-      #   tittel <- c('Hvordan ble du møtt av intensivpersonalet',
-      #               ' med hensyn til høflighet, respekt og medfølelse?')
-      #    gr <- -1, 1:4
-      #   RegData$VariabelGr <-
-      #   xAkseTxt <- 'Respiratortid (døgn)'
-      #   sortAvtagende <- TRUE      #Rekkefølge
-      # }
 
       RegData$Variabel <- as.numeric(RegData$Variabel)
 
@@ -578,4 +576,3 @@ NIRberedskVarTilrettelegg  <- function(RegData, valgtVar, grVar='ShNavn', figurt
 
 }
 
-#--------------------Hjelpefunksjoner----------------------

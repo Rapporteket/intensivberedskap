@@ -70,32 +70,30 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
     }
 
 
-    if (kobleInt==1){
-      #Fjerner  skjema uten intensivskjema
-      pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
-      indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
-      #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
-      if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
-      }
+    #Fjerner  skjema uten intensivskjema
+    # if (kobleInt==1){
+    #   pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
+    #   skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
+    #   indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
+    #   #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
+    #   if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
+    #   }
 
     if (preprosess == 1) {
 
       # Endre variabelnavn
       names(RegData)[which(names(RegData) == 'AgeAdmitted')] <- 'Alder'
-      dplyr::rename(RegData, Diabetes=IsDiabeticPatient )
-      dplyr::rename(RegData, Astma=IsAsthmaticPatient )
-      dplyr::rename(RegData, Graviditet=IsPregnant )
+      #dplyr::rename(RegData, Diabetes=IsDiabeticPatient )
 
 
 #Endre boolske variabler til boolske.. (Kommer inn som tekst)
         LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
         LogVar <- unique(c(LogVarSjekk,
-                           "Astma", "Diabetes", "Graviditet", "IsActiveSmoker", "IsChronicLungDiseasePatient",
+                           "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
                            "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
                            "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
                            "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-                           "IsObesePatient", "IsRiskFactor", "Kreft",
+                           "IsObesePatient", "IsRiskFactor", "IsCancerPatient",
                            'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
 
         RegData[, intersect(names(RegData), LogVar)] <-

@@ -227,17 +227,17 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
   RegData <- UtData$RegData
 
   AntRisiko <- rbind(
-    Kreft = sum(RegData$Kreft, na.rm = T),
+    Kreft = sum(RegData$IsCancerPatient, na.rm = T),
     'Nedsatt immunforsvar' = sum(RegData$IsImpairedImmuneSystemIncludingHivPatient, na.rm = T),
-    Diabetes	= sum(RegData$Diabetes, na.rm = T),
+    Diabetes	= sum(RegData$IsDiabeticPatient, na.rm = T),
     Hjertesykdom = sum(RegData$IsHeartDiseaseIncludingHypertensionPatient, na.rm = T),
     'Fedme (KMI>30)' =	sum(RegData$IsObesePatient, na.rm = T),
-    Astma	= sum(RegData$Astma, na.rm = T),
+    Astma	= sum(RegData$IsAsthmaticPatient, na.rm = T),
     'Kronisk lungesykdom' = sum(RegData$IsChronicLungDiseasePatient, na.rm = T),
     Nyresykdom =	sum(RegData$IsKidneyDiseaseIncludingFailurePatient, na.rm = T),
     Leversykdom = sum(RegData$IsLiverDiseaseIncludingFailurePatient, na.rm = T),
     'Nevrologisk/nevromusk.' = sum(RegData$IsChronicNeurologicNeuromuscularPatient, na.rm = T),
-    Graviditet	= sum(RegData$Graviditet, na.rm = T),
+    Graviditet	= sum(RegData$IsPregnant, na.rm = T),
     'Røyker' =	sum(RegData$IsActiveSmoker, na.rm = T),
     'Pasienter med risikofaktorer' = sum(RegData$IsRiskFactor, na.rm = T)
   )

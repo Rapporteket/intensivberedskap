@@ -2,7 +2,7 @@
 
 InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
 
-NIRberedskFigAndeler(RegData=InfluIntData, valgtVar= 'spesTiltak',
+NIRberedskFigAndeler(RegData=InfluIntData, valgtVar= 'risikoFakt',
                                   datoFra=0, datoTil=0,
                                   enhetsNivaa='RHF', valgtEnhet='Alle', enhetsUtvalg=0,
                                   outfile='', lagFig=1)
@@ -16,7 +16,8 @@ c('alder',
 'respiratortidInv',
 'Saps2ScoreNumber',
 'spesTiltak',
-'RespiratortidInt')
+'RespiratortidInt',
+'risikoFakt')
 
 
 #Husk neste gang oppdaterer pakken intensiv:

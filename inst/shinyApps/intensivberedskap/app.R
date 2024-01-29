@@ -54,7 +54,7 @@ enhetsNivaa <- c('Alle', 'RHF', 'HF')
 names(enhetsNivaa) <- c('Hele landet', 'eget RHF', 'egetHF')
 
 sesongSiste <- max(sort(unique(InfluData$Sesong)))
-sesongValg <- sort(unique(InfluData$Sesong))
+sesongValg <- c('Alle', sort(unique(InfluData$Sesong)))
 
 RHFvalgInflu <- c('Alle', unique(as.character(InfluData$RHF)))
 names(RHFvalgInflu) <- RHFvalgInflu
@@ -277,17 +277,17 @@ ui <- tagList(
                                    #             choices = RHFvalgInflu
                                    #             #,selected = 'Alle'
                                    # ),
+
                                    selectInput(inputId = "sesongInflu", label="Velg influensasesong",
                                                choices = sesongValg, selected = sesongSiste),
                                    h5('(Valgene omfatter alle sesonger hvor det er gjort registreringer.)'),
 
                                    conditionalPanel("input.influensa == 'Oppsummeringer'",
                                                     selectInput(inputId = "bekrInflu", label="Bekreftet/Mistenkt",
-                                               choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
-                                   ),
-                                   selectInput(inputId = "skjemastatusInflu", label="Skjemastatus",
-                                               choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
-                                   )),
+                                                                choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)),
+                                                    selectInput(inputId = "skjemastatusInflu", label="Skjemastatus",
+                                                                choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
+                                                    )),
                                    selectInput(inputId = "erMannInflu", label="Kjønn",
                                                choices = c("Begge"=9, "Kvinne"=0, "Mann"=1)
                                    ),
@@ -295,28 +295,29 @@ ui <- tagList(
                                                choices = c("Alle"=9, "Død"=1, "Levende"=0, "Ukjent"=-1)
                                    ),
                                    conditionalPanel("input.influensa == 'Fordelinger'",
-                                   selectInput(
-                                     inputId = "valgtVarInflu", label="Velg variabel",
-                                     selected = 'regForsinkelseInn',
-                                     choices = c('Alder' = 'alder',
-                                                 'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring', #- int.variabel
-                                                 'Frailty index' = 'frailtyIndex', #- int.variabel
-                                                 'Liggetid' = 'liggetid',
-                                                 'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
-                                                 'Respiratortid, totalt' = 'RespiratortidInt',
-                                                 'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
-                                                 'Respiratortid, invasiv' = 'respiratortidInv',
-                                                 'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber', #- int.
-                                                 'Spesielle tiltak' = 'spesTiltak'
-                                     )
-                                   )),
+                                                    selectInput(
+                                                      inputId = "valgtVarInflu", label="Velg variabel",
+                                                      selected = 'regForsinkelseInn',
+                                                      choices = c('Alder' = 'alder',
+                                                                  'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring', #- int.variabel
+                                                                  'Frailty index' = 'frailtyIndex', #- int.variabel
+                                                                  'Liggetid' = 'liggetid',
+                                                                  'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
+                                                                  'Respiratortid, totalt' = 'RespiratortidInt',
+                                                                  'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
+                                                                  'Respiratortid, invasiv' = 'respiratortidInv',
+                                                                  'Risikofaktorer' = 'risikoFakt',
+                                                                  'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber', #- int.
+                                                                  'Spesielle tiltak' = 'spesTiltak'
+                                                      )
+                                                    )),
 
                                    actionButton("tilbakestillValgInflu", label="Tilbakestill valg"),
                       ),
 
                       mainPanel(
                         width = 9,
-                        h3('Siden er under utvikling... ', style = "color:red"),
+                        #h3('Siden er under utvikling... ', style = "color:red"),
                         uiOutput('TittelInflu'),
                         h4('Alle resultater er basert på opphold. (Det er ikke gjort noen aggregering på person.)'),
                         tabsetPanel(
@@ -340,38 +341,25 @@ ui <- tagList(
                                      tableOutput('tabFerdigeRegInflu')
                               )),
 
-                            #uiOutput('utvalgHovedInflu'),
-                            #tableOutput('tabTidEnhetInflu'),
                             br(),
-                            # fluidRow(
-                            #   column(width=3,
-                            #          h3('RisikofaktorerInflu'),
-                            #          uiOutput('utvalgRisikoInflu'),
-                            #          tableOutput('tabRisikofaktorerInflu')),
-                            #   column(width=5, offset=1,
-                            #          h3('Alders- og kjønnsfordeling'),
-                            #          plotOutput("FigurAldersfordelingInflu", height="auto"),
-                            #          downloadButton("LastNedFigAldKjInflu", "Last ned figur"),
-                            #          downloadButton("lastNedAldKjInflu", "Last ned tabell")
-                            #          )
-                            #   ),
-                            h3('Antall registrerte opphold per uke'),
-                            #uiOutput('tittelTabInfluUkeRHF'),
-                            tableOutput('tabInfluUkeRHF')
+                            conditionalPanel("input.sesongInflu != 'Alle'",
+                                             h3('Antall registrerte opphold per uke'),
+                                             tableOutput('tabInfluUkeRHF')
+                                             )
 
                           ),
                           tabPanel('Fordelinger',
                                    tabsetPanel(
-                                   tabPanel('Figur',
-                                            plotOutput('fordInflu', height="auto"),
-                                            downloadButton(outputId = "LastNedFigFordInflu", label = "Last ned figur")
-                                   ),
-                                   tabPanel('Tabell-ikke laget'
-                                   #   #uiOutput("tittelFordInflu"),
-                                   #   #tableOutput('fordelingTabInflu'),
-                                   #   #downloadButton(outputId = 'lastNed_tabFordInflu', label='Last ned tabell') #, class = "butt")
-                          ))) #Fordelinger
-                      ))#main
+                                     tabPanel('Figur',
+                                              plotOutput('fordInflu', height="auto"),
+                                              downloadButton(outputId = "LastNedFigFordInflu", label = "Last ned figur")
+                                     ),
+                                     tabPanel('Tabell',
+                                              uiOutput("tittelFordInflu"),
+                                              tableOutput('fordelingTabInflu'),
+                                              downloadButton(outputId = 'lastNed_tabFordInflu', label='Last ned tabell') #, class = "butt")
+                                     ))) #Fordelinger
+                        ))#main
              ), #Influensaresultater
 
              #-----------Abonnement--------------------------------
@@ -863,9 +851,8 @@ server <- function(input, output, session) {
 
 
   output$fordelinger <- renderPlot({
-    #print(paste0('FigFord_', input$valgtVarInflu, '.', input$bildeformatFord))
-    NIRberedskFigAndeler(RegData=InfluIntData, preprosess = 0,
-                         valgtVar=input$valgtVarInflu,
+    NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0,
+                         valgtVar=input$valgtVar,
                          # reshID=reshID,
                          # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
                          bekr=as.numeric(input$bekrFord),
@@ -879,12 +866,12 @@ server <- function(input, output, session) {
 
   output$LastNedFigFord <- downloadHandler(
     filename = function(){
-      paste0('FordelingsFigur_', valgtVar=input$valgtVarInflu, '.', input$bildeformatFord) #'_', Sys.time(),
+      paste0('FordelingsFigur_', valgtVar=input$valgtVar, '.', input$bildeformatFord) #'_', Sys.time(),
     },
 
     content = function(file){
-      NIRberedskFigAndeler(RegData=InfluIntData, preprosess = 0,
-                           valgtVar=input$valgtVarInflu,
+      NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0,
+                           valgtVar=input$valgtVar,
                            bekr=as.numeric(input$bekrFord),
                            datoFra=input$datovalg[1], datoTil=input$datovalg[2],
                            erMann=as.numeric(input$erMannFord), session = session,
@@ -893,23 +880,22 @@ server <- function(input, output, session) {
   )
 
   observe({
-    UtDataFordInflu <- NIRberedskFigAndeler(RegData=InfluIntData, preprosess = 0,
-                                       valgtVar=input$valgtVarInflu,
-                                       #bekr=as.numeric(input$bekrFord),
+    UtDataFord <- NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0,
+                                       valgtVar=input$valgtVar,
                                        datoFra=input$datovalg[1], datoTil=input$datovalg[2],
                                        erMann=as.numeric(input$erMannFord),
                                        session = session
     )
-    tabInflu <- lagTabavFigFord(UtDataFraFig = UtDataFordInflu)
+    tab <- lagTabavFigFord(UtDataFraFig = UtDataFord)
 
-    output$tittelFordInflu <- renderUI({
+    output$tittelFord <- renderUI({
       tagList(
-        h3(HTML(paste(UtDataFordInflu$tittel, sep='<br />'))),
-        h5(HTML(paste0(UtDataFordInflu$utvalgTxt, '<br />')))
+        h3(HTML(paste(UtDataFord$tittel, sep='<br />'))),
+        h5(HTML(paste0(UtDataFord$utvalgTxt, '<br />')))
       )}) #, align='center'
-    output$fordelingTabInflu <- function() {
-      antKol <- ncol(tabInflu)
-      kableExtra::kable(tabInflu, format = 'html'
+    output$fordelingTab <- function() {
+      antKol <- ncol(tab)
+      kableExtra::kable(tab, format = 'html'
                         , full_width=F
                         , digits = c(0,0,1,0,0,1)[1:antKol]
       ) %>%
@@ -919,9 +905,9 @@ server <- function(input, output, session) {
         kableExtra::row_spec(0, bold = T)
     }
 
-    output$lastNed_tabFordInflu <- downloadHandler(
+    output$lastNed_tabFord <- downloadHandler(
       filename = function(){
-        paste0(input$valgtVarInflu, '_fordelingInflu.csv')
+        paste0(input$valgtVar, '_fordeling.csv')
       },
       content = function(file, filename){
         write.csv2(tab, file, row.names = T, na = '')
@@ -932,10 +918,12 @@ server <- function(input, output, session) {
   observeEvent(input$tilbakestillValgInflu, shinyjs::reset("brukervalgInfluensa"))
 
   observe({
-    output$TittelInflu <- renderUI(h2(paste0('Resultater fra influensaregistrering, sesongen ',
+    output$TittelInflu <- renderUI(h2(paste0('Resultater fra influensaregistrering. Sesong: ',
                                           input$sesongInflu)))
+    ind <- if (input$sesongInflu == 'Alle') {1:dim(InfluData)[1]} else {
+      which(InfluData$Sesong == input$sesongInflu)}
 
-    UtDataInflu <- InfluData[which(InfluData$Sesong == input$sesongInflu),]
+    UtDataInflu <- InfluData[ind,]
     UtDataInflu <- NIRUtvalgBeredsk(RegData=UtDataInflu,
                                     #valgtRHF= as.character(input$valgtRHFinflu),
                                     skjemastatus=as.numeric(input$skjemastatusInflu),
@@ -984,36 +972,16 @@ server <- function(input, output, session) {
 
   })
 
-  # #Tab risiko
-  # RisikoTab <- RisikofaktorerTab(RegData=CoroData, #tidsenhet='Totalt',
-  #                                valgtRHF= input$valgtRHF,
-  #                                skjemastatus=as.numeric(input$skjemastatus),
-  #                                bekr=as.numeric(input$bekr),
-  #                                dodInt=as.numeric(input$dodInt),
-  #                                erMann=as.numeric(input$erMann),
-  #                                minald=as.numeric(input$alder[1]),
-  #                                maxald=as.numeric(input$alder[2]))
-  #
-  #
-  # output$tabRisikofaktorer <- if (RisikoTab$Ntest>2){
-  #   renderTable(RisikoTab$Tab, rownames = T, digits=0, spacing="xs") } else {
-  #     renderText('Få registreringer (N<3)')}
-  # output$utvalgRisiko <- renderUI({h5(HTML(paste0(RisikoTab$utvalgTxt, '<br />'))) #tagList()
-  # })
-  #
-
   observe({
-    InfluIntData <- InfluIntData[which(InfluIntData$Sesong == input$sesongInflu),]
+    #InfluIntData <- InfluIntData[which(InfluIntData$Sesong == input$sesongInflu),]
+    ind <- if (input$sesongInflu == 'Alle') {1:dim(InfluData)[1]} else {
+      which(InfluData$Sesong == input$sesongInflu)}
+    InfluIntData <- InfluIntData[ind, ]
 
-   # test <-  NIRUtvalgBeredsk(RegData=InfluIntData,
-   #                   dodInt=1)$RegData
+
   output$fordInflu <- renderPlot({
     NIRberedskFigAndeler(RegData=InfluIntData, preprosess = 0,
                          valgtVar=input$valgtVarInflu,
-                         # reshID=reshID,
-                         # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
-                         #bekr=as.numeric(input$bekrInflu),
-                         # minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
                          dodInt=as.numeric(input$dodIntInflu),
                          erMann=as.numeric(input$erMannInflu), session = session
     )
@@ -1023,20 +991,34 @@ server <- function(input, output, session) {
 
   output$LastNedFigFordInflu <- downloadHandler(
     filename = function(){
-      paste0('FordelingsFigur_', valgtVar=input$valgtVarInflu, '.', input$bildeformatFordInflu) #'_', Sys.time(),
+      paste0('FordelingsFigur_', valgtVar=input$valgtVarInflu, '.', input$bildeformatFord) #'_', Sys.time(),
     },
 
     content = function(file){
       NIRberedskFigAndeler(RegData=InfluIntData, preprosess = 0,
                            valgtVar=input$valgtVarInflu,
                            dodInt=as.numeric(input$dodIntInflu),
-                           #bekr=as.numeric(input$bekrInflu),
                            erMann=as.numeric(input$erMannInflu), session = session,
                            outfile = file)
     }
   )
 
-    UtDataFordInflu <- NIRberedskFigAndeler(RegData=InfluIntData, preprosess = 0,
+  # output$LastNedFigFord <- downloadHandler(
+  #   filename = function(){
+  #     paste0('FordelingsFigur_', valgtVar=input$valgtVar, '.', input$bildeformatFord) #'_', Sys.time(),
+  #   },
+  #
+  #   content = function(file){
+  #     NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0,
+  #                          valgtVar=input$valgtVar,
+  #                          bekr=as.numeric(input$bekrFord),
+  #                          datoFra=input$datovalg[1], datoTil=input$datovalg[2],
+  #                          erMann=as.numeric(input$erMannFord), session = session,
+  #                          outfile = file)
+  #   }
+  # )
+  #
+  UtDataFordInflu <- NIRberedskFigAndeler(RegData=InfluIntData, preprosess = 0,
                                        valgtVar=input$valgtVarInflu,
                                        #bekr=as.numeric(input$bekrInflu),
                                        dodInt=as.numeric(input$dodIntInflu),
