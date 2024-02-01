@@ -35,9 +35,16 @@ library(intensivberedskap)
 # -	Skjemastatus ? (tal på skjema i kladd vs ferdigstilte)
 
 if (!exists('InfluData')){
-    InfluData <- intensivberedskap::NIRsqlPreInfluensa(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1)
-    InfluData$RHFc <- as.character(InfluData$RHF)
+  InfluData <- rapbase::loadStagingData("intensivberedskap", "InfluData")
+  if (isFALSE(InfluData)) {
+    InfluData <- intensivberedskap::NIRsqlPreInfluensa(datoFra = '2023-01-01', datoTil = Sys.Date(), preprosess=1)
+    rapbase::saveStagingData("intensivberedskap", "InfluData", InfluData)
+  }
 }
+
+InfluData$RHFc <- as.character(InfluData$RHF)
+
+
  # load('./inst/InfluDataDum.Rdata')
  # InfluData <- InfluDataDum
 
@@ -85,21 +92,6 @@ antSkjema <- dim(InfluData)[1]
 #enhetsNivaa  #'Alle', 'RHF', HF
 
 enhetsNivaa <- 'Alle'
-# reshID <- 706078
-# reshID <- format(reshID, scientific = FALSE)
-#
-# egetRHF <- as.character(InfluData$RHF[match(reshID, InfluData$ReshId)])
-# egetHF <- InfluData$HF[match(reshID, InfluData$ReshId)]
-#
-# enhet <- switch(enhetsNivaa,   #ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
-#                     Alle = 'hele landet',
-#                     RHF = egetRHF,
-#                     HF = egetHF
-# )
-#
-# visningsNivaaLav <- ifelse(enhetsNivaa=='HF', 'sykehus', 'helseforetak')
-
-#enhetTxt <- ifelse(enhetsNivaa=='RHF',  paste0('Helse ', enhet, ' RHF'), enhet)
 
 indFerdig <- which(InfluData$FormStatus==2)
 antFerdig <- length(indFerdig)
@@ -341,25 +333,17 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
 
 
 
-\begin{frame}[fragile] {Antall registrerte pasienter på hvert sykehus}
+\begin{frame}[fragile]{Antall registrerte opphold på hvert sykehus}
   <<'OpphPrHF', results='asis', warnings=FALSE>>=
-    #InfluDataDum <- if (enhetsNivaa == 'HF') {InfluData} else {InfluDataAlle}
-    #if (enhetsNivaa == 'HF') {
-    # RegHF <- InfluData %>%
-    #   dplyr::group_by(Sykehus) %>%
-    #   dplyr::summarise('Antall pasienter' = n())
-    # colnames(RegHF) <- c('Sykehus', 'Antall pasienter')
-    # RegHF <- rbind(as.data.frame(RegHF),
-    #                c('Totalt', sum(RegHF$`Antall pasienter`)))
-    # } else {
     RegHF <- InfluData %>%
     dplyr::group_by(as.character(RHF), HF, Sykehus) %>%
     dplyr::summarise(.groups='rowwise',
-                     'Antall pasienter' = n())
-  #colnames(RegHF) <- gsub('ut', '', colnames(RegHF))
-  Totalt <- c('Hele landet', '', '', sum(RegHF$`Antall pasienter`))
+                     'Antall opphold' = n())
+  Totalt <- c('Hele landet', '', '', sum(RegHF$`Antall opphold`))
   RegHF <- rbind(as.data.frame(RegHF), Totalt)
+  colnames(RegHF) <- c('RHF', 'HF', 'Sykehus')
   # }
+  \resizebox
   print(
     xtable::xtable(RegHF , digits=0,
                    align = c('l','l','l','l','r'),
@@ -379,8 +363,9 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
                                               Alder[4], ' år.')} else {''}
   @
 
-    \Sexpr{txtAlder}
-  <<'TabAlder', results='asis'>>=
+\Sexpr{txtAlder}
+
+<<'TabAlder', results='asis'>>=
     TabAlder <- TabAlder(RegData=InfluData, sens=1)$Tab  #reshID = reshID, enhetsNivaa = enhetsNivaa
 
   xtable::xtable(TabAlder,

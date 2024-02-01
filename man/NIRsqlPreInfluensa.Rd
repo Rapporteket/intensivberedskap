@@ -7,7 +7,8 @@
 NIRsqlPreInfluensa(
   datoFra = "2018-01-01",
   datoTil = Sys.Date(),
-  preprosess = 1
+  preprosess = 1,
+  kobleInt = 0
 )
 }
 \arguments{

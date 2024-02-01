@@ -23,23 +23,51 @@ regTitle <- ifelse(paaServer,
 
 #---------Hente data------------
 
-CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
-CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
-
-#Bruk resh før preprosesserer
-CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
-BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
-
-BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
-
-if (dim(BeredIntRaa)[1]>0) {
-  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+CoroDataRaa <- rapbase::loadStagingData("intensivberedskap", "CoroDataRaa")
+if (isFALSE(CoroDataRaa)) {
+  CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
+  CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
+  rapbase::saveStagingData("intensivberedskap", "CoroDataRaa", CoroDataRaa)
 }
 
-#Influensadata# MÅ GJØRES I EI preprosess-fil eller i spørringa som henter data!!
-queryInflu <- paste0('SELECT * FROM InfluensaFormDataContract')
-InfluData <- NIRsqlPreInfluensa() #InfluDataRaa #intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
-InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1) #InfluDataRaa #intensiv::NIRPreprosess(RegData = InfluDataRaa, skjema = 3)
+CoroData <- rapbase::loadStagingData("intensivberedskap", "CoroData")
+if (isFALSE(CoroData)) {
+  CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
+  rapbase::saveStagingData("intensivberedskap", "CoroData", CoroData)
+}
+
+BeredDataOpph <- rapbase::loadStagingData("intensivberedskap", "BeredDataOpph")
+if (isFALSE(BeredDataOpph)) {
+  BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
+  rapbase::saveStagingData("intensivberedskap", "BeredDataOpph", BeredDataOpph)
+}
+
+BeredIntRaa <- rapbase::loadStagingData("intensivberedskap", "BeredIntRaa")
+if (isFALSE(BeredIntRaa)) {
+  BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+  rapbase::saveStagingData("intensivberedskap", "BeredIntRaa", BeredIntRaa)
+}
+
+if (dim(BeredIntRaa)[1]>0) {
+  BeredIntPas <- rapbase::loadStagingData("intensivberedskap", "BeredIntPas")
+  if (isFALSE(BeredIntPas)) {
+    BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+    rapbase::saveStagingData("intensivberedskap", "BeredIntPas", BeredIntPas)}
+}
+
+
+InfluData <- rapbase::loadStagingData("intensivberedskap", "InfluData")
+if (isFALSE(InfluData)) {
+  InfluData <- NIRsqlPreInfluensa()
+  rapbase::saveStagingData("intensivberedskap", "InfluData", InfluData)
+}
+
+InfluIntData <- rapbase::loadStagingData("intensivberedskap", "InfluIntData")
+if (isFALSE(InfluIntData)) {
+  InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
+  rapbase::saveStagingData("intensivberedskap", "InfluIntData", InfluIntData)
+}
+
 
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------
@@ -320,6 +348,7 @@ ui <- tagList(
                         #h3('Siden er under utvikling... ', style = "color:red"),
                         uiOutput('TittelInflu'),
                         h4('Alle resultater er basert på opphold. (Det er ikke gjort noen aggregering på person.)'),
+                        br(),
                         tabsetPanel(
                           id = 'influensa',
                           tabPanel(
@@ -417,10 +446,11 @@ ui <- tagList(
                                                 dateRangeInput(inputId = 'datovalgForsink', start = startDato, end = idag, #'2020-05-10',
                                                                label = "Tidsperiode", separator="t.o.m.", language="nb"
                                                 ),
+                                                br(),
+                                                h4('Hvis man av en eller annen grunn ønsker å oppdatere staging-data utenom de faste oppdateringstidene, trykk på knappen:'),
+                                                actionButton("oppdatStaging", "Oppdater stagingdata")
                                    ),
                                    mainPanel(
-                                     h3('Bekreftede Covidpasienter, t.o.m. dagens dato'),
-                                     br(),
                                      br(),
                                      h4('Div andeler...'),
                                      tableOutput('tabAndeler'),
@@ -1087,10 +1117,6 @@ server <- function(input, output, session) {
   #-----------Registeradmin.------------
   BeredIntPasBekr <- BeredIntPas[which(BeredIntPas$Bekreftet==1), ]# 2020-05-11),
 
-  #Samme pasienter i råfil:
-  # BeredIntRaaArt <- BeredIntRaa[
-  #   which(sort(BeredIntRaa$PatientInRegistryGuid) %in% sort(BeredIntPasBekr$PasientID)), ]
-
   output$lastNed_dataBeredNIRraa <- downloadHandler(
     filename = function(){
       paste0('DataCovidIntensivRaa.', Sys.Date(), '.csv')
@@ -1137,6 +1163,11 @@ server <- function(input, output, session) {
       })
 
   })
+
+  #Oppdater stagingdata
+  observeEvent(
+    input$oppdatStaging,
+    lagStagingData())
 
 
 }
