@@ -191,10 +191,11 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
       Totalt <- c('', 'Totalt', sum(RegHF$`Antall pasienter`))
      # }
 
-    colnames(RegHF) <- gsub('ut', '', colnames(RegHF))
+    colnames(RegHF) <-c('RHF', 'HF', 'Ant. pasienter')  #gsub('ut', '', colnames(RegHF))
 
     RegHF <- rbind(as.data.frame(RegHF), Totalt)
     print(xtable::xtable(RegHF, digits=0,
+                         align = c('l', 'l', 'r')
           caption = 'Antall inneliggende influensapasienter i hver enhet'),
           include.rownames = FALSE)
 
@@ -341,7 +342,7 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
                      'Antall opphold' = n())
   Totalt <- c('Hele landet', '', '', sum(RegSh$`Antall opphold`))
   RegSh <- rbind(as.data.frame(RegSh), Totalt)
-  colnames(RegSh) <- c('RHF', 'Sykehus')
+  colnames(RegSh) <- c('RHF', 'Sykehus', 'Ant. opph.')
   # }
   print(
     xtable::xtable(RegSh , digits=0,
