@@ -343,7 +343,6 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
   RegSh <- rbind(as.data.frame(RegSh), Totalt)
   colnames(RegSh) <- c('RHF', 'Sykehus')
   # }
-  \resizebox
   print(
     xtable::xtable(RegSh , digits=0,
                    align = c('l','l','l','r'),
