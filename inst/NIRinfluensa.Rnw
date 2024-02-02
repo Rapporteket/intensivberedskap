@@ -335,18 +335,18 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
 
 \begin{frame}[fragile]{Antall registrerte opphold på hvert sykehus}
   <<'OpphPrHF', results='asis', warnings=FALSE>>=
-    RegHF <- InfluData %>%
-    dplyr::group_by(as.character(RHF), HF, Sykehus) %>%
+    RegSh <- InfluData %>%
+    dplyr::group_by(as.character(RHF), Sykehus) %>%
     dplyr::summarise(.groups='rowwise',
                      'Antall opphold' = n())
-  Totalt <- c('Hele landet', '', '', sum(RegHF$`Antall opphold`))
-  RegHF <- rbind(as.data.frame(RegHF), Totalt)
-  colnames(RegHF) <- c('RHF', 'HF', 'Sykehus')
+  Totalt <- c('Hele landet', '', '', sum(RegSh$`Antall opphold`))
+  RegSh <- rbind(as.data.frame(RegSh), Totalt)
+  colnames(RegSh) <- c('RHF', 'Sykehus')
   # }
   \resizebox
   print(
-    xtable::xtable(RegHF , digits=0,
-                   align = c('l','l','l','l','r'),
+    xtable::xtable(RegSh , digits=0,
+                   align = c('l','l','l','r'),
                    caption='Totalt antall registrerte influensapasienter fra sesongstart til rapporteringstidspunktet.')
     ,include.rownames = FALSE)
   @
