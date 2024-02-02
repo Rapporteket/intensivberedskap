@@ -195,7 +195,7 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
 
     RegHF <- rbind(as.data.frame(RegHF), Totalt)
     print(xtable::xtable(RegHF, digits=0,
-                         align = c('l', 'l', 'r'),
+                         align = c('l', 'l', 'l', 'r'),
           caption = 'Antall inneliggende influensapasienter i hver enhet'),
           include.rownames = FALSE)
 
