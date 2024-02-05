@@ -88,7 +88,7 @@ reshID <- format(reshID, scientific = FALSE)
 egetRHF <- RegDataAlleOpph$RHF[match(reshID, RegDataAlleOpph$ReshId)]
 egetHF <- RegDataAlleOpph$HF[match(reshID, RegDataAlleOpph$ReshId)]
 
-enhet <- switch(enhetsNivaa,   #ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
+enhet <- switch(enhetsNivaa,
                     Alle = 'hele landet',
                     RHF = egetRHF,
                     HF = egetHF
@@ -160,7 +160,6 @@ Antall inneliggende intensivpasienter og antall med pustehjelp på rapporterings
 
 <<'RespiratorECMO', results='asis'>>=
 
-#statusECMOrespTab(RegData=RegData)$Tab
 xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
                digits=0,
                align = c('l','r','r','r'),
