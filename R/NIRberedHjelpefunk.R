@@ -53,8 +53,9 @@ abonnementBeredsk <- function(rnwFil,
     rnwFil <- 'BeredskapCorona.Rnw'
     enhetsNivaa <- dum[[1]][1]
   }
-  # raplog::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
-  #                   reshId = reshID,
+  # rapbase::autLogger(user = brukernavn, registryName = 'NIR - Beredskap', fun = 'abonnementBeredsk',
+  #                   reshId = reshID, name = brukernavn, pkg = 'intensivberedskap',
+  #                   param = c('RHF_BeredskapCorona.Rnw', 'reshID'),
   #                   msg = "starter Abonnement: Corona-rapport")
   filbase <- substr(rnwFil, 1, nchar(rnwFil)-4)
   tmpFile <- paste0(filbase, Sys.Date(),'_',digest::digest(brukernavn), '.Rnw')
@@ -69,7 +70,7 @@ abonnementBeredsk <- function(rnwFil,
   utfil <- paste0(dir, '/', substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf')
   # raplog::subLogger(author = brukernavn, registryName = 'NIR - beredskap',
   #                   reshId = reshID,
-  #                   msg = paste("Leverer: ", utfil))
+  #                   msg = paste("Leverer: ", utfil, 'enhetsnivå: ', enhetsNivaa))
   return(utfil)
 }
 

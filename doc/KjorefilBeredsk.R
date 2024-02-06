@@ -55,6 +55,12 @@ knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'U
 knitr::knit2pdf('~/intensivberedskap/inst/NIRinfluensa.Rnw') #, encoding = 'UTF-8')
 henteSamlerapporterBered(filnavn = '~/inst/Influensa.pdf', rnwFil="NIRinfluensa.Rnw")
 
+#Teste abonnement/utsending
+test <- intensivberedskap::abonnementBeredsk(rnwFil='Alle_BeredskapCorona.Rnw',
+                              reshID=0,  #Beregnes ut fra HF/RHF-navn for utsending, men benyttes direkte for abonnement
+                              enhetsNivaa = 'Alle',  #For abonnement
+                              Rpakke='intensivberedskap')
+
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 library(intensivberedskap)

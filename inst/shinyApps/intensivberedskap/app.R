@@ -759,19 +759,19 @@ server <- function(input, output, session) {
   reports <- list(
     CovidRappAlle = list(
       synopsis = "Intensivpasienter med covid-19: Hele landet",
-      fun = "abonnementBeredsk", #Lag egen funksjon for utsending
+      fun = "abonnementBeredsk",
       paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
       paramValues = c('Alle_BeredskapCorona.Rnw', reshID) #'Alle')
     ),
     CovidRappRHF = list(
       synopsis = "Intensivpasienter med covid-19: RHF",
-      fun = "abonnementBeredsk", #Lag egen funksjon for utsending
+      fun = "abonnementBeredsk",
       paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
       paramValues = c('RHF_BeredskapCorona.Rnw', reshID) #'Alle')
     ),
     CovidRappHF = list(
       synopsis = "Intensivpasienter med covid-19: HF",
-      fun = "abonnementBeredsk", #Lag egen funksjon for utsending
+      fun = "abonnementBeredsk",
       paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
       paramValues = c('HF_BeredskapCorona.Rnw', reshID) #'Alle')
     ),

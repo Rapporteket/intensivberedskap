@@ -3,7 +3,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[english, norsk]{babel}
+\usepackage[norsk]{babel}
 \usepackage{xspace}
 \usepackage{booktabs}
 \usepackage{rotating}
@@ -34,13 +34,13 @@ library(intensivberedskap)
 # -	Aldersgruppe ([0-5> [5-10> [10-15>) …. )
 # -	Skjemastatus ? (tal på skjema i kladd vs ferdigstilte)
 
-if (!exists('InfluData')){
-  InfluData <- rapbase::loadStagingData("intensivberedskap", "InfluData")
-  if (isFALSE(InfluData)) {
-    InfluData <- intensivberedskap::NIRsqlPreInfluensa(datoFra = '2023-01-01', datoTil = Sys.Date(), preprosess=1)
-    rapbase::saveStagingData("intensivberedskap", "InfluData", InfluData)
-  }
-}
+# if (!exists('InfluData')){
+#   InfluData <- rapbase::loadStagingData("intensivberedskap", "InfluData")
+#   if (isFALSE(InfluData)) {
+#     InfluData <- intensivberedskap::NIRsqlPreInfluensa(datoFra = '2023-01-01', datoTil = Sys.Date(), preprosess=1)
+#     rapbase::saveStagingData("intensivberedskap", "InfluData", InfluData)
+#   }
+#}
 
 InfluData$RHFc <- as.character(InfluData$RHF)
 
@@ -99,6 +99,7 @@ AntDode <- sum(InfluData$DischargedIntensiveStatus==1)
 
 
 \begin{document}
+% \SweaveOpts{concordance=TRUE}
 
 \title[Influensa \\\today] {%\textit{Influensadata, NIR} \\
 Influensarapportering fra NIR, sesongen \Sexpr{sesongSiste} }
