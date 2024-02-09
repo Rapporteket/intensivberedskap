@@ -11,9 +11,7 @@ NIRberedskFigAndeler(
   datoFra = 0,
   datoTil = 0,
   bekr = 9,
-  enhetsNivaa = "RHF",
-  valgtEnhet = "Alle",
-  enhetsUtvalg = 0,
+  dodInt = 9,
   outfile = "",
   lagFig = 1,
   ...
@@ -34,12 +32,17 @@ NIRberedskFigAndeler(
 
 \item{bekr}{1-bekreftet, 0-mistenkt tilfelle}
 
-\item{enhetsUtvalg}{Gjør gruppeutvalg med eller uten sammenlikning. Se \strong{Details} for oversikt.}
+\item{dodInt}{Levende/død ut fra intensiv.
+0: i live,
+1: død,
+alle: standard (alle andre verdier)}
 
 \item{lagFig}{Angir om figur skal lages eller ikke 0-ikke lag, 1-lag}
 
 \item{reshID}{Parameter følger fra innlogging helseregister.no og angir
 hvilken enhet i spesialisthelsetjenesten brukeren tilhører}
+
+\item{enhetsUtvalg}{Gjør gruppeutvalg med eller uten sammenlikning. Se \strong{Details} for oversikt.}
 
 \item{preprosess}{Preprosesser data
 FALSE: Nei
@@ -48,11 +51,6 @@ TRUE: Ja (Standard)}
 \item{hentData}{Gjør spørring mot database
 0: Nei, RegData gis som input til funksjonen (Standard)
 1: Ja}
-
-\item{dodInt}{Levende/død ut fra intensiv.
-0: i live,
-1: død,
-alle: standard (alle andre verdier)}
 }
 \value{
 Søylediagram (fordeling) av valgt variabel. De enkelte verdiene kan også sendes med.

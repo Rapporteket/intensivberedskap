@@ -88,7 +88,7 @@ reshID <- format(reshID, scientific = FALSE)
 egetRHF <- RegDataAlleOpph$RHF[match(reshID, RegDataAlleOpph$ReshId)]
 egetHF <- RegDataAlleOpph$HF[match(reshID, RegDataAlleOpph$ReshId)]
 
-enhet <- switch(enhetsNivaa,   #ifelse(valgtRHF=='Alle', 'hele landet', valgtRHF)
+enhet <- switch(enhetsNivaa,
                     Alle = 'hele landet',
                     RHF = egetRHF,
                     HF = egetHF
@@ -130,7 +130,7 @@ AntDode <- sum(RegData$DischargedIntensiveStatus==1)
 
 \begin{frame}[fragile] {Hva er dette?}
 Dette er en automatisk generert rapport fra Norsk intensiv- og pandemiregister (NIPaR). Dokumentet inneholder oversikt over intensivbehandlede pasienter med covid-19 i Norge. I denne sammenhengen betyr det at pasienten behandles på et intensiv- eller overvåkningsareal og fyller kriterier for intensivpasienter i NIPaR. Disse pasientene trenger som regel mer oksygentilførsel og pustehjelp enn det man får bare med nesekateter eller annet åpent oksygensystem, som kan brukes mange steder i et sykehus.\\
-Datagrunnlaget er oppdatert med alle registreringer gjort inntil 4 timer før rapporten ble lastet ned.
+Datagrunnlaget er oppdatert med alle registreringer gjort dagen før rapporten ble lastet ned.
 
 Rapporten baserer seg på alle registrerte tilfeller, hvorav \Sexpr{antUbekr} ikke har påvist smitte med SARS-CoV-2,
 men er registrert på grunnlag av sterk klinisk mistanke. \\
@@ -160,13 +160,13 @@ Antall inneliggende intensivpasienter og antall med pustehjelp på rapporterings
 
 <<'RespiratorECMO', results='asis'>>=
 
-#statusECMOrespTab(RegData=RegData)$Tab
 xtable::xtable(statusECMOrespTab(RegData=RegData)$Tab,
                digits=0,
                align = c('l','r','r','r'),
-               caption = 'Totalt antall inneliggende intensivpasienter og totalt antall med pustehjelp.
+               caption = paste0('Totalt antall inneliggende intensivpasienter og totalt antall med pustehjelp for ', enhetTxt, '.
                Gjennomsnittlig liggetid, gjennomsnittlig samlet tid med
                mekanisk ventilasjonsstøtte (invasiv og med tett maske) og gjennomsnittlig ECMO-tid.')
+)
 
 @
 \end{frame}

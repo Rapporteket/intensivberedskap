@@ -11,11 +11,11 @@
 #' @return
 #' @export
 #'
-InfluensaUkeRHF <- function(RegData, bekr=9, skjemastatus=9, dodInt=9, erMann=9, sesong='2021-22', alleUker=1){
+InfluensaUkeRHF <- function(RegData, bekr=9, skjemastatus=9, dodInt=9, erMann=9, sesong='2023-24', alleUker=1){
 
 InfluData <- RegData
   InfluData <- InfluData[InfluData$Sesong == sesong,]
-  if (bekr != 9) {InfluData <- InfluData[InfluData$Bekr == bekr, ]}
+  if (bekr != 9) {InfluData <- InfluData[InfluData$Bekreftet == bekr, ]}
   if (skjemastatus != 9) {InfluData <- InfluData[InfluData$FormStatus == skjemastatus, ]}
   if (dodInt %in% -1:1){InfluData <- subset(InfluData, InfluData$DischargedIntensiveStatus==dodInt)}
   if (erMann %in% 0:1){InfluData <- subset(InfluData, InfluData$erMann==erMann)}
@@ -29,13 +29,7 @@ InfluData <- RegData
     sesonger <- paste0(2017:2028,'-',18:29)
     ind <- which(sesonger == sesong)
     uker <- seq(as.Date(startU40[ind]), as.Date(sluttU20[ind]), "weeks") #sesong,
-                   #
-    # uker <- switch(sesong,
-    #                '2018-19' = seq(as.Date('2018-10-01'), as.Date('2019-05-19'), "weeks"),
-    #                '2019-20' = seq(as.Date( '2019-09-30'), as.Date('2020-05-17'), "weeks"),
-    #                '2020-21' = seq(as.Date( '2020-09-28'), as.Date('2021-05-23'), "weeks"),
-    #                '2021-22' = seq(as.Date('2021-10-04'), min(Sys.Date(), as.Date('2022-05-22')), "weeks")
-    #                )
+
   InfluData$UkeAar <- factor(InfluData$UkeAar, levels=format(uker, '%G.%V'))
   }
 

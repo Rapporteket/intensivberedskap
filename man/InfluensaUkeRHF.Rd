@@ -10,7 +10,7 @@ InfluensaUkeRHF(
   skjemastatus = 9,
   dodInt = 9,
   erMann = 9,
-  sesong = "2021-22",
+  sesong = "2023-24",
   alleUker = 1
 )
 }

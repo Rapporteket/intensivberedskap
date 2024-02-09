@@ -24,6 +24,7 @@ henteSamlerapporterBered <- function(filnavn, rnwFil, #Rpakke='intensivberedskap
   gc() #Opprydning gc-"garbage collection"
   file.copy(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), filnavn)
   # file.rename(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), file)
+  # file.copy('tmpNIRinfluensa.pdf', '~/intensivberedskap/tmpNIRinfluensa.pdf')
 }
 
 
@@ -52,8 +53,9 @@ abonnementBeredsk <- function(rnwFil,
     rnwFil <- 'BeredskapCorona.Rnw'
     enhetsNivaa <- dum[[1]][1]
   }
-  # raplog::subLogger(author = brukernavn, registryName = 'NIR - Beredskap',
-  #                   reshId = reshID,
+  # rapbase::autLogger(user = brukernavn, registryName = 'NIR - Beredskap', fun = 'abonnementBeredsk',
+  #                   reshId = reshID, name = brukernavn, pkg = 'intensivberedskap',
+  #                   param = c('RHF_BeredskapCorona.Rnw', 'reshID'),
   #                   msg = "starter Abonnement: Corona-rapport")
   filbase <- substr(rnwFil, 1, nchar(rnwFil)-4)
   tmpFile <- paste0(filbase, Sys.Date(),'_',digest::digest(brukernavn), '.Rnw')
@@ -68,7 +70,7 @@ abonnementBeredsk <- function(rnwFil,
   utfil <- paste0(dir, '/', substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf')
   # raplog::subLogger(author = brukernavn, registryName = 'NIR - beredskap',
   #                   reshId = reshID,
-  #                   msg = paste("Leverer: ", utfil))
+  #                   msg = paste("Leverer: ", utfil, 'enhetsnivå: ', enhetsNivaa))
   return(utfil)
 }
 
@@ -94,17 +96,17 @@ BeredRaa <- BeredskRaa[ ,-which(names(BeredskRaa) %in% varFellesInt)]
 BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, suffixes = c('','Int'),
                       by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = F, all.y=F)
 #intvar <- names(BeredIntRaa)[grep('Int', names(BeredIntRaa))]
-varMed <- c('Age', 'AgeAdmitted', 'Astma', 'Bilirubin', 'Birthdate', 'BrainDamage',
-            'Bukleie', 'ChronicDiseases', 'Diabetes', 'Diagnosis', 'DischargedIntensiveStatus',
+varMed <- c('Age', 'AgeAdmitted', 'IsAsthmaticPatient', 'Bilirubin', 'Birthdate', 'BrainDamage',
+            'Bukleie', 'ChronicDiseases', 'IsDiabeticPatient', 'Diagnosis', 'DischargedIntensiveStatus',
             'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
-            'Glasgow', 'Graviditet', 'Hco3', 'HeartRate',
+            'Glasgow', 'IsPregnant', 'Hco3', 'HeartRate',
             'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
             'InvasivVentilation', 'IsActiveSmoker', 'IsChronicLungDiseasePatient',
             'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
             'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
             'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
             'IsObesePatient', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
-            'Kontinuerlig', 'KontinuerligDays', 'Kreft', 'Leukocytes', 'MechanicalRespirator',
+            'Kontinuerlig', 'KontinuerligDays', 'IsCancerPatient', 'Leukocytes', 'MechanicalRespirator',
             'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'MvOrCpap', 'Nems',
             'NonInvasivVentilation', 'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',
             'PatientTransferredToHospital', 'PatientTransferredToHospitalName', 'Potassium',
@@ -217,3 +219,42 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
   return(utfilsti)
 }
 
+
+#' Lag staging data for intensivberedskap
+#'
+#' This function makes queries and pre-processing of registry data before
+#' storing relevant staging data. Running this function may take a while so use
+#' with care!
+#'
+#' @return Character vector of staging files, invisibly
+#' @export
+
+lagStagingData <- function() {
+  #library(magrittr)
+  #library(dplyr)
+
+  CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
+  CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
+
+  CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
+  BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
+
+  BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+  BeredIntPas <- if (dim(BeredIntRaa)[1]>0) {
+    NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+  } else {0}
+
+  InfluData <- NIRsqlPreInfluensa()
+  InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
+
+  regNavn <- "intensivberedskap"
+  rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
+  rapbase::saveStagingData(regNavn, "CoroData", CoroData)
+  rapbase::saveStagingData(regNavn, "BeredDataOpph", BeredDataOpph)
+  rapbase::saveStagingData(regNavn, "BeredIntRaa", BeredIntRaa)
+  rapbase::saveStagingData(regNavn, "BeredIntPas", BeredIntPas)
+  rapbase::saveStagingData(regNavn, "InfluData", InfluData)
+  rapbase::saveStagingData(regNavn, "InfluIntData", InfluIntData)
+
+  invisible(rapbase::listStagingData(regNavn))
+}

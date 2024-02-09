@@ -77,11 +77,15 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
 #' @return
 #' @export
 #'
-statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9){
+statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9, influ=0){
 
+  if (influ==1){
+    RegData$FormDateSiste <- RegData$FormDate
+    RegData$MechanicalRespiratorStartSiste <- RegData$MechanicalRespiratorStart
+    RegData$MechanicalrespiratorTypeSiste <- RegData$MechanicalRespiratorType
+  }
   UtData <- NIRUtvalgBeredsk(RegData=RegData, valgtRHF=valgtRHF,
                              erMann=erMann, bekr=bekr)
-  # dodInt=dodInt)$RegData velgAvd=velgAvd
   RegData <- UtData$RegData
   N <- dim(RegData)[1]
   ##MechanicalRespirator Fått respiratorstøtte. Ja=1, nei=2,
@@ -166,6 +170,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
   ECMOtid <- summary(RegData$ECMOTid, na.rm = T)
   Alder <- summary(RegData$Alder, na.rm = T)
   AntDod <- sum(RegData$DischargedIntensiveStatus==1, na.rm=T)
+  AntRisiko <- sum(RegData$IsRiskFactor, na.rm = T)
 
   med_IQR <- function(x){
     #x[is.na(x)]<-0
@@ -179,6 +184,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
     'Liggetid (døgn)' = c(med_IQR(Liggetid), N, ''),
     'Respiratortid (døgn)' = c(med_IQR(RespTid), AntBruktResp*(c(1, 100/N))),
     'ECMO-tid (døgn)' = c(med_IQR(ECMOtid), AntBruktECMO*(c(1, 100/N))),
+    'Har risikofaktor(er)' = c('','','',AntRisiko, paste0(sprintf('%.f',100*AntRisiko/N),'%')),
     'Døde' = c('','','',AntDod, paste0(sprintf('%.f',100*AntDod/N),'%'))
   )
   #TabFerdigeReg[TabFerdigeReg==NA]<-""
@@ -221,17 +227,17 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
   RegData <- UtData$RegData
 
   AntRisiko <- rbind(
-    Kreft = sum(RegData$Kreft, na.rm = T),
+    Kreft = sum(RegData$IsCancerPatient, na.rm = T),
     'Nedsatt immunforsvar' = sum(RegData$IsImpairedImmuneSystemIncludingHivPatient, na.rm = T),
-    Diabetes	= sum(RegData$Diabetes, na.rm = T),
+    Diabetes	= sum(RegData$IsDiabeticPatient, na.rm = T),
     Hjertesykdom = sum(RegData$IsHeartDiseaseIncludingHypertensionPatient, na.rm = T),
     'Fedme (KMI>30)' =	sum(RegData$IsObesePatient, na.rm = T),
-    Astma	= sum(RegData$Astma, na.rm = T),
+    Astma	= sum(RegData$IsAsthmaticPatient, na.rm = T),
     'Kronisk lungesykdom' = sum(RegData$IsChronicLungDiseasePatient, na.rm = T),
     Nyresykdom =	sum(RegData$IsKidneyDiseaseIncludingFailurePatient, na.rm = T),
     Leversykdom = sum(RegData$IsLiverDiseaseIncludingFailurePatient, na.rm = T),
     'Nevrologisk/nevromusk.' = sum(RegData$IsChronicNeurologicNeuromuscularPatient, na.rm = T),
-    Graviditet	= sum(RegData$Graviditet, na.rm = T),
+    Graviditet	= sum(RegData$IsPregnant, na.rm = T),
     'Røyker' =	sum(RegData$IsActiveSmoker, na.rm = T),
     'Pasienter med risikofaktorer' = sum(RegData$IsRiskFactor, na.rm = T)
   )

@@ -3,7 +3,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[english, norsk]{babel}
+\usepackage[norsk]{babel}
 \usepackage{xspace}
 \usepackage{booktabs}
 \usepackage{rotating}
@@ -13,8 +13,8 @@
 <<'initOpts',include=FALSE>>=
 knitr::opts_chunk$set(warnings=FALSE,echo=FALSE)
 knitr::opts_knit$set(root.dir = './')
-library(xtable)
-library(lubridate)
+#library(xtable)
+#library(lubridate)
 library(intensivberedskap)
 @
 
@@ -34,26 +34,75 @@ library(intensivberedskap)
 # -	Aldersgruppe ([0-5> [5-10> [10-15>) …. )
 # -	Skjemastatus ? (tal på skjema i kladd vs ferdigstilte)
 
+if (!exists('InfluData')){
+  InfluData <- rapbase::loadStagingData("intensivberedskap", "InfluData")
+  if (isFALSE(InfluData)) {
+    InfluData <- intensivberedskap::NIRsqlPreInfluensa(datoFra = '2023-01-01', datoTil = Sys.Date(), preprosess=1)
+    rapbase::saveStagingData("intensivberedskap", "InfluData", InfluData)
+  }
+}
 
-InfluData <- intensivberedskap::NIRsqlPreInfluensa(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1)
+InfluData$RHFc <- as.character(InfluData$RHF)
 
-sesongNaa <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
-InfluData <- InfluData[which(InfluData$Sesong %in% sesongNaa), ]
+
+ # load('./inst/InfluDataDum.Rdata')
+ # InfluData <- InfluDataDum
+
+# N <- dim(InfluData)[1]
+# InfluPas <- InfluData[sample(1:N, N) ,c("Alder", "PatientGender"]
+# varTid <- c("DateAdmittedIntensive", "DateDischargedIntensive", "DaysAdmittedIntensiv",
+#             "RespTid", "InnDato", "Innleggelsestidspunkt","Liggetid", "MechanicalRespirator", "MechanicalRespiratorStart", "MechanicalRespiratorEnd",
+#             "EcmoEnd", "EcmoStart", "ECMOTid", "MndAar", "UkeNr", "UkeAar", "Aar", "Dag",
+#             "FirstTimeClosed", "FormDate", "FormStatus")
+# InfluTid <-  InfluData[sample(1:N, N) , varTid]
+# varSted <- c("Helseenhet", "HelseenhetID", "HelseenhetKortnavn", "HF", "ReshId",
+#              "ShNavn", "ShType", "RHF", "Sykehus")
+# InfluSted <-  InfluData[sample(1:N, N) , varSted]
+# varObs <- c("Bekreftet" ,   "DeadPatientDuring24Hours", "DischargedIntensiveStatus", "Influensa",
+#             "IsActiveSmoker", "IsAsthmaticPatient", "IsCancerPatient",
+#             "IsChronicLungDiseasePatient", "IsChronicNeurologicNeuromuscularPatient", "IsDiabeticPatient",
+#             "IsEcmoTreatmentAdministered", "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
+#             "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient", "IsObesePatient",
+#             "IsPregnant", "IsRiskFactor", "MechanicalRespiratorType",
+#             "MoreThan24Hours", "Morsdato", "MorsdatoOppdatert", "MovedPatientToAnotherIntensivDuring24Hours",
+#             "RiskFactor", "Sesong", "TransferredStatus",  "VasoactiveInfusion")
+# InfluDataObs <- InfluData[sample(1:N, N), varObs]
+#
+# InfluDataDum <- cbind(InfluPas, InfluTid, InfluSted, InfluDataObs)
+# names(InfluDataDum) <- c('Alder', varTid, varSted, varObs)
+# save(InfluDataDum, file = './inst/InfluDataDum.Rdata')
+# InfluDataDum$PatientGender <- sample(1:2, 678, replace = TRUE)
+
+sesongSiste <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
+InfluData <- InfluData[which(InfluData$Sesong %in% sesongSiste), ]
 
 
 # #Legge på tidsenheter
 InfluData$UkeAar <- as.factor(InfluData$UkeAar)
 #InfluData$UkeNr <- factor(InfluData$UkeNr, levels=c(min(InfluData$UkeNr):max(InfluData$UkeNr)))
 
+@
+
+<<'tilrettelegg', include=FALSE>>=
+
+#Inngangsparametre: (tidl. kun valgtRHF = 'Alle'/ett RHF)
+#enhetsNivaa  #'Alle', 'RHF', HF
+
+enhetsNivaa <- 'Alle'
+
 indFerdig <- which(InfluData$FormStatus==2)
 antFerdig <- length(indFerdig)
 antSkjema <- dim(InfluData)[1]
+N <- dim(InfluData)[1]
+AntDode <- sum(InfluData$DischargedIntensiveStatus==1)
 @
 
+
 \begin{document}
+% \SweaveOpts{concordance=TRUE}
 
 \title[Influensa \\\today] {%\textit{Influensadata, NIR} \\
-Influensarapportering fra NIR, sesongen \Sexpr{sesongNaa} }
+Influensarapportering fra NIR, sesongen \Sexpr{sesongSiste} }
 
 \maketitle
 
@@ -68,127 +117,334 @@ Dokumentet inneholder oppsummering av influensatilfeller hos pasienter som
 kvalifiserer for rapportering til NIR.
 Influensatilfellene er rapportert i eget skjema i registeret og det er data fra dette skjemaet som danner grunnlaget
 for denne rapporten.
-Resultatene er oppsummert i tabeller som viser antall influensatilfeller per uke.\\
+
+I dokumentet skilles det ikke på om skjema er ferdigstilt eller ikke, dersom ikke annet er oppgitt. At et opphold er ferdigstilt vil si at opplysningene er kontrollert og ferdig registrert.
+(Det er \Sexpr{N-antFerdig}
+av de \Sexpr{N} skjemaene som ikke er ferdigstilt.) \\
+
 
 \bf{Merk at:}
 \begin{itemize}
-% \item Tabellene skiller ikke på om et skjema er ferdigstilt eller ikke. Det er \Sexpr{antSkjema-antFerdig} av de \Sexpr{antSkjema} % skjemaene som ikke er ferdigstilt.
 \item Skjema uten spesifikasjon av diagnose, er kategorisert som mistenkte influensatilfeller.
-\item Start av influensasesongen er uke 40.
+\item Innfluensasesongen er definert som perioden fra og med uke 40 til og med uke 20 året etter.
 \item Rapporten er basert på alle registreringer til og med \Sexpr{Sys.Date()-1}.
 \item Bare uker hvor det er registrerte tilfeller, vises i tabellene. (Dvs. uker med 0 registreringer vises ikke.)
-% NB: Innleggelesesdato ser ut til å være identisk med FormDate!
 \end{itemize}
 
+
+Rapporten gir en oversikt over:
+\begin{itemize}
+\item Antall pasienter inneliggende på intensiv i dag, inkludert antall med ulike typer pustehjelp.
+\item Antall pasienter inneliggende på intensiv per helseforetak.
+\item Antall pasienter innlagt på intensiv siste 20 dager og totalt hittil i pandemien i hvert regionale helseforetak.
+\item Fordeling av alder og kjønn totalt på rapporteringstidspunktet.
+\item Fordeling av risikofaktorer totalt på rapporteringstidspunktet.
+\item Liggetid på intensiv, tid med pustehjelp, alder og dødelighet på intensiv for intensivopphold som er ferdigstilte.
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}[fragile] {Antall inneliggende og med pustehjelp}
+Antall inneliggende intensivpasienter og antall med pustehjelp på rapporteringstidspunktet. (Registreringer uten ut-tid fra intensiv.)
+
+<<'RespiratorECMO', results='asis'>>=
+
+# % Rapporten er kjørt for \\
+# % Enhetsnivå:  \Sexpr{ifelse(enhetsNivaa == 'Alle', 'Hele landet', enhetsNivaa)} \\
+# % Enhet: \Sexpr{enhet}
+
+#statusECMOrespTab(InfluData=InfluData)$Tab
+xtable::xtable(statusECMOrespTab(RegData=InfluData, influ = 1)$Tab,
+               digits=0,
+               align = c('l','r','r','r'),
+               caption = 'Totalt antall inneliggende intensivpasienter og totalt antall med pustehjelp.
+               Gjennomsnittlig liggetid, gjennomsnittlig samlet tid med
+               mekanisk ventilasjonsstøtte (invasiv og med tett maske) og gjennomsnittlig ECMO-tid.')
+
+@
+\end{frame}
+
+
+\begin{frame}[fragile] {Antall inneliggende per HF}
+Antall inneliggende influensapasienter på rapporteringstidspunktet.
+
+<<'InneliggendePrHF', results='asis',warnings=FALSE>>=
+#Viser inneliggende pr HF eller inneliggende pr sykehus hvis enhetsnivå er HF
+
+      inneligg <- is.na(InfluData$DateDischargedIntensive)
+      RegHF <- InfluData[inneligg,] %>%
+        dplyr::group_by(RHFc, HF) %>%
+        dplyr::summarise(.groups='rowwise',
+          'Antall pasienter' = n())
+      Totalt <- c('', 'Totalt', sum(RegHF$`Antall pasienter`))
+
+    colnames(RegHF) <-c('RHF', 'HF', 'Ant. pasienter')  #gsub('ut', '', colnames(RegHF))
+
+    RegHF <- rbind(as.data.frame(RegHF), Totalt)
+    print(xtable::xtable(RegHF, digits=0,
+                         align = c('l', 'l', 'l', 'r'),
+          caption = 'Antall inneliggende influensapasienter i hver enhet'),
+          include.rownames = FALSE)
+@
 \end{frame}
 
 
 
 <<'LageTabeller', results='asis'>>=
 
-# dato <- '2018-12-31'
-# format.Date(dato, '%Y.%V')
-# lubridate::isoweek(dato)
-# lubridate::week(dato)
+  #Aggregere på RHF, UkeNr, Ant. bekreftet, Ant. mistenkt
+  TabUkeRHF <- ftable(InfluData[ , c('UkeAar', 'RHF', 'Influensa')], row.vars ='UkeAar') #, col.vars = c('RHF', 'Influensa'))
+  TabUkeRHFFerdig <- ftable(InfluData[indFerdig , c('UkeAar', 'RHF', 'Influensa')], row.vars ='UkeAar') #, col.vars = c('RHF', 'Influensa'))
+  antUker <- dim(TabUkeRHF)[1]
+  indAntRader <- max(1,(antUker-14)):(antUker+1)
 
+  TabUkeInflu <- table(InfluData[ ,c('UkeAar', 'Influensa')])
+  TabUkeInfluFerdig <- table(InfluData[indFerdig ,c('UkeAar', 'Influensa')])
 
-#Aggregere på RHF, UkeNr, Ant. bekreftet, Ant. mistenkt
-# tapply(InfluData[ ,c('RHF', 'UkeAar', "ICD10_1")], length)
-# table(InfluData[ ,c('RHF', 'Mistenkt', 'UkeNr')])      #InfluData$UkeNr, function(x) sum((InfluData$ICD10_1==10 | InfluData$ICD10_2==10)))
-#TabUkeRHF <- ftable(InfluData[ ,c('UkeAar', 'RHF', 'Influensa')])
-TabUkeRHF <- ftable(InfluData[ , c('UkeAar', 'RHF', 'Influensa')], row.vars ='UkeAar') #, col.vars = c('RHF', 'Influensa'))
-TabUkeRHFFerdig <- ftable(InfluData[indFerdig , c('UkeAar', 'RHF', 'Influensa')], row.vars ='UkeAar') #, col.vars = c('RHF', 'Influensa'))
-# MistenktUkeRHF<- dum[,,'Mistenkt']
-# addmargins(MistenktUkeRHF) #, margin = seq_along(dim(MistenktUkeRHF)), FUN = sum, quiet = FALSE)
-antUker <- dim(TabUkeRHF)[1]
-indAntRader <- max(1,(antUker-14)):(antUker+1)
+  TabUkeTot <- addmargins(TabUkeInflu)
+  row.names(TabUkeTot)[antUker+1] <- 'Sum, hele sesongen'
+  TabUkeTotFerdig <- addmargins(TabUkeInfluFerdig)
+  row.names(TabUkeTotFerdig)[antUker+1] <- 'Sum, hele sesongen'
+  @
 
-TabUkeInflu <- table(InfluData[ ,c('UkeAar', 'Influensa')])      #InfluData$UkeNr, function(x) sum((InfluData$ICD10_1==10 | InfluData$ICD10_2==10)))
-TabUkeInfluFerdig <- table(InfluData[indFerdig ,c('UkeAar', 'Influensa')])      #InfluData$UkeNr, function(x) sum((InfluData$ICD10_1==10 | InfluData$ICD10_2==10)))
-
-TabUkeTot <- addmargins(TabUkeInflu) #cbind(TabUkeInflu, 'Tot. ant. skjema' = table(InfluData$UkeAar))
-row.names(TabUkeTot)[antUker+1] <- 'Sum, hele sesongen'
-TabUkeTotFerdig <- addmargins(TabUkeInfluFerdig) #cbind(TabUkeInflu, 'Tot. ant. skjema' = table(InfluData$UkeAar))
-row.names(TabUkeTotFerdig)[antUker+1] <- 'Sum, hele sesongen'
-#write.table(TabUkeTot, file = 'a:/Intensiv/InfluensaHeleSesongen.csv', fileEncoding = 'UTF-8', sep = ';')
-@
 
 
 \begin{frame}[fragile] {Influensa i regionene, alle skjema}
 <<'TabUkeRHFalle', results='asis'>>=
-navnRHF <- attributes(TabUkeRHF)$col.vars$RHF
-navn2Influ <- attributes(TabUkeRHF)$col.vars$Influensa
-navnUkenr <- attributes(TabUkeRHF)$row.vars$UkeAar
-TabUkeRHF <- as.matrix(TabUkeRHF)
-colnames(TabUkeRHF) <- rep(c('M','B'), length(levels(InfluData$RHF))) #letters[1:8]
-navnRHF <- sub('Helse ', '', navnRHF)
-TabUkeRHF <- rbind( TabUkeRHF, Sesongsum = colSums(TabUkeRHF))
-#TabUkeRHF <- addmargins(TabUkeRHF)
+  navnRHF <- attributes(TabUkeRHF)$col.vars$RHF
+  navn2Influ <- attributes(TabUkeRHF)$col.vars$Influensa
+  navnUkenr <- attributes(TabUkeRHF)$row.vars$UkeAar
+  TabUkeRHF <- as.matrix(TabUkeRHF)
+  colnames(TabUkeRHF) <- rep(c('M','B'), length(levels(InfluData$RHF))) #letters[1:8]
+  navnRHF <- sub('Helse ', '', navnRHF)
+  TabUkeRHF <- rbind( TabUkeRHF, Sesongsum = colSums(TabUkeRHF))
+  #TabUkeRHF <- addmargins(TabUkeRHF)
 
-add.to.row <- list(pos = list(-1), command = NULL)
-command <- paste0(paste0('& \\multicolumn{2}{l}{', navnRHF, '} ', collapse=''), '\\\\\n')
-      # Funker ikke: c(paste0('& \\multicolumn{2}{l}{', navnRHF, '} ', collapse=''),
-      #            "\\n{\\footnotesize B - bekreftet, M - mistenkt}\n") # #, '{\\footnote}{B-bekreftet, M-mistenkt}')
-      # '& \\multicolumn{2}{c}{A} & \\multicolumn{2}{c}{B} & \\multicolumn{2}{c}{C} & \\multicolumn{2}{c}{D}  \\\\\n'
-#comment$command <- "\\hline\n{\\footnotesize B - bekreftet, M - mistenkt}\n"
-add.to.row$command <- command
-print(xtable::xtable(TabUkeRHF[indAntRader,], digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-		caption=paste0('Influensatilfeller per uke og region sesongen', sesongNaa,' (B - bekreftet, M - mistenkt)',
-		               ' Uker med 0 tilfeller vises ikke.')),
-      #footnote= 'B-bekreftet, M-mistenkt',),
-		add.to.row = add.to.row,
-		sanitize.rownames.function = identity)
+  add.to.row <- list(pos = list(-1), command = NULL)
+  command <- paste0(paste0('& \\multicolumn{2}{l}{', navnRHF, '} ', collapse=''), '\\\\\n')
+  add.to.row$command <- command
+  print(xtable::xtable(TabUkeRHF[indAntRader,], digits=0, #method='compact', #align=c('l', rep('r', ncol(alderDIV))),
+                       caption=paste0('Influensatilfeller per uke og region sesongen ', sesongSiste,' (B - bekreftet, M - mistenkt)',
+                                      ' Uker med 0 tilfeller vises ikke.')),
+        #footnote= 'B-bekreftet, M-mistenkt',),
+        add.to.row = add.to.row,
+        sanitize.rownames.function = identity)
 
-#c(paste("\\hline\n", "{\\footnotesize Note: * signifies was 35 or less.}\n", sep = ""))
-
-#xtable::xtableFtable(TabUkeRHF, digits=0, method='compact', #align=c('l', rep('r', ncol(alderDIV))),
-#		caption='Bekreftet influensa per uke og region, 2019',
-#		sanitize.rownames.function = identity)
-
-#\multicolumn{number cols}{align}{text} % align: l,c,r
-
-@
+  @
 \end{frame}
+
+
 
 \begin{frame}[fragile] {Influensa i regionene, ferdigstilte skjema}
 <<'TabUkeRHFferdigstilt', results='asis'>>=
-TabUkeRHFFerdig <- as.matrix(TabUkeRHFFerdig)
-colnames(TabUkeRHFFerdig) <- rep(c('M','B'),length(levels(InfluData$RHF))) #letters[1:8]
-#navnRHF <- sub('Helse ', '', navnRHF)
-TabUkeRHFFerdig <- rbind( TabUkeRHFFerdig, Sesongsum = colSums(TabUkeRHFFerdig))
+  TabUkeRHFFerdig <- as.matrix(TabUkeRHFFerdig)
+  colnames(TabUkeRHFFerdig) <- rep(c('M','B'),length(levels(InfluData$RHF))) #letters[1:8]
+  #navnRHF <- sub('Helse ', '', navnRHF)
+  TabUkeRHFFerdig <- rbind( TabUkeRHFFerdig, Sesongsum = colSums(TabUkeRHFFerdig))
 
-add.to.row <- list(pos = list(-1), command = NULL)
-command <- paste0(paste0('& \\multicolumn{2}{l}{', navnRHF, '} ', collapse=''), '\\\\\n')
-add.to.row$command <- command
-print(xtable::xtable(TabUkeRHFFerdig[indAntRader,], digits=0,
-		caption=paste0('Influensatilfeller per uke og region, basert på kun ferdigstilte influensaskjema, sesongen',
-sesongNaa,'. (B - bekreftet, M - mistenkt)', ' Uker med 0 tilfeller vises ikke.')),
-		add.to.row = add.to.row,
-		sanitize.rownames.function = identity)
-@
+  add.to.row <- list(pos = list(-1), command = NULL)
+  command <- paste0(paste0('& \\multicolumn{2}{l}{', navnRHF, '} ', collapse=''), '\\\\\n')
+  add.to.row$command <- command
+  print(xtable::xtable(TabUkeRHFFerdig[indAntRader,], digits=0,
+                       caption=paste0('Influensatilfeller per uke og region, basert på kun ferdigstilte influensaskjema, sesongen',
+                                      sesongSiste,'. (B - bekreftet, M - mistenkt)', ' Uker med 0 tilfeller vises ikke.')),
+        add.to.row = add.to.row,
+        sanitize.rownames.function = identity)
+  @
 
 \end{frame}
+
+
 
 \begin{frame}[fragile] {Influensa, hele landet}
 
 <<'TabUkeTot', results='asis'>>=
-print(xtable::xtable(TabUkeTot[indAntRader,], digits=0, #align=c('l', rep('r', ncol(TabUkeTot))),
-		caption=paste0('Antall influensatilfeller sesongen', sesongNaa, '.', ' Uker med 0 tilfeller vises ikke.')),
-		#Totalt antall skjema er antall registrerte influensaskjema.'),
-		sanitize.rownames.function = identity)
+  print(xtable::xtable(TabUkeTot[indAntRader,], digits=0, #align=c('l', rep('r', ncol(TabUkeTot))),
+                       caption=paste0('Antall influensatilfeller sesongen', sesongSiste, '.', ' Uker med 0 tilfeller vises ikke.')),
+        #Totalt antall skjema er antall registrerte influensaskjema.'),
+        sanitize.rownames.function = identity)
 @
 \end{frame}
 
 \begin{frame}[fragile] {Influensa, hele landet (kun ferdigstilte skjema)}
 
 <<'TabUkeTotferdig', results='asis'>>=
-print(xtable::xtable(TabUkeTotFerdig[indAntRader,], digits=0, #align=c('l', rep('r', ncol(TabUkeTot))),
-		caption=paste0('Antall influensatilfeller basert på ferdigstilte skjema, sesongen', sesongNaa,'.',
-		               ' Uker med 0 tilfeller vises ikke.')),
-		#Totalt antall skjema er antall registrerte influensaskjema.'),
-		sanitize.rownames.function = identity)
+  print(xtable::xtable(TabUkeTotFerdig[indAntRader,], digits=0, #align=c('l', rep('r', ncol(TabUkeTot))),
+                       caption=paste0('Antall influensatilfeller basert på ferdigstilte skjema, sesongen', sesongSiste,'.',
+                                      ' Uker med 0 tilfeller vises ikke.')),
+        sanitize.rownames.function = identity)
 @
 \end{frame}
+
+
+
+\begin{frame}[fragile] {Antall nye influensapasienter per dag}
+
+  <<'TabTot', results='asis'>>=
+    #Vise bare RHF og landet for RHF-nivå som før..? Pga. veldig lange HF-navn
+    # EnhetsNivaaVar <- switch(enhetsNivaa,
+    #                          Alle = 'RHF',
+    #                          RHF = 'HF',
+    #                          HF = 'Sykehus')
+
+    #if (enhetsNivaa=='Alle'){
+    TabTidEnh <- ftable(InfluData[ , c('Dag', 'RHF')], #, 'Korona'
+                        row.vars = 'Dag')
+  #navnEnh <- unique(InfluData$EnhetsNivaaVar)
+  TabTidEnh <- as.matrix(TabTidEnh)
+
+  TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
+  # } else {
+
+  # InfluData$EnhetsNivaaVar <- as.factor(InfluData[ ,EnhetsNivaaVar])
+  # TabEnh <- table(InfluData[, c('Dag', 'EnhetsNivaaVar')])
+  #
+  # antEnh <- dim(TabEnh)[2]
+  #   TabEnh <- addmargins(TabEnh, margin=2, sum)
+  # colnames(TabEnh) <- c(colnames(TabEnh)[1:antEnh], paste0('eget ', enhetsNivaa)) #enhet)
+  #
+  # TabTidEnh <- cbind(
+  #                 TabEnh,
+  #                 'Hele landet' = table(InfluDataAlle$Dag))
+  #
+  # TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN= list(Totalt=sum), quiet=TRUE)
+  # if(enhetsNivaa == 'RHF') {TabTidEnh <- TabTidEnh[,-antEnh:-1]}
+  #}
+  AntRader <- dim(TabTidEnh)[1]
+  xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
+                 caption='Antall nye intensivpasienter siste 20 dager, samt totalt antall fra sesongstart til rapporteringstidspuktet.')
+
+  @
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]{Antall registrerte opphold på hvert sykehus}
+  <<'OpphPrHF', results='asis', warnings=FALSE>>=
+    RegSh <- InfluData %>%
+    dplyr::group_by(as.character(RHF), Sykehus) %>%
+    dplyr::summarise(.groups='rowwise',
+                     'Antall opphold' = n())
+  Totalt <- c('Hele landet', '', '', sum(RegSh$`Antall opphold`))
+  RegSh <- rbind(as.data.frame(RegSh), Totalt)
+  colnames(RegSh) <- c('RHF', 'Sykehus', 'Ant. opph.')
+  # }
+  print(
+    xtable::xtable(RegSh , digits=0,
+                   align = c('l','l','l','r'),
+                   caption='Totalt antall registrerte influensapasienter fra sesongstart til rapporteringstidspunktet.')
+    ,include.rownames = FALSE)
+  @
+\end{frame}
+
+
+
+\begin{frame}[fragile] {Aldersfordeling}
+
+<<'AlderInfo', results='asis'>>=
+  Alder <- round(summary(InfluData$Alder))
+  txtAlder <- if (dim(InfluData)[1]>2){paste0('Aldersfordelingen er mellom ',
+                                              Alder[1], ' og ', Alder[6], ' år med en gjennomsnittsalder på ',
+                                              Alder[4], ' år.')} else {''}
+  @
+
+\Sexpr{txtAlder}
+
+<<'TabAlder', results='asis'>>=
+    TabAlder <- TabAlder(RegData=InfluData, sens=1)$Tab  #reshID = reshID, enhetsNivaa = enhetsNivaa
+
+  xtable::xtable(TabAlder,
+                 digits = 0,
+                 align = c('l', rep('r', dim(TabAlder)[2])),
+                 caption='Fordeling i aldersgrupper blant influensapasienter på rapporteringstidspunktet.')
+  @
+\end{frame}
+
+
+\begin{frame}[fragile] {Kjønnsfordeling }
+
+  <<'AlderKjonn', results='asis'>>=
+    #datoFraXmnd <- as.Date(Sys.Date()-90)
+    #datoTilXmnd <- as.Date(Sys.Date()-91)
+    # FigFordelingKjonnsdelt(InfluData = InfluDataAlle[1:110,], minN = 3)
+    dum <- FigFordelingKjonnsdelt(RegData = InfluData, valgtVar = 'Alder', minN=3,
+                                  #datoTil = Sys.Date(),
+                                  outfile = 'AlderKjonn.pdf')
+  @
+
+\begin{figure}[ht]
+
+  %\scalebox{0.5}
+  \centering \includegraphics[scale=0.25]{AlderKjonn.pdf}
+  \caption{Fordeling av kjønn i ulike aldersgrupper blant influensapasienter på rapporteringstidspunktet,
+    for hele sesongen. Søylene maskeres hvis det er færre enn tre kvinner eller menn i ei aldersgruppe.}
+  \end{figure}
+
+\end{frame}
+
+
+
+
+\begin{frame}[fragile] {Risikofaktorer}
+
+  <<'Risikofaktorer', results='asis'>>=
+    #InfluDataAlleUXm <- InfluDataAlle[which(InfluDataAlle$InnDato <= datoTilXmnd), ]
+    #InfluDataUXm <- InfluData[which(InfluData$InnDato <= datoTilXmnd), ]
+
+    txtRisiko <- ''
+
+  #if (dim(InfluDataAlleUXm)[1]>2) {
+  # if (enhetsNivaa == 'HF') {
+  #   TabRisiko <- RisikofaktorerTab(InfluData=InfluDataAlleUXm[InfluDataAlleUXm$RHF==egetRHF,], sens=1)$Tab
+  #   colnames(TabRisiko) <- paste0(c('Antall', 'Andel'), ', ', egetRHF)
+  # } else {
+  TabRisiko <- RisikofaktorerTab(RegData=InfluData, sens=1)$Tab
+  colnames(TabRisiko) <- paste0(c('Antall', 'Andel'), ', hele landet')
+  # }
+
+  # if (enhetsNivaa %in% c('RHF', 'HF')) {
+  #    TabRisikoEget <- RisikofaktorerTab(RegData=InfluData, sens=1)$Tab
+  #    colnames(TabRisikoEget) <- paste0(c('Antall', 'Andel'), ', eget ', enhetsNivaa)
+  #    TabRisiko <- cbind(
+  #      TabRisikoEget,
+  #      TabRisiko
+  #    )
+  # }
+  bredde <- 4.4/ncol(TabRisiko)
+  colnames(TabRisiko) <- paste0(paste0("\\multicolumn{1}{p{", bredde, "cm}}{"), colnames(TabRisiko),'}')
+  print(
+    xtable::xtable(TabRisiko,
+                   digits=0,
+                   align = c('l',rep('r',ncol(TabRisiko))),
+                   caption=paste0('Hyppighet av risikofaktorer blant influensapasienter fra sesongstart
+                   til rapportdato. Pasienter kan ha mer enn èn risikofaktor.'))
+    , sanitize.colnames.function = identity)
+  @
+
+    % \Sexpr{txtRisiko}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile] {Resultater for ferdigstilte influensaopphold}
+  %, \Sexpr{enhetTxt}}
+
+<<'Ferdigstilte', results='asis'>>=
+  #oppsumFerdigeRegTab(InfluData=InfluData, valgtRHF=valgtRHF)$Tab
+  FerdigBekr <- oppsumFerdigeRegTab(RegData=InfluData)
+  xtable::xtable(FerdigBekr$Tab,
+                 digits=0,
+                 align = c('l','r','r','c', 'r','r'),
+                 caption = paste0('Verdier basert på influensapasienter fra sesongstart til rapportdato.
+               IQR (inter quartile range) betyr at 25 \\% av pasientene er under minste verdi,
+               50 \\% av pasientene er i intervallet, og 25 \\% av pasientene er over høyeste verdi.')
+  )
+  @
+\end{frame}
+
 
 
 \end{tiny}

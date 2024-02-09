@@ -10,7 +10,7 @@
 #'
 #' @export
 #'
-NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1) {
+NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1, kobleInt=0) {
 
 
     query <- paste0('SELECT *
@@ -24,12 +24,91 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
             WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
     #WHERE cast(DateAdmittedIntensive as date) >= \'', datoFra, '\' AND DateAdmittedIntensive <= \'', datoTil, '\'')
 
-    RegData <- rapbase::loadRegData(registryName = "nir", query = query, dbType = "mysql")
+    RegDataInf <- rapbase::loadRegData(registryName = "nir", query = query, dbType = "mysql")
 
     #startOfMonth<- function(x) {as.Date(format(x, "%Y-%m-01")) }
+    if (kobleInt == 1){
+      RegDataInf$HovedskjemaGUID <- toupper(RegDataInf$HovedskjemaGUID)
+      #Koble på intensivdata.
+      forsteReg <- min(as.Date(RegDataInf$FormDate))
+      queryInt <- paste0('select * from MainFormDataContract
+      WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'') #datoTil=Sys.Date(), '\'')
+      IntDataRaa <- rapbase::loadRegData(registryName= "nir", query=queryInt, dbType="mysql")
+      IntDataRaa <- dplyr::rename(.data = IntDataRaa, RespiratortidInt = Respirator)
+
+      #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
+      #Ved overføringer, kan det ene skjemaet være lagt inn i intensiv og det andre ikke. Vi får da trøbbel i aggregeringa.
+      #Velger derfor å ta flest mulig fra beredskapsskjema.
+      #Tar bort: (apr. 21, legger til...) 'DateAdmittedIntensive', 'DateDischargedIntensive',
+      # varFellesInt <- c('DaysAdmittedIntensiv',
+      #                   'DischargedIntensiveStatus',
+      #                   'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
+      #                   'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
+      #                   'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
+      #                   'DateAdmittedIntensive', 'DateDischargedIntensive',
+      #                   # 'FormStatus', 'ShNavn', 'PatientInRegistryGuid',
+      #                   'UnitId')
+      varFellesInt <-c("DateAdmittedIntensive", "DateDischargedIntensive",
+                       "DaysAdmittedIntensiv", "DeadPatientDuring24Hours", "DischargedIntensiveStatus",
+                       "ICD10_1", "ICD10_2",
+                       "MechanicalRespirator", "MoreThan24Hours",
+                       "Morsdato", "MorsdatoOppdatert", "MovedPatientToAnotherIntensivDuring24Hours",
+                       "PatientAge", "PatientGender",
+                       "TransferredStatus", "UnitId", "VasoactiveInfusion")
+      #varFellesInt <- intersect(sort(names(RegDataInf)), sort(names(IntDataRaa)))
+
+      #Tar bort variabler som skal hentes fra intensivskjema
+      RegDataInf <- RegDataInf[ ,-which(names(RegDataInf) %in% c(varFellesInt))] #, 'DischargedIntensiveStatus'
+
+      RegData <-  merge(RegDataInf, IntDataRaa[,-which(names(IntDataRaa) == 'ReshId')], suffixes = c('','Int'),
+                           by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = T, all.y=F)
+
+      #setdiff(c(varMed, varFellesInt, beregnVar), names(BeredIntRaa1))
+
+    } else {
+      RegData <- RegDataInf
+    }
+
+
+    #Fjerner  skjema uten intensivskjema
+    # if (kobleInt==1){
+    #   pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
+    #   skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
+    #   indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
+    #   #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
+    #   if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
+    #   }
 
     if (preprosess == 1) {
 
+      # Endre variabelnavn
+      names(RegData)[which(names(RegData) == 'AgeAdmitted')] <- 'Alder'
+      #dplyr::rename(RegData, Diabetes=IsDiabeticPatient )
+
+
+#Endre boolske variabler til boolske.. (Kommer inn som tekst)
+        LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
+        LogVar <- unique(c(LogVarSjekk,
+                           "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
+                           "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
+                           "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
+                           "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
+                           "IsObesePatient", "IsRiskFactor", "IsCancerPatient",
+                           'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
+
+        RegData[, intersect(names(RegData), LogVar)] <-
+          apply(RegData[, intersect(names(RegData), LogVar)], 2, as.logical)
+
+
+        RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
+                                               RegData$EcmoStart,
+                                               units = 'days'))
+        RegData$RespTid <- as.numeric(difftime(RegData$MechanicalRespiratorEnd,
+                                               RegData$MechanicalRespiratorStart,
+                                               units = 'days'))
+        RegData$Liggetid <- as.numeric(difftime(RegData$DateDischargedIntensive,
+                                                RegData$DateAdmittedIntensive,
+                                                units = 'days'))
     #Diagnoser: ICD10_1
     # -1 = Velg verdi
     # 9 = J10 Influensa som skyldes identifisert sesongvariabelt influensavirus
@@ -51,14 +130,14 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
     RegData$Influensa[indMistenkt] <- 'Mistenkt'
     RegData$Influensa[indBekreftet] <- 'Bekreftet'
 
-    RegData$Bekr <- as.numeric(RegData$Influensa)-1
+    RegData$Bekreftet <- as.numeric(RegData$Influensa)-1
+    RegData$erMann <- ifelse(RegData$PatientGender==1, 1, 0)
+
 
     # Enhetsnivånavn
-    RegData$RHF <- factor(RegData$RHF)
     RegData$RHF <- factor(RegData$RHF,
                             levels= c('Helse Nord', 'Helse Midt-Norge', 'Helse Vest', 'Helse Sør-Øst', 'Privat'),
                             labels = c('Nord', 'Midt', 'Vest', 'Sør-Øst', 'Privat'))
-
 
 
     #Riktig format på datovariable:
@@ -72,6 +151,8 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 
 
     #Legge på tidsenheter. Bruk factor hvis vil ha med tidsenheter uten registreringer - ikke standard!
+    RegData$Dag <- factor(format(RegData$InnDato, '%d.%m.%y'),
+                          levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
     RegData$Aar <- format(RegData$InnDato, '%Y')
     RegData$UkeNr <- format(RegData$InnDato, '%V')
     RegData$UkeAar <- format(RegData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601

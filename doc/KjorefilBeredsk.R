@@ -1,3 +1,25 @@
+#Fordelingsfigurer influensa (og beredskapsskjema)
+
+InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
+
+NIRberedskFigAndeler(RegData=InfluIntData, valgtVar= 'risikoFakt',
+                                  datoFra=0, datoTil=0,
+                                  enhetsNivaa='RHF', valgtEnhet='Alle', enhetsUtvalg=0,
+                                  outfile='', lagFig=1)
+
+c('alder',
+'ExtendedHemodynamicMonitoring',
+'frailtyIndex',
+'liggetid',
+'regForsinkelseInn',
+'respiratortidNonInv',
+'respiratortidInv',
+'Saps2ScoreNumber',
+'spesTiltak',
+'RespiratortidInt',
+'risikoFakt')
+
+
 #Husk neste gang oppdaterer pakken intensiv:
 #Felles preprosessfil, felles hentSamlerapport (Rpakke som innparameter)
 
@@ -30,6 +52,14 @@ enhetsNivaa <- 'HF'
 #tools::texi2pdf(file='BeredskapCorona.tex')
 #knitr::knit('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'UTF-8')
 knitr::knit2pdf('~/intensivberedskap/inst/BeredskapCorona.Rnw') #, encoding = 'UTF-8')
+knitr::knit2pdf('~/intensivberedskap/inst/NIRinfluensa.Rnw') #, encoding = 'UTF-8')
+henteSamlerapporterBered(filnavn = '~/inst/Influensa.pdf', rnwFil="NIRinfluensa.Rnw")
+
+#Teste abonnement/utsending
+test <- intensivberedskap::abonnementBeredsk(rnwFil='Alle_BeredskapCorona.Rnw',
+                              reshID=0,  #Beregnes ut fra HF/RHF-navn for utsending, men benyttes direkte for abonnement
+                              enhetsNivaa = 'Alle',  #For abonnement
+                              Rpakke='intensivberedskap')
 
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
@@ -319,3 +349,12 @@ erInneliggendeMut <- function(datoer, regdata){
     # 107 = Mistenkt SARS-CoV-2 med annen organmanifestasjon
     #"Når ein opprettar eit Coronaskjema har ein per def. Mistanke om Corona. Vi meiner difor at skjema med verdi -1 også bør tellast med som mistenkt Corona." Antar dette også gjelder Corona.
 
+
+InfData <-   NIRsqlPreInfluensa()
+InfData <- rapbase::loadRegData(registryName = "nir", dbType = "mysql",
+                     query = 'select * FROM InfluensaFormDataContract')
+BerData <- rapbase::loadRegData(registryName = "nir", dbType = "mysql",
+                                query = 'select * FROM ReadinessFormDataContract')
+fellesnavn <- intersect(sort(names(InfData)), sort(names(BerData)))
+setdiff(sort(names(InfData)), fellesnavn)
+setdiff(sort(names(BerData)), fellesnavn)
