@@ -2,26 +2,27 @@
 #Alle resultater skal baseres på opphold
 #Legg tabeller inn i Overleaf, men send figurer til Eirik/Eivind
 
-setwd('~/Aarsrappresultater/NiPar23/pandemi')
+setwd('~/Aarsrappresultater/NiPar23/beredskap')
 
 library(intensiv)
 library(intensivberedskap)
+library(korona)
 #library(korona)
 datoFra <- '2020-03-01' #Vi har pandemi fra 1.mars 2020
 datoTil <- '2023-12-31'	#
 datoFra1aar <- '2023-01-01'
 
-BeredDataRaa <- NIRberedskDataSQL(datoTil = datoTil)
-BeredData <- NIRPreprosessBeredsk(RegData = BeredDataRaa, aggPers = 0)
-#Registrert på feil resh:
-RegData$ReshId[RegData$ReshId == 100132] <- 102026
+# BeredDataRaa <- NIRberedskDataSQL(datoTil = datoTil)
+# BeredData <- NIRPreprosessBeredsk(RegData = BeredDataRaa, aggPers = 0)
+# #Registrert på feil resh:
+# BeredData$ReshId[BeredData$ReshId == 100132] <- 102026
 
 
 BeredIntDataRaa <- NIRberedskDataSQL(kobleInt = 1, datoTil = datoTil)
 BeredIntDataRaa <- BeredIntDataRaa[BeredIntDataRaa$FormStatus==2, ] #Bare ferdigstilte
 BeredIntData <- NIRPreprosessBeredsk(RegData = BeredIntDataRaa, kobleInt = 1, aggPers = 0)
 #Registrert på feil resh:
-RegData$ReshId[RegData$ReshId == 100132] <- 102026
+BeredIntData$ReshId[BeredIntData$ReshId == 100132] <- 102026
 
 BeredIntData1aar <- BeredIntData[which(BeredIntData$InnDato >= datoFra1aar),]
 #sum(is.na(BeredIntData1aar$ShNavnInt))
@@ -30,8 +31,10 @@ N1aar <- dim(BeredIntData1aar)[1]
 #test <- BeredIntData1aar[ ,c('DateAdmittedIntensive', 'InnDato')]
 #test$test <- as.Date(BeredIntData1aar$DateAdmittedIntensive) - as.Date(BeredIntData1aar$InnDato)
 
-BeredIntPers <- NIRPreprosessBeredsk(RegData=BeredIntDataRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
-BeredIntPers1aar <- BeredIntPers[which(BeredIntPers$InnDato >= datoFra1aar),]
+# BeredIntPers <- NIRPreprosessBeredsk(RegData=BeredIntDataRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+# BeredIntPers$ReshId[BeredIntPers$ReshId == 100132] <- 102026
+#
+# BeredIntPers1aar <- BeredIntPers[which(BeredIntPers$InnDato >= datoFra1aar),]
 
 
 #Sjekke inneliggende
@@ -60,7 +63,7 @@ BeredIntPers1aar <- BeredIntPers[which(BeredIntPers$InnDato >= datoFra1aar),]
 variablerInt <- c( 'alder', 'frailtyIndex', 'inklKrit', 'respiratortidInvMoverf',
                    'komplikasjoner', 'NEMS24', 'respiratortid',
                    'respiratortidNonInv', 'SAPSII', 'spesTiltak')
-variablerInt <-
+
 for (valgtVar in variablerInt) {
   NIRFigAndeler(RegData=BeredIntData1aar,
                 datoFra = datoFra1aar, #Tar høyde for avvik i inndato mellom intensiv-og beredskapsskjema
@@ -102,16 +105,17 @@ NIRFigAndelerGrVar(RegData = BeredIntData1aar,
 
 #-------Andel per tid------------------
 variablerAndelTid <- c('bukleie', 'invasivVent', 'respiratortidDod', 'trakeostomi', 'utenforVakttidUt')
+
 for (valgtVar in variablerAndelTid) {
   NIRFigAndelTid(RegData=BeredIntData,
                  preprosess = 0,
-                 datoFra = datoFra,
                  tidsenhet = 'Kvartal',
                  velgDiag = 1,
                  valgtVar=valgtVar,
                  outfile = paste0('BeredAndelTid_', valgtVar, '.pdf'))
 }
-BeredIntData$Aar <- as.numeric(as.character(BeredIntData$Aar))
+
+
 NIRFigAndelTid(RegData=BeredIntData,  valgtVar='beredMpand_opph', preprosess = 0,
                tidsenhet = 'Kvartal', velgDiag = 1,
                outfile = paste0('BeredAndelTid_beredMpand_opph.pdf'))
