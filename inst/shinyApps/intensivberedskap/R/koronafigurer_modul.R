@@ -81,13 +81,15 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
     )
   )
 
-  datoFra <- reactive(datoFra <- switch (input$velgTidsenhet,
-                                         "dag" = Sys.Date() - days(as.numeric(input$velgAntVisning)-1),
-                                         "uke" = floor_date(Sys.Date() - weeks(as.numeric(input$velgAntVisning)-1),
-                                                            unit = 'week', week_start = 1),
-                                         "maaned" = floor_date(Sys.Date() - months(as.numeric(input$velgAntVisning)-1),
-                                                               unit = 'month')
-  )
+  datoFra <- reactive(
+    datoFra <- switch (
+      input$velgTidsenhet,
+      "dag" = Sys.Date() - lubridate::days(as.numeric(input$velgAntVisning)-1),
+      "uke" = floor_date(Sys.Date() - lubridate::weeks(as.numeric(input$velgAntVisning)-1),
+                         unit = 'week', week_start = 1),
+      "maaned" = floor_date(Sys.Date() - lubridate::months(as.numeric(input$velgAntVisning)-1),
+                            unit = 'month')
+    )
   )
   #TabTidEnhet(RegData=CoroData, tidsenhet='uke')
   AntTab <- function() {
@@ -103,14 +105,14 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
                                            bekr=as.numeric(input$bekr),
                                            erMann=as.numeric(input$erMann)),
                      'antut'= antallTidUtskrevneNIRberedskap(RegData=CoroData,
-                                                           tidsenhet=input$velgTidsenhet,
-                                                           datoFra=datoFra(),
-                                                           valgtRHF= valgtRHF,
-                                                           skjemastatus=as.numeric(input$skjemastatus),
-                                                           resp=as.numeric(input$resp),
-                                                           dodInt = as.numeric(input$dodInt),
-                                                           bekr=as.numeric(input$bekr),
-                                                           erMann=as.numeric(input$erMann)),
+                                                             tidsenhet=input$velgTidsenhet,
+                                                             datoFra=datoFra(),
+                                                             valgtRHF= valgtRHF,
+                                                             skjemastatus=as.numeric(input$skjemastatus),
+                                                             resp=as.numeric(input$resp),
+                                                             dodInt = as.numeric(input$dodInt),
+                                                             bekr=as.numeric(input$bekr),
+                                                             erMann=as.numeric(input$erMann)),
                      'antinn'= antallTidInneliggendeBeredskap(RegData=CoroData,
                                                               tidsenhet=input$velgTidsenhet,
                                                               datoFra=datoFra(),
