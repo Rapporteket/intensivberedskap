@@ -8,7 +8,7 @@
 #' @param datoFra Vis hendelser fra og med dato
 #' @inheritParams NIRUtvalgBeredsk
 #'
-#' @return
+#' @return Tabell med antall for hver tidsenhet og enhet
 #' @export
 TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
                         bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
@@ -74,7 +74,7 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
 #'
 #' @param RegData beredskapsskjema
 #'
-#' @return
+#' @return statustabell
 #' @export
 #'
 statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9, influ=0){
@@ -135,16 +135,13 @@ statusECMOrespTab <- function(RegData, valgtRHF='Alle', erMann=9, bekr=9, influ=
   return(UtData)
 }
 
-# RegData <- CoroDataRaa
-# RegData[respLiggere, c('MechanicalRespirator', 'MechanicalrespiratorType')]
-
 
 #' Ferdigstilte registreringer
 #'
 #' @param RegData beredskapsskjema
 #' @inheritParams NIRUtvalgBeredsk
 #'
-#' @return
+#' @return nøkkeltalltabell for ferdigstilte registreringer
 #' @export
 #'
 oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', datoTil=Sys.Date(),
@@ -214,7 +211,7 @@ oppsumFerdigeRegTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', 
 #' @param valgtRHF 'Alle' (standard), RHF-navn uten 'Helse '
 #'
 #' @export
-#' @return
+#' @return tabell med andel som har ulike risikofaktorer
 RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(), reshID=0,
                               erMann=9, bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle',
                               resp=9, minald=0, maxald=110, velgAvd=0, sens=0){ #tidsenhet='Totalt',
@@ -266,7 +263,7 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
 #' @param RegData datatabell, beredskapsdata
 #' @inheritParams NIRUtvalgBeredsk
 #'
-#' @return
+#' @return aldersfordeling, gruppert
 #' @export
 #'
 #' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
@@ -328,7 +325,7 @@ TabAlderGml <- function(RegData, valgtRHF='Alle',
 #' @param sens maskere celler <3. 0-nei, 1-ja
 #' @inheritParams NIRUtvalgBeredsk
 #'
-#' @return
+#' @return aldersfordeling
 #' @export
 #'
 #' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
@@ -409,7 +406,7 @@ return(invisible(UtData <-
 
 #' Avdelingar som enno har ikkje-ferdigstilte NIR-skjema for ferdigstilte beredskapsskjema
 #' @param reshID Avdelingas resh-id
-#' @return
+#' @return datakvalitet, mangler ferdigstilt inteneivskjema
 #' @export
 ManglerIntSkjema <- function(reshID=0, datoFra='2020-03-01', datoTil=Sys.Date()){
   if (rapbase::isRapContext()) {
@@ -440,7 +437,7 @@ ManglerIntSkjema <- function(reshID=0, datoFra='2020-03-01', datoTil=Sys.Date())
 #' @param valgtRHF 'Alle' (standard), RHF-navn uten 'Helse '
 #'
 #' @export
-#' @return
+#' @return andel for ulike nøkkelverdier
 AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
                        erMann=9, bekr=9, dodInt=9, valgtRHF='Alle',
                        resp=9, minald=0, maxald=110){
@@ -489,7 +486,7 @@ AndelerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
 #' @param RegData beredskapsskjema
 #' @inheritParams NIRUtvalgBeredsk
 #'
-#' @return
+#' @return tabell, sentralmål
 #' @export
 #'
 SentralmaalTab <- function(RegData, valgtRHF='Alle', datoFra='2020-01-01', datoTil=Sys.Date(),
@@ -562,7 +559,7 @@ lagTabavFigFord <- function(UtDataFraFig){
 #' @param datoTil dato, til og med
 #' @param pst 0-antall, 1-prosent
 #'
-#' @return
+#' @return tabell, registreringsforsinkelse
 #' @export
 #'
 tabRegForsinkelse <- function(RegData, innUt=1, datoFra='2020-03-01', datoTil=Sys.Date(), pst=1){ #,  nivaa='ShNavn'

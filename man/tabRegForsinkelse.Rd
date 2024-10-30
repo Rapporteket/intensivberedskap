@@ -23,6 +23,9 @@ tabRegForsinkelse(
 
 \item{pst}{0-antall, 1-prosent}
 }
+\value{
+tabell, registreringsforsinkelse
+}
 \description{
 Tabell som viser fordeling av registreringsforsinkelse per enhet
 }

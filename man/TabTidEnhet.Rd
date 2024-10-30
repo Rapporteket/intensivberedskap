@@ -38,6 +38,9 @@ TabTidEnhet(
 
 \item{enhetsNivaa}{'RHF', 'HF', 'ShNavn'}
 }
+\value{
+Tabell med antall for hver tidsenhet og enhet
+}
 \description{
 Antall tilfeller for valgt tidsenhet og enhetsnivå. Filtreringer kan også gjøres.
 }

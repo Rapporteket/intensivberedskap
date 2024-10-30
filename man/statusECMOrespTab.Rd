@@ -9,6 +9,9 @@ statusECMOrespTab(RegData, valgtRHF = "Alle", erMann = 9, bekr = 9, influ = 0)
 \arguments{
 \item{RegData}{beredskapsskjema}
 }
+\value{
+statustabell
+}
 \description{
 Antall som er  i ECMO/respirator
 }
