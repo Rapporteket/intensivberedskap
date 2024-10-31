@@ -91,9 +91,14 @@ varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmit
                   'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
                   'UnitId') # PatientInRegistryGuid', 'FormStatus', 'ShNavn',
 BeredRaa <- BeredskRaa[ ,-which(names(BeredskRaa) %in% varFellesInt)]
-#names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
-#varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
-BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, suffixes = c('','Int'),
+
+
+#Endrer navn på variabler fra int som fortsatt er med i beredskap
+varFellesInt <- intersect(sort(names(IntDataRaa)), sort(names(BeredRaa)))
+hvilkeIntvar <- which(names(IntDataRaa) %in% varFellesInt)
+names(IntDataRaa)[hvilkeIntvar] <- paste0(names(IntDataRaa)[hvilkeIntvar], 'Int')
+
+BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, #suffixes = c('','Int'),
                       by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = F, all.y=F)
 #intvar <- names(BeredIntRaa)[grep('Int', names(BeredIntRaa))]
 varMed <- c('Age', 'AgeAdmitted', 'IsAsthmaticPatient', 'Bilirubin', 'Birthdate', 'BrainDamage',

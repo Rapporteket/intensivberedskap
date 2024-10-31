@@ -19,15 +19,12 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    # eller gi feilmelding om at her ser det ut til å være intensivvariabler.
 
    # Endre variabelnavn:
-   #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
    RegData$Alder <- lubridate::time_length(difftime(as.Date(RegData$FormDate), as.Date(RegData$Birthdate)), 'years')
-   #names(RegData)[which(names(RegData) == 'AgeAdmitted')] <- 'Alder' #PatientAge
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
    names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId'
    names(RegData)[
       names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
-
 
    #Diagnoser:
    RegData$Bekreftet <- 0
@@ -42,7 +39,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$RHF[RegData$ReshId == 108897] <- 'Sør-Øst' #Diakonhjemmet
 
    #Liggetider
-   #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
    RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
                                           RegData$EcmoStart,
                                           units = 'days'))
@@ -68,25 +64,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
       }}
 
       #Konvertere boolske variable fra tekst til boolske variable...
-
-   #    TilLogiskeVar <- function(Skjema){
-   #    verdiGML <- c('True','False')
-   #    verdiNY <- c(TRUE,FALSE)
-   #    mapping <- data.frame(verdiGML,verdiNY)
-   #    LogVarSjekk <- names(Skjema)[unique(which(Skjema[1,] %in% verdiGML), which(Skjema[15,] %in% verdiGML))]
-   #    LogVar <- unique(c(LogVarSjekk,
-   #                     "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
-   #                     "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
-   #                     "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-   #                     "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-   #                     "IsObesePatient", "IsRiskFactor", "IsCancerPatient"))
-   #    if (length(LogVar)>0) {
-   #       for (k in 1:length(LogVar)) {
-   #          Skjema[,LogVar[k]] <- mapping$verdiNY[match(Skjema[,LogVar[k]], mapping$verdiGML)]
-   #       }}
-   #    return(Skjema)
-   # }
-   # RegData <- TilLogiskeVar(RegData)
 
    LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
    LogVar <- unique(c(LogVarSjekk,
@@ -119,7 +96,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
                         #Tid = as.numeric(Dato-min(Dato))
        )
 
-     RegData <- merge(RegData[ ,-which(names(RegData)=="PasientID")], PasFlere, by='SkjemaGUID')
+     RegData <- RegData[ ,-which(names(RegData)=="PasientID")]
+     RegData <- merge(RegData, PasFlere, by='SkjemaGUID')
      #which(RegData$InnNr==2)
      #Test <- RegData[c(1:10, which(RegData$InnNr==2)),c("PasientID", "PasientIDny")]
      #For testing: RegData$Dato[RegData$PasientID=='EAC1F8C2-B10F-EC11-A974-00155D0B4D1A'][3:4] <- as.Date(c('2023-01-02', '2024-01-03'))
@@ -246,8 +224,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
 
       if (aggPers == 1){
-         # indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)
-         # if (length(indManglerIntPas)>0) {RegDataRed <- RegDataRed[-indManglerIntPas, ]}
 
          RegDataRedInt <- RegData %>%
            dplyr::group_by(PasientID) %>%
@@ -356,15 +332,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$MndAar <- format(RegData$Innleggelsestidspunkt, '%b%y')
    RegData$Kvartal <- ceiling(RegData$MndNum/3)
    RegData$Halvaar <- ceiling(RegData$MndNum/6)
-   # RegData$Aar <- format(RegData$InnDato, '%Y')
    RegData$Aar <- factor(format(RegData$InnDato, '%Y'),
                          levels = min(as.numeric(format(RegData$InnDato, '%Y'))):max(as.numeric(format(RegData$InnDato, '%Y'))))
-   # RegData$UkeNr <- format(RegData$InnDato, '%V')
    RegData$UkeNr <- factor(format(RegData$InnDato, '%V.%Y'),
                            levels = min(as.numeric(format(RegData$InnDato, '%V.%Y'))):max(as.numeric(format(RegData$InnDato, '%V.%Y'))))
-   #RegData$UkeAar <- format(RegData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
-   #RegData$UkeAar <- as.factor(RegData$UkeAar)
-   # RegData$Dag <- format(RegData$InnDato, '%d.%b')
    RegData$Dag <- factor(format(RegData$InnDato, '%d.%m.%y'),
                          levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
 
