@@ -235,31 +235,29 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
 #' @export
 
 lagStagingData <- function() {
-  #library(magrittr)
-  #library(dplyr)
 
-  CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
-  CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
-
-  CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
-  BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
-
-  BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
-  BeredIntPas <- if (dim(BeredIntRaa)[1]>0) {
-    NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
-  } else {0}
+  # CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
+  # CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
+  #
+  # CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
+  # BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
+  #
+  # BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+  # BeredIntPas <- if (dim(BeredIntRaa)[1]>0) {
+  #   NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+  # } else {0}
 
   InfluData <- NIRsqlPreInfluensa()
   InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
 
   regNavn <- "intensivberedskap"
-  rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
-  rapbase::saveStagingData(regNavn, "CoroData", CoroData)
-  rapbase::saveStagingData(regNavn, "BeredDataOpph", BeredDataOpph)
-  rapbase::saveStagingData(regNavn, "BeredIntRaa", BeredIntRaa)
-  rapbase::saveStagingData(regNavn, "BeredIntPas", BeredIntPas)
-  rapbase::saveStagingData(regNavn, "InfluData", InfluData)
-  rapbase::saveStagingData(regNavn, "InfluIntData", InfluIntData)
+  # rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
+  # rapbase::saveStagingData(regNavn, "CoroData", CoroData)
+  # rapbase::saveStagingData(regNavn, "BeredDataOpph", BeredDataOpph)
+  # rapbase::saveStagingData(regNavn, "BeredIntRaa", BeredIntRaa)
+  # rapbase::saveStagingData(regNavn, "BeredIntPas", BeredIntPas)
+  # rapbase::saveStagingData(regNavn, "InfluData", InfluData)
+  # rapbase::saveStagingData(regNavn, "InfluIntData", InfluIntData)
 
   invisible(rapbase::listStagingData(regNavn))
 }
