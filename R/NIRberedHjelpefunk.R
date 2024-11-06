@@ -251,17 +251,17 @@ lagStagingData <- function() {
    # test2 <- data.frame(matrix(c(1:5, 101:110), nrow = 5, ncol = 3, dimnames = list(row_names = 1:5, colnames = c('id', 'c', 'd'))))
    # merge(test1, test2, by='id')
 
-   # InfluData <- NIRsqlPreInfluensa() #OK
-   # InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1) #OK
+   InfluData <- NIRsqlPreInfluensa() #OK
+   InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1) #OK
 
   regNavn <- "intensivberedskap"
-  # rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
-  # rapbase::saveStagingData(regNavn, "CoroData", CoroData)
-  # rapbase::saveStagingData(regNavn, "BeredDataOpph", BeredDataOpph)
-  # rapbase::saveStagingData(regNavn, "BeredIntRaa", BeredIntRaa)
-  # rapbase::saveStagingData(regNavn, "BeredIntPas", BeredIntPas)
-  # rapbase::saveStagingData(regNavn, "InfluData", InfluData)
-  # rapbase::saveStagingData(regNavn, "InfluIntData", InfluIntData)
+  rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
+  rapbase::saveStagingData(regNavn, "CoroData", CoroData)
+  rapbase::saveStagingData(regNavn, "BeredDataOpph", BeredDataOpph)
+  rapbase::saveStagingData(regNavn, "BeredIntRaa", BeredIntRaa)
+  rapbase::saveStagingData(regNavn, "BeredIntPas", BeredIntPas)
+  rapbase::saveStagingData(regNavn, "InfluData", InfluData)
+  rapbase::saveStagingData(regNavn, "InfluIntData", InfluIntData)
 
   invisible(rapbase::listStagingData(regNavn))
 }
