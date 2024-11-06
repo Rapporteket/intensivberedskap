@@ -242,7 +242,7 @@ lagStagingData <- function() {
   # CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
   # BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
   #
-  # BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+   BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
   # BeredIntPas <- if (dim(BeredIntRaa)[1]>0) {
   #    NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
   #  } else {0}
@@ -252,7 +252,7 @@ lagStagingData <- function() {
    # merge(test1, test2, by='id')
 
    InfluData <- NIRsqlPreInfluensa() #OK
-   InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
+   InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1) #OK
 
   regNavn <- "intensivberedskap"
   # rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
