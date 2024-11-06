@@ -247,8 +247,8 @@ lagStagingData <- function() {
   #   NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
   # } else {0}
 
-  InfluData <- NIRsqlPreInfluensa()
-  InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
+  # InfluData <- NIRsqlPreInfluensa()
+  # InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
 
   regNavn <- "intensivberedskap"
   # rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
