@@ -236,7 +236,7 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
 
 lagStagingData <- function() {
 
-   CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
+  # CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0) OK
   # CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
   #
   # CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
@@ -252,7 +252,7 @@ lagStagingData <- function() {
    # merge(test1, test2, by='id')
 
    InfluData <- NIRsqlPreInfluensa() #OK
-  # InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
+   InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
 
   regNavn <- "intensivberedskap"
   # rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
