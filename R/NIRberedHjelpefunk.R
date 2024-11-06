@@ -239,8 +239,8 @@ lagStagingData <- function() {
    CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0) #OK
    CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
 
-  # CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
-   BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
+   CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1) #TESTES
+   BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0) #OK
 
    BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1) #OK
    BeredIntPas <- if (dim(BeredIntRaa)[1]>0) { #OK
@@ -260,8 +260,8 @@ lagStagingData <- function() {
   # rapbase::saveStagingData(regNavn, "BeredDataOpph", BeredDataOpph)
   # rapbase::saveStagingData(regNavn, "BeredIntRaa", BeredIntRaa)
   # rapbase::saveStagingData(regNavn, "BeredIntPas", BeredIntPas)
-  rapbase::saveStagingData(regNavn, "InfluData", InfluData)
-  rapbase::saveStagingData(regNavn, "InfluIntData", InfluIntData)
+  # rapbase::saveStagingData(regNavn, "InfluData", InfluData)
+  # rapbase::saveStagingData(regNavn, "InfluIntData", InfluIntData)
 
   invisible(rapbase::listStagingData(regNavn))
 }
