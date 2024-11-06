@@ -119,7 +119,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
     hvilkeIntvar <- which(names(IntDataRaa) %in% varFellesInt)
     names(IntDataRaa)[hvilkeIntvar] <- paste0(names(IntDataRaa)[hvilkeIntvar], 'Int')
 
-    BeredIntRaa <- merge(BeredDataRaa, IntDataRaa[,-which(names(IntDataRaa) == 'ReshId')], #suffixes = c('','Int'),
+    BeredIntRaa <- merge(BeredDataRaa, IntDataRaa, #suffixes = c('','Int'),
                           by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUIDInt', all.x = T, all.y=F)
     RegData <-  BeredIntRaa
 
