@@ -32,9 +32,8 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
     IntDataRaa <- rapbase::loadRegData(registryName= "nir", query=queryInt, dbType="mysql")
     IntDataRaa <- dplyr::rename(.data = IntDataRaa, RespiratortidInt = Respirator)
 
-    #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
+    #Felles variabler som skal hentes fra intensiv (= fjernes fra influensa)
     #Ved overføringer, kan det ene skjemaet være lagt inn i intensiv og det andre ikke. Vi får da trøbbel i aggregeringa.
-    #Velger derfor å ta flest mulig fra beredskapsskjema.
     varFellesInt <-c("DateAdmittedIntensive", "DateDischargedIntensive",
                      "DaysAdmittedIntensiv", "DeadPatientDuring24Hours", "DischargedIntensiveStatus",
                      "ICD10_1", "ICD10_2",
@@ -52,8 +51,8 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
     hvilkeIntvar <- which(names(IntDataRaa) %in% varFellesInt)
     names(IntDataRaa)[hvilkeIntvar] <- paste0(names(IntDataRaa)[hvilkeIntvar], 'Int')
 
-    RegData <-  merge(RegDataInf, IntDataRaa[,-which(names(IntDataRaa) == 'ReshId')], #suffixes = c('','Int'),
-                      by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = T, all.y=F)
+    RegData <-  merge(RegDataInf, IntDataRaa, #suffixes = c('','Int'),
+                      by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUIDInt', all.x = T, all.y=F)
 
   } else {
     RegData <- RegDataInf
