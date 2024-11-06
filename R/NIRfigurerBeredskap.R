@@ -4,7 +4,7 @@
 #'
 #' @param AntTab Dataramme med nødvendige figurparametre
 #'
-#' @return
+#' @return opphold per tid og enhet
 #' @export
 FigTidEnhet <- function(AntTab, outfile=''){
   NutvTxt <- length(AntTab$utvalgTxt)
@@ -54,7 +54,7 @@ FigTidEnhet <- function(AntTab, outfile=''){
 #' @param TabAlder Dataramme med nødvendige figurparametre
 #' @param minN Maskerer verdier under <3
 #'
-#' @return
+#' @return alders og kjønnsfordelnig
 #' @export
 FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', datoFra='2020-03-01', datoTil = Sys.Date(),
                                    valgtRHF='Alle', bekr=9, skjemastatus=9, resp=9, minN = 0,

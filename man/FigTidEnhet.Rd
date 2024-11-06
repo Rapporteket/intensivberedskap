@@ -9,6 +9,9 @@ FigTidEnhet(AntTab, outfile = "")
 \arguments{
 \item{AntTab}{Dataramme med nødvendige figurparametre}
 }
+\value{
+opphold per tid og enhet
+}
 \description{
 Antall tilfeller for valgt tidsenhet og enhetsnivå. Filtreringer kan også gjøres.
 }

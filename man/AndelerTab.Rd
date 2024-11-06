@@ -35,6 +35,9 @@ AndelerTab(
 
 \item{resp}{Fått respiratorbehandling: 1-ja, 2-nei}
 }
+\value{
+andel for ulike nøkkelverdier
+}
 \description{
 Tabell med andel av div. variabler for koblet datasett (intensiv+beredskap)
 Kun ferdigstilte registreringer

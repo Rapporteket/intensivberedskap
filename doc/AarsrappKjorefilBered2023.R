@@ -116,13 +116,11 @@ for (valgtVar in variablerAndelTid) {
 }
 
 
-NIRFigAndelTid(RegData=BeredIntData,  valgtVar='beredMpand_opph', preprosess = 0,
-               tidsenhet = 'Kvartal', velgDiag = 1,
-               outfile = paste0('BeredAndelTid_beredMpand_opph.pdf'))
+#Denne har kobling til korona-sykehusdata og vil ikke fungere senere:
+# NIRFigAndelTid(RegData=BeredIntData,  valgtVar='beredMpand_opph', preprosess = 0,
+#                tidsenhet = 'Kvartal', velgDiag = 1,
+#                outfile = paste0('BeredAndelTid_beredMpand_opph.pdf'))
 
-  # NIRFigAndelTid(RegData=BeredIntPers,  valgtVar='beredMpand_pers', preprosess = 0,
-  #                tidsenhet = 'Kvartal',velgDiag = 1,
-  #                outfile = paste0('BeredAndelTid_beredMpand_smForl.pdf'))
 
 #-------Gjsn per tid------------------
 variablerAndelGjsn <- c('liggetid', 'NEMS', 'NEMS24', 'SAPSII',

@@ -23,50 +23,51 @@ regTitle <- ifelse(paaServer,
 
 #---------Hente data------------
 
-# CoroDataRaa <- rapbase::loadStagingData("intensivberedskap", "CoroDataRaa")
-#if (isFALSE(CoroDataRaa)) {
+ CoroDataRaa <- rapbase::loadStagingData("intensivberedskap", "CoroDataRaa")
+if (isFALSE(CoroDataRaa)) {
   CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
-#  rapbase::saveStagingData("intensivberedskap", "CoroDataRaa", CoroDataRaa)
-#}
+ rapbase::saveStagingData("intensivberedskap", "CoroDataRaa", CoroDataRaa)
+}
 
-#CoroData <- rapbase::loadStagingData("intensivberedskap", "CoroData")
-#if (isFALSE(CoroData)) {
+CoroData <- rapbase::loadStagingData("intensivberedskap", "CoroData")
+if (isFALSE(CoroData)) {
   CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
-#  rapbase::saveStagingData("intensivberedskap", "CoroData", CoroData)
-#}
+  rapbase::saveStagingData("intensivberedskap", "CoroData", CoroData)
+}
 
-# BeredDataOpph <- rapbase::loadStagingData("intensivberedskap", "BeredDataOpph")
-# if (isFALSE(BeredDataOpph)) {
+ BeredDataOpph <- rapbase::loadStagingData("intensivberedskap", "BeredDataOpph")
+ if (isFALSE(BeredDataOpph)) {
    BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
-#   rapbase::saveStagingData("intensivberedskap", "BeredDataOpph", BeredDataOpph)
-# }
-#
-# BeredIntRaa <- rapbase::loadStagingData("intensivberedskap", "BeredIntRaa")
-# if (isFALSE(BeredIntRaa)) {
-   BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
-#   rapbase::saveStagingData("intensivberedskap", "BeredIntRaa", BeredIntRaa)
-# }
-#
- if (dim(BeredIntRaa)[1]>0) {
-#   BeredIntPas <- rapbase::loadStagingData("intensivberedskap", "BeredIntPas")
-#   if (isFALSE(BeredIntPas)) {
-     BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
-#     rapbase::saveStagingData("intensivberedskap", "BeredIntPas", BeredIntPas)}
+   rapbase::saveStagingData("intensivberedskap", "BeredDataOpph", BeredDataOpph)
  }
-#
-#
-# InfluData <- rapbase::loadStagingData("intensivberedskap", "InfluData")
-# if (isFALSE(InfluData)) {
+
+ BeredIntRaa <- rapbase::loadStagingData("intensivberedskap", "BeredIntRaa")
+ if (isFALSE(BeredIntRaa)) {
+   BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+   rapbase::saveStagingData("intensivberedskap", "BeredIntRaa", BeredIntRaa)
+ }
+
+ if (dim(BeredIntRaa)[1]>0) {
+   BeredIntPas <- rapbase::loadStagingData("intensivberedskap", "BeredIntPas")
+   if (isFALSE(BeredIntPas)) {
+     BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+     rapbase::saveStagingData("intensivberedskap", "BeredIntPas", BeredIntPas)
+     }
+ }
+
+
+InfluData <- rapbase::loadStagingData("intensivberedskap", "InfluData")
+if (isFALSE(InfluData)) {
    InfluData <- NIRsqlPreInfluensa()
-#   rapbase::saveStagingData("intensivberedskap", "InfluData", InfluData)
-# }
-#
-# InfluIntData <- rapbase::loadStagingData("intensivberedskap", "InfluIntData")
-# if (isFALSE(InfluIntData)) {
+   rapbase::saveStagingData("intensivberedskap", "InfluData", InfluData)
+}
+
+InfluIntData <- rapbase::loadStagingData("intensivberedskap", "InfluIntData")
+if (isFALSE(InfluIntData)) {
    InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
-#   rapbase::saveStagingData("intensivberedskap", "InfluIntData", InfluIntData)
-# }
+   rapbase::saveStagingData("intensivberedskap", "InfluIntData", InfluIntData)
+ }
 
 
 
@@ -164,7 +165,7 @@ ui <- tagList(
                                 fluidRow(
                                   column(width = 4,
                                          h4('Forløp uten registrert ut-tid fra intensiv'), #, align='center'),
-                                         uiOutput('liggetidNaa'),
+                                         #uiOutput('liggetidNaa'),
                                          uiOutput('utvalgNaa'),
                                          tableOutput('tabECMOrespirator'),
                                          br(),
@@ -481,7 +482,19 @@ ui <- tagList(
                                      autoReportUI("beredUts")
                                    )
                                  )
-                        ) #Tab utsending
+                        ), #Tab utsending
+                        tabPanel('Data til FHI',
+                                 h4('Data til FHI'),
+                                 selectInput(inputId = "hvilkeFilerTilFHI", label = "Data:",
+                                             c("Råfiler til overvåkning" = "DataFHImonitor",
+                                               "Testfil til overvåkning" = "Testfil_CovMonitor")),
+                                 actionButton("bestillDataTilFHI", "Bestill data til FHI"),
+                                 br(),
+                                 downloadButton(outputId = 'lastNed_filstiDataNHN',
+                                                label='Send filer til NHN og last ned filsti', class = "butt")
+
+
+                                 )
                       ) #tabset
              ) #hovedark Registeradm
   ) # navbarPage
@@ -675,7 +688,6 @@ server <- function(input, output, session) {
     #Registreringer i limbo:
     #Må ha egen funksjon for å få dette på sykehusnivå
     output$RegIlimbo <- renderUI({
-      # AntIlibo <- AntTab$Ntest - (TabFerdig$Ntest + sum(is.na(CoroData$DateDischargedIntensive))) #RHF/alle
       finnBurdeFerdig <- function(RegData) {sum((!(is.na(RegData$DateDischargedIntensive)) & (RegData$FormStatus!=2)))}
       valgtRHF <- input$valgtRHF
       tittel <- 'Forløp registrert som utskrevet, uten ferdigstilt skjema: '
@@ -866,10 +878,15 @@ server <- function(input, output, session) {
     },
 
     content = function(file){
-      Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', resp=as.numeric(input$resp),
-                                                          valgtRHF= valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
-                                                          skjemastatus=as.numeric(input$skjemastatus), dodInt=as.numeric(input$dodInt),
-                                                          bekr=as.numeric(input$bekr))
+      Tabell <-
+        intensivberedskap::FigFordelingKjonnsdelt(
+          RegData = CoroData,
+          valgtVar = 'Alder',
+          resp=as.numeric(input$resp),
+          valgtRHF = ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
+          skjemastatus=as.numeric(input$skjemastatus),
+          dodInt=as.numeric(input$dodInt),
+          bekr=as.numeric(input$bekr))
       write.csv2(Tabell, file, row.names = F, fileEncoding = 'latin1')
     }
   )
@@ -883,14 +900,11 @@ server <- function(input, output, session) {
   output$fordelinger <- renderPlot({
     NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0,
                          valgtVar=input$valgtVar,
-                         # reshID=reshID,
-                         # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
                          bekr=as.numeric(input$bekrFord),
                          datoFra=input$datovalg[1], datoTil=input$datovalg[2],
-                         # minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
                          erMann=as.numeric(input$erMannFord), session = session
     )
-  }, height=800, width=800 #height = function() {session$clientData$output_fordelinger_width}
+  }, height=800, width=800
   )
 
 
@@ -1168,6 +1182,45 @@ server <- function(input, output, session) {
   observeEvent(
     input$oppdatStaging,
     lagStagingData())
+
+
+ # Dataoverføring til FHI
+  #Send filer til FHI:
+  output$lastNed_filstiDataNHN <- downloadHandler(
+    filename = function(){
+      paste0('Filsti', Sys.time(), '.csv')},
+    content = function(file, filename){
+      Filsti <- sendDataFilerFHI(zipFilNavn=input$hvilkeFilerTilFHI)
+      write.csv2(x=Filsti, file, row.names = F, na = '') #x - r-objektet
+    })
+
+  #Abonnement, filer til FHI
+  observeEvent(input$bestillDataTilFHI, { #MÅ HA
+    owner <- rapbase::getUserName(session)
+    organization <- rapbase::getUserReshId(session)
+    email <- rapbase::getUserEmail(session)
+    interval <- "DSTday"
+    intervalName <- "Daglig"
+    runDayOfYear <- rapbase::makeRunDayOfYearSequence(interval = interval)
+    #Vi kan utelate recipient som parameter siden den også styres av filpakken som er valgt
+    paramNames = c('zipFilNavn', 'brukernavn')
+    paramValues = c(input$hvilkeFilerTilFHI, brukernavn)
+    rapbase::createAutoReport(synopsis = paste0('Sendt til FHI: ',input$hvilkeFilerTilFHI),
+                              package = 'korona',
+                              fun = "sendDataFilerFHI",
+                              paramNames = paramNames,
+                              paramValues = paramValues,
+                              owner = owner,
+                              email = email, organization = organization,
+                              runDayOfYear = runDayOfYear,
+                              interval = interval,
+                              intervalName = intervalName)
+
+
+    subscription$tab <-
+      rapbase::makeAutoReportTab(session, type = "subscription")
+
+  })
 
 
 }

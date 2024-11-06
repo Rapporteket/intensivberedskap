@@ -1,7 +1,7 @@
 Package: intensivberedskap
 Title: Resultater og app for Covid-pasienter på intensiv
-Version: 1.14.0
-Date: 2024-02-08
+Version: 1.14.1
+Date: 2024-11-08
 Authors@R: 
     person(given = "Lena Ringstad",
            family = "Olsen",
@@ -19,7 +19,6 @@ Depends:
 Remotes: 
       Rapporteket/rapbase@*release,
       Rapporteket/rapFigurer,
-      Rapporteket/raplog,
 Imports:
     digest,
     DT,
@@ -31,7 +30,6 @@ Imports:
     dplyr,
     rapbase,
     rapFigurer,
-    raplog,
     shiny,
     shinyalert,
     shinyjs,

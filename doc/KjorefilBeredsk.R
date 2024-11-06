@@ -1,3 +1,12 @@
+library(intensivberedskap)
+Data <- NIRPreprosessBeredsk(RegData = NIRberedskDataSQL())
+test <- unique(Data[ ,c('ReshId', 'ShNavn')])
+table(test$ShNavn)[table(test$ShNavn)>1]
+
+
+Data <- NIRsqlPreInfluensa(preprosess=1, kobleInt=1)
+
+
 #Fordelingsfigurer influensa (og beredskapsskjema)
 
 InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)

@@ -110,42 +110,18 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
                       # 'FormStatus', 'ShNavn', 'PatientInRegistryGuid',
                       'UnitId')
 
-    #varFellesInt <- intersect(sort(names(BeredDataRaa)), sort(names(IntDataRaa)))
 
     #Tar bort variabler som skal hentes fra intensivskjema
     BeredDataRaa <- BeredDataRaa[ ,-which(names(BeredDataRaa) %in% c(varFellesInt))] #, 'DischargedIntensiveStatus'
 
-    BeredIntRaa <- merge(BeredDataRaa, IntDataRaa[,-which(names(IntDataRaa) == 'ReshId')], suffixes = c('','Int'),
-                          by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = T, all.y=F)
-    #varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
-    # varMed <- c('Age', 'AgeAdmitted', 'IsAsthmaticPatient', 'Bilirubin', 'Birthdate', 'BrainDamage',
-    #             'Bukleie', 'ChronicDiseases', 'IsDiabeticPatient', 'Diagnosis',
-    #             'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
-    #             'Glasgow', 'IsPregnant', 'Hco3', 'HeartRate',
-    #             'HovedskjemaGUID', 'Impella', 'Intermitterende', 'IntermitterendeDays',
-    #             'InvasivVentilation', 'IsActiveSmoker', 'IsChronicLungDiseasePatient',
-    #             'IsChronicNeurologicNeuromuscularPatient', 'IsEcmoTreatmentAdministered',
-    #             'IsHeartDiseaseIncludingHypertensionPatient', 'IsImpairedImmuneSystemIncludingHivPatient',
-    #             'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
-    #             'IsObesePatient', 'Isolation', 'IsolationDaysTotal', 'IsRiskFactor', 'KidneyReplacingTreatment',
-    #             'Kontinuerlig', 'KontinuerligDays', 'IsCancerPatient', 'Leukocytes', 'MechanicalRespirator',
-    #             'MechanicalRespiratorEnd', 'MechanicalRespiratorStart', 'Municipal','MunicipalNumber',
-    #             'MvOrCpap', 'Nas', 'Nems', 'NonInvasivVentilation',
-    #             'PatientTransferredFromHospital', 'PatientTransferredFromHospitalName',
-    #             'PatientTransferredFromHospitalReason',
-    #             'PatientTransferredToHospital', 'PatientTransferredToHospitalName',
-    #             'PatientTransferredToHospitalReason','Potassium',
-    #             'PrimaryReasonAdmitted', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
-    #             'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
-    #             'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
-    #             'PersonId',  # 'PatientInRegistryGuid',
-    #             'TerapetiskHypotermi',  'Iabp', 'Oscillator', 'No', 'Leverdialyse', 'Eeg')
-    # 'Helseenhet', 'HelseenhetID','ShNavn', 'ReshId',
-    # beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn',
-    #                'ICD10_1', 'ICD10_2', 'ICD10_3', 'ICD10_4', 'ICD10_5')
-    RegData <-  BeredIntRaa #[ ,c(varMed, varFellesInt, beregnVar)] #c()]
+    #Endrer navn på variabler fra int som fortsatt er med i beredskap
+    varFellesInt <- intersect(sort(names(IntDataRaa)), sort(names(BeredDataRaa)))
+    hvilkeIntvar <- which(names(IntDataRaa) %in% varFellesInt)
+    names(IntDataRaa)[hvilkeIntvar] <- paste0(names(IntDataRaa)[hvilkeIntvar], 'Int')
 
-    #setdiff(c(varMed, varFellesInt, beregnVar), names(BeredIntRaa1))
+    BeredIntRaa <- merge(BeredDataRaa, IntDataRaa, #suffixes = c('','Int'),
+                          by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUIDInt', all.x = T, all.y=F)
+    RegData <-  BeredIntRaa
 
   } else {
     RegData <- BeredDataRaa

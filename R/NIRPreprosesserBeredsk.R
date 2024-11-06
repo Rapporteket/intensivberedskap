@@ -19,15 +19,12 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    # eller gi feilmelding om at her ser det ut til å være intensivvariabler.
 
    # Endre variabelnavn:
-   #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
    RegData$Alder <- lubridate::time_length(difftime(as.Date(RegData$FormDate), as.Date(RegData$Birthdate)), 'years')
-   #names(RegData)[which(names(RegData) == 'AgeAdmitted')] <- 'Alder' #PatientAge
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
    names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId'
    names(RegData)[
       names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
-
 
    #Diagnoser:
    RegData$Bekreftet <- 0
@@ -42,7 +39,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$RHF[RegData$ReshId == 108897] <- 'Sør-Øst' #Diakonhjemmet
 
    #Liggetider
-   #names(RegData)[which(names(RegData) == 'DaysAdmittedIntensiv')] <- 'liggetid'
    RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
                                           RegData$EcmoStart,
                                           units = 'days'))
@@ -68,25 +64,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
       }}
 
       #Konvertere boolske variable fra tekst til boolske variable...
-
-   #    TilLogiskeVar <- function(Skjema){
-   #    verdiGML <- c('True','False')
-   #    verdiNY <- c(TRUE,FALSE)
-   #    mapping <- data.frame(verdiGML,verdiNY)
-   #    LogVarSjekk <- names(Skjema)[unique(which(Skjema[1,] %in% verdiGML), which(Skjema[15,] %in% verdiGML))]
-   #    LogVar <- unique(c(LogVarSjekk,
-   #                     "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
-   #                     "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
-   #                     "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-   #                     "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-   #                     "IsObesePatient", "IsRiskFactor", "IsCancerPatient"))
-   #    if (length(LogVar)>0) {
-   #       for (k in 1:length(LogVar)) {
-   #          Skjema[,LogVar[k]] <- mapping$verdiNY[match(Skjema[,LogVar[k]], mapping$verdiGML)]
-   #       }}
-   #    return(Skjema)
-   # }
-   # RegData <- TilLogiskeVar(RegData)
 
    LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
    LogVar <- unique(c(LogVarSjekk,
@@ -119,7 +96,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
                         #Tid = as.numeric(Dato-min(Dato))
        )
 
-     RegData <- merge(RegData[ ,-which(names(RegData)=="PasientID")], PasFlere, by='SkjemaGUID')
+     RegData <- RegData[ ,-which(names(RegData)=="PasientID")]
+     RegData <- merge(RegData, PasFlere, by='SkjemaGUID')
      #which(RegData$InnNr==2)
      #Test <- RegData[c(1:10, which(RegData$InnNr==2)),c("PasientID", "PasientIDny")]
      #For testing: RegData$Dato[RegData$PasientID=='EAC1F8C2-B10F-EC11-A974-00155D0B4D1A'][3:4] <- as.Date(c('2023-01-02', '2024-01-03'))
@@ -246,8 +224,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
 
       if (aggPers == 1){
-         # indManglerIntPas <- which(RegDataRed$PersonId %in% pasUint)
-         # if (length(indManglerIntPas)>0) {RegDataRed <- RegDataRed[-indManglerIntPas, ]}
 
          RegDataRedInt <- RegData %>%
            dplyr::group_by(PasientID) %>%
@@ -260,15 +236,11 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
              ChronicDiseases = dplyr::first(ChronicDiseases, order_by=FormDate),
              DaysAdmittedIntensiv = sum(DaysAdmittedIntensiv, na.rm=T),
              Diagnosis = dplyr::first(Diagnosis, order_by=FormDate),
-             Eeg = dplyr::first(Eeg, order_by=FormDate), #Fjernes fra datadump
              FrailtyIndex = mean(FrailtyIndex, na.rm = T),
              Glasgow = dplyr::first(Glasgow, order_by=FormDate),
              Hco3 = dplyr::first(Hco3, order_by=FormDate),
              Iabp = dplyr::first(Iabp, order_by=FormDate),
-             #Icp = first(Icp, order_by=FormDate), #Fjernes fra datadump
-             #Hyperbar = first(Hyperbar, order_by=FormDate), #Fjernes fra datadump
-             HeartRate = dplyr::first(HeartRate, order_by=FormDate),
-             #Impella = sum(Impella, na.rm = T), #Hvis ja på en: ja, #Logisk variabel. Alle har False eller tom
+              HeartRate = dplyr::first(HeartRate, order_by=FormDate),
              Intermitterende = sum(Intermitterende, na.rm = T), #Hvis ja på en: ja
              IntermitterendeDays = sum(IntermitterendeDays, na.rm = T),
              InvasivVentilation = sum(InvasivVentilation, na.rm = T),
@@ -280,13 +252,11 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
              Kontinuerlig = sum(Kontinuerlig), #Logisk variabel
              KontinuerligDays = sum(KontinuerligDays, na.rm = T),
              # hvis ja på en Leverdialyse = first(Leverdialyse, order_by=FormDate), #Ta ut av datadump
-             #Leukocytes = first(Leukocytes, order_by=FormDate),
              MvOrCpap = dplyr::first(MvOrCpap, order_by=FormDate),
              Nas = sum(Nas),
              NEMS = sum(Nems),
              NO = sum(No), #Hvis ja: ja, logisk var
              NonInvasivVentilation = sum(NonInvasivVentilation, na.rm=T),
-             #Oscillator = first(Oscillator, order_by=FormDate),
              Potassium = dplyr::first(Potassium, order_by=FormDate),
              #PersonId = PersonId[1],
              PrimaryReasonAdmitted = dplyr::first(PrimaryReasonAdmitted, order_by=FormDate),
@@ -298,7 +268,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
              Sodium = dplyr::first(Sodium, order_by=FormDate),
              SystolicBloodPressure = dplyr::first(SystolicBloodPressure, order_by=FormDate),
              Temperature = dplyr::first(Temperature, order_by=FormDate),
-             #TerapetiskHypotermi = first(TerapetiskHypotermi, order_by=FormDate),
              Trakeostomi = ifelse(sum(Trakeostomi %in% 2:3)>0, #Trakeostomitype reg. først.
                                   Trakeostomi[which(Trakeostomi>1)], 1),
              TypeOfAdmission = dplyr::first(TypeOfAdmission, order_by=FormDate),
@@ -356,15 +325,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$MndAar <- format(RegData$Innleggelsestidspunkt, '%b%y')
    RegData$Kvartal <- ceiling(RegData$MndNum/3)
    RegData$Halvaar <- ceiling(RegData$MndNum/6)
-   # RegData$Aar <- format(RegData$InnDato, '%Y')
    RegData$Aar <- factor(format(RegData$InnDato, '%Y'),
                          levels = min(as.numeric(format(RegData$InnDato, '%Y'))):max(as.numeric(format(RegData$InnDato, '%Y'))))
-   # RegData$UkeNr <- format(RegData$InnDato, '%V')
    RegData$UkeNr <- factor(format(RegData$InnDato, '%V.%Y'),
                            levels = min(as.numeric(format(RegData$InnDato, '%V.%Y'))):max(as.numeric(format(RegData$InnDato, '%V.%Y'))))
-   #RegData$UkeAar <- format(RegData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
-   #RegData$UkeAar <- as.factor(RegData$UkeAar)
-   # RegData$Dag <- format(RegData$InnDato, '%d.%b')
    RegData$Dag <- factor(format(RegData$InnDato, '%d.%m.%y'),
                          levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
 

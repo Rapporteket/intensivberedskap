@@ -91,9 +91,14 @@ varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmit
                   'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
                   'UnitId') # PatientInRegistryGuid', 'FormStatus', 'ShNavn',
 BeredRaa <- BeredskRaa[ ,-which(names(BeredskRaa) %in% varFellesInt)]
-#names(IntDataRaa) #Enders når vi har bestemt hvilke variabler vi skal ha med
-#varIKKEmed <- CerebralCirculationAbolished	CerebralCirculationAbolishedReasonForNo	CurrentMunicipalNumber	DistrictCode	Eeg	FormStatus	FormTypeId	HF	HFInt	Hyperbar	Iabp	Icp	Isolation	LastUpdate	Leverdialyse	MajorVersion	MinorVersion	MorsdatoOppdatert	Municipal	MunicipalNumber	Nas	No	OrganDonationCompletedReasonForNoStatus	OrganDonationCompletedStatus	Oscillator	PIM_Probability	PIM_Score	PostalCode	RHF	Sykehus	TerapetiskHypotermi	UnitIdInt
-BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, suffixes = c('','Int'),
+
+
+#Endrer navn på variabler fra int som fortsatt er med i beredskap
+varFellesInt <- intersect(sort(names(IntDataRaa)), sort(names(BeredRaa)))
+hvilkeIntvar <- which(names(IntDataRaa) %in% varFellesInt)
+names(IntDataRaa)[hvilkeIntvar] <- paste0(names(IntDataRaa)[hvilkeIntvar], 'Int')
+
+BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, #suffixes = c('','Int'),
                       by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = F, all.y=F)
 #intvar <- names(BeredIntRaa)[grep('Int', names(BeredIntRaa))]
 varMed <- c('Age', 'AgeAdmitted', 'IsAsthmaticPatient', 'Bilirubin', 'Birthdate', 'BrainDamage',
@@ -132,34 +137,19 @@ return(UtData <- BeredIntRaa)
 
 sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
 
-  # brukernavn <- brukernavn[[1]]
-  # zipFilNavn <- zipFilNavn[[1]]
   regNavnlog <- 'NIRberedskap'
 
-  raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                    msg = paste0("Vil lage filer for dataoverføring: ", zipFilNavn))
-
-  #opprKat <- getwd()
   opprKat <- setwd(tempdir())
   kat <- getwd()
 
-  #zipFilNavn <- paste0(zipFilNavn, Sys.Date())
   if (zipFilNavn == 'InfluDataFHI') {
     Filer <- intensivberedskap::lagInfluDataFHI()
-
-    raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                      msg = paste0("Har hentet ekte filer for sending til FHI"))
 
     datasett <- c('InfluDataFHI')
     for (fil in datasett){
       Fil <- Filer[[fil]]
       write.table(Fil, file = paste0(fil, '.csv'),
                   fileEncoding = 'UTF-8', row.names=F, sep=';', na='')}
-
-    raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                      msg = paste0("Har lagret ekte filer for sending til FHI"))
-
-    #utils::zip(zipfile = zipFilNavn, files = paste0(datasett, '.csv')) #'PandemiBeredskapTilFHI'
 
     zip::zipr(zipfile = paste0(zipFilNavn, '.zip'), files = paste0(datasett, '.csv'))
 
@@ -174,8 +164,6 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
     write.table(Testfil2, file = paste('Testfil2.csv'),
                 fileEncoding = 'UTF-8', row.names=F, sep=';', na='')
 
-    raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                      msg = paste0("Har lagret testfiler"))
     #utils::zip(zipfile = paste0(zipFilNavn), files = c('Testfil1.csv', 'Testfil2.csv'))
     #utils::zip(zipfile = file.path(kat, zipFilNavn), files = c(file.path(kat, 'Testfil1.csv'), file.path(kat, 'Testfil2.csv')))
 
@@ -186,9 +174,6 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
     #unzip(paste0(zipFilNavn, '.zip'), list = FALSE) #list	If TRUE, list the files and extract none
   }
   zipfilSti <- paste0(kat, '/', zipFilNavn, '.zip')
-
-  raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                    msg = paste0("Har laget zip-fil: ", zipfilSti))
 
   #For each recipient a list of available vessels (transport methods) is defined and must include relevant credentials.
   #Functions used here rely on local configuration (sship.yml - må oppdateres av hn-ikt) to access such credentials.
@@ -202,9 +187,8 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
   # if (length(test) >0 ){
   # raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
   #                  msg = warnings()) #, utfil))}
-  raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                    msg = paste("Har levert data til NHN/FHI ")) #, utfil))
-  write.table(zipfilSti, file = 'zipfilSti.csv',fileEncoding = 'UTF-8')
+
+    write.table(zipfilSti, file = 'zipfilSti.csv',fileEncoding = 'UTF-8')
   utfilsti <- paste0(kat, '/', 'zipfilSti.csv')
 
   #Fjern filer.. unntatt filstifila
@@ -230,22 +214,24 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
 #' @export
 
 lagStagingData <- function() {
-  #library(magrittr)
-  #library(dplyr)
 
-  CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
-  CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
+   CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0) #OK
+   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
 
-  CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
-  BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
+   CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1) #TESTES
+   BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0) #OK
 
-  BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
-  BeredIntPas <- if (dim(BeredIntRaa)[1]>0) {
-    NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
-  } else {0}
+   BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1) #OK
+   BeredIntPas <- if (dim(BeredIntRaa)[1]>0) { #OK
+     NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+   } else {0}
 
-  InfluData <- NIRsqlPreInfluensa()
-  InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
+   # test1 <- data.frame(matrix(1:15, nrow = 5, ncol = 3, dimnames = list(row_names = 1:5, colnames = c('id', 'a', 'b'))))
+   # test2 <- data.frame(matrix(c(1:5, 101:110), nrow = 5, ncol = 3, dimnames = list(row_names = 1:5, colnames = c('id', 'c', 'd'))))
+   # merge(test1, test2, by='id')
+
+   InfluData <- NIRsqlPreInfluensa() #OK
+   InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1) #OK
 
   regNavn <- "intensivberedskap"
   rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
