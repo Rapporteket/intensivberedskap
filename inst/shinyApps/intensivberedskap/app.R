@@ -688,7 +688,6 @@ server <- function(input, output, session) {
     #Registreringer i limbo:
     #Må ha egen funksjon for å få dette på sykehusnivå
     output$RegIlimbo <- renderUI({
-      # AntIlibo <- AntTab$Ntest - (TabFerdig$Ntest + sum(is.na(CoroData$DateDischargedIntensive))) #RHF/alle
       finnBurdeFerdig <- function(RegData) {sum((!(is.na(RegData$DateDischargedIntensive)) & (RegData$FormStatus!=2)))}
       valgtRHF <- input$valgtRHF
       tittel <- 'Forløp registrert som utskrevet, uten ferdigstilt skjema: '
@@ -879,10 +878,15 @@ server <- function(input, output, session) {
     },
 
     content = function(file){
-      Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', resp=as.numeric(input$resp),
-                                                          valgtRHF= valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
-                                                          skjemastatus=as.numeric(input$skjemastatus), dodInt=as.numeric(input$dodInt),
-                                                          bekr=as.numeric(input$bekr))
+      Tabell <-
+        intensivberedskap::FigFordelingKjonnsdelt(
+          RegData = CoroData,
+          valgtVar = 'Alder',
+          resp=as.numeric(input$resp),
+          valgtRHF = ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
+          skjemastatus=as.numeric(input$skjemastatus),
+          dodInt=as.numeric(input$dodInt),
+          bekr=as.numeric(input$bekr))
       write.csv2(Tabell, file, row.names = F, fileEncoding = 'latin1')
     }
   )
@@ -896,14 +900,11 @@ server <- function(input, output, session) {
   output$fordelinger <- renderPlot({
     NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0,
                          valgtVar=input$valgtVar,
-                         # reshID=reshID,
-                         # enhetsUtvalg=as.numeric(input$enhetsUtvalg),
                          bekr=as.numeric(input$bekrFord),
                          datoFra=input$datovalg[1], datoTil=input$datovalg[2],
-                         # minald=as.numeric(input$alder[1]), maxald=as.numeric(input$alder[2]),
                          erMann=as.numeric(input$erMannFord), session = session
     )
-  }, height=800, width=800 #height = function() {session$clientData$output_fordelinger_width}
+  }, height=800, width=800
   )
 
 

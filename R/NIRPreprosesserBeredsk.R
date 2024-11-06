@@ -236,15 +236,11 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
              ChronicDiseases = dplyr::first(ChronicDiseases, order_by=FormDate),
              DaysAdmittedIntensiv = sum(DaysAdmittedIntensiv, na.rm=T),
              Diagnosis = dplyr::first(Diagnosis, order_by=FormDate),
-             Eeg = dplyr::first(Eeg, order_by=FormDate), #Fjernes fra datadump
              FrailtyIndex = mean(FrailtyIndex, na.rm = T),
              Glasgow = dplyr::first(Glasgow, order_by=FormDate),
              Hco3 = dplyr::first(Hco3, order_by=FormDate),
              Iabp = dplyr::first(Iabp, order_by=FormDate),
-             #Icp = first(Icp, order_by=FormDate), #Fjernes fra datadump
-             #Hyperbar = first(Hyperbar, order_by=FormDate), #Fjernes fra datadump
-             HeartRate = dplyr::first(HeartRate, order_by=FormDate),
-             #Impella = sum(Impella, na.rm = T), #Hvis ja på en: ja, #Logisk variabel. Alle har False eller tom
+              HeartRate = dplyr::first(HeartRate, order_by=FormDate),
              Intermitterende = sum(Intermitterende, na.rm = T), #Hvis ja på en: ja
              IntermitterendeDays = sum(IntermitterendeDays, na.rm = T),
              InvasivVentilation = sum(InvasivVentilation, na.rm = T),
@@ -256,13 +252,11 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
              Kontinuerlig = sum(Kontinuerlig), #Logisk variabel
              KontinuerligDays = sum(KontinuerligDays, na.rm = T),
              # hvis ja på en Leverdialyse = first(Leverdialyse, order_by=FormDate), #Ta ut av datadump
-             #Leukocytes = first(Leukocytes, order_by=FormDate),
              MvOrCpap = dplyr::first(MvOrCpap, order_by=FormDate),
              Nas = sum(Nas),
              NEMS = sum(Nems),
              NO = sum(No), #Hvis ja: ja, logisk var
              NonInvasivVentilation = sum(NonInvasivVentilation, na.rm=T),
-             #Oscillator = first(Oscillator, order_by=FormDate),
              Potassium = dplyr::first(Potassium, order_by=FormDate),
              #PersonId = PersonId[1],
              PrimaryReasonAdmitted = dplyr::first(PrimaryReasonAdmitted, order_by=FormDate),
@@ -274,7 +268,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
              Sodium = dplyr::first(Sodium, order_by=FormDate),
              SystolicBloodPressure = dplyr::first(SystolicBloodPressure, order_by=FormDate),
              Temperature = dplyr::first(Temperature, order_by=FormDate),
-             #TerapetiskHypotermi = first(TerapetiskHypotermi, order_by=FormDate),
              Trakeostomi = ifelse(sum(Trakeostomi %in% 2:3)>0, #Trakeostomitype reg. først.
                                   Trakeostomi[which(Trakeostomi>1)], 1),
              TypeOfAdmission = dplyr::first(TypeOfAdmission, order_by=FormDate),
