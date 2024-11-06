@@ -236,14 +236,14 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
 
 lagStagingData <- function() {
 
-  # CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0) #OK
-  # CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
-  #
+   CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0) #OK
+   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
+
   # CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
-  # BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
-  #
+   BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
+
    BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1) #OK
-   BeredIntPas <- if (dim(BeredIntRaa)[1]>0) {
+   BeredIntPas <- if (dim(BeredIntRaa)[1]>0) { #OK
      NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
    } else {0}
 
@@ -251,8 +251,8 @@ lagStagingData <- function() {
    # test2 <- data.frame(matrix(c(1:5, 101:110), nrow = 5, ncol = 3, dimnames = list(row_names = 1:5, colnames = c('id', 'c', 'd'))))
    # merge(test1, test2, by='id')
 
-   InfluData <- NIRsqlPreInfluensa() #OK
-   InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1) #OK
+   # InfluData <- NIRsqlPreInfluensa() #OK
+   # InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1) #OK
 
   regNavn <- "intensivberedskap"
   # rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
