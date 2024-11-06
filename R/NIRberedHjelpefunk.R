@@ -137,34 +137,19 @@ return(UtData <- BeredIntRaa)
 
 sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
 
-  # brukernavn <- brukernavn[[1]]
-  # zipFilNavn <- zipFilNavn[[1]]
   regNavnlog <- 'NIRberedskap'
 
-  raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                    msg = paste0("Vil lage filer for dataoverføring: ", zipFilNavn))
-
-  #opprKat <- getwd()
   opprKat <- setwd(tempdir())
   kat <- getwd()
 
-  #zipFilNavn <- paste0(zipFilNavn, Sys.Date())
   if (zipFilNavn == 'InfluDataFHI') {
     Filer <- intensivberedskap::lagInfluDataFHI()
-
-    raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                      msg = paste0("Har hentet ekte filer for sending til FHI"))
 
     datasett <- c('InfluDataFHI')
     for (fil in datasett){
       Fil <- Filer[[fil]]
       write.table(Fil, file = paste0(fil, '.csv'),
                   fileEncoding = 'UTF-8', row.names=F, sep=';', na='')}
-
-    raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                      msg = paste0("Har lagret ekte filer for sending til FHI"))
-
-    #utils::zip(zipfile = zipFilNavn, files = paste0(datasett, '.csv')) #'PandemiBeredskapTilFHI'
 
     zip::zipr(zipfile = paste0(zipFilNavn, '.zip'), files = paste0(datasett, '.csv'))
 
@@ -179,8 +164,6 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
     write.table(Testfil2, file = paste('Testfil2.csv'),
                 fileEncoding = 'UTF-8', row.names=F, sep=';', na='')
 
-    raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                      msg = paste0("Har lagret testfiler"))
     #utils::zip(zipfile = paste0(zipFilNavn), files = c('Testfil1.csv', 'Testfil2.csv'))
     #utils::zip(zipfile = file.path(kat, zipFilNavn), files = c(file.path(kat, 'Testfil1.csv'), file.path(kat, 'Testfil2.csv')))
 
@@ -191,9 +174,6 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
     #unzip(paste0(zipFilNavn, '.zip'), list = FALSE) #list	If TRUE, list the files and extract none
   }
   zipfilSti <- paste0(kat, '/', zipFilNavn, '.zip')
-
-  raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                    msg = paste0("Har laget zip-fil: ", zipfilSti))
 
   #For each recipient a list of available vessels (transport methods) is defined and must include relevant credentials.
   #Functions used here rely on local configuration (sship.yml - må oppdateres av hn-ikt) to access such credentials.
@@ -207,9 +187,8 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
   # if (length(test) >0 ){
   # raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
   #                  msg = warnings()) #, utfil))}
-  raplog::subLogger(author = brukernavn, registryName = regNavnlog, reshId = 0,
-                    msg = paste("Har levert data til NHN/FHI ")) #, utfil))
-  write.table(zipfilSti, file = 'zipfilSti.csv',fileEncoding = 'UTF-8')
+
+    write.table(zipfilSti, file = 'zipfilSti.csv',fileEncoding = 'UTF-8')
   utfilsti <- paste0(kat, '/', 'zipfilSti.csv')
 
   #Fjern filer.. unntatt filstifila
