@@ -236,7 +236,7 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
 
 lagStagingData <- function() {
 
-  # CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
+   CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
   # CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
   #
   # CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
@@ -247,7 +247,11 @@ lagStagingData <- function() {
   #   NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
   # } else {0}
 
-   InfluData <- NIRsqlPreInfluensa()
+   # test1 <- data.frame(matrix(1:15, nrow = 5, ncol = 3, dimnames = list(row_names = 1:5, colnames = c('id', 'a', 'b'))))
+   # test2 <- data.frame(matrix(c(1:5, 101:110), nrow = 5, ncol = 3, dimnames = list(row_names = 1:5, colnames = c('id', 'c', 'd'))))
+   # merge(test1, test2, by='id')
+
+   InfluData <- NIRsqlPreInfluensa() #OK
   # InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
 
   regNavn <- "intensivberedskap"
