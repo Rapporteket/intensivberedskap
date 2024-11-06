@@ -236,16 +236,16 @@ sendInfluDataFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
 
 lagStagingData <- function() {
 
-  CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0) #OK
-  CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
-
-  CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
-  BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
-
-  BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
-  BeredIntPas <- if (dim(BeredIntRaa)[1]>0) {
-     NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
-   } else {0}
+  # CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0) #OK
+  # CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
+  #
+  # CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
+  # BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
+  #
+  # BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+  # BeredIntPas <- if (dim(BeredIntRaa)[1]>0) {
+  #    NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+  #  } else {0}
 
    # test1 <- data.frame(matrix(1:15, nrow = 5, ncol = 3, dimnames = list(row_names = 1:5, colnames = c('id', 'a', 'b'))))
    # test2 <- data.frame(matrix(c(1:5, 101:110), nrow = 5, ncol = 3, dimnames = list(row_names = 1:5, colnames = c('id', 'c', 'd'))))
@@ -255,11 +255,11 @@ lagStagingData <- function() {
    InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
 
   regNavn <- "intensivberedskap"
-  rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
-  rapbase::saveStagingData(regNavn, "CoroData", CoroData)
-  rapbase::saveStagingData(regNavn, "BeredDataOpph", BeredDataOpph)
-  rapbase::saveStagingData(regNavn, "BeredIntRaa", BeredIntRaa)
-  rapbase::saveStagingData(regNavn, "BeredIntPas", BeredIntPas)
+  # rapbase::saveStagingData(registryName = regNavn, "CoroDataRaa", CoroDataRaa)
+  # rapbase::saveStagingData(regNavn, "CoroData", CoroData)
+  # rapbase::saveStagingData(regNavn, "BeredDataOpph", BeredDataOpph)
+  # rapbase::saveStagingData(regNavn, "BeredIntRaa", BeredIntRaa)
+  # rapbase::saveStagingData(regNavn, "BeredIntPas", BeredIntPas)
   rapbase::saveStagingData(regNavn, "InfluData", InfluData)
   rapbase::saveStagingData(regNavn, "InfluIntData", InfluIntData)
 
