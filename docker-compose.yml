@@ -13,7 +13,8 @@ services:
     volumes:
       - ~/.ssh:/home/rstudio/.ssh
       - ~/.gitconfig:/home/rstudio/.gitconfig
-      - .:/home/rstudio/intensivberedskap 
+      - .:/home/rstudio/intensivberedskap
+      - ../intensiv:/home/rstudio/intensiv
       - ~/softlinks/mydata:/home/rstudio/mydata
     ports:
       - "8787:8787"
