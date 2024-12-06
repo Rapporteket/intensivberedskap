@@ -78,7 +78,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 
     query <- paste0('SELECT ',
                     varBeredsk,
-                    ' FROM ReadinessFormDataContract Q
+                    ' FROM readinessformdatacontract Q
                       WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
     #query <- 'SELECT * from ReadinessFormDataContract'
     BeredDataRaa <- rapbase::loadRegData(registryName="nir", query=query, dbType="mysql")
@@ -93,7 +93,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 
     #Koble på intensivdata.
     forsteReg <- min(as.Date(BeredDataRaa$FormDate))
-    queryInt <- paste0('select * from MainFormDataContract
+    queryInt <- paste0('select * from mainformdatacontract
       WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'') #datoTil=Sys.Date(), '\'')
     IntDataRaa <- rapbase::loadRegData(registryName= "nir", query=queryInt, dbType="mysql")
 
