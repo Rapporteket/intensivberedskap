@@ -41,7 +41,7 @@ library(intensivberedskap) #  library(tidyverse) #
                 ,Morsdato
                 ,RiskFactor')
 
- queryInflu <- paste0('SELECT ', influVar, ' FROM InfluensaFormDataContract')
+ queryInflu <- paste0('SELECT ', influVar, ' FROM influensaformdatacontract')
 InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
   #setdiff(names(InfluDataAlle), names(InfluDataRaa))
 
