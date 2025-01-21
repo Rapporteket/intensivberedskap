@@ -3,6 +3,43 @@ Data <- NIRPreprosessBeredsk(RegData = NIRberedskDataSQL())
 test <- unique(Data[ ,c('ReshId', 'ShNavn')])
 table(test$ShNavn)[table(test$ShNavn)>1]
 
+#--- Ønsker å fase ut per.agg data fra app. ----
+# Laste alle data: 23 sek
+#BeredIntRaa - 7 sek
+#Datasett BeredIntPas - 9 sek
+Fordelinger
+Nedlasting av data
+AndelerTab
+SentralmaalTab
+
+#Datasett CoroData - sys.time - 6 sek
+AntTab
+StatusNaa
+Inneliggende per HF
+Ferdigstilte
+Burde vært ferdig
+Risiko
+TabAlder
+AlderKj fig
+Fordelinger? figurer
+
+system.time({
+CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
+  CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
+  BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
+  BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+  InfluData <- NIRsqlPreInfluensa()
+  InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
+})
+
+
+
+
+
+
+
+
 
 Data <- NIRsqlPreInfluensa(preprosess=1, kobleInt=1)
 

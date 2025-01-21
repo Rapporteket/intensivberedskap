@@ -23,52 +23,61 @@ regTitle <- ifelse(paaServer,
 
 #---------Hente data------------
 
- CoroDataRaa <- rapbase::loadStagingData("intensivberedskap", "CoroDataRaa")
-if (isFALSE(CoroDataRaa)) {
+#  CoroDataRaa <- rapbase::loadStagingData("intensivberedskap", "CoroDataRaa")
+# if (isFALSE(CoroDataRaa)) {
+#   CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
+#   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
+#  rapbase::saveStagingData("intensivberedskap", "CoroDataRaa", CoroDataRaa)
+# }
+#
+# CoroData <- rapbase::loadStagingData("intensivberedskap", "CoroData")
+# if (isFALSE(CoroData)) {
+#   CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
+#   rapbase::saveStagingData("intensivberedskap", "CoroData", CoroData)
+# }
+#
+#  BeredDataOpph <- rapbase::loadStagingData("intensivberedskap", "BeredDataOpph")
+#  if (isFALSE(BeredDataOpph)) {
+#    BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
+#    rapbase::saveStagingData("intensivberedskap", "BeredDataOpph", BeredDataOpph)
+#  }
+#
+#  BeredIntRaa <- rapbase::loadStagingData("intensivberedskap", "BeredIntRaa")
+#  if (isFALSE(BeredIntRaa)) {
+#    BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+#    rapbase::saveStagingData("intensivberedskap", "BeredIntRaa", BeredIntRaa)
+#  }
+#
+#  if (dim(BeredIntRaa)[1]>0) {
+#    BeredIntPas <- rapbase::loadStagingData("intensivberedskap", "BeredIntPas")
+#    if (isFALSE(BeredIntPas)) {
+#      BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+#      rapbase::saveStagingData("intensivberedskap", "BeredIntPas", BeredIntPas)
+#      }
+#  }
+#
+#
+# InfluData <- rapbase::loadStagingData("intensivberedskap", "InfluData")
+# if (isFALSE(InfluData)) {
+#    InfluData <- NIRsqlPreInfluensa()
+#    rapbase::saveStagingData("intensivberedskap", "InfluData", InfluData)
+# }
+#
+# InfluIntData <- rapbase::loadStagingData("intensivberedskap", "InfluIntData")
+# if (isFALSE(InfluIntData)) {
+#    InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
+#    rapbase::saveStagingData("intensivberedskap", "InfluIntData", InfluIntData)
+#  }
+
+#Uten staging:
   CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
- rapbase::saveStagingData("intensivberedskap", "CoroDataRaa", CoroDataRaa)
-}
-
-CoroData <- rapbase::loadStagingData("intensivberedskap", "CoroData")
-if (isFALSE(CoroData)) {
   CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
-  rapbase::saveStagingData("intensivberedskap", "CoroData", CoroData)
-}
-
- BeredDataOpph <- rapbase::loadStagingData("intensivberedskap", "BeredDataOpph")
- if (isFALSE(BeredDataOpph)) {
-   BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
-   rapbase::saveStagingData("intensivberedskap", "BeredDataOpph", BeredDataOpph)
- }
-
- BeredIntRaa <- rapbase::loadStagingData("intensivberedskap", "BeredIntRaa")
- if (isFALSE(BeredIntRaa)) {
-   BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
-   rapbase::saveStagingData("intensivberedskap", "BeredIntRaa", BeredIntRaa)
- }
-
- if (dim(BeredIntRaa)[1]>0) {
-   BeredIntPas <- rapbase::loadStagingData("intensivberedskap", "BeredIntPas")
-   if (isFALSE(BeredIntPas)) {
-     BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
-     rapbase::saveStagingData("intensivberedskap", "BeredIntPas", BeredIntPas)
-     }
- }
-
-
-InfluData <- rapbase::loadStagingData("intensivberedskap", "InfluData")
-if (isFALSE(InfluData)) {
-   InfluData <- NIRsqlPreInfluensa()
-   rapbase::saveStagingData("intensivberedskap", "InfluData", InfluData)
-}
-
-InfluIntData <- rapbase::loadStagingData("intensivberedskap", "InfluIntData")
-if (isFALSE(InfluIntData)) {
-   InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
-   rapbase::saveStagingData("intensivberedskap", "InfluIntData", InfluIntData)
- }
-
+  BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
+  BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+  BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
+  InfluData <- NIRsqlPreInfluensa()
+  InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
 
 
 #-----Definere utvalgsinnhold og evt. parametre som er statiske i appen----------
