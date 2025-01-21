@@ -22,7 +22,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$Alder <- lubridate::time_length(difftime(as.Date(RegData$FormDate), as.Date(RegData$Birthdate)), 'years')
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
-   names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId'
+   if (!("ReshId" %in% names(RegData))) {
+     names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId'}
    names(RegData)[
       names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
@@ -276,9 +277,9 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
            )
          RegData <- data.frame(cbind(RegDataRed, RegDataRedInt))
       } #aggPers
-   } #kobletInt
-   else {
-      if (aggPers == 1) {RegData <- data.frame(RegDataRed)}}
+   } else {
+      if (aggPers == 1) {RegData <- data.frame(RegDataRed)}
+     }
 
    #----------------------------
 

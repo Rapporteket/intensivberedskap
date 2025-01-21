@@ -548,7 +548,9 @@ server <- function(input, output, session) {
       shinyjs::hide(id = 'lastNed_dataBeredNIRraa')
       shinyjs::hide(id = 'lastNed_dataBeredNIR')
     }
-    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'eivh', 'jlaake', 'mariawa-he', 'helkri'))) { #jlaake-ikke datafiler
+    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'eivh',
+                            'jlaake', 'mariawa-he', 'helkri',
+                            'kevin.thon'))) { #jlaake-ikke datafiler
       hideTab(inputId = "hovedark", target = "Registeradmin.")
     }
   })
