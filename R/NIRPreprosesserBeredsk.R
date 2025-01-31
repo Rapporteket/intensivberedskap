@@ -39,6 +39,21 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$RHF[RegData$ReshId == 42088921] <- 'Sør-Øst' #Lovisenberg Diakonale
    RegData$RHF[RegData$ReshId == 108897] <- 'Sør-Øst' #Diakonhjemmet
 
+   #Tomme sykehusnavn får resh som navn:
+   indTom <- which(is.na(RegData$ShNavn) | RegData$ShNavn == '')
+   RegData$ShNavn[indTom] <- RegData$ReshId[indTom]
+
+   #Sjekker om alle resh har egne enhetsnavn
+   dta <- unique(RegData[ ,c('ReshId', 'ShNavn')])
+   duplResh <- names(table(dta$ReshId)[which(table(dta$ReshId)>1)])
+   duplSh <- names(table(dta$ShNavn)[which(table(dta$ShNavn)>1)])
+
+   if (length(c(duplSh, duplResh)) > 0) {
+     ind <- union(which(RegData$ReshId %in% duplResh), which(RegData$ShNavn %in% duplSh))
+     RegData$ShNavn[ind] <- paste0(RegData$ShNavn[ind],' (', RegData$ReshId[ind], ')')
+   }
+
+
    #Liggetider
    RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
                                           RegData$EcmoStart,
