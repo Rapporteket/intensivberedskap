@@ -1,7 +1,7 @@
 Package: intensivberedskap
 Title: Resultater og app for Covid-pasienter på intensiv
-Version: 1.14.1
-Date: 2024-11-08
+Version: 2.0.0
+Date: 2025-02-07
 Authors@R: 
     person(given = "Lena Ringstad",
            family = "Olsen",
@@ -13,30 +13,31 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends:
-    R (>= 3.5.0),
-    rapbase (>= 1.0.0),
-    tidyverse
+    R (>= 3.5.0)
 Remotes: 
-      Rapporteket/rapbase@*release,
+      Rapporteket/rapbase@*main,
       Rapporteket/rapFigurer,
+      Rapporteket/korona,
+      Rapporteket/sship
 Imports:
     digest,
     DT,
+    htmltools,
     kableExtra,
     knitr,
-    lifecycle,
-    lubridate,
+    korona,
     magrittr,
-    dplyr,
     rapbase,
     rapFigurer,
     shiny,
     shinyalert,
     shinyjs,
+    sship,
+    testthat,
+    tidyverse,
+    tools,
     xtable,
+    zip,
     zoo,
 VignetteBuilder: knitr
-Suggests: 
-    MASS,
-    testthat (>= 2.1.0)
 RoxygenNote: 7.2.3

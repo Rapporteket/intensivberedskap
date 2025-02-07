@@ -93,14 +93,6 @@ FigFordelingKjonnsdelt <- function(RegData, valgtVar='Alder', datoFra='2020-03-0
   grtxtMin <- ''
 
   if (minN > 0){
-    #library(Hmisc)
-    # gr <- seq(0, 90, 10)
-    # RegData$Gr2 <- Hmisc::cut2(RegData$Alder, breaks=c(gr, 110), #include.lowest=TRUE, right=FALSE,
-    #                   m=c(3,1000), minmax=TRUE)
-    #table(RegData$Gr2)
-    #finne grupper > ant
-
-    #AntHoved <- table(RegData[, c("PatientGender", "Gr")])
     underAnt <- sort(union(which(AntHoved[1,] < minN), which(AntHoved[2,] < minN)))
     AntHoved[ ,underAnt] <- 0
     grtxtMin <- rep('', length(grtxt))

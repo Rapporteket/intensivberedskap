@@ -139,7 +139,6 @@ for (valgtVar in variablerAndelGjsn) {
 
 #Har alle beredskapsskjema intensivskjema? Nei
 # test <- ManglerIntSkjema(datoFra=datoFra1aar, datoTil = datoTil)
-# utils::write.table(test, file = 'BeredUint.csv', row.names = F, fileEncoding = 'UTF-8', sep = ';')
 
 #Nøkkeltall.
 tab <- intensivberedskap::oppsumFerdigeRegTab(BeredIntData1aar)
