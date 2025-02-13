@@ -17,7 +17,6 @@ Depends:
 Remotes: 
       Rapporteket/rapbase@*main,
       Rapporteket/rapFigurer,
-      Rapporteket/korona,
       Rapporteket/sship
 Imports:
     digest,
@@ -25,7 +24,6 @@ Imports:
     htmltools,
     kableExtra,
     knitr,
-    korona,
     magrittr,
     rapbase,
     rapFigurer,

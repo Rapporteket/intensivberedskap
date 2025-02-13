@@ -7,8 +7,6 @@
 #'
 lagInfluDataFHI <- function(personIDvar='PersonIdBC19Hash'){
 #Rådata
-library(intensivberedskap) #  library(tidyverse) #
-
 
  influVar <- paste0(personIDvar,'\n' ,
                 ',PatientAge
@@ -60,7 +58,7 @@ return(UtData)
 #'
 hentBeredDataFHI <- function(personIDvar='PersonIdBC19Hash', raa=1, aggP=1){
 
-   RegDataRaa <- intensivberedskap::NIRberedskDataSQL() #BeredskapData
+   RegDataRaa <- NIRberedskDataSQL() #BeredskapData
 
       varFHIraa <- c(
        personIDvar
@@ -155,12 +153,12 @@ lagDatafilerTilFHI <- function(personIDvar='PersonIdBC19Hash',
 
   UtData <- NULL
   if (bered==1) {
-    dataBered <- korona::hentBeredDataFHI(personIDvar=personIDvar, raa=raa, aggP=aggP)
+    dataBered <- hentBeredDataFHI(personIDvar=personIDvar, raa=raa, aggP=aggP)
     UtData <- append(UtData,
                      dataBered)
   }
   if (influ==1) {
-    InfluensaDataRaaFHI <- korona::lagInfluDataFHI(personIDvar=personIDvar)
+    InfluensaDataRaaFHI <- lagInfluDataFHI(personIDvar=personIDvar)
     UtData <- append(UtData,
                      list(InfluensaDataRaaFHI=InfluensaDataRaaFHI)
     )
@@ -192,7 +190,7 @@ sendDataFilerFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
    if (zipFilNavn == 'DataFHImonitor') {
       #Data til FHIs covid-overvåkning. Kun rådata, Fra 1.1.2024 skal de bare ha beredskapsdata
       recipient <- 'fhi_covmonitor' #For å sikre at ikke sendes feil
-      Filer <- korona::lagDatafilerTilFHI(personIDvar='PatientInRegistryGuid',
+      Filer <- lagDatafilerTilFHI(personIDvar='PatientInRegistryGuid',
                                            bered=1, influ=1,
                                            raa=1, aggP=0)
       datasett <- names(Filer)
@@ -203,18 +201,6 @@ sendDataFilerFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
       zip::zipr(zipfile = paste0(zipFilNavn, '.zip'), files = paste0(names(Filer), '.csv'))
    }
 
-
-   # if (zipFilNavn == 'DataFHIPanBeredInflu') {
-   #    recipient <- 'nhn'
-   #    Filer <- korona::lagDatafilerTilFHI()
-   #    datasett <- c('PandemiDataRaaFHI', 'PandemiDataPpFHI', 'BeredskapDataRaaFHI', 'BeredskapDataPpFHI', 'InfluensaDataRaaFHI')
-   #    for (fil in datasett){
-   #       Fil <- Filer[[fil]]
-   #       write.table(Fil, file = paste0(fil, '.csv'),
-   #                   fileEncoding = 'UTF-8', row.names=F, sep=';', na='')
-   #       }
-   #   zip::zipr(zipfile = paste0(zipFilNavn, '.zip'), files = paste0(datasett, '.csv'))
-   # }
 
    if (zipFilNavn %in% c('Testfil_CovMonitor')) {
 

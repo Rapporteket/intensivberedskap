@@ -110,37 +110,6 @@ test <- intensivberedskap::abonnementBeredsk(rnwFil='Alle_BeredskapCorona.Rnw',
 #CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 library(intensivberedskap)
-library(korona)
-
-Datafiler <- korona::lagDatafilerTilFHI()
-PanPp <- Datafiler$PandemiDataPpFHI
-BerPp <- Datafiler$BeredskapDataPpFHI
-table(table(PanPp$PersonIdBC19Hash))
-table(table(BerPp$PersonIdBC19Hash))
-
-#Gir 108
-KoronaRaa <- korona::KoronaDataSQL()
-KoronaPp <- KoronaPreprosesser(RegData= KoronaRaa, aggPers = 1, tellFlereForlop = 1)
-ind <- names(table(KoronaPp$PersonId)[which(table(KoronaPp$PersonId)>1)])
-test <- KoronaPp[KoronaPp$PersonId %in% ind, ]
-#underveis:
-length(grep('_2',RegData$PasientID)) #117 Hvorfor da bare 108 PersonID??? Fordi det kan være flere opphold også i 2.forløp! SJEKK!!!
-length(unique(RegData$PasientID[grep('_2',RegData$PasientID)]))
-sum(table(RegDataRed$PersonId)>1) #108
-length(unique(RegData$PasientID))
-length(unique(RegData$PersonId))
-length(unique(KoronaRaa$PatientInRegistryGuid))
-length(unique(KoronaRaa$PersonId))
-
-
-#Gir 117
-KoronaRaa$Dato <- as.Date(KoronaRaa$FormDate)
-PasFlere <- KoronaRaa %>% group_by(PatientInRegistryGuid) %>%
-  dplyr::summarise(.groups = 'drop',
-                   InnNr0 = ifelse(Dato-min(Dato)>90, 2, 1))
-antPasFlereForlAlle <- sum(PasFlere$InnNr0>1)
-table(PasFlere$InnNr0)
-
 
 RegDataRaa <- NIRberedskDataSQL(kobleInt = 1)
 RegData <- NIRPreprosessBeredsk(RegDataRaa, kobleInt = 1)

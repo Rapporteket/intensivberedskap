@@ -491,19 +491,7 @@ ui <- tagList(
                                      autoReportUI("beredUts")
                                    )
                                  )
-                        ), #Tab utsending
-                        tabPanel('Data til FHI',
-                                 h4('Data til FHI'),
-                                 selectInput(inputId = "hvilkeFilerTilFHI", label = "Data:",
-                                             c("Råfiler til overvåkning" = "DataFHImonitor",
-                                               "Testfil til overvåkning" = "Testfil_CovMonitor")),
-                                 actionButton("bestillDataTilFHI", "Bestill data til FHI"),
-                                 br(),
-                                 downloadButton(outputId = 'lastNed_filstiDataNHN',
-                                                label='Send filer til NHN og last ned filsti', class = "butt")
-
-
-                                 )
+                        ) #Tab utsending
                       ) #tabset
              ) #hovedark Registeradm
   ) # navbarPage
@@ -1190,49 +1178,9 @@ server <- function(input, output, session) {
   })
 
   #Oppdater stagingdata
-  observeEvent(
-    input$oppdatStaging,
-    lagStagingData())
-
-
- # Dataoverføring til FHI
-  #Send filer til FHI:
-  output$lastNed_filstiDataNHN <- downloadHandler(
-    filename = function(){
-      paste0('Filsti', Sys.time(), '.csv')},
-    content = function(file, filename){
-      Filsti <- sendDataFilerFHI(zipFilNavn=input$hvilkeFilerTilFHI)
-      write.csv2(x=Filsti, file, row.names = F, na = '') #x - r-objektet
-    })
-
-  #Abonnement, filer til FHI
-  observeEvent(input$bestillDataTilFHI, { #MÅ HA
-    owner <- rapbase::getUserName(session)
-    organization <- rapbase::getUserReshId(session)
-    email <- rapbase::getUserEmail(session)
-    interval <- "DSTday"
-    intervalName <- "Daglig"
-    runDayOfYear <- rapbase::makeRunDayOfYearSequence(interval = interval)
-    #Vi kan utelate recipient som parameter siden den også styres av filpakken som er valgt
-    paramNames = c('zipFilNavn', 'brukernavn')
-    paramValues = c(input$hvilkeFilerTilFHI, brukernavn)
-    rapbase::createAutoReport(synopsis = paste0('Sendt til FHI: ',input$hvilkeFilerTilFHI),
-                              package = 'korona',
-                              fun = "sendDataFilerFHI",
-                              paramNames = paramNames,
-                              paramValues = paramValues,
-                              owner = owner,
-                              email = email, organization = organization,
-                              runDayOfYear = runDayOfYear,
-                              interval = interval,
-                              intervalName = intervalName)
-
-
-    subscription$tab <-
-      rapbase::makeAutoReportTab(session, type = "subscription")
-
-  })
-
+  # observeEvent(
+  #   input$oppdatStaging,
+  #   lagStagingData())
 
 }
 # Run the application
