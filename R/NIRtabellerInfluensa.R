@@ -8,7 +8,7 @@
 #' @param sesong influensasesong
 #' @param alleUker 0: viser uker med hendelser, 1: viser alle uker
 #'
-#' @return
+#' @return Tabell med antall influensatilfeller per uke og RHF
 #' @export
 #'
 InfluensaUkeRHF <- function(RegData, bekr=9, skjemastatus=9, dodInt=9, erMann=9, sesong='2023-24', alleUker=1){

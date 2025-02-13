@@ -38,6 +38,9 @@ antallTidInneliggendeBeredskap(
 
 \item{velgAvd}{valgt reshID}
 }
+\value{
+inneliggende per enhet og tidsenhet
+}
 \description{
 Antall inneliggende per tidsenhet  og enhetsnivå. Filtreringer kan også gjøres.
 Detaljerinsnivå er styrt av tilgangsnivå

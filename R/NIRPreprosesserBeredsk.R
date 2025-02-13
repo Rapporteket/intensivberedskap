@@ -7,9 +7,9 @@
 #' @param RegData Beredskapsskjema
 #' @param kobleInt koble på data fra intensivskjema. Hvis koblede data, filtreres registreringer uten intensivskjema bort.
 #' Kobling skjer før eventuell aggregering til forløp.
-#' 'bered': beredskap (korona), 'influ': influensa
+#' 'bered': beredskap (covid), 'influ': influensa
 #'
-#' @return Data En liste med det filtrerte datasettet (og sykehusnavnet som tilsvarer reshID, ikke pt)
+#' @return Data En liste med det prosesserte datasettet (og sykehusnavnet som tilsvarer reshID, ikke pt)
 #'
 #' @export
 #'
@@ -302,13 +302,12 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
 
 
-   RegData$Korona <- factor(RegData$Bekreftet, levels= 0:1, labels= c('M', 'B'))
+   RegData$Covid <- factor(RegData$Bekreftet, levels= 0:1, labels= c('M', 'B'))
 
    #Kjønn
    RegData$erMann <- NA #1=Mann, 2=Kvinne, 0=Ukjent
    RegData$erMann[RegData$PatientGender == 1] <- 1
    RegData$erMann[RegData$PatientGender == 2] <- 0
-   #RegData$erMann <- factor(RegData$PatientGender, levels=1:2, labels=1:0)
    RegData$Kjonn <- factor(RegData$erMann, levels=0:1, labels=c('kvinner','menn'))
 
 
@@ -343,8 +342,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$Halvaar <- ceiling(RegData$MndNum/6)
    RegData$Aar <- factor(format(RegData$InnDato, '%Y'),
                          levels = min(as.numeric(format(RegData$InnDato, '%Y'))):max(as.numeric(format(RegData$InnDato, '%Y'))))
-   RegData$UkeNr <- factor(format(RegData$InnDato, '%V.%Y'),
-                           levels = min(as.numeric(format(RegData$InnDato, '%V.%Y'))):max(as.numeric(format(RegData$InnDato, '%V.%Y'))))
+   RegData$UkeNr <- factor(format(RegData$InnDato, '%V.%G'), #G - angir ukebasert år slik at blir riktig for uke 1.
+                           levels = min(as.numeric(format(RegData$InnDato, '%V.%G'))):max(as.numeric(format(RegData$InnDato, '%V.%G'))))
    RegData$Dag <- factor(format(RegData$InnDato, '%d.%m.%y'),
                          levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
 

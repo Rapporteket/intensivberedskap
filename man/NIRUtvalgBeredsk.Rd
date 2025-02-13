@@ -45,6 +45,9 @@ NIRUtvalgBeredsk(
 
 \item{enhetsUtvalg}{enhetsutvalg...}
 }
+\value{
+Filtrert datasett samt tekst som angir hvilke filtreringer som er gjort
+}
 \description{
 Returnerer filtrert dataramme og utvalgstekst
 }

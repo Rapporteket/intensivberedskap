@@ -1,5 +1,5 @@
 
-koronafigurer_UI <- function(id, rhfNavn){
+covidfigurer_UI <- function(id, rhfNavn){
   ns <- shiny::NS(id)
 
   shiny::sidebarLayout(
@@ -58,7 +58,7 @@ koronafigurer_UI <- function(id, rhfNavn){
 }
 
 
-koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, reshID){
+covidfigurer <- function(input, output, session, rolle, CoroData, egetRHF, reshID){
 
   observeEvent(input$tilbakestillValg, {
     shinyjs::reset("brukervalgStartside")
@@ -81,17 +81,19 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
     )
   )
 
-  datoFra <- reactive(datoFra <- switch (input$velgTidsenhet,
-                                         "dag" = Sys.Date() - days(as.numeric(input$velgAntVisning)-1),
-                                         "uke" = floor_date(Sys.Date() - weeks(as.numeric(input$velgAntVisning)-1),
-                                                            unit = 'week', week_start = 1),
-                                         "maaned" = floor_date(Sys.Date() - months(as.numeric(input$velgAntVisning)-1),
-                                                               unit = 'month')
+  datoFra <- reactive(
+    datoFra <- switch (input$velgTidsenhet,
+                       "dag" = Sys.Date() - days(as.numeric(input$velgAntVisning)-1),
+                       "uke" = lubridate::floor_date(Sys.Date() - lubridate::weeks(as.numeric(input$velgAntVisning)-1),
+                                                     unit = 'week', week_start = 1), #Starter på mandag
+                       "maaned" = floor_date(Sys.Date() - months(as.numeric(input$velgAntVisning)-1),
+                                             unit = 'month')
+    )
   )
-  )
-  #TabTidEnhet(RegData=CoroData, tidsenhet='uke')
+
+
   AntTab <- function() {
-    valgtRHF <- as.character(input$valgtRHF) #ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+    valgtRHF <- as.character(input$valgtRHF)
     AntTab <- switch(input$valgtVar,
                      'antreg'= TabTidEnhet(RegData=CoroData,
                                            tidsenhet=input$velgTidsenhet,
@@ -157,7 +159,7 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
 
   output$LastNedFig <- downloadHandler(
     filename = function(){
-      paste0('KoronaFigur', Sys.time(), '.', input$bildeformat)
+      paste0('CovidFigur', Sys.time(), '.', input$bildeformat)
     },
 
     content = function(file){
@@ -171,7 +173,7 @@ koronafigurer <- function(input, output, session, rolle, CoroData, egetRHF, resh
 
   output$lastNed <- downloadHandler(
     filename = function(){
-      paste0('KoronaTabell', Sys.time(), '.csv')
+      paste0('CovidTabell', Sys.time(), '.csv')
     },
 
     content = function(file){

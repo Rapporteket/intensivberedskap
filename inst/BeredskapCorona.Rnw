@@ -217,7 +217,7 @@ EnhetsNivaaVar <- switch(enhetsNivaa,
                          HF = 'Sykehus')
 
 if (enhetsNivaa=='Alle'){
-TabTidEnh <- ftable(RegDataAlle[ , c('Dag', 'RHF')], #, 'Korona'
+TabTidEnh <- ftable(RegDataAlle[ , c('Dag', 'RHF')], #, 'Covid'
                     row.vars = 'Dag')
 navnEnh <- unique(RegDataAlle$EnhetsNivaaVar)
 TabTidEnh <- as.matrix(TabTidEnh)
@@ -516,8 +516,8 @@ xtable::xtable(FerdigBekr$Tab,
 % \begin{frame}[fragile] {covid-19, kjønnsfordeling}
 % <<'TabKjonn', results='asis'>>=
 %
-% TabKjonn <- ftable(RegData[ , c('UkeNr', 'Kjonn','Korona')], row.vars ='UkeNr')
-% navnMB <- attributes(TabKjonn)$col.vars$Korona
+% TabKjonn <- ftable(RegData[ , c('UkeNr', 'Kjonn','Covid')], row.vars ='UkeNr')
+% navnMB <- attributes(TabKjonn)$col.vars$Covid
 % navnKjonn <- attributes(TabKjonn)$col.vars$Kjonn
 % TabKjonn <- as.matrix(TabKjonn)
 % colnames(TabKjonn) <- rep(navnMB, length(navnKjonn))
@@ -577,7 +577,7 @@ xtable::xtable(FerdigBekr$Tab,
 %                          HF = 'Sykehus')
 %
 % if (enhetsNivaa=='Alle'){
-% TabTidEnh <- ftable(RegDataAlleOpph[ , c(Dag, 'RHF')], #, 'Korona'
+% TabTidEnh <- ftable(RegDataAlleOpph[ , c(Dag, 'RHF')], #, 'Covid'
 %                     row.vars =Dag)
 % navnEnh <- unique(RegDataAlleOpph$EnhetsNivaaVar)
 % TabTidEnh <- as.matrix(TabTidEnh)

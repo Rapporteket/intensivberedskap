@@ -16,10 +16,10 @@ NIRPreprosessBeredsk(
 
 \item{kobleInt}{koble på data fra intensivskjema. Hvis koblede data, filtreres registreringer uten intensivskjema bort.
 Kobling skjer før eventuell aggregering til forløp.
-'bered': beredskap (korona), 'influ': influensa}
+'bered': beredskap (covid), 'influ': influensa}
 }
 \value{
-Data En liste med det filtrerte datasettet (og sykehusnavnet som tilsvarer reshID, ikke pt)
+Data En liste med det prosesserte datasettet (og sykehusnavnet som tilsvarer reshID, ikke pt)
 }
 \description{
 Denne funksjonen navner om variabler og beregner evt. nye.

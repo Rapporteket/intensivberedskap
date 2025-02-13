@@ -289,7 +289,7 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
     #                          HF = 'Sykehus')
 
     #if (enhetsNivaa=='Alle'){
-    TabTidEnh <- ftable(InfluData[ , c('Dag', 'RHF')], #, 'Korona'
+    TabTidEnh <- ftable(InfluData[ , c('Dag', 'RHF')], #, 'Covid'
                         row.vars = 'Dag')
   #navnEnh <- unique(InfluData$EnhetsNivaaVar)
   TabTidEnh <- as.matrix(TabTidEnh)

@@ -1,11 +1,6 @@
 #
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+# Shiny-app for intensivberedskap
+# Inneholder hovedsakelig resultater for covid- og influensapasienter
 
 library(intensivberedskap)
 
@@ -22,52 +17,6 @@ regTitle <- ifelse(paaServer,
                    'Norsk Intensivregister med FIKTIVE data')
 
 #---------Hente data------------
-
-#  CoroDataRaa <- rapbase::loadStagingData("intensivberedskap", "CoroDataRaa")
-# if (isFALSE(CoroDataRaa)) {
-#   CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
-#   CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
-#  rapbase::saveStagingData("intensivberedskap", "CoroDataRaa", CoroDataRaa)
-# }
-#
-# CoroData <- rapbase::loadStagingData("intensivberedskap", "CoroData")
-# if (isFALSE(CoroData)) {
-#   CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
-#   rapbase::saveStagingData("intensivberedskap", "CoroData", CoroData)
-# }
-#
-#  BeredDataOpph <- rapbase::loadStagingData("intensivberedskap", "BeredDataOpph")
-#  if (isFALSE(BeredDataOpph)) {
-#    BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
-#    rapbase::saveStagingData("intensivberedskap", "BeredDataOpph", BeredDataOpph)
-#  }
-#
-#  BeredIntRaa <- rapbase::loadStagingData("intensivberedskap", "BeredIntRaa")
-#  if (isFALSE(BeredIntRaa)) {
-#    BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
-#    rapbase::saveStagingData("intensivberedskap", "BeredIntRaa", BeredIntRaa)
-#  }
-#
-#  if (dim(BeredIntRaa)[1]>0) {
-#    BeredIntPas <- rapbase::loadStagingData("intensivberedskap", "BeredIntPas")
-#    if (isFALSE(BeredIntPas)) {
-#      BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
-#      rapbase::saveStagingData("intensivberedskap", "BeredIntPas", BeredIntPas)
-#      }
-#  }
-#
-#
-# InfluData <- rapbase::loadStagingData("intensivberedskap", "InfluData")
-# if (isFALSE(InfluData)) {
-#    InfluData <- NIRsqlPreInfluensa()
-#    rapbase::saveStagingData("intensivberedskap", "InfluData", InfluData)
-# }
-#
-# InfluIntData <- rapbase::loadStagingData("intensivberedskap", "InfluIntData")
-# if (isFALSE(InfluIntData)) {
-#    InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
-#    rapbase::saveStagingData("intensivberedskap", "InfluIntData", InfluIntData)
-#  }
 
 #Uten staging:
   CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
@@ -98,402 +47,396 @@ RHFvalgInflu <- c('Alle', unique(as.character(InfluData$RHF)))
 names(RHFvalgInflu) <- RHFvalgInflu
 
 
-source(system.file("shinyApps/intensivberedskap/R/koronafigurer_modul.R", package = "intensivberedskap"), encoding = 'UTF-8')
+source(system.file("shinyApps/intensivberedskap/R/covidfigurer_modul.R", package = "intensivberedskap"), encoding = 'UTF-8')
 
 ui <- tagList(
-  navbarPage(id='hovedark',
-             title = div(img(src="rap/logo.svg", alt="Rapporteket", height="26px"),
-                         regTitle),
-             windowTitle = regTitle,
-             theme = "rap/bootstrap.css",
+  navbarPage(
+    id='hovedark',
+    title = div(img(src="rap/logo.svg", alt="Rapporteket", height="26px"),
+                regTitle),
+    windowTitle = regTitle,
+    theme = "rap/bootstrap.css",
 
-             #------------Oversiktsside-----------------------------
-             tabPanel("Oversikt",
-                      shinyjs::useShinyjs(),
-                      sidebarPanel(id = 'brukervalgStartside',
-                                   width = 3,
-                                   uiOutput('CoroRappTxt'),
-                                   downloadButton(outputId = 'CoroRapp.pdf', label='Last ned covid-19rapport', class = "butt"),
-                                   tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
-                                   br(),
-                                   selectInput(inputId = "valgtNivaa", label="Velg enhetsnivå for rapporten",
-                                               choices = enhetsNivaa
-                                   ),
-                                   br(),
-                                   h4('Gjør filtreringer/utvalg i tabeller og figurer:'),
+    #------------Oversiktsside-----------------------------
+    tabPanel("Oversikt",
+             shinyjs::useShinyjs(),
+             sidebarPanel(id = 'brukervalgStartside',
+                          width = 3,
+                          uiOutput('CoroRappTxt'),
+                          downloadButton(outputId = 'CoroRapp.pdf', label='Last ned covid-19rapport', class = "butt"),
+                          tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
+                          br(),
+                          selectInput(inputId = "valgtNivaa", label="Velg enhetsnivå for rapporten",
+                                      choices = enhetsNivaa
+                          ),
+                          br(),
+                          h4('Gjør filtreringer/utvalg i tabeller og figurer:'),
 
-                                   selectInput(inputId = "valgtRHF", label="Velg RHF",
-                                               choices = rhfNavn
-                                   ),
-                                   selectInput(inputId = "bekr", label="Bekreftet/Mistenkt",
-                                               choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
-                                   ),
-                                   selectInput(inputId = "skjemastatus", label="Skjemastatus",
-                                               choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
-                                   ),
-                                   selectInput(inputId = "resp", label="Respiratorbehandlet (invasiv+non-inv.)",
-                                               choices = c("Alle"=9, "Ja"=1, "Nei"=2)
-                                   ),
-                                   selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
-                                               choices = c("Alle"=9, "Død"=1, "Levende"=0)
-                                   ),
-                                   selectInput(inputId = "erMann", label="Kjønn",
-                                               choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
-                                   ),
-                                   dateRangeInput(inputId = 'datovalgStart', start = startDato, end = idag, #'2020-05-10',
-                                                  label = "Tidsperiode", separator="t.o.m.", language="nb"
-                                   ),
-                                   h4('Kun for risikofaktorer:'),
-                                   sliderInput(inputId="alder", label = "Alder",
-                                               min = 0, max = 110,
-                                               value = c(0, 110),
-                                               step = 10
-                                   ),
-                                   br(),
-                                   actionButton("tilbakestillValg", label="Tilbakestill valg"),
-                                   br(),
-                                   selectInput(inputId = "bildeformatAldKj",
-                                               label = "Velg format for nedlasting av figur",
-                                               choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
+                          selectInput(inputId = "valgtRHF", label="Velg RHF",
+                                      choices = rhfNavn
+                          ),
+                          selectInput(inputId = "bekr", label="Bekreftet/Mistenkt",
+                                      choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)
+                          ),
+                          selectInput(inputId = "skjemastatus", label="Skjemastatus",
+                                      choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
+                          ),
+                          selectInput(inputId = "resp", label="Respiratorbehandlet (invasiv+non-inv.)",
+                                      choices = c("Alle"=9, "Ja"=1, "Nei"=2)
+                          ),
+                          selectInput(inputId = "dodInt", label="Tilstand ut fra intensiv",
+                                      choices = c("Alle"=9, "Død"=1, "Levende"=0)
+                          ),
+                          selectInput(inputId = "erMann", label="Kjønn",
+                                      choices = c("Begge"=9, "Menn"=1, "Kvinner"=0)
+                          ),
+                          dateRangeInput(inputId = 'datovalgStart', start = startDato, end = idag, #'2020-05-10',
+                                         label = "Tidsperiode", separator="t.o.m.", language="nb"
+                          ),
+                          h4('Kun for risikofaktorer:'),
+                          sliderInput(inputId="alder", label = "Alder",
+                                      min = 0, max = 110,
+                                      value = c(0, 110),
+                                      step = 10
+                          ),
+                          br(),
+                          actionButton("tilbakestillValg", label="Tilbakestill valg"),
+                          br(),
+                          selectInput(inputId = "bildeformatAldKj",
+                                      label = "Velg format for nedlasting av figur",
+                                      choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
 
-                                   # dateRangeInput(inputId = 'datovalg', start = startDato, end = idag,
-                                   #                label = "Tidsperiode", separator="t.o.m.", language="nb" #)
-                                   # ),
-                      ),
-                      mainPanel(width = 9,
-                                appNavbarUserWidget(user = uiOutput("appUserName"),
-                                                    organization = uiOutput("appOrgName"),
-                                                    addUserInfo = TRUE),
-                                tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
-
-                                h3('Resultater fra intensivregisterets beredskapsskjema for mistenkt/bekreftet
-                       Coronasmitte.'),
-                                h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
-                                #h5('Siden er under utvikling... ', style = "color:red"),
-                                br(),
-                                fluidRow(
-                                  column(width = 4,
-                                         h4('Forløp uten registrert ut-tid fra intensiv'), #, align='center'),
-                                         #uiOutput('liggetidNaa'),
-                                         uiOutput('utvalgNaa'),
-                                         tableOutput('tabECMOrespirator'),
-                                         br(),
-                                         h4('Forløp registrert som utskrevet, uten ferdigstilt skjema:'),
-                                         uiOutput('RegIlimbo')
-                                  ),
-                                  column(width=5, offset=1,
-                                         uiOutput('tittelFerdigeReg'),
-                                         uiOutput('utvalgFerdigeReg'),
-                                         tableOutput('tabFerdigeReg')
-                                  )),
-
-                                h3('Antall inneliggende i hvert HF'),
-                                h5('Mistenkte og bekreftede'),
-                                tableOutput('tabInneliggHF'),
-
-                                h3('Antall ny-innlagte pasienter, siste 10 dager'),
-                                h4('NB: Inkluderer ikke overføringer mellom intensivenheter'),
-                                uiOutput('utvalgHoved'),
-                                tableOutput('tabTidEnhet'),
-                                br(),
-                                fluidRow(
-                                  column(width=3,
-                                         h3('Risikofaktorer'),
-                                         uiOutput('utvalgRisiko'),
-                                         tableOutput('tabRisikofaktorer')),
-                                  column(width=5, offset=1,
-                                         h3('Aldersfordeling'),
-                                         plotOutput("FigurAldersfordeling", height="auto"),
-                                         downloadButton("LastNedFigAldKj", "Last ned figur"),
-                                         downloadButton("lastNedAldKj", "Last ned tabell")
-
-                                  ))
-                      ) #main
-             ), #tab Oversikt
-
-             #------------Figurer-----------------------------------
-             tabPanel("Antall intensivpasienter",
-                      koronafigurer_UI(id = "koronafigurer_id", rhfNavn=rhfNavn)
+                          # dateRangeInput(inputId = 'datovalg', start = startDato, end = idag,
+                          #                label = "Tidsperiode", separator="t.o.m.", language="nb" #)
+                          # ),
              ),
-             tabPanel(p("Fordelingsfigurer",
-                        title='Fordelingsfigurer for variabler registrert under intensivoppholdet'),
-                      value = 'Fordelingsfigurer',
-                      sidebarPanel(
-                        h4('Her kan man velge hvilken variabel man ønsker å se på og gjøre ulike filtreringer.'),
-                        selectInput(
-                          inputId = "valgtVar", label="Velg variabel",
-                          selected = 'regForsinkelseInn',
-                          choices = c('Alder' = 'alder',
-                                      'Bukleie' = 'bukleie',
-                                      'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring',
-                                      'Frailty index' = 'frailtyIndex',
-                                      'Liggetid' = 'liggetid',
-                                      'Primærårsak' = 'PrimaryReasonAdmitted',
-                                      'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
-                                      'Registreringsforsinkelse, utskriving' = 'regForsinkelseUt',
-                                      'Respiratortid, totalt' = 'RespiratortidInt',
-                                      'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
-                                      'Respiratortid, invasiv' = 'respiratortidInv',
-                                      'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber'
-                                      #,'Spesielle tiltak' = 'spesTiltak'
-                          )
-                        ),
-                        selectInput(inputId = "bekrFord", label="Bekreftet/Mistenkt",
-                                    choices = c("Bekreftet"=1, "Alle"=9, "Mistenkt"=0)
-                        ),
-                        dateRangeInput(inputId = 'datovalg', start = startDato, end = Sys.Date(),
-                                       label = "Tidsperiode", separator="t.o.m.", language="nb"
-                        ),
-                        selectInput(inputId = "erMannFord", label="Kjønn",
-                                    choices = c("Begge"=2, "Menn"=1, "Kvinner"=0)
-                        ),
-                        selectInput(inputId = "bildeformatFord",
-                                    label = "Velg format for nedlasting av figur",
-                                    choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')
-                        )
-                      ),
-                      mainPanel(
-                        tabsetPanel(
-                          tabPanel(
-                            'Figur',
-                            h4('Data er aggregerte til pasientnivå og inneholder kun registreringer
-                               hvor pasienten har både beredskapsskjema og ferdigstilte intensivskjema.'),
-                            plotOutput('fordelinger', height="auto"),
-                            downloadButton(outputId = "LastNedFigFord", label = "Last ned figur")),
-                          tabPanel(
-                            'Tabell',
-                            uiOutput("tittelFord"),
-                            tableOutput('fordelingTab'),
-                            downloadButton(outputId = 'lastNed_tabFord', label='Last ned tabell') #, class = "butt")
-                          )
-                        )
-                      )
-             ), #Tab, fordelinger
+             mainPanel(width = 9,
+                       appNavbarUserWidget(user = uiOutput("appUserName"),
+                                           organization = uiOutput("appOrgName"),
+                                           addUserInfo = TRUE),
+                       tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
 
-             #---------Datakvalitet-----------------
-             tabPanel(#p('Tilhørende intensivskjema som mangler ferdigstillelse'),
-               title = 'Datakvalitet',
-               value = 'Datakvalitet',
-               sidebarLayout(
-                 sidebarPanel(width = 2,
-                              dateInput(inputId = 'datoFraMI', label = "Fra dato: ",
-                                        value = as.character(Sys.Date()-365)) #, min = startDato, max = Sys.Date())
-                 ),
-                 mainPanel(
-                   h4('Ferdistilte beredskapsskjema som mangler ferdigstillelse av tilhørende intensivskjema'),
-                   br(),
-                   h5(tags$b('SkjemaGUID'),' er beredskapsskjemaets skjemaID'),
-                   h5(tags$b('HovedskjemaGUID'),' er intensivskjemaes skjemaID'),
-                   br(),
-                   downloadButton(outputId = 'lastNed_ManglerIntSkjema', label='Last ned tabell'),
-                   br(),
-                   uiOutput("tabManglerIntSkjema")
+                       h3('Resultater fra intensivregisterets beredskapsskjema for mistenkt/bekreftet
+                       Coronasmitte.'),
+                       h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
+                       #h5('Siden er under utvikling... ', style = "color:red"),
+                       br(),
+                       fluidRow(
+                         column(width = 4,
+                                h4('Forløp uten registrert ut-tid fra intensiv'), #, align='center'),
+                                #uiOutput('liggetidNaa'),
+                                uiOutput('utvalgNaa'),
+                                tableOutput('tabECMOrespirator'),
+                                br(),
+                                h4('Forløp registrert som utskrevet, uten ferdigstilt skjema:'),
+                                uiOutput('RegIlimbo')
+                         ),
+                         column(width=5, offset=1,
+                                uiOutput('tittelFerdigeReg'),
+                                uiOutput('utvalgFerdigeReg'),
+                                tableOutput('tabFerdigeReg')
+                         )),
+
+                       h3('Antall inneliggende i hvert HF'),
+                       h5('Mistenkte og bekreftede'),
+                       tableOutput('tabInneliggHF'),
+
+                       h3('Antall ny-innlagte pasienter, siste 10 dager'),
+                       h4('NB: Inkluderer ikke overføringer mellom intensivenheter'),
+                       uiOutput('utvalgHoved'),
+                       tableOutput('tabTidEnhet'),
+                       br(),
+                       fluidRow(
+                         column(width=3,
+                                h3('Risikofaktorer'),
+                                uiOutput('utvalgRisiko'),
+                                tableOutput('tabRisikofaktorer')),
+                         column(width=5, offset=1,
+                                h3('Aldersfordeling'),
+                                plotOutput("FigurAldersfordeling", height="auto"),
+                                downloadButton("LastNedFigAldKj", "Last ned figur"),
+                                downloadButton("lastNedAldKj", "Last ned tabell")
+
+                         ))
+             ) #main
+    ), #tab Oversikt
+
+    #------------Figurer-----------------------------------
+    tabPanel("Antall intensivpasienter",
+             covidfigurer_UI(id = "covidfigurer_id", rhfNavn=rhfNavn)
+    ),
+    tabPanel(p("Fordelingsfigurer",
+               title='Fordelingsfigurer for variabler registrert under intensivoppholdet'),
+             value = 'Fordelingsfigurer',
+             sidebarPanel(
+               h4('Her kan man velge hvilken variabel man ønsker å se på og gjøre ulike filtreringer.'),
+               selectInput(
+                 inputId = "valgtVar", label="Velg variabel",
+                 selected = 'regForsinkelseInn',
+                 choices = c('Alder' = 'alder',
+                             'Bukleie' = 'bukleie',
+                             'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring',
+                             'Frailty index' = 'frailtyIndex',
+                             'Liggetid' = 'liggetid',
+                             'Primærårsak' = 'PrimaryReasonAdmitted',
+                             'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
+                             'Registreringsforsinkelse, utskriving' = 'regForsinkelseUt',
+                             'Respiratortid, totalt' = 'RespiratortidInt',
+                             'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
+                             'Respiratortid, invasiv' = 'respiratortidInv',
+                             'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber'
+                             #,'Spesielle tiltak' = 'spesTiltak'
+                 )
+               ),
+               selectInput(inputId = "bekrFord", label="Bekreftet/Mistenkt",
+                           choices = c("Bekreftet"=1, "Alle"=9, "Mistenkt"=0)
+               ),
+               dateRangeInput(inputId = 'datovalg', start = startDato, end = Sys.Date(),
+                              label = "Tidsperiode", separator="t.o.m.", language="nb"
+               ),
+               selectInput(inputId = "erMannFord", label="Kjønn",
+                           choices = c("Begge"=2, "Menn"=1, "Kvinner"=0)
+               ),
+               selectInput(inputId = "bildeformatFord",
+                           label = "Velg format for nedlasting av figur",
+                           choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg')
+               )
+             ),
+             mainPanel(
+               tabsetPanel(
+                 tabPanel(
+                   'Figur',
+                   h4('Data er aggregerte til pasientnivå og inneholder kun registreringer
+                               hvor pasienten har både beredskapsskjema og ferdigstilte intensivskjema.'),
+                   plotOutput('fordelinger', height="auto"),
+                   downloadButton(outputId = "LastNedFigFord", label = "Last ned figur")),
+                 tabPanel(
+                   'Tabell',
+                   uiOutput("tittelFord"),
+                   tableOutput('fordelingTab'),
+                   downloadButton(outputId = 'lastNed_tabFord', label='Last ned tabell') #, class = "butt")
                  )
                )
-             ), #tab Datakvalitet
+             )
+    ), #Tab, fordelinger
 
-             #------------ Influensa -----------------------
-             #Resultater fra influensaskjema
+    #---------Datakvalitet-----------------
+    tabPanel(#p('Tilhørende intensivskjema som mangler ferdigstillelse'),
+      title = 'Datakvalitet',
+      value = 'Datakvalitet',
+      sidebarLayout(
+        sidebarPanel(width = 2,
+                     dateInput(inputId = 'datoFraMI', label = "Fra dato: ",
+                               value = as.character(Sys.Date()-365)) #, min = startDato, max = Sys.Date())
+        ),
+        mainPanel(
+          h4('Ferdistilte beredskapsskjema som mangler ferdigstillelse av tilhørende intensivskjema'),
+          br(),
+          h5(tags$b('SkjemaGUID'),' er beredskapsskjemaets skjemaID'),
+          h5(tags$b('HovedskjemaGUID'),' er intensivskjemaes skjemaID'),
+          br(),
+          downloadButton(outputId = 'lastNed_ManglerIntSkjema', label='Last ned tabell'),
+          br(),
+          uiOutput("tabManglerIntSkjema")
+        )
+      )
+    ), #tab Datakvalitet
+
+    #------------ Influensa -----------------------
+    #Resultater fra influensaskjema
 
 
-             tabPanel(title = 'Influensa',
-                      value = 'Influensa',
-                      sidebarPanel(id = 'brukervalgInfluensa',
-                                   width = 3,
-                                   h4(paste0('Influensarapport med samling av resultater for sesongen ', sesongSiste)),
-                                   h5('(Influensasesong oppdateres automatisk så snart det registreres data for en ny sesong)'),
-                                   br(),
-                                   downloadButton(outputId = 'InfluRapp.pdf', label='Last ned Influensarapport', class = "butt"),
-                                   tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
-                                   h5('Influensarapporten kan man få regelmessig tilsendt på e-post.
+    tabPanel(title = 'Influensa',
+             value = 'Influensa',
+             sidebarPanel(id = 'brukervalgInfluensa',
+                          width = 3,
+                          h4(paste0('Influensarapport med samling av resultater for sesongen ', sesongSiste)),
+                          h5('(Influensasesong oppdateres automatisk så snart det registreres data for en ny sesong)'),
+                          br(),
+                          downloadButton(outputId = 'InfluRapp.pdf', label='Last ned Influensarapport', class = "butt"),
+                          tags$head(tags$style(".butt{background-color:#6baed6;} .butt{color: white;}")), # background color and font color
+                          h5('Influensarapporten kan man få regelmessig tilsendt på e-post.
                            Gå til fanen "Abonnement" for å bestille dette.'),
-                                   br(),
-                                   br(),
-                                   h3('Gjør filtreringer/utvalg i tabellene til høyre:'),
+                          br(),
+                          br(),
+                          h3('Gjør filtreringer/utvalg i tabellene til høyre:'),
 
-                                   # selectInput(inputId = "valgtRHFinflu", label="Velg RHF",
-                                   #             choices = RHFvalgInflu
-                                   #             #,selected = 'Alle'
-                                   # ),
+                          selectInput(inputId = "sesongInflu", label="Velg influensasesong",
+                                      choices = sesongValg, selected = sesongSiste),
+                          h5('(Valgene omfatter alle sesonger hvor det er gjort registreringer.)'),
 
-                                   selectInput(inputId = "sesongInflu", label="Velg influensasesong",
-                                               choices = sesongValg, selected = sesongSiste),
-                                   h5('(Valgene omfatter alle sesonger hvor det er gjort registreringer.)'),
-
-                                   conditionalPanel("input.influensa == 'Oppsummeringer'",
-                                                    selectInput(inputId = "bekrInflu", label="Bekreftet/Mistenkt",
-                                                                choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)),
-                                                    selectInput(inputId = "skjemastatusInflu", label="Skjemastatus",
-                                                                choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
-                                                    )),
-                                   selectInput(inputId = "erMannInflu", label="Kjønn",
-                                               choices = c("Begge"=9, "Kvinne"=0, "Mann"=1)
-                                   ),
-                                   selectInput(inputId = "dodIntInflu", label="Tilstand ut fra intensiv",
-                                               choices = c("Alle"=9, "Død"=1, "Levende"=0, "Ukjent"=-1)
-                                   ),
-                                   conditionalPanel("input.influensa == 'Fordelinger'",
-                                                    selectInput(
-                                                      inputId = "valgtVarInflu", label="Velg variabel",
-                                                      selected = 'regForsinkelseInn',
-                                                      choices = c('Alder' = 'alder',
-                                                                  'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring', #- int.variabel
-                                                                  'Frailty index' = 'frailtyIndex', #- int.variabel
-                                                                  'Liggetid' = 'liggetid',
-                                                                  'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
-                                                                  'Respiratortid, totalt' = 'RespiratortidInt',
-                                                                  'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
-                                                                  'Respiratortid, invasiv' = 'respiratortidInv',
-                                                                  'Risikofaktorer' = 'risikoFakt',
-                                                                  'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber', #- int.
-                                                                  'Spesielle tiltak' = 'spesTiltak'
-                                                      )
-                                                    )),
-
-                                   actionButton("tilbakestillValgInflu", label="Tilbakestill valg"),
-                      ),
-
-                      mainPanel(
-                        width = 9,
-                        #h3('Siden er under utvikling... ', style = "color:red"),
-                        uiOutput('TittelInflu'),
-                        h4('Alle resultater er basert på opphold. (Det er ikke gjort noen aggregering på person.)'),
-                        br(),
-                        tabsetPanel(
-                          id = 'influensa',
-                          tabPanel(
-                            'Oppsummeringer',
-                            h3('Utvalg som er gjort:'),
-                            uiOutput('UtvalgInflu'),
-                            #h4('Merk at resultatene er basert på til dels ikke-fullstendige registreringer'),
-                            br(),
-
-                            fluidRow(
-                              column(width = 4,
-                                     h3('Inneliggende, dvs. opphold uten registrert ut-tid fra intensiv'),
-                                     #uiOutput('utvalgNaaInflu'),
-                                     tableOutput('tabECMOrespiratorInflu')
-                              ),
-                              column(width=5, offset=1,
-                                     uiOutput('tittelFerdigeRegInflu'),
-                                     #uiOutput('utvalgFerdigeRegInflu'),
-                                     tableOutput('tabFerdigeRegInflu')
-                              )),
-
-                            br(),
-                            conditionalPanel("input.sesongInflu != 'Alle'",
-                                             h3('Antall registrerte opphold per uke'),
-                                             tableOutput('tabInfluUkeRHF')
-                                             )
-
+                          conditionalPanel("input.influensa == 'Oppsummeringer'",
+                                           selectInput(inputId = "bekrInflu", label="Bekreftet/Mistenkt",
+                                                       choices = c("Alle"=9, "Bekreftet"=1, "Mistenkt"=0)),
+                                           selectInput(inputId = "skjemastatusInflu", label="Skjemastatus",
+                                                       choices = c("Alle"=9, "Ferdistilt"=2, "Kladd"=1)
+                                           )),
+                          selectInput(inputId = "erMannInflu", label="Kjønn",
+                                      choices = c("Begge"=9, "Kvinne"=0, "Mann"=1)
                           ),
-                          tabPanel('Fordelinger',
-                                   tabsetPanel(
-                                     tabPanel('Figur',
-                                              plotOutput('fordInflu', height="auto"),
-                                              downloadButton(outputId = "LastNedFigFordInflu", label = "Last ned figur")
-                                     ),
-                                     tabPanel('Tabell',
-                                              uiOutput("tittelFordInflu"),
-                                              tableOutput('fordelingTabInflu'),
-                                              downloadButton(outputId = 'lastNed_tabFordInflu', label='Last ned tabell') #, class = "butt")
-                                     ))) #Fordelinger
-                        ))#main
-             ), #Influensaresultater
+                          selectInput(inputId = "dodIntInflu", label="Tilstand ut fra intensiv",
+                                      choices = c("Alle"=9, "Død"=1, "Levende"=0, "Ukjent"=-1)
+                          ),
+                          conditionalPanel("input.influensa == 'Fordelinger'",
+                                           selectInput(
+                                             inputId = "valgtVarInflu", label="Velg variabel",
+                                             selected = 'regForsinkelseInn',
+                                             choices = c('Alder' = 'alder',
+                                                         'Hemodynamisk overvåkn.' = 'ExtendedHemodynamicMonitoring', #- int.variabel
+                                                         'Frailty index' = 'frailtyIndex', #- int.variabel
+                                                         'Liggetid' = 'liggetid',
+                                                         'Registreringsforsinkelse, innleggelse' = 'regForsinkelseInn',
+                                                         'Respiratortid, totalt' = 'RespiratortidInt',
+                                                         'Respiratortid, ikke-invasiv' = 'respiratortidNonInv',
+                                                         'Respiratortid, invasiv' = 'respiratortidInv',
+                                                         'Risikofaktorer' = 'risikoFakt',
+                                                         'SAPSII-skår (alvorlighet av sykd.)' = 'Saps2ScoreNumber', #- int.
+                                                         'Spesielle tiltak' = 'spesTiltak'
+                                             )
+                                           )),
 
-             #-----------Abonnement--------------------------------
-             tabPanel(p("Abonnement",
-                        title='Bestill automatisk utsending av rapporter på e-post'),
-                      value = 'Abonnement',
+                          actionButton("tilbakestillValgInflu", label="Tilbakestill valg"),
+             ),
 
-                      sidebarLayout(
-                        sidebarPanel(
-                          #autoReportOrgInput("beredAbb"), #ReshId
-                          autoReportInput("beredAbb")
-                        ),
-                        shiny::mainPanel(
-                          autoReportUI("beredAbb")
-                        )
-                      )
-             ), #tab abonnement
+             mainPanel(
+               width = 9,
+               #h3('Siden er under utvikling... ', style = "color:red"),
+               uiOutput('TittelInflu'),
+               h4('Alle resultater er basert på opphold. (Det er ikke gjort noen aggregering på person.)'),
+               br(),
+               tabsetPanel(
+                 id = 'influensa',
+                 tabPanel(
+                   'Oppsummeringer',
+                   h3('Utvalg som er gjort:'),
+                   uiOutput('UtvalgInflu'),
+                   br(),
 
-             #-----------Registeradmin.------------
-             tabPanel(p("Registeradmin."),
-                      value = 'Registeradmin.',
+                   fluidRow(
+                     column(width = 4,
+                            h3('Inneliggende, dvs. opphold uten registrert ut-tid fra intensiv'),
+                            #uiOutput('utvalgNaaInflu'),
+                            tableOutput('tabECMOrespiratorInflu')
+                     ),
+                     column(width=5, offset=1,
+                            uiOutput('tittelFerdigeRegInflu'),
+                            #uiOutput('utvalgFerdigeRegInflu'),
+                            tableOutput('tabFerdigeRegInflu')
+                     )),
 
-                      tabsetPanel(
-                        tabPanel(p('Oversiktsdata',
-                                   title='Data til artikkel'),
-                                 value = 'Oversiktsdata',
+                   br(),
+                   conditionalPanel("input.sesongInflu != 'Alle'",
+                                    h3('Antall registrerte opphold per uke'),
+                                    tableOutput('tabInfluUkeRHF')
+                   )
 
-                                 sidebarLayout(
-                                   sidebarPanel(width = 4,
-                                                h3('Data fra beredskapsskjema og tilhørende intensivskjema'),
-                                                h4('Koblede RÅdata, opphold'),
-                                                h5('Rådata inneholder alle beredskapsskjema og alle variabler fra tilhørende
+                 ),
+                 tabPanel('Fordelinger',
+                          tabsetPanel(
+                            tabPanel('Figur',
+                                     plotOutput('fordInflu', height="auto"),
+                                     downloadButton(outputId = "LastNedFigFordInflu", label = "Last ned figur")
+                            ),
+                            tabPanel('Tabell',
+                                     uiOutput("tittelFordInflu"),
+                                     tableOutput('fordelingTabInflu'),
+                                     downloadButton(outputId = 'lastNed_tabFordInflu', label='Last ned tabell') #, class = "butt")
+                            ))) #Fordelinger
+               ))#main
+    ), #Influensaresultater
+
+    #-----------Abonnement--------------------------------
+    tabPanel(p("Abonnement",
+               title='Bestill automatisk utsending av rapporter på e-post'),
+             value = 'Abonnement',
+
+             sidebarLayout(
+               sidebarPanel(
+                 autoReportInput("beredAbb")
+               ),
+               shiny::mainPanel(
+                 autoReportUI("beredAbb")
+               )
+             )
+    ), #tab abonnement
+
+    #-----------Registeradmin.------------
+    tabPanel(p("Registeradmin."),
+             value = 'Registeradmin.',
+
+             tabsetPanel(
+               tabPanel(p('Oversiktsdata',
+                          title='Data til artikkel'),
+                        value = 'Oversiktsdata',
+
+                        sidebarLayout(
+                          sidebarPanel(width = 4,
+                                       h3('Data fra beredskapsskjema og tilhørende intensivskjema'),
+                                       h4('Koblede RÅdata, opphold'),
+                                       h5('Rådata inneholder alle beredskapsskjema og alle variabler fra tilhørende
                                      intensivskjema hvis dette finnes. Der variabelen finnes i begge, hentes den stort
                                      sett fra intensivskjema. Merk at ikke alle beredskapsskjema er ferdigstilte.'),
-                                                downloadButton(outputId = 'lastNed_dataBeredNIRraa', label='Last ned rådata'),
-                                                br(),
-                                                br(),
-                                                h4('Koblet aggregert datatsett: Covid-pasienter'),
-                                                h5('Inneholder alle registrerte pasienter som har ferdigstilt intensivskjema tilknyttet
+                                       downloadButton(outputId = 'lastNed_dataBeredNIRraa', label='Last ned rådata'),
+                                       br(),
+                                       br(),
+                                       h4('Koblet aggregert datatsett: Covid-pasienter'),
+                                       h5('Inneholder alle registrerte pasienter som har ferdigstilt intensivskjema tilknyttet
                                         alle sine beredskapsskjema. Datasettet inneholder bare de variabler
                                         hvor vi har definert aggregeringsregler.'),
-                                                downloadButton(outputId = 'lastNed_dataBeredNIR', label='Last ned data'),
-                                                br(),
-                                                br(),
-                                                h4('Gjør utvalg av data'),
-                                                selectInput(inputId = "erMannArt", label="Kjønn",
-                                                            choices = c("Begge"=9, "Kvinne"=0, "Mann"=1)),
-                                                br(),
-                                                br(),
-                                                h3('Valg som gjelder registeringsforsinkelse'),
-                                                selectInput(inputId = "innUtForsink", label="Velg innleggelse/utsriving",
-                                                            choices = c("Innleggelse"=1, "Utskriving"=2)),
-                                                selectInput(inputId = "pstForsink", label="Vis antall eller andel",
-                                                            choices = c("Andeler"=1, "Antall"=0)),
-                                                dateRangeInput(inputId = 'datovalgForsink', start = startDato, end = idag, #'2020-05-10',
-                                                               label = "Tidsperiode", separator="t.o.m.", language="nb"
-                                                ),
-                                                br(),
-                                                h4('Hvis man av en eller annen grunn ønsker å oppdatere staging-data utenom de faste oppdateringstidene, trykk på knappen:'),
-                                                actionButton("oppdatStaging", "Oppdater stagingdata")
-                                   ),
-                                   mainPanel(
-                                     br(),
-                                     h4('Div andeler...'),
-                                     tableOutput('tabAndeler'),
-                                     br(),
-                                     h4('Div. sentralmål...'),
-                                     tableOutput('tabSentralmaal'),
-                                     br(),
-                                     br(),
-                                     h3('Registeringsforsinkelse, antall dager'),
-                                     h4('Tabellen viser fordeling av registreringsforsinkelse per enhet.
+                                       downloadButton(outputId = 'lastNed_dataBeredNIR', label='Last ned data'),
+                                       br(),
+                                       br(),
+                                       h4('Gjør utvalg av data'),
+                                       selectInput(inputId = "erMannArt", label="Kjønn",
+                                                   choices = c("Begge"=9, "Kvinne"=0, "Mann"=1)),
+                                       br(),
+                                       br(),
+                                       h3('Valg som gjelder registeringsforsinkelse'),
+                                       selectInput(inputId = "innUtForsink", label="Velg innleggelse/utsriving",
+                                                   choices = c("Innleggelse"=1, "Utskriving"=2)),
+                                       selectInput(inputId = "pstForsink", label="Vis antall eller andel",
+                                                   choices = c("Andeler"=1, "Antall"=0)),
+                                       dateRangeInput(inputId = 'datovalgForsink', start = startDato, end = idag, #'2020-05-10',
+                                                      label = "Tidsperiode", separator="t.o.m.", language="nb"
+                                       ),
+                                       br(),
+                                       h4('Hvis man av en eller annen grunn ønsker å oppdatere staging-data utenom de faste oppdateringstidene, trykk på knappen:'),
+                                       actionButton("oppdatStaging", "Oppdater stagingdata")
+                          ),
+                          mainPanel(
+                            br(),
+                            h4('Div andeler...'),
+                            tableOutput('tabAndeler'),
+                            br(),
+                            h4('Div. sentralmål...'),
+                            tableOutput('tabSentralmaal'),
+                            br(),
+                            br(),
+                            h3('Registeringsforsinkelse, antall dager'),
+                            h4('Tabellen viser fordeling av registreringsforsinkelse per enhet.
                              Tallene i tabellen er fordeling over gitte antall dager, angitt i prosent'),
-                                     uiOutput("tabRegForsinkEnhet"),
-                                     downloadButton(outputId = 'lastNed_tabForsink', label='Last ned tabell') #, class = "butt")
-                                   )
-                                 )
-                        ), #tab artikkelarb
+                            uiOutput("tabRegForsinkEnhet"),
+                            downloadButton(outputId = 'lastNed_tabForsink', label='Last ned tabell') #, class = "butt")
+                          )
+                        )
+               ), #tab artikkelarb
 
-                        tabPanel(p('Utsendinger',
-                                   title = 'Administrer utsending av rapporter'),
-                                 value = 'Utsendinger',
+               tabPanel(p('Utsendinger',
+                          title = 'Administrer utsending av rapporter'),
+                        value = 'Utsendinger',
 
-                                 shiny::sidebarLayout(
-                                   shiny::sidebarPanel(
-                                     autoReportOrgInput("beredUts"), #Definert slik at RHFnavn/HFnavn benyttes
-                                     autoReportInput("beredUts")
-                                   ),
-                                   shiny::mainPanel(
-                                     autoReportUI("beredUts")
-                                   )
-                                 )
-                        ) #Tab utsending
-                      ) #tabset
-             ) #hovedark Registeradm
+                        shiny::sidebarLayout(
+                          shiny::sidebarPanel(
+                            autoReportOrgInput("beredUts"), #Definert slik at RHFnavn/HFnavn benyttes
+                            autoReportInput("beredUts")
+                          ),
+                          shiny::mainPanel(
+                            autoReportUI("beredUts")
+                          )
+                        )
+               ) #Tab utsending
+             ) #tabset
+    ) #hovedark Registeradm
   ) # navbarPage
 ) # tagList
 
@@ -893,7 +836,7 @@ server <- function(input, output, session) {
 
   #----------Figurer, modul og fordelinger #################################
 
-  callModule(koronafigurer, "koronafigurer_id", rolle = rolle, CoroData = CoroData, egetRHF = egetRHF, reshID=reshID)
+  callModule(covidfigurer, "covidfigurer_id", rolle = rolle, CoroData = CoroData, egetRHF = egetRHF, reshID=reshID)
 
 
   output$fordelinger <- renderPlot({
@@ -1002,13 +945,9 @@ server <- function(input, output, session) {
 
 
   output$tabInfluUkeRHF <- renderTable({
-    TabUkeRHFinflu <- InfluensaUkeRHF(RegData=UtDataInflu$RegData, alleUker=0,
-                                      # InfluData,
-                                      # bekr=as.numeric(input$bekrInflu),
-                                      # skjemastatus=as.numeric(input$skjemastatusInflu),
-                                      # dodInt = as.numeric(input$dodIntInflu),
-                                      # erMann = as.numeric(input$erMannInflu),
-                                       sesong=input$sesongInflu)
+    TabUkeRHFinflu <- InfluensaUkeRHF(
+      RegData=UtDataInflu$RegData, alleUker=0,
+      sesong=input$sesongInflu)
     xtable::xtable(TabUkeRHFinflu)}, rownames = T, digits=0, spacing="xs"
   )
 

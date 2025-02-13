@@ -115,7 +115,7 @@ options(replace.assign=TRUE, width=90) #, warnings=FALSE, echo=FALSE, fig.align=
 %\section{Informasjonsgrunnlag og ansvarsforhold}
 \section*{Bakgrunn}
 
-Denne rapporten inneholder samling av resultater og oppsummeringer fra koronapasienter
+Denne rapporten inneholder samling av resultater og oppsummeringer fra covidpasienter
 registert i norsk Intensivregister.
 \textbf{Data er ikke kvalitetssikret}
 

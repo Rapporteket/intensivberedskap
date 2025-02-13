@@ -23,8 +23,6 @@ henteSamlerapporterBered <- function(filnavn, rnwFil, #Rpakke='intensivberedskap
 
   gc() #Opprydning gc-"garbage collection"
   file.copy(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), filnavn)
-  # file.rename(paste0(substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf'), file)
-  # file.copy('tmpNIRinfluensa.pdf', '~/intensivberedskap/tmpNIRinfluensa.pdf')
 }
 
 
@@ -53,10 +51,7 @@ abonnementBeredsk <- function(rnwFil,
     rnwFil <- 'BeredskapCorona.Rnw'
     enhetsNivaa <- dum[[1]][1]
   }
-  # rapbase::autLogger(user = brukernavn, registryName = 'NIR - Beredskap', fun = 'abonnementBeredsk',
-  #                   reshId = reshID, name = brukernavn, pkg = 'intensivberedskap',
-  #                   param = c('RHF_BeredskapCorona.Rnw', 'reshID'),
-  #                   msg = "starter Abonnement: Corona-rapport")
+
   filbase <- substr(rnwFil, 1, nchar(rnwFil)-4)
   tmpFile <- paste0(filbase, Sys.Date(),'_',digest::digest(brukernavn), '.Rnw')
   src <- normalizePath(system.file(rnwFil, package=Rpakke))
@@ -68,16 +63,14 @@ abonnementBeredsk <- function(rnwFil,
 
   #gc() #Opprydning gc-"garbage collection"
   utfil <- paste0(dir, '/', substr(tmpFile, 1, nchar(tmpFile)-3), 'pdf')
-  # raplog::subLogger(author = brukernavn, registryName = 'NIR - beredskap',
-  #                   reshId = reshID,
-  #                   msg = paste("Leverer: ", utfil, 'enhetsnivå: ', enhetsNivaa))
+
   return(utfil)
 }
 
 
-#' Koble med intensivdata. Ferdigstilte intensivdata. Kan inneholdeberedskapsdata i kladd
+#' Koble med intensivdata. Ferdigstilte intensivdata. Kan inneholde beredskapsdata i kladd
 #'
-#' @return
+#' @return Koblet datasett intensiv- og beredskapsskjema
 #' @export
 BeredskIntensivData <- function(){
 
@@ -100,7 +93,6 @@ names(IntDataRaa)[hvilkeIntvar] <- paste0(names(IntDataRaa)[hvilkeIntvar], 'Int'
 
 BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, #suffixes = c('','Int'),
                       by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = F, all.y=F)
-#intvar <- names(BeredIntRaa)[grep('Int', names(BeredIntRaa))]
 varMed <- c('Age', 'AgeAdmitted', 'IsAsthmaticPatient', 'Bilirubin', 'Birthdate', 'BrainDamage',
             'Bukleie', 'ChronicDiseases', 'IsDiabeticPatient', 'Diagnosis', 'DischargedIntensiveStatus',
             'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
@@ -147,10 +139,6 @@ lagStagingData <- function() {
    BeredIntPas <- if (dim(BeredIntRaa)[1]>0) { #OK
      NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
    } else {0}
-
-   # test1 <- data.frame(matrix(1:15, nrow = 5, ncol = 3, dimnames = list(row_names = 1:5, colnames = c('id', 'a', 'b'))))
-   # test2 <- data.frame(matrix(c(1:5, 101:110), nrow = 5, ncol = 3, dimnames = list(row_names = 1:5, colnames = c('id', 'c', 'd'))))
-   # merge(test1, test2, by='id')
 
    InfluData <- NIRsqlPreInfluensa() #OK
    InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1) #OK

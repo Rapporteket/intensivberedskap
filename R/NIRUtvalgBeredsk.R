@@ -14,7 +14,7 @@
 #' @param reshID reshID fra innlogging
 #' @param velgAvd valgt reshID
 #'
-#' @return
+#' @return Filtrert datasett samt tekst som angir hvilke filtreringer som er gjort
 #' @export
 NIRUtvalgBeredsk <- function(RegData, datoFra=0, datoTil=0, erMann=9, minald=0, maxald=110, #enhetsUtvalg=0,
                              bekr=9, skjemastatus=9, resp=9, respIN=9, datovar='InnDato',

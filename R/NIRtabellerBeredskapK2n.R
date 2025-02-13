@@ -4,7 +4,7 @@
 #'
 #' @inheritParams TabTidEnhet
 #'
-#' @return
+#' @return tabell med antall per enheter og tidsenheter
 #' @export
 antallTidUtskrevneNIRberedskap <- function(RegData, tidsenhet='dag', erMann=9, resp=9,
                                            datoFra=0, datoTil=Sys.Date(), bekr=9, skjemastatus=9,
@@ -25,9 +25,9 @@ antallTidUtskrevneNIRberedskap <- function(RegData, tidsenhet='dag', erMann=9, r
                                  dag = factor(format(RegDataAlle$UtDato, '%d.%m.%y'),
                                               levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$UtDato, na.rm = T),
                                                                       by=paste0('-1 day'))), '%d.%m.%y')),
-                                 uke = factor(paste0('Uke ', format(RegDataAlle$UtDato, '%V.%y')),
+                                 uke = factor(paste0('Uke ', format(RegDataAlle$UtDato, '%V.%g')),
                                               levels = paste0('Uke ', format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else min(RegDataAlle$UtDato, na.rm = T),
-                                                                                     by=paste0('-1 week'))), '%V.%y'))),
+                                                                                     by=paste0('-1 week'))), '%V.%g'))),
                                  maaned = factor(format(RegDataAlle$UtDato, '%b %y'),
                                                  levels = format(rev(seq(Sys.Date(), if (datoFra!=0) datoFra else
                                                    min(RegDataAlle$UtDato, na.rm = T), by=paste0('-1 month'))), '%b %y')))
@@ -53,7 +53,7 @@ antallTidUtskrevneNIRberedskap <- function(RegData, tidsenhet='dag', erMann=9, r
       TabTidEnh <- matrix(0, ncol=1, nrow=length(levels(RegData$TidsVar)) + 1,
                           dimnames = list(c(levels(RegData$TidsVar), 'Totalt'), valgtRHF)) #table(RegData$TidsVar)
     }else{
-      TabTidEnh <- table(RegData[ , c('TidsVar', enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
+      TabTidEnh <- table(RegData[ , c('TidsVar', enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Covid')], row.vars =TidsVar)
       TabTidEnh <- addmargins(TabTidEnh, FUN=list('Totalt'=sum, 'Hele landet' = sum), quiet=TRUE)
       colnames(TabTidEnh)[ncol(TabTidEnh)] <- kolNavnSum
     }
@@ -75,7 +75,7 @@ antallTidUtskrevneNIRberedskap <- function(RegData, tidsenhet='dag', erMann=9, r
 #' @param datoer datoer som inneligging skal avgjøres for
 #' @param regdata Dataramme som inneholder InnDato og Utdato per pasient
 #'
-#' @return
+#' @return angir om pasienten var innelggende på gitt tidspunkt
 #' @export
 erInneliggende <- function(datoer, regdata){
   # regnes som inneliggende på aktuell dato hvis den faller mellom inn- og utdato eller
@@ -118,7 +118,7 @@ tr_summarize_output <- function(x, grvarnavn=''){
 #' ('RHF', 'HF', 'ShNavn') resultatene skal vises for
 #' @inheritParams NIRUtvalgBeredsk
 #'
-#' @return
+#' @return inneliggende per enhet og tidsenhet
 #' @export
 antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
                                   bekr=9, skjemastatus=9, dodInt=9, valgtRHF='Alle', velgAvd=0){
@@ -155,7 +155,7 @@ antallTidInneliggendeBeredskap <- function(RegData, tidsenhet='dag', erMann=9, r
   }
 
   switch (tidsenhet,
-          uke = datoer <- unique(paste0('Uke ', format(datoer, '%V.%y'))),
+          uke = datoer <- unique(paste0('Uke ', format(datoer, '%V.%g'))),
           maaned = datoer <- unique(format(datoer, '%b %y')))
   if (tidsenhet %in% c("uke", "maaned")) {
     names(datoer) <- datoer

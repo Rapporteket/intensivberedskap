@@ -25,14 +25,16 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
                          levels = format(rev(seq(Sys.Date(),
                                                  if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
                                                  by=paste0('-1 day'))), '%d.%m.%y')),
-            uke = factor(paste0('Uke ', format(RegDataAlle$InnDato, '%V.%y')),
-                         levels = paste0('Uke ', format(rev(seq(Sys.Date(),
-                                                                if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
-                                                                by=paste0('-1 week'))), '%V.%y'))),
+            uke = factor(paste0('Uke ', format(RegDataAlle$InnDato, '%V.%g')),
+                         levels = paste0('Uke ',
+                                         format(rev(seq(Sys.Date(),
+                                                        if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
+                                                        by=paste0('-1 week'))), '%V.%g'))),
             maaned = factor(format(RegDataAlle$InnDato, '%b %y'),
                             levels = format(rev(seq(Sys.Date(),
                                                     if (datoFra!=0) datoFra else min(RegDataAlle$InnDato),
                                                     by=paste0('-1 month'))), '%b %y')))
+
   RegDataAlle <- RegDataAlle[!is.na(RegDataAlle$TidsVar), ]
   RegData <- if(valgtRHF=='Alle') {RegDataAlle} else {RegDataAlle[RegDataAlle$RHF == valgtRHF, ]}
   Ntest <- dim(RegData)[1]
@@ -52,7 +54,7 @@ TabTidEnhet <- function(RegData, tidsenhet='dag', erMann=9, resp=9, datoFra=0,
       TabTidEnh <- matrix(0, ncol=1, nrow=length(levels(RegData$TidsVar)) + 1,
                           dimnames = list(c(levels(RegData$TidsVar), 'Totalt (fra 10.mars)'), valgtRHF)) #table(RegData$TidsVar)
     }else{
-      TabTidEnh <- table(RegData[ , c('TidsVar', enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Korona')], row.vars =TidsVar)
+      TabTidEnh <- table(RegData[ , c('TidsVar', enhetsNivaa)]) #ftable(RegData[ , c(TidsVar, enhetsNivaa, 'Covid')], row.vars =TidsVar)
       TabTidEnh <- addmargins(TabTidEnh, FUN=list('Totalt'=sum, 'Hele landet' = sum), quiet=TRUE)
       colnames(TabTidEnh)[ncol(TabTidEnh)] <- kolNavnSum
     }

@@ -2,10 +2,13 @@
 % Please edit documentation in R/NIRberedHjelpefunk.R
 \name{BeredskIntensivData}
 \alias{BeredskIntensivData}
-\title{Koble med intensivdata. Ferdigstilte intensivdata. Kan inneholdeberedskapsdata i kladd}
+\title{Koble med intensivdata. Ferdigstilte intensivdata. Kan inneholde beredskapsdata i kladd}
 \usage{
 BeredskIntensivData()
 }
+\value{
+Koblet datasett intensiv- og beredskapsskjema
+}
 \description{
-Koble med intensivdata. Ferdigstilte intensivdata. Kan inneholdeberedskapsdata i kladd
+Koble med intensivdata. Ferdigstilte intensivdata. Kan inneholde beredskapsdata i kladd
 }
