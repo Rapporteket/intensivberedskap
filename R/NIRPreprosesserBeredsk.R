@@ -343,8 +343,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$Halvaar <- ceiling(RegData$MndNum/6)
    RegData$Aar <- factor(format(RegData$InnDato, '%Y'),
                          levels = min(as.numeric(format(RegData$InnDato, '%Y'))):max(as.numeric(format(RegData$InnDato, '%Y'))))
-   RegData$UkeNr <- factor(format(RegData$InnDato, '%V.%Y'),
-                           levels = min(as.numeric(format(RegData$InnDato, '%V.%Y'))):max(as.numeric(format(RegData$InnDato, '%V.%Y'))))
+   RegData$UkeNr <- factor(format(RegData$InnDato, '%V.%G'),
+                           levels = min(as.numeric(format(RegData$InnDato, '%V.%G'))):max(as.numeric(format(RegData$InnDato, '%V.%G'))))
    RegData$Dag <- factor(format(RegData$InnDato, '%d.%m.%y'),
                          levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
 
