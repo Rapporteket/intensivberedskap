@@ -16,8 +16,7 @@ Depends:
     R (>= 3.5.0)
 Remotes: 
       Rapporteket/rapbase@*main,
-      Rapporteket/rapFigurer,
-      Rapporteket/sship
+      Rapporteket/rapFigurer
 Imports:
     digest,
     DT,
@@ -30,12 +29,9 @@ Imports:
     shiny,
     shinyalert,
     shinyjs,
-    sship,
     testthat,
     tidyverse,
     tools,
-    xtable,
-    zip,
-    zoo,
+    xtable
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3

@@ -1097,36 +1097,6 @@ server <- function(input, output, session) {
   }) #observe
 
 
-
-
-  #Abonnement, filer til FHI kopi fra korona
-  observeEvent(input$bestillDataTilFHI, { #MÅ HA
-    owner <- rapbase::getUserName(session)
-    organization <- rapbase::getUserReshId(session)
-    email <- rapbase::getUserEmail(session)
-    interval <- "DSTday"
-    intervalName <- "Daglig"
-    runDayOfYear <- rapbase::makeRunDayOfYearSequence(interval = interval)
-    paramNames = c('zipFilNavn', 'brukernavn')
-    paramValues = c(input$hvilkeFilerTilFHI, brukernavn)
-    rapbase::createAutoReport(synopsis = paste0('Sendt til FHI: ',input$hvilkeFilerTilFHI),
-                              package = 'intensivberedskap',
-                              fun = "InfluensadataTilFHI",
-                              paramNames = paramNames,
-                              paramValues = paramValues,
-                              owner = owner,
-                              email = email, organization = organization,
-                              runDayOfYear = runDayOfYear,
-                              interval = interval,
-                              intervalName = intervalName)
-
-    subscription$tab <-
-      rapbase::makeAutoReportTab(session, type = "subscription")
-
-  })
-
-
-
   #-----------Registeradmin.------------
   BeredIntPasBekr <- BeredIntPas[which(BeredIntPas$Bekreftet==1), ]# 2020-05-11),
 
