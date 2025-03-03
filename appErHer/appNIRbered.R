@@ -6,15 +6,13 @@ library(intensivberedskap)
 
 addResourcePath('rap', system.file('www', package='rapbase'))
 context <- Sys.getenv("R_RAP_INSTANCE") #Blir tom hvis jobber lokalt
-paaServer <- context %in% c("DEV", "TEST", "QA", "PRODUCTION")
+paaServer <- (context %in% c("DEV", "TEST", "QA","QAC", "PRODUCTION", "PRODUCTIONC"))
 
 idag <- Sys.Date()
 datoTil <- as.POSIXlt(idag)
 startDato <- '2020-03-01'
 
-regTitle <- ifelse(paaServer,
-                   paste0('Norsk Intensiv- og pandemiregister, Beredskapsregistrering ',ifelse(context=='QA', 'QA','')),
-                   'Norsk Intensivregister med FIKTIVE data')
+
 
 #---------Hente data------------
 
@@ -46,6 +44,7 @@ sesongValg <- c('Alle', sort(unique(InfluData$Sesong)))
 RHFvalgInflu <- c('Alle', unique(as.character(InfluData$RHF)))
 names(RHFvalgInflu) <- RHFvalgInflu
 
+regTitle <- paste0('Norsk Intensiv- og kriseregister, Beredskapsregistrering ',ifelse(context=='QA', 'QA',''))
 
 source(system.file("shinyApps/intensivberedskap/R/covidfigurer_modul.R", package = "intensivberedskap"), encoding = 'UTF-8')
 
@@ -106,15 +105,12 @@ ui <- tagList(
                                       label = "Velg format for nedlasting av figur",
                                       choices = c('pdf', 'png', 'jpg', 'bmp', 'tif', 'svg'))
 
-                          # dateRangeInput(inputId = 'datovalg', start = startDato, end = idag,
-                          #                label = "Tidsperiode", separator="t.o.m.", language="nb" #)
-                          # ),
              ),
              mainPanel(width = 9,
-                       appNavbarUserWidget(user = uiOutput("appUserName"),
-                                           organization = uiOutput("appOrgName"),
-                                           addUserInfo = TRUE),
                        tags$head(tags$link(rel="shortcut icon", href="rap/favicon.ico")),
+                       if (paaServer) {
+                         rapbase::navbarWidgetInput("navbar-widget", selectOrganization = TRUE)
+                       },
 
                        h3('Resultater fra intensivregisterets beredskapsskjema for mistenkt/bekreftet
                        Coronasmitte.'),
@@ -124,7 +120,6 @@ ui <- tagList(
                        fluidRow(
                          column(width = 4,
                                 h4('Forløp uten registrert ut-tid fra intensiv'), #, align='center'),
-                                #uiOutput('liggetidNaa'),
                                 uiOutput('utvalgNaa'),
                                 tableOutput('tabECMOrespirator'),
                                 br(),
@@ -452,52 +447,71 @@ server <- function(input, output, session) {
   if (context %in% c('QA', 'PRODUCTION')){
     rapbase::appLogger(session = session, msg = "Starter Corona-app")}
 
-  reshID <- ifelse(paaServer, as.numeric(rapbase::getUserReshId(session)), 42088921) # 42088921
-
-  rolle <- ifelse(paaServer, rapbase::getUserRole(shinySession=session), 'SC')
   brukernavn <- ifelse(paaServer, rapbase::getUserName(shinySession=session), 'brukernavn')
 
-  finnesEgenResh <- reshID %in% unique(CoroData$ReshId)
+  map_avdeling <- data.frame(
+    UnitId = unique(CoroData$ReshId),
+    orgname = CoroData$ShNavn[match(unique(CoroData$ReshId),
+                                   CoroData$ReshId)])
+  #user inneholder både reshID: user$org() og  rolle: user$role()
+  # "name", "fullName", "phone", "email", "group", "unit", "org", "role", "orgName"
+  user <- rapbase::navbarWidgetServer2(
+    id = "navbar-widget",
+    orgName = "intensivberedskap",
+    map_orgname = shiny::req(map_avdeling),
+    caller = "intensivberedskap"
+  )
+
+
+
+  finnesEgenResh <- user$org() %in% unique(CoroData$ReshId)
   if (finnesEgenResh) {
-    indReshEgen <- match(reshID, CoroData$ReshId)
+    indReshEgen <- match(user$org(), CoroData$ReshId)
     egetShNavn <- as.character(CoroData$ShNavn[indReshEgen])
     egetRHF <- as.character(CoroData$RHF[indReshEgen])
     egetHF <- as.character(CoroData$HF[indReshEgen])
   } else {
     egetRHF <- 'Ukjent'
   }
-  #18.jan. 2022 egetRHF <- ifelse(rolle=='SC', 'Alle', egetRHF)
 
-  observe({
-    if ((rolle != 'SC') & !(finnesEgenResh)) { #
+  observeEvent(user$role(), {
+    if ((user$role() != 'SC') & !(finnesEgenResh)) { #
       shinyjs::hide(id = 'CoroRapp.pdf')
       shinyjs::hide(id = 'CoroRappTxt')
       hideTab(inputId = "hovedark", target = "Abonnement")
+    } else {
+      shinyjs::show(id = 'CoroRapp.pdf')
+      shinyjs::show(id = 'CoroRappTxt')
     }
-    if (!(brukernavn %in% c('lenaro', 'kevin.thon',
-                            'Reidar', 'eabu', 'eivh', 'mariawa-he', 'helkri'))) {
+
+
+    # if (!(brukernavn %in% c('lenaro', 'kevin.thon',
+    #                         'Reidar', 'eabu', 'eivh', 'mariawa-he', 'helkri'))) {
+    if (user$role() == 'CC')  { #Velger ny rolle i stedet for spesifikke navn
+      shinyjs::show(id = 'lastNed_dataBeredNIRraa')
+      shinyjs::show(id = 'lastNed_dataBeredNIR')
+      showTab(inputId = "hovedark", target = "Registeradmin.")
+    } else {
       shinyjs::hide(id = 'lastNed_dataBeredNIRraa')
       shinyjs::hide(id = 'lastNed_dataBeredNIR')
-    }
-    if (!(brukernavn %in% c('lenaro', 'Reidar', 'eabu', 'eivh',
-                            'jlaake', 'mariawa-he', 'helkri',
-                            'kevin.thon'))) { #jlaake-ikke datafiler
       hideTab(inputId = "hovedark", target = "Registeradmin.")
     }
-  })
-  if (rolle != 'SC') {
+   })
+
+
+  if (user$role() != 'SC') {
     updateSelectInput(session, "valgtRHF",
                       choices = unique(c('Alle', ifelse(egetRHF=='Ukjent', 'Alle',
                                                         egetRHF))))
-  }
+    }
 
 
   # widget
   if (paaServer) {
     output$appUserName <- renderText(rapbase::getUserFullName(session))
-    output$appOrgName <- renderText(paste0('rolle: ', rolle,
-                                           ', bruker: ', brukernavn,
-                                           '<br> ReshID: ', reshID) )}
+    output$appOrgName <- renderText(paste0('rolle: ', user$role(),
+                                           ', bruker: ', user$name(),
+                                           '<br> ReshID: ', user$org()) )}
 
   # User info in widget
   userInfo <- rapbase::howWeDealWithPersonalData(session)
@@ -512,8 +526,6 @@ server <- function(input, output, session) {
 
   #-------- Laste ned Samlerapport------------
   observe({
-    #valgtRHF <- ifelse(rolle == 'LU', egetRHF, as.character(input$valgtRHF))
-    #valgtNivaa <- ifelse(rolle == 'LU', 'HF', as.character(input$valgtNivaa))
 
     output$CoroRapp.pdf <- downloadHandler(
       filename = function(){
@@ -522,7 +534,7 @@ server <- function(input, output, session) {
         henteSamlerapporterBered(file, rnwFil="BeredskapCorona.Rnw",
                                  enhetsNivaa = as.character(input$valgtNivaa),
                                  #valgtRHF = valgtRHF,
-                                 reshID = reshID)
+                                 reshID = user$org())
       }
     )
   })
@@ -548,7 +560,7 @@ server <- function(input, output, session) {
 
   observe({
 
-    valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+    valgtRHF <- ifelse(user$role() == 'SC', as.character(input$valgtRHF), egetRHF)
 
     AntTab <- TabTidEnhet(RegData=CoroData, tidsenhet='dag',
                           valgtRHF= valgtRHF,
@@ -600,7 +612,7 @@ server <- function(input, output, session) {
 
     # Inneliggende per HF
     output$tabInneliggHF <- renderTable({
-      if (rolle == 'LU') {CoroData <- CoroData[which(CoroData$RHF == egetRHF), ]}
+      if (user$role() == 'LU') {CoroData <- CoroData[which(CoroData$RHF == egetRHF), ]}
       inneligg <- is.na(CoroData$DateDischargedIntensive)
       RegHF <- CoroData[inneligg,] %>% dplyr::group_by(RHFut, HFut) %>% dplyr::summarise(Antall = n(), .groups = 'keep')
       colnames(RegHF) <- c('RHF', 'HF', 'Antall')
@@ -636,8 +648,8 @@ server <- function(input, output, session) {
 
       AntBurdeFerdig <-
         c( #tittel,
-          if (rolle=='LU' & finnesEgenResh) {
-            paste0(finnBurdeFerdig(CoroData[(which(CoroData$ReshId==reshID)), ]),' skjema for ', egetShNavn)},
+          if (user$role()=='LU' & finnesEgenResh) {
+            paste0(finnBurdeFerdig(CoroData[(which(CoroData$ReshId==user$org())), ]),' skjema for ', egetShNavn)},
           if (valgtRHF=='Alle') {
             paste0(finnBurdeFerdig(CoroData), ' skjema for hele landet')
           } else {
@@ -683,7 +695,7 @@ server <- function(input, output, session) {
   #Ferdigstilte beredskapsskjema uten ferdigstilt intensivskjema:
   observe({
 
-    ManglerIntSkjemaTab <- ManglerIntSkjema(reshID = ifelse(rolle == 'SC', 0, reshID)
+    ManglerIntSkjemaTab <- ManglerIntSkjema(reshID = ifelse(user$role() == 'SC', 0, user$org())
                                             ,datoFra = input$datoFraMI)
 
     ManglerIntSkjemaTab$FormDate <- as.character(ManglerIntSkjemaTab$FormDate)
@@ -714,20 +726,20 @@ server <- function(input, output, session) {
     CovidRappAlle = list(
       synopsis = "Intensivpasienter med covid-19: Hele landet",
       fun = "abonnementBeredsk",
-      paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
-      paramValues = c('Alle_BeredskapCorona.Rnw', reshID) #'Alle')
+      paramNames = c('rnwFil', 'reshID'),
+      paramValues = c('Alle_BeredskapCorona.Rnw', user$org()) #'Alle')
     ),
     CovidRappRHF = list(
       synopsis = "Intensivpasienter med covid-19: RHF",
       fun = "abonnementBeredsk",
-      paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
-      paramValues = c('RHF_BeredskapCorona.Rnw', reshID) #'Alle')
+      paramNames = c('rnwFil', 'reshID'),
+      paramValues = c('RHF_BeredskapCorona.Rnw', user$org()) #'Alle')
     ),
     CovidRappHF = list(
       synopsis = "Intensivpasienter med covid-19: HF",
       fun = "abonnementBeredsk",
-      paramNames = c('rnwFil', 'reshID'), #"valgtRHF"),
-      paramValues = c('HF_BeredskapCorona.Rnw', reshID) #'Alle')
+      paramNames = c('rnwFil', 'reshID'),
+      paramValues = c('HF_BeredskapCorona.Rnw', user$org()) #'Alle')
     ),
     InfluensaRapp = list(
       synopsis = "Influensarapport",
@@ -737,11 +749,22 @@ server <- function(input, output, session) {
     )
   )
 
-  autoReportServer(
-    id = "beredAbb", registryName = "intensivberedskap", type = "subscription",
-    org = orgAbb$value, paramNames = paramNames, paramValues = paramValues, #Ta bort org = orgAbb$value?
-    reports = reports, orgs = orgsAbb, eligible = TRUE
+  rapbase::autoReportServer2(
+    id = "beredAbb",
+    registryName = "intensivberedskap",
+    type = "subscription",
+    #paramNames = paramNames, paramValues = paramValues,
+    reports = reports,
+    orgs = orgsAbb,
+    eligible = TRUE,
+    user = user
   )
+
+  # autoReportServer(
+  #   id = "beredAbb", registryName = "intensivberedskap", type = "subscription",
+  #   org = orgAbb$value, paramNames = paramNames, paramValues = paramValues, #Ta bort org = orgAbb$value?
+  #   reports = reports, orgs = orgsAbb, eligible = TRUE
+  # )
 
   #------------Utsending-----------------
 
@@ -749,6 +772,7 @@ server <- function(input, output, session) {
   orgs <- navnUtsendingVerdi #rhfNavn. sykehusValg har enhetsnavn med verdi resh
   names(orgs) <- navnUtsending
   orgs <- as.list(orgs)
+  org <- autoReportOrgServer("beredUts", orgs)
 
   ## make a list for report metadata
   reports <- list(
@@ -766,22 +790,33 @@ server <- function(input, output, session) {
     )
   )
 
-  org <- autoReportOrgServer("beredUts", orgs)
 
   # set reactive parameters overriding those in the reports list
   paramNames <- shiny::reactive("nivaaNavn")
-  paramValues <- shiny::reactive(org$value())
+  paramValues <- shiny::reactive(org$value()) #Lena - ajekk om riktig verdi
 
+  rapbase::autoReportServer2(
+    id = "beredUts",
+    registryName = "intensivberedskap",
+    type = "dispatchment",
+    org = org$value,
+    paramNames = paramNames,
+    paramValues = paramValues,
+    reports = reports,
+    orgs = orgs,
+    eligible = (user$role() == "SC"),
+    user = user  )
 
-  autoReportServer(
-    id = "beredUts", registryName = "intensivberedskap", type = "dispatchment",
-    org = org$value, paramNames = paramNames, paramValues = paramValues,
-    reports = reports, orgs = orgs, eligible = TRUE
-  )
+  # autoReportServer(
+  #   id = "beredUts", registryName = "intensivberedskap", type = "dispatchment",
+  #   org = org$value, paramNames = paramNames, paramValues = paramValues,
+  #   reports = reports, orgs = orgs, eligible = TRUE
+  # )
+
 
   #---------------- Alders- og kjønnsfordeling #####################
   output$FigurAldersfordeling <- renderPlot({
-    valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+    valgtRHF <- ifelse(user$role() == 'SC', as.character(input$valgtRHF), egetRHF)
     intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', resp=as.numeric(input$resp),
                                               valgtRHF= valgtRHF, dodInt=as.numeric(input$dodInt),
                                               skjemastatus=as.numeric(input$skjemastatus),
@@ -795,7 +830,7 @@ server <- function(input, output, session) {
 
     content = function(file){
       intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', dodInt=as.numeric(input$dodInt),
-                                                valgtRHF= ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
+                                                valgtRHF= ifelse(user$role() == 'SC', as.character(input$valgtRHF), egetRHF),
                                                 skjemastatus=as.numeric(input$skjemastatus), resp=as.numeric(input$resp),
                                                 bekr=as.numeric(input$bekr), outfile = file)
     }
@@ -803,7 +838,7 @@ server <- function(input, output, session) {
 
 
   output$tabAlder <- function() {
-    valgtRHF <- ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF)
+    valgtRHF <- ifelse(user$role() == 'SC', as.character(input$valgtRHF), egetRHF)
     Tabell <- intensivberedskap::FigFordelingKjonnsdelt(RegData = CoroData, valgtVar = 'Alder', resp=as.numeric(input$resp),
                                                         valgtRHF= valgtRHF, dodInt=as.numeric(input$dodInt),
                                                         skjemastatus=as.numeric(input$skjemastatus),
@@ -825,7 +860,7 @@ server <- function(input, output, session) {
           RegData = CoroData,
           valgtVar = 'Alder',
           resp=as.numeric(input$resp),
-          valgtRHF = ifelse(rolle == 'SC', as.character(input$valgtRHF), egetRHF),
+          valgtRHF = ifelse(user$role() == 'SC', as.character(input$valgtRHF), egetRHF),
           skjemastatus=as.numeric(input$skjemastatus),
           dodInt=as.numeric(input$dodInt),
           bekr=as.numeric(input$bekr))
@@ -836,7 +871,7 @@ server <- function(input, output, session) {
 
   #----------Figurer, modul og fordelinger #################################
 
-  callModule(covidfigurer, "covidfigurer_id", rolle = rolle, CoroData = CoroData, egetRHF = egetRHF, reshID=reshID)
+  callModule(covidfigurer, "covidfigurer_id", rolle = user$role(), CoroData = CoroData, egetRHF = egetRHF, reshID = user$org())
 
 
   output$fordelinger <- renderPlot({

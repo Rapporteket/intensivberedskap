@@ -227,9 +227,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
          )
    } #aggPers
 
-   # pers <- RegData$PersonId[RegData$InvNonIBegge==1 & RegData$AntRegPrPas>1]
-   # test <- BeredDataRaa[which(BeredDataRaa$PersonId %in% pers), c('PersonId','MechanicalrespiratorType')]
-   # tab <- table(test)
 
    if (kobleInt==1){
       # #Fjerner  uten intensivskjema
@@ -311,8 +308,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$Kjonn <- factor(RegData$erMann, levels=0:1, labels=c('kvinner','menn'))
 
 
-
-   #unique(RegData[RegData$RHF=='Privat',c(ShNavn, UnitId, RHF)])
 
    #Riktig format på datovariable:
    #Benytter FormDate i stedet for DateAdmitted. De er like men FormDate er alltid utfylt.
