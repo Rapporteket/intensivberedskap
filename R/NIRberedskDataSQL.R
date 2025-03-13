@@ -16,7 +16,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 -- ,AddressQuality
 ,AgeAdmitted
 , IsAsthmaticPatient
-,Birthdate
+-- ,Birthdate fjernet mars 2025
 -- ,CurrentMunicipalNumber
 ,CreationDate
 ,DateAdmittedIntensive
@@ -65,8 +65,8 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,MunicipalNumber
 ,PatientAge
 ,PatientGender
--- ,PasientGUID
- ,PatientInRegistryGuid
+,PasientGUID
+-- ,PatientInRegistryGuid
  ,PersonId
  ,PersonIdBC19Hash
 -- ,PostalCode
@@ -107,7 +107,6 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
                       'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
                       'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
                       'DateAdmittedIntensive', 'DateDischargedIntensive',
-                      # 'FormStatus', 'ShNavn', 'PatientInRegistryGuid',
                       'UnitId')
 
 

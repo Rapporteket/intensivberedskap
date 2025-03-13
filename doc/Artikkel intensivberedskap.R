@@ -62,7 +62,7 @@ DataBeredskapRaa <- DataBeredskapRaa[which(DataBeredskapRaa$FormStatus == 2), ]
   DataBeredskapRaa <- NIRberedskDataSQL()
   DataBeredskapRaa <- DataBeredskapRaa[which(DataBeredskapRaa$FormStatus == 2), ]
 ManglerIntOpph <- DataBeredskapRaa[-which(DataBeredskapRaa$HovedskjemaGUID %in% DataNIRraa$SkjemaGUID),
-                                   c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID", "HovedskjemaGUID", 'PatientInRegistryGuid')]
+                                   c("ShNavn", "DateAdmittedIntensive", "SkjemaGUID", "HovedskjemaGUID", 'PasientGUID')]
 ManglerIntOpph[order(ManglerIntOpph$ShNavn, ManglerIntOpph$DateAdmittedIntensive), ]
 
 #Kan du også sjekke kor mange av desse vi kan oppgje 30-dagarsmortalitet på den 1. juni?

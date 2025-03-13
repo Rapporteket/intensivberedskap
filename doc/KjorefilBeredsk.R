@@ -77,7 +77,7 @@ CoroDataRaa[CoroDataRaa$PersonId %in% pas, c('PersonId', 'FormDate')]
 CoroData[CoroData$PersonId %in% pas, c('PersonId', 'FormDate', 'PasientID')]
 
 BeredIntRaa[BeredIntRaa$PersonId %in% pas, c('PersonId', 'FormDate', 'AgeAdmitted')]
-pasUint <- unique(BeredIntRaa$PersonId[is.na(BeredIntRaa$PatientInRegistryGuidInt)])
+pasUint <- unique(BeredIntRaa$PersonId[is.na(BeredIntRaa$PasientGUID)])
 pas %in% pasUint
 BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
 BeredIntPas[BeredIntPas$PersonId %in% pas, c('PersonId', 'FormDate', 'PasientID')]
@@ -129,13 +129,13 @@ length(unique(RegData$PasientID[grep('_2',RegData$PasientID)]))
 sum(table(RegDataRed$PersonId)>1) #108
 length(unique(RegData$PasientID))
 length(unique(RegData$PersonId))
-length(unique(KoronaRaa$PatientInRegistryGuid))
+length(unique(KoronaRaa$PasientGUID))
 length(unique(KoronaRaa$PersonId))
 
 
 #Gir 117
 KoronaRaa$Dato <- as.Date(KoronaRaa$FormDate)
-PasFlere <- KoronaRaa %>% group_by(PatientInRegistryGuid) %>%
+PasFlere <- KoronaRaa %>% group_by(PasientGUID) %>%
   dplyr::summarise(.groups = 'drop',
                    InnNr0 = ifelse(Dato-min(Dato)>90, 2, 1))
 antPasFlereForlAlle <- sum(PasFlere$InnNr0>1)
@@ -147,7 +147,7 @@ RegData <- NIRPreprosessBeredsk(RegDataRaa, kobleInt = 1)
 CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
 CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa)
 
-test <- CoroDataRaa[CoroDataRaa$PatientInRegistryGuid == "4442C54B-848C-EB11-A970-00155D0B4E21", ]
+test <- CoroDataRaa[CoroDataRaa$PasientGUID == "4442C54B-848C-EB11-A970-00155D0B4E21", ]
 first(test$CreationDate, order_by = test$FormDate)
 
 ReinnNaar = max(which(difftime(sort(test$FormDate)[2:2],
@@ -172,17 +172,17 @@ RegDataOpph <- NIRPreprosessBeredsk(RegData = NIRberedskDataSQL(), aggPers = 0)
 tab <- tabRegForsinkelse(RegData=RegDataOpph, pst = 0) #datoFra='2020-03-01', datoTil=Sys.Date())
 
 
-table(table(RegDataRaa$PatientInRegistryGuid))
+table(table(RegDataRaa$PasientGUID))
 table(RegData$ReinnNaar)
 table(RegData$ReinnNaarTest)
 pasFeil <- 'E6C9B5FD-661F-EB11-A96D-00155D0B4D16'
 pas <- c(RegData$PasientID[RegData$Reinn==1], pasFeil)
 
-testRaa <- RegDataRaa[which(RegDataRaa$PatientInRegistryGuid %in% pas), ]
+testRaa <- RegDataRaa[which(RegDataRaa$PasientGUID %in% pas), ]
 testPp <- RegData[which(RegData$PasientID %in% pas), ]
-table(testRaa$PatientInRegistryGuid)
-testRaa[order(testRaa$PatientInRegistryGuid, testRaa$FormDate),
-        c("PatientInRegistryGuid", "FormDate", "DateDischargedIntensive", "FormStatus")]
+table(testRaa$PasientGUID)
+testRaa[order(testRaa$PasientGUID, testRaa$FormDate),
+        c("PasientGUID", "FormDate", "DateDischargedIntensive", "FormStatus")]
 
 AntRegPrPas <- 2
 ReinnNaar <- max(which(ReshId[order(test$FormDate)][2:AntRegPrPas] ==
@@ -192,29 +192,29 @@ ReinnNaar <- max(which(ReshId[order(test$FormDate)][2:AntRegPrPas] ==
 CoroData <- NIRberedskDataSQL(kobleInt = 1)
 RegData <- NIRPreprosessBeredsk(RegData = CoroData, kobleInt = 1)
 
- CoroSjekk <- CoroData[which(CoroData$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+ CoroSjekk <- CoroData[which(CoroData$PasientGUID == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
                        c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate',
-                         "PatientInRegistryGuidInt", "PersonId")]
- BeredDataRaa[which(BeredDataRaa$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+                         "PasientGUIDInt", "PersonId")]
+ BeredDataRaa[which(BeredDataRaa$PasientGUID == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
                       c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate',
                         "PersonId")]
- IntDataRaa[which(IntDataRaa$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+ IntDataRaa[which(IntDataRaa$PasientGUID == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
             c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate', "PersonId")]
 
 PersonId <-  '0x2EE6AD0CF8F2F06EC10EAD46C08B2FA5F965C63215A332A2E0707ABDF9E5A33E'
 RegData$PersonId==PersonId
-which(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)]== PersonId)
-RegData$PatientInRegistryGuid[21]
+which(RegData$PersonId[is.na(RegData$PasientGUIDInt)]== PersonId)
+RegData$PasientGUID[21]
 
 
 RegData <- CoroData
 
-RegData[which(RegData$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
-         c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate', "PatientInRegistryGuidInt")]
+RegData[which(RegData$PasientGUID == "C47F1C66-2F11-EB11-A96D-00155D0B4D16"),
+         c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate', "PasientGUIDInt")]
 
 as.data.frame(RegDataRed[RegDataRed$PasientID == "C47F1C66-2F11-EB11-A96D-00155D0B4D16", ])
 
-IntDataRaa[IntDataRaa$PatientInRegistryGuid == "C47F1C66-2F11-EB11-A96D-00155D0B4D16",
+IntDataRaa[IntDataRaa$PasientGUID == "C47F1C66-2F11-EB11-A96D-00155D0B4D16",
            c("DateAdmittedIntensive", "DateDischargedIntensive", 'FormDate')]
 
 RegData <- NIRPreprosessBeredsk(RegData <- CoroData)
@@ -225,8 +225,8 @@ RegData[which(is.na(RegData$DateDischargedIntensive) & RegData$ShNavn == 'Lovise
 
 data <- RegData[(RegData$Reinn==1) | (RegData$ReinnGml==1) ,c("PasientID", "ShNavn", "ShNavnUt", "FormDate", "DateDischargedIntensive", "Reinn", "ReinnGml", "ReinnNaar", "ReinnTid")]
 pas <- RegData$PasientID[RegData$Reinn==1 | RegData$ReinnGml==1]
-dataRaa <- CoroData[CoroData$PatientInRegistryGuid %in% pas ,c("PatientInRegistryGuid", "FormDate", "HelseenhetKortnavn", "DateDischargedIntensive")]
-dataRaa <- dataRaa[order(dataRaa$PatientInRegistryGuid, dataRaa$FormDate), ]
+dataRaa <- CoroData[CoroData$PasientGUID %in% pas ,c("PasientGUID", "FormDate", "HelseenhetKortnavn", "DateDischargedIntensive")]
+dataRaa <- dataRaa[order(dataRaa$PasientGUID, dataRaa$FormDate), ]
 
 data <- NIRUtvalgBeredsk(RegData=RegData, datoTil = '2020-04-01')$RegData
 inneliggere <- is.na(data$DateDischargedIntensive)
@@ -235,13 +235,13 @@ range(data$Liggetid, na.rm = T)
 data[inneliggere, c('FormDate', "PasientID", "ShNavnUt")]
 
 pas <- data$PasientID[inneliggere]
-sjekkSkjema <- CoroData[which(CoroData$PatientInRegistryGuid %in% pas),
-                        c("HelseenhetKortnavn", 'PatientInRegistryGuid', "FormDate", "DateDischargedIntensive","SkjemaGUID")]
-sjekkSkjema[order(sjekkSkjema$HelseenhetKortnavn, sjekkSkjema$PatientInRegistryGuid, sjekkSkjema$FormDate),]
+sjekkSkjema <- CoroData[which(CoroData$PasientGUID %in% pas),
+                        c("HelseenhetKortnavn", 'PasientGUID', "FormDate", "DateDischargedIntensive","SkjemaGUID")]
+sjekkSkjema[order(sjekkSkjema$HelseenhetKortnavn, sjekkSkjema$PasientGUID, sjekkSkjema$FormDate),]
 
 # sjekkSkjema <- CoroData[which(is.na(CoroData$DateDischargedIntensive) & as.Date(CoroData$FormDate)<'2020-04-01'),
-#                         c("HelseenhetKortnavn","PatientInRegistryGuid", "FormDate", "SkjemaGUID")]
-# sjekkSkjema[order(sjekkSkjema$HelseenhetKortnavn, sjekkSkjema$PatientInRegistryGuid, sjekkSkjema$FormDate),]
+#                         c("HelseenhetKortnavn","PasientGUID", "FormDate", "SkjemaGUID")]
+# sjekkSkjema[order(sjekkSkjema$HelseenhetKortnavn, sjekkSkjema$PasientGUID, sjekkSkjema$FormDate),]
 
 
 bekr <- RegData$Bekreftet==1
@@ -252,8 +252,8 @@ test <- RegData[inneliggere & bekr, ]
 sort(RegData$RespReinnTid)
 pas <- RegData$PasientID[which(RegData$ReinnTid > 25)] #ReinnTid< -10 =dobbeltregistrering
 RegData$AntRegPas[which(RegData$PasientID %in% pas)]
-data <- CoroData[which(CoroData$PatientInRegistryGuid %in% pas), ]
-data[order(data$PatientInRegistryGuid, data$DateAdmittedIntensive),]
+data <- CoroData[which(CoroData$PasientGUID %in% pas), ]
+data[order(data$PasientGUID, data$DateAdmittedIntensive),]
 
 Data <- RegData[!(is.na(RegData$DateDischargedIntensive)), c("FormStatus", "Bekreftet")]
 
@@ -312,7 +312,7 @@ test <- RegData[3:4,
 
 Ut <-
 
-#RegData$PatientInRegistryGuid %in% c('013F0C5E-7B6E-EA11-A96B-00155D0B4F09','03254625-EF73-EA11-A96B-00155D0B4F09'),
+#RegData$PasientGUID %in% c('013F0C5E-7B6E-EA11-A96B-00155D0B4F09','03254625-EF73-EA11-A96B-00155D0B4F09'),
 
 min(test[2:4])
 RegData$Tid <- factor(format(RegData$FormDate, "%Y-%m-%d %H:%M:%S"),
@@ -321,20 +321,20 @@ min(RegData$Tid)
 RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$FormDate, tz= 'UTC',
                                             format="%Y-%m-%d %H:%M:%S" )
 sort(RegData$Innleggelsestidspunkt)
-RegDataRed <- RegData %>% group_by(PatientInRegistryGuid) %>%
+RegDataRed <- RegData %>% group_by(PasientGUID) %>%
   summarise(sort(DateDischargedIntensive)[1])
 
 testData <- NIRberedskDataSQL()
 
-RegDataRed <- testData %>% group_by(PatientInRegistryGuid) %>%
+RegDataRed <- testData %>% group_by(PasientGUID) %>%
   summarise(min(format.Date(DateDischargedIntensive, tz='UTC'), na.rm = T))
 summarise(DateDischargedIntensive = max(ymd_hms(DateDischargedIntensive), na.rm = T))
 
 RegData <- NIRberedskDataSQL()
-antPer <- table(RegData$PatientInRegistryGuid)
+antPer <- table(RegData$PasientGUID)
 PID <- names(antPer[antPer==2])
-test <- RegData[RegData$PatientInRegistryGuid %in% PID,
-                c('PatientInRegistryGuid', 'FormDate',"DateDischargedIntensive",
+test <- RegData[RegData$PasientGUID %in% PID,
+                c('PasientGUID', 'FormDate',"DateDischargedIntensive",
                   "MechanicalRespiratorStart", "MechanicalRespiratorEnd", 'AgeAdmitted')]
 
 

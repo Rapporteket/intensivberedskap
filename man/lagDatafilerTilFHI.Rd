@@ -14,7 +14,7 @@ lagDatafilerTilFHI(
 }
 \arguments{
 \item{personIDvar}{angi variabel for personid
-'PersonIdBC19Hash' - standard, 'PersonId' - alternativ, PatientInRegistryGuid - overvåkning}
+'PersonIdBC19Hash' - standard, 'PersonId' - alternativ, PasientGUID - overvåkning}
 
 \item{bered}{hente beredskapsdata? 1-ja (standard), 0-nei}
 

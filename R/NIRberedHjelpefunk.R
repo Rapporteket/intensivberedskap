@@ -89,7 +89,7 @@ varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmit
                   'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
                   'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
                   'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
-                  'UnitId') # PatientInRegistryGuid', 'FormStatus', 'ShNavn',
+                  'UnitId')
 BeredRaa <- BeredskRaa[ ,-which(names(BeredskRaa) %in% varFellesInt)]
 
 
@@ -101,7 +101,7 @@ names(IntDataRaa)[hvilkeIntvar] <- paste0(names(IntDataRaa)[hvilkeIntvar], 'Int'
 BeredIntRaa1 <- merge(BeredRaa, IntDataRaa, #suffixes = c('','Int'),
                       by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUID', all.x = F, all.y=F)
 #intvar <- names(BeredIntRaa)[grep('Int', names(BeredIntRaa))]
-varMed <- c('Age', 'AgeAdmitted', 'IsAsthmaticPatient', 'Bilirubin', 'Birthdate', 'BrainDamage',
+varMed <- c('Age', 'AgeAdmitted', 'IsAsthmaticPatient', 'Bilirubin', 'BrainDamage', #'Birthdate',
             'Bukleie', 'ChronicDiseases', 'IsDiabeticPatient', 'Diagnosis', 'DischargedIntensiveStatus',
             'EcmoEcla', 'EcmoEnd', 'EcmoStart', 'ExtendedHemodynamicMonitoring', 'FrailtyIndex',
             'Glasgow', 'IsPregnant', 'Hco3', 'HeartRate',
@@ -118,8 +118,8 @@ varMed <- c('Age', 'AgeAdmitted', 'IsAsthmaticPatient', 'Bilirubin', 'Birthdate'
             'PrimaryReasonAdmitted', 'ReshID', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
             'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
             'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
-            'PatientInRegistryGuid', 'PersonId') #'Helseenhet', 'HelseenhetID','ShNavn',
-beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')
+            'PasientGUID', 'PersonId') #'Helseenhet', 'HelseenhetID','ShNavn',
+beregnVar <- c('FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')  #'Birthdate',
 BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
 
 return(UtData <- BeredIntRaa)

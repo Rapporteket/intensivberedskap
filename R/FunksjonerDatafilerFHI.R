@@ -107,26 +107,6 @@ hentBeredDataFHI <- function(personIDvar='PersonIdBC19Hash', raa=1, aggP=1){
       BeredskapDataRaaFHI <- dplyr::rename(BeredskapDataRaaFHI, Kreft=IsCancerPatient )
 
 
-
-# if (aggP==1) {
-#    RegData <- intensivberedskap:: NIRPreprosessBeredsk(RegData=RegDataRaa, tellFlereForlop = 1)
-#    varBort <- c('AgeAdmitted','PatientAge', 'PatientGender', 'Diagnosis', 'DateAdmittedIntensive',
-#                 'CreationDate', 'FirstTimeClosed', 'DaysAdmittedIntensiv') #'PatientInRegistryGuid',
-#    varNy <- c('Alder', 'erMann', 'Bekreftet', 'Liggetid', 'ReinnResp', 'RespTid') #'PersonId',
-#    varFHIpp <- c(varNy, varFHIraa[-which(varFHIraa %in% varBort)],
-#                  'FormDateSiste', 'Reinn', 'AntRegPrPas', 'ReinnTid', 'ReinnNaar',
-#                  'ReinnRespTid', 'ReinnRespNaar', 'MechanicalRespiratorStartSiste',
-#                  'AgeAdmitted')
-#    BeredskapDataPpFHI <- RegData[ ,varFHIpp]
-#    BeredskapDataPpFHI <- dplyr::rename(BeredskapDataPpFHI, Astma=IsAsthmaticPatient )
-#    BeredskapDataPpFHI <- dplyr::rename(BeredskapDataPpFHI, Diabetes=IsDiabeticPatient )
-#    BeredskapDataPpFHI <- dplyr::rename(BeredskapDataPpFHI, Graviditet=IsPregnant )
-#    BeredskapDataPpFHI <- dplyr::rename(BeredskapDataPpFHI, Kreft=IsCancerPatient )
-#
-#    #setdiff(varFHIpp, sort(names(RegData)))
-#    # write.table(BeredskapDataPpFHI, file = paste0('BeredskapDataPpFHI', Sys.Date(), '.csv'),
-#    #             fileEncoding = 'UTF-8', row.names=F, sep=';', na='')
-#}
       UtData <- NULL
       if (raa==1){
       UtData <- append(UtData,
@@ -141,7 +121,7 @@ hentBeredDataFHI <- function(personIDvar='PersonIdBC19Hash', raa=1, aggP=1){
 #' Henter data tilrettelagt for oversendelse til FHI
 #'
 #' @param personIDvar angi variabel for personid
-#' 'PersonIdBC19Hash' - standard, 'PersonId' - alternativ, PatientInRegistryGuid - overvåkning
+#' 'PersonIdBC19Hash' - standard, 'PersonId' - alternativ, PasientGUID - overvåkning
 #' @param bered hente beredskapsdata? 1-ja (standard), 0-nei
 #' @param influ hente influensadata? 1-ja (standard), 0-nei
 #' @param raa hente rådata= 1-ja (standard), 0-nei
@@ -192,7 +172,7 @@ sendDataFilerFHI <- function(zipFilNavn='Testfil', brukernavn = 'testperson'){ #
    if (zipFilNavn == 'DataFHImonitor') {
       #Data til FHIs covid-overvåkning. Kun rådata, Fra 1.1.2024 skal de bare ha beredskapsdata
       recipient <- 'fhi_covmonitor' #For å sikre at ikke sendes feil
-      Filer <- korona::lagDatafilerTilFHI(personIDvar='PatientInRegistryGuid',
+      Filer <- korona::lagDatafilerTilFHI(personIDvar='PasientGUID',
                                            bered=1, influ=1,
                                            raa=1, aggP=0)
       datasett <- names(Filer)

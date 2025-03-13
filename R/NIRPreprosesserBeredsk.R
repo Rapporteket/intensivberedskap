@@ -19,7 +19,9 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    # eller gi feilmelding om at her ser det ut til å være intensivvariabler.
 
    # Endre variabelnavn:
-   RegData$Alder <- lubridate::time_length(difftime(as.Date(RegData$FormDate), as.Date(RegData$Birthdate)), 'years')
+   # RegData$Alder <- lubridate::time_length(   #Birthdate fjernet
+   #        difftime(as.Date(RegData$FormDate), as.Date(RegData$Birthdate)), 'years')
+   RegData$Alder <- RegData$AgeAdmitted
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
    if (!("ReshId" %in% names(RegData))) {
@@ -68,8 +70,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
    if (kobleInt==1){
       #Fjerner  skjema uten intensivskjema
-      pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
+      pasUint <- unique(RegData$PersonId[is.na(RegData$PasientGUIDInt)])
+      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PasientGUIDInt)])
       indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
       #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
@@ -233,8 +235,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
    if (kobleInt==1){
       # #Fjerner  uten intensivskjema
-      pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
+      pasUint <- unique(RegData$PersonId[is.na(RegData$PasientGUIDInt)])
+      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PasientGUIDInt)])
       indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
       test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
