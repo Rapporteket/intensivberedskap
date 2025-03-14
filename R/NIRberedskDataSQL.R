@@ -15,6 +15,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
   varBeredsk <- c("UPPER(SkjemaGUID) AS SkjemaGUID
 -- ,AddressQuality
 ,AgeAdmitted
+-- ,test
 , IsAsthmaticPatient
 -- ,Birthdate fjernet mars 2025
 -- ,CurrentMunicipalNumber
