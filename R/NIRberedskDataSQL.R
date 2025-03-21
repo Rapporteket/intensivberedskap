@@ -36,9 +36,8 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,FormStatus
 ,FormTypeId
 ,IsPregnant
-,Helseenhet
--- ,HelseenhetID
-,HelseenhetKortnavn
+,HealthUnitName
+,HealthUnitShortName
 ,HF
 ,UPPER(HovedskjemaGUID) AS HovedskjemaGUID
 -- ,IsActivSmoker Endret fra MRS oppdatering 12.juni 2020
@@ -73,7 +72,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 -- ,PostalCode
 ,RHF
 ,ShNavn
-,Sykehus
+,Hostpital
 ,TransferredStatus
 ,UnitId")
 

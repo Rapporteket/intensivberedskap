@@ -45,34 +45,6 @@ if (!exists('InfluData')){
 InfluData$RHFc <- as.character(InfluData$RHF)
 
 
- # load('./inst/InfluDataDum.Rdata')
- # InfluData <- InfluDataDum
-
-# N <- dim(InfluData)[1]
-# InfluPas <- InfluData[sample(1:N, N) ,c("Alder", "PatientGender"]
-# varTid <- c("DateAdmittedIntensive", "DateDischargedIntensive", "DaysAdmittedIntensiv",
-#             "RespTid", "InnDato", "Innleggelsestidspunkt","Liggetid", "MechanicalRespirator", "MechanicalRespiratorStart", "MechanicalRespiratorEnd",
-#             "EcmoEnd", "EcmoStart", "ECMOTid", "MndAar", "UkeNr", "UkeAar", "Aar", "Dag",
-#             "FirstTimeClosed", "FormDate", "FormStatus")
-# InfluTid <-  InfluData[sample(1:N, N) , varTid]
-# varSted <- c("Helseenhet", "HelseenhetID", "HelseenhetKortnavn", "HF", "ReshId",
-#              "ShNavn", "ShType", "RHF", "Sykehus")
-# InfluSted <-  InfluData[sample(1:N, N) , varSted]
-# varObs <- c("Bekreftet" ,   "DeadPatientDuring24Hours", "DischargedIntensiveStatus", "Influensa",
-#             "IsActiveSmoker", "IsAsthmaticPatient", "IsCancerPatient",
-#             "IsChronicLungDiseasePatient", "IsChronicNeurologicNeuromuscularPatient", "IsDiabeticPatient",
-#             "IsEcmoTreatmentAdministered", "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-#             "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient", "IsObesePatient",
-#             "IsPregnant", "IsRiskFactor", "MechanicalRespiratorType",
-#             "MoreThan24Hours", "Morsdato", "MorsdatoOppdatert", "MovedPatientToAnotherIntensivDuring24Hours",
-#             "RiskFactor", "Sesong", "TransferredStatus",  "VasoactiveInfusion")
-# InfluDataObs <- InfluData[sample(1:N, N), varObs]
-#
-# InfluDataDum <- cbind(InfluPas, InfluTid, InfluSted, InfluDataObs)
-# names(InfluDataDum) <- c('Alder', varTid, varSted, varObs)
-# save(InfluDataDum, file = './inst/InfluDataDum.Rdata')
-# InfluDataDum$PatientGender <- sample(1:2, 678, replace = TRUE)
-
 sesongSiste <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
 InfluData <- InfluData[which(InfluData$Sesong %in% sesongSiste), ]
 
