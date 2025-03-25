@@ -148,11 +148,6 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
     RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$Innleggelsestidspunkt, tz= 'UTC',
                                                 format='%Y-%m-%d %H:%M:%S' )
     RegData$MndAar <- format(RegData$Innleggelsestidspunkt, '%b%y')
-    #RegData$Kvartal <- ceiling(RegData$MndNum/3)
-    #RegData$Halvaar <- ceiling(RegData$MndNum/6)
-    # RegData$Dag <- factor(format(RegData$InnDato, '%d.%m.%y'),
-    #                       levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
-
 
 
     #Legg på sesong

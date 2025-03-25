@@ -24,8 +24,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$Alder <- RegData$AgeAdmitted
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
-   if (!("ReshId" %in% names(RegData))) {
-     names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId'}
+   #if (!("ReshId" %in% names(RegData))) {
+     names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId' #}
    names(RegData)[
       names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
@@ -313,9 +313,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    #RegData$erMann <- factor(RegData$PatientGender, levels=1:2, labels=1:0)
    RegData$Kjonn <- factor(RegData$erMann, levels=0:1, labels=c('kvinner','menn'))
 
-
-
-   #unique(RegData[RegData$RHF=='Privat',c(ShNavn, UnitId, RHF)])
 
    #Riktig format på datovariable:
    #Benytter FormDate i stedet for DateAdmitted. De er like men FormDate er alltid utfylt.
