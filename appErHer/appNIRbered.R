@@ -717,7 +717,7 @@ server <- function(input, output, session) {
   #------------------ Abonnement ----------------------------------------------
   #--------Start modul, abonnement
   alleResh <- unique(CoroDataRaa$UnitId)
-  Navn <- CoroDataRaa$HelseenhetKortnavn[match(alleResh, CoroDataRaa$UnitId)]
+  Navn <- CoroDataRaa$HealthUnitShortName[match(alleResh, CoroDataRaa$UnitId)]
   names(alleResh) <- Navn
   orgsAbb <- as.list(alleResh)
 

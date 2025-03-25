@@ -59,15 +59,6 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
   }
 
 
-  #Fjerner  skjema uten intensivskjema
-  # if (kobleInt==1){
-  #   pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-  #   skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
-  #   indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
-  #   #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
-  #   if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
-  #   }
-
   if (preprosess == 1) {
 
     # Endre variabelnavn

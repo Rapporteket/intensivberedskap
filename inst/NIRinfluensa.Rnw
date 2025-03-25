@@ -45,34 +45,6 @@ if (!exists('InfluData')){
 InfluData$RHFc <- as.character(InfluData$RHF)
 
 
- # load('./inst/InfluDataDum.Rdata')
- # InfluData <- InfluDataDum
-
-# N <- dim(InfluData)[1]
-# InfluPas <- InfluData[sample(1:N, N) ,c("Alder", "PatientGender"]
-# varTid <- c("DateAdmittedIntensive", "DateDischargedIntensive", "DaysAdmittedIntensiv",
-#             "RespTid", "InnDato", "Innleggelsestidspunkt","Liggetid", "MechanicalRespirator", "MechanicalRespiratorStart", "MechanicalRespiratorEnd",
-#             "EcmoEnd", "EcmoStart", "ECMOTid", "MndAar", "UkeNr", "UkeAar", "Aar", "Dag",
-#             "FirstTimeClosed", "FormDate", "FormStatus")
-# InfluTid <-  InfluData[sample(1:N, N) , varTid]
-# varSted <- c("Helseenhet", "HelseenhetID", "HelseenhetKortnavn", "HF", "ReshId",
-#              "ShNavn", "ShType", "RHF", "Sykehus")
-# InfluSted <-  InfluData[sample(1:N, N) , varSted]
-# varObs <- c("Bekreftet" ,   "DeadPatientDuring24Hours", "DischargedIntensiveStatus", "Influensa",
-#             "IsActiveSmoker", "IsAsthmaticPatient", "IsCancerPatient",
-#             "IsChronicLungDiseasePatient", "IsChronicNeurologicNeuromuscularPatient", "IsDiabeticPatient",
-#             "IsEcmoTreatmentAdministered", "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-#             "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient", "IsObesePatient",
-#             "IsPregnant", "IsRiskFactor", "MechanicalRespiratorType",
-#             "MoreThan24Hours", "Morsdato", "MorsdatoOppdatert", "MovedPatientToAnotherIntensivDuring24Hours",
-#             "RiskFactor", "Sesong", "TransferredStatus",  "VasoactiveInfusion")
-# InfluDataObs <- InfluData[sample(1:N, N), varObs]
-#
-# InfluDataDum <- cbind(InfluPas, InfluTid, InfluSted, InfluDataObs)
-# names(InfluDataDum) <- c('Alder', varTid, varSted, varObs)
-# save(InfluDataDum, file = './inst/InfluDataDum.Rdata')
-# InfluDataDum$PatientGender <- sample(1:2, 678, replace = TRUE)
-
 sesongSiste <- max(sort(unique(InfluData$Sesong))) #InfluData$Sesong[match(InfluData$InnDato, max(InfluData$InnDato))[1]],
 InfluData <- InfluData[which(InfluData$Sesong %in% sesongSiste), ]
 
@@ -286,31 +258,14 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
     # EnhetsNivaaVar <- switch(enhetsNivaa,
     #                          Alle = 'RHF',
     #                          RHF = 'HF',
-    #                          HF = 'Sykehus')
+    #                          HF = 'Hospital')
 
-    #if (enhetsNivaa=='Alle'){
-    TabTidEnh <- ftable(InfluData[ , c('Dag', 'RHF')], #, 'Covid'
+  TabTidEnh <- ftable(InfluData[ , c('Dag', 'RHF')], #, 'Covid'
                         row.vars = 'Dag')
-  #navnEnh <- unique(InfluData$EnhetsNivaaVar)
   TabTidEnh <- as.matrix(TabTidEnh)
 
   TabTidEnh <- addmargins(TabTidEnh, FUN=list(Totalt=sum, 'Hele landet' = sum), quiet=TRUE)
-  # } else {
 
-  # InfluData$EnhetsNivaaVar <- as.factor(InfluData[ ,EnhetsNivaaVar])
-  # TabEnh <- table(InfluData[, c('Dag', 'EnhetsNivaaVar')])
-  #
-  # antEnh <- dim(TabEnh)[2]
-  #   TabEnh <- addmargins(TabEnh, margin=2, sum)
-  # colnames(TabEnh) <- c(colnames(TabEnh)[1:antEnh], paste0('eget ', enhetsNivaa)) #enhet)
-  #
-  # TabTidEnh <- cbind(
-  #                 TabEnh,
-  #                 'Hele landet' = table(InfluDataAlle$Dag))
-  #
-  # TabTidEnh <- addmargins(TabTidEnh, margin=1, FUN= list(Totalt=sum), quiet=TRUE)
-  # if(enhetsNivaa == 'RHF') {TabTidEnh <- TabTidEnh[,-antEnh:-1]}
-  #}
   AntRader <- dim(TabTidEnh)[1]
   xtable::xtable(TabTidEnh[max(1,AntRader-20):AntRader, ], digits=0,
                  caption='Antall nye intensivpasienter siste 20 dager, samt totalt antall fra sesongstart til rapporteringstidspuktet.')
@@ -324,7 +279,7 @@ Antall inneliggende influensapasienter på rapporteringstidspunktet.
 \begin{frame}[fragile]{Antall registrerte opphold på hvert sykehus}
   <<'OpphPrHF', results='asis', warnings=FALSE>>=
     RegSh <- InfluData %>%
-    dplyr::group_by(as.character(RHF), Sykehus) %>%
+    dplyr::group_by(as.character(RHF), Hospital) %>%
     dplyr::summarise(.groups='rowwise',
                      'Antall opphold' = n())
   Totalt <- c('Hele landet', '', '', sum(RegSh$`Antall opphold`))

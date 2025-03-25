@@ -35,9 +35,9 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,FormStatus
 ,FormTypeId
 ,IsPregnant
-,Helseenhet
--- ,HelseenhetID
-,HelseenhetKortnavn
+-- ,HealthUnitName
+-- ,HealthUnitId
+,HealthUnitShortName
 ,HF
 ,UPPER(HovedskjemaGUID) AS HovedskjemaGUID
 -- ,IsActivSmoker Endret fra MRS oppdatering 12.juni 2020
@@ -72,9 +72,10 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 -- ,PostalCode
 ,RHF
 ,ShNavn
-,Sykehus
+,Hospital
 ,TransferredStatus
-,UnitId")
+,UnitId AS ReshId
+")
 
     query <- paste0('SELECT ',
                     varBeredsk,

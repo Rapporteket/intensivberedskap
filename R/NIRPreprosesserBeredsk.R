@@ -22,8 +22,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$Alder <- lubridate::time_length(difftime(as.Date(RegData$FormDate), as.Date(RegData$Birthdate)), 'years')
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
-   if (!("ReshId" %in% names(RegData))) {
-     names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId'}
    names(RegData)[
       names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
@@ -210,10 +208,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
                    RHF = dplyr::first(RHF, order_by = FormDate),
                    HFut = dplyr::last(HF, order_by = FormDate),
                    HF = dplyr::first(HF, order_by = FormDate),
-                   ShNavnUt = dplyr::last(HelseenhetKortnavn, order_by = FormDate),
-                   ShNavn = dplyr::first(HelseenhetKortnavn, order_by = FormDate),
-                   SykehusUt = dplyr::last(Sykehus, order_by = FormDate),
-                   Sykehus = dplyr::first(Sykehus, order_by = FormDate),
+                   ShNavnUt = dplyr::last(HealthUnitShortName, order_by = FormDate),
+                   ShNavn = dplyr::first(HealthUnitShortName, order_by = FormDate),
+                   SykehusUt = dplyr::last(Hospital, order_by = FormDate),
+                   Sykehus = dplyr::first(Hospital, order_by = FormDate),
                    FormDateUt = dplyr::last(FormDate, order_by = FormDate),
                    FormDate = dplyr::first(FormDate, order_by = FormDate),
                    RespTid = ifelse(sum(RespTid, na.rm = T) > 0, sum(RespTid, na.rm = T), NA),
