@@ -16,7 +16,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 -- ,AddressQuality
 ,AgeAdmitted
 , IsAsthmaticPatient
-,Birthdate
+-- ,Birthdate
 -- ,CurrentMunicipalNumber
 ,CreationDate
 ,DateAdmittedIntensive
@@ -51,7 +51,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,IsLiverDiseaseIncludingFailurePatient
 ,IsObesePatient
 ,IsRiskFactor
-, IsCancerPatient
+,IsCancerPatient
 ,LastUpdate
 ,MechanicalRespirator
 ,MechanicalRespiratorEnd
@@ -63,10 +63,10 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,MovedPatientToAnotherIntensivDuring24Hours
 ,Municipal
 ,MunicipalNumber
-,PatientAge
+-- ,PatientAge
 ,PatientGender
--- ,PasientGUID
- ,PatientInRegistryGuid
+,PasientGUID
+ -- ,PatientInRegistryGuid
  ,PersonId
  ,PersonIdBC19Hash
 -- ,PostalCode
@@ -102,14 +102,13 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
     #Ved overføringer, kan det ene skjemaet være lagt inn i intensiv og det andre ikke. Vi får da trøbbel i aggregeringa.
     #Velger derfor å ta flest mulig fra beredskapsskjema.
     #Tar bort: (apr. 21, legger til...) 'DateAdmittedIntensive', 'DateDischargedIntensive',
-    varFellesInt <- c('DaysAdmittedIntensiv',
+    varFellesInt <- c('AgeAdmitted', 'DaysAdmittedIntensiv',
                       'DischargedIntensiveStatus',
                       'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
                       'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
-                      'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
+                      'MovedPatientToAnotherIntensivDuring24Hours',	'PatientGender',
                       'DateAdmittedIntensive', 'DateDischargedIntensive',
-                      # 'FormStatus', 'ShNavn', 'PatientInRegistryGuid',
-                      'UnitId')
+                      'ReshId')
 
 
     #Tar bort variabler som skal hentes fra intensivskjema

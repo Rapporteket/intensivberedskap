@@ -81,8 +81,8 @@ IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg) #Kun ferdigstilte int
 varFellesInt <- c('DateAdmittedIntensive', 'DateDischargedIntensive',	'DaysAdmittedIntensiv',
                   'DeadPatientDuring24Hours',	'MechanicalRespirator',	'RHF', 'TransferredStatus',
                   'VasoactiveInfusion',	'MoreThan24Hours',	'Morsdato',
-                  'MovedPatientToAnotherIntensivDuring24Hours',	'PatientAge',	'PatientGender',
-                  'UnitId') # PatientInRegistryGuid', 'FormStatus', 'ShNavn',
+                  'MovedPatientToAnotherIntensivDuring24Hours',	'AgeAdmitted',	'PatientGender',
+                  'ReshId')
 BeredRaa <- BeredskRaa[ ,-which(names(BeredskRaa) %in% varFellesInt)]
 
 
@@ -110,8 +110,8 @@ varMed <- c('Age', 'AgeAdmitted', 'IsAsthmaticPatient', 'Bilirubin', 'Birthdate'
             'PrimaryReasonAdmitted', 'ReshID', 'Respirator', 'Saps2Score', 'Saps2ScoreNumber',
             'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
             'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
-            'PatientInRegistryGuid', 'PersonId') #'ShNavn',
-beregnVar <- c('Birthdate', 'FormDate', 'FormStatus', 'HF', 'HealthUnitShortName')
+            'PasientGUID', 'PersonId')
+beregnVar <- c('FormDate', 'FormStatus', 'HF', 'HealthUnitShortName')
 BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
 
 return(UtData <- BeredIntRaa)

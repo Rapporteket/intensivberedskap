@@ -39,8 +39,8 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
                      "ICD10_1", "ICD10_2",
                      "MechanicalRespirator", "MoreThan24Hours",
                      "Morsdato", "MorsdatoOppdatert", "MovedPatientToAnotherIntensivDuring24Hours",
-                     "PatientAge", "PatientGender",
-                     "TransferredStatus", "UnitId", "VasoactiveInfusion")
+                     "AgeAdmitted", "PatientGender",
+                     "TransferredStatus", "ReshId", "VasoactiveInfusion")
     #varFellesInt <- intersect(sort(names(RegDataInf)), sort(names(IntDataRaa)))
 
     #Tar bort variabler som skal hentes fra intensivskjema

@@ -9,7 +9,7 @@ lagInfluDataFHI <- function(personIDvar='PersonIdBC19Hash'){
 #Rådata
 
  influVar <- paste0(personIDvar,'\n' ,
-                ',PatientAge
+                ',AgeAdmitted
                 ,PatientGender
                 ,HF
                 ,RHF
@@ -62,7 +62,7 @@ hentBeredDataFHI <- function(personIDvar='PersonIdBC19Hash', raa=1, aggP=1){
 
       varFHIraa <- c(
        personIDvar
-      ,'PatientAge'
+      ,'AgeAdmitted'
       ,'PatientGender'
       ,'MunicipalNumber'
       ,'HF'
@@ -93,7 +93,6 @@ hentBeredDataFHI <- function(personIDvar='PersonIdBC19Hash', raa=1, aggP=1){
       ,'DischargedIntensiveStatus'
       ,'FormStatus'
       ,'FormDate'
-      ,'AgeAdmitted'
       ,'CreationDate'
       ,'FirstTimeClosed'
    ) #De nye variablene må enten legges til i varBort, eller FHI må varsles om at de kommer på ny plass i den aggregerte fila
@@ -106,25 +105,6 @@ hentBeredDataFHI <- function(personIDvar='PersonIdBC19Hash', raa=1, aggP=1){
 
 
 
-# if (aggP==1) {
-#    RegData <- intensivberedskap:: NIRPreprosessBeredsk(RegData=RegDataRaa, tellFlereForlop = 1)
-#    varBort <- c('AgeAdmitted','PatientAge', 'PatientGender', 'Diagnosis', 'DateAdmittedIntensive',
-#                 'CreationDate', 'FirstTimeClosed', 'DaysAdmittedIntensiv') #'PatientInRegistryGuid',
-#    varNy <- c('Alder', 'erMann', 'Bekreftet', 'Liggetid', 'ReinnResp', 'RespTid') #'PersonId',
-#    varFHIpp <- c(varNy, varFHIraa[-which(varFHIraa %in% varBort)],
-#                  'FormDateSiste', 'Reinn', 'AntRegPrPas', 'ReinnTid', 'ReinnNaar',
-#                  'ReinnRespTid', 'ReinnRespNaar', 'MechanicalRespiratorStartSiste',
-#                  'AgeAdmitted')
-#    BeredskapDataPpFHI <- RegData[ ,varFHIpp]
-#    BeredskapDataPpFHI <- dplyr::rename(BeredskapDataPpFHI, Astma=IsAsthmaticPatient )
-#    BeredskapDataPpFHI <- dplyr::rename(BeredskapDataPpFHI, Diabetes=IsDiabeticPatient )
-#    BeredskapDataPpFHI <- dplyr::rename(BeredskapDataPpFHI, Graviditet=IsPregnant )
-#    BeredskapDataPpFHI <- dplyr::rename(BeredskapDataPpFHI, Kreft=IsCancerPatient )
-#
-#    #setdiff(varFHIpp, sort(names(RegData)))
-#    # write.table(BeredskapDataPpFHI, file = paste0('BeredskapDataPpFHI', Sys.Date(), '.csv'),
-#    #             fileEncoding = 'UTF-8', row.names=F, sep=';', na='')
-#}
       UtData <- NULL
       if (raa==1){
       UtData <- append(UtData,
