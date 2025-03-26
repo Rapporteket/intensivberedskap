@@ -75,18 +75,18 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
     #dplyr::rename(RegData, Diabetes=IsDiabeticPatient )
 
 
-    #Endre boolske variabler til boolske.. (Kommer inn som tekst)
-    LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
-    LogVar <- unique(c(LogVarSjekk,
-                       "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
-                       "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
-                       "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-                       "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-                       "IsObesePatient", "IsRiskFactor", "IsCancerPatient",
-                       'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
-
-    RegData[, intersect(names(RegData), LogVar)] <-
-      apply(RegData[, intersect(names(RegData), LogVar)], 2, as.logical)
+    #Endre boolske variabler til boolske.. (Kommer inn som tekst) Mars -25: Boolske variabler kommer som 0-1
+    # LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
+    # LogVar <- unique(c(LogVarSjekk,
+    #                    "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
+    #                    "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
+    #                    "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
+    #                    "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
+    #                    "IsObesePatient", "IsRiskFactor", "IsCancerPatient",
+    #                    'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
+    #
+    # RegData[, intersect(names(RegData), LogVar)] <-
+    #   apply(RegData[, intersect(names(RegData), LogVar)], 2, as.logical)
 
 
     RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
