@@ -13,11 +13,69 @@
 NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), preprosess=1, kobleInt=0) {
 
 
-  query <- paste0('SELECT *
-            FROM influensaformdatacontract
-            WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
+  query <- paste0('SELECT
+ SkjemaGUID
+,PasientGUID
+,Skjematype
+,MoreThan24Hours
+,MechanicalRespirator
+,DeadPatientDuring24Hours
+,MovedPatientToAnotherIntensivDuring24Hours
+,VasoactiveInfusion
+,DateAdmittedIntensive
+,DateDischargedIntensive
+,DaysAdmittedIntensiv
+,AgeAdmitted
+,Varighet_Mekanisk_Support
+,Varighet_ECMO
+,TransferredStatus
+,DischargedIntensiveStatus
+,RiskFactor
+,ICD10_1
+,ICD10_2
+,MechanicalRespiratorStart
+,MechanicalRespiratorType
+,MechanicalRespiratorEnd
+,EcmoStart
+,EcmoEnd
+,IsEcmoTreatmentAdministered
+,IsRiskFactor
+,IsActiveSmoker
+,IsCancerPatient
+,IsImpairedImmuneSystemIncludingHivPatient
+,IsDiabeticPatient
+,IsHeartDiseaseIncludingHypertensionPatient
+,IsObesePatient
+,IsChronicLungDiseasePatient
+,IsKidneyDiseaseIncludingFailurePatient
+,IsLiverDiseaseIncludingFailurePatient
+,IsChronicNeurologicNeuromuscularPatient
+,IsPregnant
+,IsAsthmaticPatient
+,Morsdato
+,MorsdatoOppdatert
+,HovedskjemaGUID
+,FormTypeId
+,UnitId AS ReshId
+,RHF
+,HF
+,Sykehus
+,ShType
+,ShNavn
+-- ,Helseenhet
+-- ,HelseenhetKortnavn
+,CreationDate
+,LastUpdate
+,FormStatus
+,PatientAge
+,PatientGender
+,MunicipalNumber
+,FirstTimeClosed
+,FormDate
+FROM influensaformdatacontract
+WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
 
-  RegDataInf <- rapbase::loadRegData(registryName = "nir", query = query, dbType = "mysql")
+  RegDataInf <- rapbase::loadRegData(registryName = "data", query = query, dbType = "mysql")
 
   #startOfMonth<- function(x) {as.Date(format(x, "%Y-%m-01")) }
   if (kobleInt == 1){
@@ -25,22 +83,21 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 
     #Koble på intensivdata.
     forsteReg <- min(as.Date(RegDataInf$FormDate))
-    queryInt <-
-      paste0('select * from mainformdatacontract
-              WHERE cast(DateAdmittedIntensive as date)
-              BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'')
-    IntDataRaa <- rapbase::loadRegData(registryName= "nir", query=queryInt, dbType="mysql")
+  # queryInt <- paste0('select * from mainformdatacontract
+  # WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'')
+  # IntDataRaa <- rapbase::loadRegData(registryName= "data", query=queryInt, dbType="mysql")
+    IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg, datoTil = datoTil)
     IntDataRaa <- dplyr::rename(.data = IntDataRaa, RespiratortidInt = Respirator)
 
     #Felles variabler som skal hentes fra intensiv (= fjernes fra influensa)
     #Ved overføringer, kan det ene skjemaet være lagt inn i intensiv og det andre ikke. Vi får da trøbbel i aggregeringa.
     varFellesInt <-c("DateAdmittedIntensive", "DateDischargedIntensive",
-                     "DaysAdmittedIntensiv", "DeadPatientDuring24Hours", "DischargedIntensiveStatus",
-                     "ICD10_1", "ICD10_2",
-                     "MechanicalRespirator", "MoreThan24Hours",
-                     "Morsdato", "MorsdatoOppdatert", "MovedPatientToAnotherIntensivDuring24Hours",
-                     "AgeAdmitted", "PatientGender",
-                     "TransferredStatus", "ReshId", "VasoactiveInfusion")
+         "DaysAdmittedIntensiv", "DeadPatientDuring24Hours", "DischargedIntensiveStatus",
+         "ICD10_1", "ICD10_2",
+         "MechanicalRespirator", "MoreThan24Hours",
+         "Morsdato", "MorsdatoOppdatert", "MovedPatientToAnotherIntensivDuring24Hours",
+         "AgeAdmitted", "PatientGender",
+         "TransferredStatus", "ReshId", "VasoactiveInfusion")
     #varFellesInt <- intersect(sort(names(RegDataInf)), sort(names(IntDataRaa)))
 
     #Tar bort variabler som skal hentes fra intensivskjema
@@ -52,7 +109,7 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
     names(IntDataRaa)[hvilkeIntvar] <- paste0(names(IntDataRaa)[hvilkeIntvar], 'Int')
 
     RegData <-  merge(RegDataInf, IntDataRaa, #suffixes = c('','Int'),
-                      by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUIDInt', all.x = T, all.y=F)
+          by.x = 'HovedskjemaGUID', by.y = 'SkjemaGUIDInt', all.x = T, all.y=F)
 
   } else {
     RegData <- RegDataInf
@@ -63,32 +120,31 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 
     # Endre variabelnavn
     names(RegData)[which(names(RegData) == 'AgeAdmitted')] <- 'Alder'
-    #dplyr::rename(RegData, Diabetes=IsDiabeticPatient )
 
 
     #Endre boolske variabler til boolske.. (Kommer inn som tekst)
     LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
     LogVar <- unique(c(LogVarSjekk,
-                       "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
-                       "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
-                       "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-                       "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-                       "IsObesePatient", "IsRiskFactor", "IsCancerPatient",
-                       'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
+           "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
+           "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
+           "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
+           "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
+           "IsObesePatient", "IsRiskFactor", "IsCancerPatient",
+           'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
 
     RegData[, intersect(names(RegData), LogVar)] <-
       apply(RegData[, intersect(names(RegData), LogVar)], 2, as.logical)
 
 
     RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
-                                           RegData$EcmoStart,
-                                           units = 'days'))
+       RegData$EcmoStart,
+       units = 'days'))
     RegData$RespTid <- as.numeric(difftime(RegData$MechanicalRespiratorEnd,
-                                           RegData$MechanicalRespiratorStart,
-                                           units = 'days'))
+       RegData$MechanicalRespiratorStart,
+       units = 'days'))
     RegData$Liggetid <- as.numeric(difftime(RegData$DateDischargedIntensive,
-                                            RegData$DateAdmittedIntensive,
-                                            units = 'days'))
+        RegData$DateAdmittedIntensive,
+        units = 'days'))
     #Diagnoser: ICD10_1
     # -1 = Velg verdi
     # 9 = J10 Influensa som skyldes identifisert sesongvariabelt influensavirus
@@ -116,42 +172,42 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 
     # Enhetsnivånavn
     RegData$RHF <- factor(RegData$RHF,
-                          levels= c('Helse Nord', 'Helse Midt-Norge', 'Helse Vest', 'Helse Sør-Øst', 'Privat'),
-                          labels = c('Nord', 'Midt', 'Vest', 'Sør-Øst', 'Privat'))
+  levels= c('Helse Nord', 'Helse Midt-Norge', 'Helse Vest', 'Helse Sør-Øst', 'Privat'),
+  labels = c('Nord', 'Midt', 'Vest', 'Sør-Øst', 'Privat'))
 
 
     #Riktig format på datovariable:
     #Benytter FormDate i stedet for DateAdmitted. De er like men FormDate er alltid utfylt.
     RegData$InnDato <- as.Date(RegData$FormDate, tz= 'UTC', format='%Y-%m-%d') #DateAdmittedIntensive
     RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$FormDate, tz= 'UTC',
-                                                format='%Y-%m-%d %H:%M:%S' ) #DateAdmittedIntensive
+format='%Y-%m-%d %H:%M:%S' ) #DateAdmittedIntensive
     RegData$DateDischargedIntensive <- as.POSIXlt(RegData$DateDischargedIntensive, tz= 'UTC',
-                                                  format='%Y-%m-%d %H:%M:%S' )
+  format='%Y-%m-%d %H:%M:%S' )
 
 
 
     #Legge på tidsenheter. Bruk factor hvis vil ha med tidsenheter uten registreringer - ikke standard!
     RegData$Dag <- factor(format(RegData$InnDato, '%d.%m.%y'),
-                          levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
+  levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
     RegData$Aar <- format(RegData$InnDato, '%Y')
     RegData$UkeNr <- format(RegData$InnDato, '%V')
     RegData$UkeAar <- format(RegData$InnDato, '%G.%V') #%G -The week-based year, %V - Week of the year as decimal number (01–53) as defined in ISO 8601
     RegData$Innleggelsestidspunkt <- as.POSIXlt(RegData$Innleggelsestidspunkt, tz= 'UTC',
-                                                format='%Y-%m-%d %H:%M:%S' )
+format='%Y-%m-%d %H:%M:%S' )
     RegData$MndAar <- format(RegData$Innleggelsestidspunkt, '%b%y')
     #RegData$Kvartal <- ceiling(RegData$MndNum/3)
     #RegData$Halvaar <- ceiling(RegData$MndNum/6)
     # RegData$Dag <- factor(format(RegData$InnDato, '%d.%m.%y'),
-    #                       levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
+    #           levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
 
 
 
     #Legg på sesong
     RegData$Sesong <- NA
     startU40 <- c('2017-10-02', '2018-10-01', '2019-09-30', '2020-09-28', '2021-10-04', '2022-10-03',
-                  '2023-10-02', '2024-09-30', '2025-09-29', '2026-09-28', '2027-10-04', '2028-10-02')
+      '2023-10-02', '2024-09-30', '2025-09-29', '2026-09-28', '2027-10-04', '2028-10-02')
     sluttU20 <- c('2018-05-20', '2019-05-19', '2020-05-17', '2021-05-23', '2022-05-22', '2023-05-21',
-                  '2024-05-19', '2025-05-18', '2026-05-17', '2027-05-23', '2028-05-21', '2029-05-20')
+      '2024-05-19', '2025-05-18', '2026-05-17', '2027-05-23', '2028-05-21', '2029-05-20')
     sesonger <- paste0(2017:2028,'-',18:29)
     for (s in 1:length(sesonger)){
       ind <- which(RegData$InnDato >= as.Date(startU40[s]) & RegData$InnDato <= as.Date(sluttU20[s]))
