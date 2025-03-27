@@ -67,8 +67,8 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,PatientGender
 ,PasientGUID
 -- ,PatientInRegistryGuid
- ,PersonId
- ,PersonIdBC19Hash
+-- ,PersonId
+-- ,PersonIdBC19Hash
 -- ,PostalCode
 ,RHF
 ,ShNavn

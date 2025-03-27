@@ -70,14 +70,14 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
    if (kobleInt==1){
       #Fjerner  skjema uten intensivskjema
-      pasUint <- unique(RegData$PersonId[is.na(RegData$PasientGUIDInt)])
+      pasUint <- unique(RegData$PasientGUID[is.na(RegData$PasientGUIDInt)])
       skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PasientGUIDInt)])
       indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
       #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
 
       if (aggPers == 1){ #Fjerner pasienter som mangler ett eller flere intensivskjema
-         indManglerIntPas <- which(RegData$PersonId %in% pasUint)
+         indManglerIntPas <- which(RegData$PasientGUID %in% pasUint)
          if (length(indManglerIntPas)>0) {RegData <- RegData[-indManglerIntPas, ]}
       }}
 
@@ -125,8 +125,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
       #  På respirator antar man at hvis de ligger på respirator når de overflyttes
       #PasientID=="EE983306-AE04-EB11-A96D-00155D0B4D16"
       RegDataRed <- RegData %>% dplyr::group_by(PasientID) %>% #Pasienter med flere forløp har nå forløp angitt med xx_forløpsnr
-         dplyr::summarise(PersonId = PersonId[1],
-                   PersonIdBC19Hash = PersonIdBC19Hash[1],
+         dplyr::summarise(PasientGUID = PasientGUID[1],
                    Alder = Alder[1],
                    AgeAdmitted = AgeAdmitted[1],
                    PatientGender = PatientGender[1],
@@ -227,13 +226,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
          )
    } #aggPers
 
-   # pers <- RegData$PersonId[RegData$InvNonIBegge==1 & RegData$AntRegPrPas>1]
-   # test <- BeredDataRaa[which(BeredDataRaa$PersonId %in% pers), c('PersonId','MechanicalrespiratorType')]
-   # tab <- table(test)
 
    if (kobleInt==1){
       # #Fjerner  uten intensivskjema
-      pasUint <- unique(RegData$PersonId[is.na(RegData$PasientGUIDInt)])
+      pasUint <- unique(RegData$PasientGUID[is.na(RegData$PasientGUIDInt)])
       skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PasientGUIDInt)])
       indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
       test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
@@ -274,7 +270,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
              NO = sum(No), #Hvis ja: ja, logisk var
              NonInvasivVentilation = sum(NonInvasivVentilation, na.rm=T),
              Potassium = dplyr::first(Potassium, order_by=FormDate),
-             #PersonId = PersonId[1],
              PrimaryReasonAdmitted = dplyr::first(PrimaryReasonAdmitted, order_by=FormDate),
              RespiratortidInt = sum(respiratortid, na.rm = T),
              Saps2Score = dplyr::first(Saps2Score, order_by=FormDate),
