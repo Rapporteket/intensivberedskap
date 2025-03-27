@@ -24,8 +24,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$Alder <- RegData$AgeAdmitted
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
-   #if (!("ReshId" %in% names(RegData))) {
-     names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId' #}
+   names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId' #}
    names(RegData)[
       names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
@@ -125,7 +124,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
       #  På respirator antar man at hvis de ligger på respirator når de overflyttes
       #PasientID=="EE983306-AE04-EB11-A96D-00155D0B4D16"
       RegDataRed <- RegData %>% dplyr::group_by(PasientID) %>% #Pasienter med flere forløp har nå forløp angitt med xx_forløpsnr
-         dplyr::summarise(PasientGUID = PasientGUID[1],
+         dplyr::summarise(PasientID= PasientID[1],
                    Alder = Alder[1],
                    AgeAdmitted = AgeAdmitted[1],
                    PatientGender = PatientGender[1],
@@ -229,7 +228,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
    if (kobleInt==1){
       # #Fjerner  uten intensivskjema
-      pasUint <- unique(RegData$PasientGUID[is.na(RegData$PasientGUIDInt)])
+      pasUint <- unique(RegData$PasientID[is.na(RegData$PasientGUIDInt)])
       skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PasientGUIDInt)])
       indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
       test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
