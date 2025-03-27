@@ -119,7 +119,7 @@ varMed <- c('Age', 'AgeAdmitted', 'IsAsthmaticPatient', 'Bilirubin', 'BrainDamag
             'SerumUreaOrBun', 'ShType', 'SkjemaGUID', 'Sodium', 'SystolicBloodPressure',
             'Temperature', 'Trakeostomi', 'TypeOfAdmission', 'UrineOutput',
             'PasientGUID')
-beregnVar <- c('FormDate', 'FormStatus', 'HF', 'HelseenhetKortnavn')  #'Birthdate',
+beregnVar <- c('FormDate', 'FormStatus', 'HF', 'HealthUnitShortName')  #'Birthdate',
 BeredIntRaa <- BeredIntRaa1[ ,c(varMed, varFellesInt, beregnVar)] #c()]
 
 return(UtData <- BeredIntRaa)

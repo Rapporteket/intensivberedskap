@@ -36,7 +36,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,FormStatus
 ,FormTypeId
 ,IsPregnant
-,HealthUnitName
+-- ,HealthUnitName
 ,HealthUnitShortName
 ,HF
 ,UPPER(HovedskjemaGUID) AS HovedskjemaGUID

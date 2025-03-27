@@ -225,7 +225,7 @@ RegData[which(is.na(RegData$DateDischargedIntensive) & RegData$ShNavn == 'Lovise
 
 data <- RegData[(RegData$Reinn==1) | (RegData$ReinnGml==1) ,c("PasientID", "ShNavn", "ShNavnUt", "FormDate", "DateDischargedIntensive", "Reinn", "ReinnGml", "ReinnNaar", "ReinnTid")]
 pas <- RegData$PasientID[RegData$Reinn==1 | RegData$ReinnGml==1]
-dataRaa <- CoroData[CoroData$PasientGUID %in% pas ,c("PasientGUID", "FormDate", "HelseenhetKortnavn", "DateDischargedIntensive")]
+dataRaa <- CoroData[CoroData$PasientGUID %in% pas ,c("PasientGUID", "FormDate", "HealthUnitShortName", "DateDischargedIntensive")]
 dataRaa <- dataRaa[order(dataRaa$PasientGUID, dataRaa$FormDate), ]
 
 data <- NIRUtvalgBeredsk(RegData=RegData, datoTil = '2020-04-01')$RegData
@@ -236,12 +236,12 @@ data[inneliggere, c('FormDate', "PasientID", "ShNavnUt")]
 
 pas <- data$PasientID[inneliggere]
 sjekkSkjema <- CoroData[which(CoroData$PasientGUID %in% pas),
-                        c("HelseenhetKortnavn", 'PasientGUID', "FormDate", "DateDischargedIntensive","SkjemaGUID")]
-sjekkSkjema[order(sjekkSkjema$HelseenhetKortnavn, sjekkSkjema$PasientGUID, sjekkSkjema$FormDate),]
+                        c("HealthUnitShortName", 'PasientGUID', "FormDate", "DateDischargedIntensive","SkjemaGUID")]
+sjekkSkjema[order(sjekkSkjema$HealthUnitShortName, sjekkSkjema$PasientGUID, sjekkSkjema$FormDate),]
 
 # sjekkSkjema <- CoroData[which(is.na(CoroData$DateDischargedIntensive) & as.Date(CoroData$FormDate)<'2020-04-01'),
-#                         c("HelseenhetKortnavn","PasientGUID", "FormDate", "SkjemaGUID")]
-# sjekkSkjema[order(sjekkSkjema$HelseenhetKortnavn, sjekkSkjema$PasientGUID, sjekkSkjema$FormDate),]
+#                         c("HealthUnitShortName","PasientGUID", "FormDate", "SkjemaGUID")]
+# sjekkSkjema[order(sjekkSkjema$HealthUnitShortName, sjekkSkjema$PasientGUID, sjekkSkjema$FormDate),]
 
 
 bekr <- RegData$Bekreftet==1
