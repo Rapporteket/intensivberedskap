@@ -83,18 +83,15 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
       #Konvertere boolske variable fra tekst til boolske variable...
    # !! Format endret til 0-1 med ny extractor (mars -25)
-
-   # LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
-   # LogVar <- unique(c(LogVarSjekk,
-   #                    "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
-   #                    "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
-   #                    "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-   #                    "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-   #                    "IsObesePatient", "IsRiskFactor", "IsCancerPatient",
-   #                    'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
-   #
-   # RegData[, intersect(names(RegData), LogVar)] <-
-   #    apply(RegData[, intersect(names(RegData), LogVar)], 2, as.logical)
+   LogVar <- c("Kontinuerlig", "Intermitterende",  "Peritonealdialyse", "SpecialMeasures",
+               "TerapetiskHypotermi",  "EcmoEcla",  "Iabp",  "Impella",   "Icp",   "Oscillator",
+               "No",  "Leverdialyse", "Hyperbar", "Eeg",  "Ingen", "FrailtyIndexForklaring",
+               "KompHypoglykemi",  "KompPneumotoraks",   "KompLuftveisproblem",  "KompDekubitus",
+               "KomIngen",    "KompIkkeUtfylt",   "PIM_SuppliedO2",    "Sofa",
+               "ValidationIgnoreDaysAdmittedIntensivOver14",    "ValidationIgnoreRespiratorOver7")
+   endreVar <- intersect(names(RegData), LogVar)
+   RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.numeric)
+   RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.logical)
 
    #------SLÅ SAMMEN TIL PER PASIENT
    #Respiratortider skal hentes fra intensivskjema

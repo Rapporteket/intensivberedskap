@@ -19,10 +19,22 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 
   RegDataInf <- rapbase::loadRegData(registryName = "nir", query = query, dbType = "mysql")
 
-  #startOfMonth<- function(x) {as.Date(format(x, "%Y-%m-01")) }
-  if (kobleInt == 1){
-    RegDataInf$HovedskjemaGUID <- toupper(RegDataInf$HovedskjemaGUID)
+  #Endre boolske variabler til boolske.. (Kommer inn som tekst) Mars -25: Boolske variabler kommer som tekst 0-1
+  LogVar <-
+  c("IsEcmoTreatmentAdministered", "IsRiskFactor", "IsActiveSmoker", "IsCancerPatient",
+    "IsImpairedImmuneSystemIncludingHivPatient", "IsDiabeticPatient",
+    "IsHeartDiseaseIncludingHypertensionPatient", "IsObesePatient",
+    "IsAsthmaticPatient", "IsChronicLungDiseasePatient",
+    "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
+    "IsChronicNeurologicNeuromuscularPatient", "IsPregnant", "RiskFactor")
 
+  endreVar <- intersect(names(RegDataInf), LogVar)
+  RegDataInf[, endreVar] <- apply(RegDataInf[, endreVar], 2, as.numeric)
+  RegDataInf[, endreVar] <- apply(RegDataInf[, endreVar], 2, as.logical)
+
+  RegDataInf$HovedskjemaGUID <- toupper(RegDataInf$HovedskjemaGUID)
+
+    if (kobleInt == 1){
     #Koble på intensivdata.
     forsteReg <- min(as.Date(RegDataInf$FormDate))
     queryInt <-
@@ -59,34 +71,11 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
   }
 
 
-  #Fjerner  skjema uten intensivskjema
-  # if (kobleInt==1){
-  #   pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-  #   skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
-  #   indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
-  #   #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
-  #   if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
-  #   }
-
   if (preprosess == 1) {
 
     # Endre variabelnavn
     names(RegData)[which(names(RegData) == 'AgeAdmitted')] <- 'Alder'
     #dplyr::rename(RegData, Diabetes=IsDiabeticPatient )
-
-
-    #Endre boolske variabler til boolske.. (Kommer inn som tekst) Mars -25: Boolske variabler kommer som 0-1
-    # LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
-    # LogVar <- unique(c(LogVarSjekk,
-    #                    "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
-    #                    "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
-    #                    "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-    #                    "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-    #                    "IsObesePatient", "IsRiskFactor", "IsCancerPatient",
-    #                    'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
-    #
-    # RegData[, intersect(names(RegData), LogVar)] <-
-    #   apply(RegData[, intersect(names(RegData), LogVar)], 2, as.logical)
 
 
     RegData$ECMOTid <- as.numeric(difftime(RegData$EcmoEnd,
