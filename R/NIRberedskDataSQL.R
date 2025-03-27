@@ -83,7 +83,19 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
     #query <- 'SELECT * from ReadinessFormDataContract'
     BeredDataRaa <- rapbase::loadRegData(registryName="nir", query=query, dbType="mysql")
 
-# 1 er benyttet som standardverdi for MechanicalRespiratorType og vi må følgelig fjerne de som ikke har vært på respirator.
+# Riktig format på boolske variabler:
+    LogVar <-
+    c('IsEcmoTreatmentAdministered', 'IsRiskFactor', 'IsActiveSmoker',
+      'IsImpairedImmuneSystemIncludingHivPatient', 'IsCancerPatient',
+      'IsDiabeticPatient', 'IsHeartDiseaseIncludingHypertensionPatient', 'IsObesePatient',
+      'IsAsthmaticPatient', 'IsChronicLungDiseasePatient', 'IsKidneyDiseaseIncludingFailurePatient',
+      'IsLiverDiseaseIncludingFailurePatient', 'IsChronicNeurologicNeuromuscularPatient', 'IsPregnant')
+    endreVar <- intersect(names(BeredDataRaa), LogVar)
+    BeredDataRaa[, endreVar] <- apply(BeredDataRaa[, endreVar], 2, as.numeric)
+    BeredDataRaa[, endreVar] <- apply(BeredDataRaa[, endreVar], 2, as.logical)
+
+
+    # 1 er benyttet som standardverdi for MechanicalRespiratorType og vi må følgelig fjerne de som ikke har vært på respirator.
     BeredDataRaa$MechanicalrespiratorType[BeredDataRaa$MechanicalRespirator==2] <- -1
 
 
