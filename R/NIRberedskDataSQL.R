@@ -12,10 +12,9 @@
 #'
 NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobleInt=0 ) {
 
-  varBeredsk <- c("UPPER(SkjemaGUID) AS SkjemaGUID
--- ,AddressQuality
+  varBeredsk <- c("
+  UPPER(SkjemaGUID) AS SkjemaGUID
 ,AgeAdmitted
--- ,test
 , IsAsthmaticPatient
 -- ,Birthdate fjernet mars 2025
 -- ,CurrentMunicipalNumber
@@ -65,7 +64,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,MunicipalNumber
 ,PatientAge
 ,PatientGender
-,PasientGUID
+,PasientGUID AS PasientID
 -- ,PatientInRegistryGuid
 -- ,PersonId
 -- ,PersonIdBC19Hash
@@ -74,7 +73,8 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,ShNavn
 ,Hospital
 ,TransferredStatus
-,UnitId")
+,UnitId AS ReshId
+")
 
     query <- paste0('SELECT ',
                     varBeredsk,
