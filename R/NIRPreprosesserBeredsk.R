@@ -25,8 +25,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
    names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId' #}
-   names(RegData)[
-      names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
    #Diagnoser:
    RegData$Bekreftet <- 0
@@ -69,14 +67,14 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
    if (kobleInt==1){
       #Fjerner  skjema uten intensivskjema
-      pasUint <- unique(RegData$PasientGUID[is.na(RegData$PasientGUIDInt)])
-      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PasientGUIDInt)])
+      pasUint <- unique(RegData$PasientID[is.na(RegData$PasientIDInt)])
+      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PasientIDInt)])
       indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
       #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
 
       if (aggPers == 1){ #Fjerner pasienter som mangler ett eller flere intensivskjema
-         indManglerIntPas <- which(RegData$PasientGUID %in% pasUint)
+         indManglerIntPas <- which(RegData$PasientID %in% pasUint)
          if (length(indManglerIntPas)>0) {RegData <- RegData[-indManglerIntPas, ]}
       }}
 
@@ -228,10 +226,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
    if (kobleInt==1){
       # #Fjerner  uten intensivskjema
-      pasUint <- unique(RegData$PasientID[is.na(RegData$PasientGUIDInt)])
-      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PasientGUIDInt)])
+      pasUint <- unique(RegData$PasientID[is.na(RegData$PasientIDInt)])
+      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PasientIDInt)])
       indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
-      test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
+      #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
 
       if (aggPers == 1){

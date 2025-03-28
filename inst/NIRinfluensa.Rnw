@@ -25,7 +25,7 @@ library(intensivberedskap)
 
 #Antall innleggelser med bekreftet influensa (ICD10_1 eller _2 == 10) pr.uke og  pr. helseregion,
 #evt. aldersgrupper. Foreløpig for få observasjoner. Kan angi median, min og maks?
-#Variabler:  RHF , PasientGUID, DateAdmittedIntensive, ICD10_1-ICD10_5,
+#Variabler:  RHF , PasientID, DateAdmittedIntensive, ICD10_1-ICD10_5,
 
 # Datafelt som er ønskte i aggregert rapport, på dags/vekebasis:
 # -	Veke

@@ -100,14 +100,15 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 
 
   if (kobleInt == 1){
-    BeredDataRaa$HovedskjemaGUID <- toupper(BeredDataRaa$HovedskjemaGUID)
+    #BeredDataRaa$HovedskjemaGUID <- toupper(BeredDataRaa$HovedskjemaGUID)
 
 
     #Koble på intensivdata.
     forsteReg <- min(as.Date(BeredDataRaa$FormDate))
-    queryInt <- paste0('select * from mainformdatacontract
-      WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'') #datoTil=Sys.Date(), '\'')
-    IntDataRaa <- rapbase::loadRegData(registryName= "nir", query=queryInt, dbType="mysql")
+    # queryInt <- paste0('select * from mainformdatacontract
+    #   WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'') #datoTil=Sys.Date(), '\'')
+    # IntDataRaa <- rapbase::loadRegData(registryName= "nir", query=queryInt, dbType="mysql")
+    IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg, datoTil = datoTil)
 
     #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
     #Ved overføringer, kan det ene skjemaet være lagt inn i intensiv og det andre ikke. Vi får da trøbbel i aggregeringa.
