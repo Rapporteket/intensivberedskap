@@ -12,7 +12,8 @@
 #'
 NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobleInt=0 ) {
 
-  varBeredsk <- c("UPPER(SkjemaGUID) AS SkjemaGUID
+  varBeredsk <- c("
+  UPPER(SkjemaGUID) AS SkjemaGUID
 -- ,AddressQuality
 ,AgeAdmitted
 , IsAsthmaticPatient
@@ -65,11 +66,11 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,MunicipalNumber
 -- ,PatientAge
 ,PatientGender
-,PasientGUID
+,PasientGUID AS PasientID
  -- ,PatientInRegistryGuid
- ,PersonId
- ,PersonIdBC19Hash
--- ,PostalCode
+ -- ,PersonId
+ -- ,PersonIdBC19Hash
+ -- ,PostalCode
 ,RHF
 ,ShNavn
 ,Hospital
@@ -77,26 +78,29 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,UnitId AS ReshId
 ")
 
+  registryName = 'data' # "nir"
+
     query <- paste0('SELECT ',
                     varBeredsk,
                     ' FROM readinessformdatacontract Q
                       WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
     #query <- 'SELECT * from ReadinessFormDataContract'
-    BeredDataRaa <- rapbase::loadRegData(registryName="nir", query=query, dbType="mysql")
+    BeredDataRaa <- rapbase::loadRegData(registryName=registryName, query=query, dbType="mysql")
 
 # 1 er benyttet som standardverdi for MechanicalRespiratorType og vi må følgelig fjerne de som ikke har vært på respirator.
     BeredDataRaa$MechanicalrespiratorType[BeredDataRaa$MechanicalRespirator==2] <- -1
 
 
   if (kobleInt == 1){
-    BeredDataRaa$HovedskjemaGUID <- toupper(BeredDataRaa$HovedskjemaGUID)
+    # BeredDataRaa$HovedskjemaGUID <- toupper(BeredDataRaa$HovedskjemaGUID)
 
 
     #Koble på intensivdata.
     forsteReg <- min(as.Date(BeredDataRaa$FormDate))
-    queryInt <- paste0('select * from mainformdatacontract
-      WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'') #datoTil=Sys.Date(), '\'')
-    IntDataRaa <- rapbase::loadRegData(registryName= "nir", query=queryInt, dbType="mysql")
+    # queryInt <- paste0('select * from mainformdatacontract
+    #   WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'') #datoTil=Sys.Date(), '\'')
+    # IntDataRaa <- rapbase::loadRegData(registryName = registryName, query=queryInt, dbType="mysql")
+    IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg, datoTil = datoTil)
 
     #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
     #Ved overføringer, kan det ene skjemaet være lagt inn i intensiv og det andre ikke. Vi får da trøbbel i aggregeringa.

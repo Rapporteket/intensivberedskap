@@ -59,15 +59,13 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 ,UnitId AS ReshId
 ,RHF
 ,HF
-,Sykehus
+,Hospital
 ,ShType
 ,ShNavn
--- ,Helseenhet
--- ,HelseenhetKortnavn
 ,CreationDate
 ,LastUpdate
 ,FormStatus
-,PatientAge
+-- ,PatientAge
 ,PatientGender
 ,MunicipalNumber
 ,FirstTimeClosed

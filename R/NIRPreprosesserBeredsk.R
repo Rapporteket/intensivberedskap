@@ -22,8 +22,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$Alder <- RegData$AgeAdmitted
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
-   names(RegData)[
-      names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
+   #names(RegData)[names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
    #Diagnoser:
    RegData$Bekreftet <- 0
@@ -66,8 +65,8 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
    if (kobleInt==1){
       #Fjerner  skjema uten intensivskjema
-      pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
-      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
+      pasUint <- unique(RegData$PasientID[is.na(RegData$PasientIDInt)])
+      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PasientIDInt)])
       indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
       #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
@@ -79,17 +78,16 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
       #Konvertere boolske variable fra tekst til boolske variable...
 
-   LogVarSjekk <- names(RegData)[unique(which(RegData[1,] %in% c('True','False')), which(RegData[15,] %in% c('True','False')))]
-   LogVar <- unique(c(LogVarSjekk,
-                      "IsAsthmaticPatient", "IsDiabeticPatient", "IsPregnant", "IsActiveSmoker", "IsChronicLungDiseasePatient",
-                      "IsChronicNeurologicNeuromuscularPatient", "IsEcmoTreatmentAdministered",
-                      "IsHeartDiseaseIncludingHypertensionPatient", "IsImpairedImmuneSystemIncludingHivPatient",
-                      "IsKidneyDiseaseIncludingFailurePatient", "IsLiverDiseaseIncludingFailurePatient",
-                      "IsObesePatient", "IsRiskFactor", "IsCancerPatient",
-                      'Impella', 'Intermitterende', 'Kontinuerlig', 'No'))
+   LogVar <- c('IsEcmoTreatmentAdministered', 'IsRiskFactor', 'IsActiveSmoker',
+   'IsImpairedImmuneSystemIncludingHivPatient', 'IsCancerPatient',
+   'IsDiabeticPatient', 'IsHeartDiseaseIncludingHypertensionPatient',
+   'IsObesePatient', 'IsAsthmaticPatient', 'IsChronicLungDiseasePatient',
+   'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
+   'IsChronicNeurologicNeuromuscularPatient', 'IsPregnant')
+   endreVar <- intersect(names(RegData), LogVar)
+   RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.numeric)
+   RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.logical)
 
-   RegData[, intersect(names(RegData), LogVar)] <-
-      apply(RegData[, intersect(names(RegData), LogVar)], 2, as.logical)
 
    #------SLÅ SAMMEN TIL PER PASIENT
    #Respiratortider skal hentes fra intensivskjema
@@ -123,8 +121,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
       #  På respirator antar man at hvis de ligger på respirator når de overflyttes
       #PasientID=="EE983306-AE04-EB11-A96D-00155D0B4D16"
       RegDataRed <- RegData %>% dplyr::group_by(PasientID) %>% #Pasienter med flere forløp har nå forløp angitt med xx_forløpsnr
-         dplyr::summarise(PersonId = PersonId[1],
-                   PersonIdBC19Hash = PersonIdBC19Hash[1],
+         dplyr::summarise(
                    Alder = Alder[1],
                    AgeAdmitted = AgeAdmitted[1],
                    PatientGender = PatientGender[1],
