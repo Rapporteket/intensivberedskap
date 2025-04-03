@@ -7,9 +7,9 @@
 #' @param RegData Beredskapsskjema
 #' @param kobleInt koble på data fra intensivskjema. Hvis koblede data, filtreres registreringer uten intensivskjema bort.
 #' Kobling skjer før eventuell aggregering til forløp.
-#' 'bered': beredskap (korona), 'influ': influensa
+#' 'bered': beredskap (covid), 'influ': influensa
 #'
-#' @return Data En liste med det filtrerte datasettet (og sykehusnavnet som tilsvarer reshID, ikke pt)
+#' @return Data En liste med det prosesserte datasettet (og sykehusnavnet som tilsvarer reshID, ikke pt)
 #'
 #' @export
 #'
@@ -19,12 +19,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    # eller gi feilmelding om at her ser det ut til å være intensivvariabler.
 
    # Endre variabelnavn:
-   # RegData$Alder <- lubridate::time_length(   #Birthdate fjernet
-   #        difftime(as.Date(RegData$FormDate), as.Date(RegData$Birthdate)), 'years')
    RegData$Alder <- RegData$AgeAdmitted
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
-   names(RegData)[which(names(RegData) == 'UnitId')] <- 'ReshId' #}
+   #names(RegData)[names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
    #Diagnoser:
    RegData$Bekreftet <- 0
@@ -74,21 +72,22 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
 
       if (aggPers == 1){ #Fjerner pasienter som mangler ett eller flere intensivskjema
-         indManglerIntPas <- which(RegData$PasientID %in% pasUint)
+         indManglerIntPas <- which(RegData$PersonId %in% pasUint)
          if (length(indManglerIntPas)>0) {RegData <- RegData[-indManglerIntPas, ]}
       }}
 
-      #Konvertere boolske variable fra tekst til boolske variable...
-   # !! Format endret til 0-1 med ny extractor (mars -25)
-   LogVar <- c("Kontinuerlig", "Intermitterende",  "Peritonealdialyse", "SpecialMeasures",
-               "TerapetiskHypotermi",  "EcmoEcla",  "Iabp",  "Impella",   "Icp",   "Oscillator",
-               "No",  "Leverdialyse", "Hyperbar", "Eeg",  "Ingen", "FrailtyIndexForklaring",
-               "KompHypoglykemi",  "KompPneumotoraks",   "KompLuftveisproblem",  "KompDekubitus",
-               "KomIngen",    "KompIkkeUtfylt",   "PIM_SuppliedO2",    "Sofa",
-               "ValidationIgnoreDaysAdmittedIntensivOver14",    "ValidationIgnoreRespiratorOver7")
-   endreVar <- intersect(names(RegData), LogVar)
-   RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.numeric)
-   RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.logical)
+      #Konvertere boolske variable fra tekst til boolske variable... Gjøres etter sql
+
+   # LogVar <- c('IsEcmoTreatmentAdministered', 'IsRiskFactor', 'IsActiveSmoker',
+   # 'IsImpairedImmuneSystemIncludingHivPatient', 'IsCancerPatient',
+   # 'IsDiabeticPatient', 'IsHeartDiseaseIncludingHypertensionPatient',
+   # 'IsObesePatient', 'IsAsthmaticPatient', 'IsChronicLungDiseasePatient',
+   # 'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
+   # 'IsChronicNeurologicNeuromuscularPatient', 'IsPregnant')
+   # endreVar <- intersect(names(RegData), LogVar)
+   # RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.numeric)
+   # RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.logical)
+
 
    #------SLÅ SAMMEN TIL PER PASIENT
    #Respiratortider skal hentes fra intensivskjema
@@ -122,7 +121,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
       #  På respirator antar man at hvis de ligger på respirator når de overflyttes
       #PasientID=="EE983306-AE04-EB11-A96D-00155D0B4D16"
       RegDataRed <- RegData %>% dplyr::group_by(PasientID) %>% #Pasienter med flere forløp har nå forløp angitt med xx_forløpsnr
-         dplyr::summarise(PasientID= PasientID[1],
+         dplyr::summarise(
                    Alder = Alder[1],
                    AgeAdmitted = AgeAdmitted[1],
                    PatientGender = PatientGender[1],
@@ -226,10 +225,10 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
    if (kobleInt==1){
       # #Fjerner  uten intensivskjema
-      pasUint <- unique(RegData$PasientID[is.na(RegData$PasientIDInt)])
-      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PasientIDInt)])
+      pasUint <- unique(RegData$PersonId[is.na(RegData$PatientInRegistryGuidInt)])
+      skjemaUint <- unique(RegData$SkjemaGUID[is.na(RegData$PatientInRegistryGuidInt)])
       indManglerIntSkjema <- which(RegData$SkjemaGUID %in% skjemaUint)
-      #test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
+      test <- RegData[indManglerIntSkjema, c('SkjemaGUID', "FormDate", "ShNavn")]
       if (length(indManglerIntSkjema)) {RegData <- RegData[-indManglerIntSkjema, ]}
 
       if (aggPers == 1){
@@ -267,6 +266,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
              NO = sum(No), #Hvis ja: ja, logisk var
              NonInvasivVentilation = sum(NonInvasivVentilation, na.rm=T),
              Potassium = dplyr::first(Potassium, order_by=FormDate),
+             #PersonId = PersonId[1],
              PrimaryReasonAdmitted = dplyr::first(PrimaryReasonAdmitted, order_by=FormDate),
              RespiratortidInt = sum(respiratortid, na.rm = T),
              Saps2Score = dplyr::first(Saps2Score, order_by=FormDate),
@@ -294,14 +294,14 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
 
 
 
-   RegData$Korona <- factor(RegData$Bekreftet, levels= 0:1, labels= c('M', 'B'))
+   RegData$Covid <- factor(RegData$Bekreftet, levels= 0:1, labels= c('M', 'B'))
 
    #Kjønn
    RegData$erMann <- NA #1=Mann, 2=Kvinne, 0=Ukjent
    RegData$erMann[RegData$PatientGender == 1] <- 1
    RegData$erMann[RegData$PatientGender == 2] <- 0
-   #RegData$erMann <- factor(RegData$PatientGender, levels=1:2, labels=1:0)
    RegData$Kjonn <- factor(RegData$erMann, levels=0:1, labels=c('kvinner','menn'))
+
 
 
    #Riktig format på datovariable:
@@ -332,7 +332,7 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$Halvaar <- ceiling(RegData$MndNum/6)
    RegData$Aar <- factor(format(RegData$InnDato, '%Y'),
                          levels = min(as.numeric(format(RegData$InnDato, '%Y'))):max(as.numeric(format(RegData$InnDato, '%Y'))))
-   RegData$UkeNr <- factor(format(RegData$InnDato, '%V.%G'),
+   RegData$UkeNr <- factor(format(RegData$InnDato, '%V.%G'), #G - angir ukebasert år slik at blir riktig for uke 1.
                            levels = min(as.numeric(format(RegData$InnDato, '%V.%G'))):max(as.numeric(format(RegData$InnDato, '%V.%G'))))
    RegData$Dag <- factor(format(RegData$InnDato, '%d.%m.%y'),
                          levels = format(seq(min(RegData$InnDato), max(RegData$InnDato), by='day'), '%d.%m.%y'))
