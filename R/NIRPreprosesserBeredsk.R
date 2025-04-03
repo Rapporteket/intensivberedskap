@@ -76,17 +76,17 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
          if (length(indManglerIntPas)>0) {RegData <- RegData[-indManglerIntPas, ]}
       }}
 
-      #Konvertere boolske variable fra tekst til boolske variable...
-
-   LogVar <- c('IsEcmoTreatmentAdministered', 'IsRiskFactor', 'IsActiveSmoker',
-   'IsImpairedImmuneSystemIncludingHivPatient', 'IsCancerPatient',
-   'IsDiabeticPatient', 'IsHeartDiseaseIncludingHypertensionPatient',
-   'IsObesePatient', 'IsAsthmaticPatient', 'IsChronicLungDiseasePatient',
-   'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
-   'IsChronicNeurologicNeuromuscularPatient', 'IsPregnant')
-   endreVar <- intersect(names(RegData), LogVar)
-   RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.numeric)
-   RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.logical)
+   #    #Konvertere boolske variable fra tekst til boolske variable... Gjøres i sql-fil
+   #
+   # LogVar <- c('IsEcmoTreatmentAdministered', 'IsRiskFactor', 'IsActiveSmoker',
+   # 'IsImpairedImmuneSystemIncludingHivPatient', 'IsCancerPatient',
+   # 'IsDiabeticPatient', 'IsHeartDiseaseIncludingHypertensionPatient',
+   # 'IsObesePatient', 'IsAsthmaticPatient', 'IsChronicLungDiseasePatient',
+   # 'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
+   # 'IsChronicNeurologicNeuromuscularPatient', 'IsPregnant')
+   # endreVar <- intersect(names(RegData), LogVar)
+   # RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.numeric)
+   # RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.logical)
 
 
    #------SLÅ SAMMEN TIL PER PASIENT

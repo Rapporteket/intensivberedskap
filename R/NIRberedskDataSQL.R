@@ -14,7 +14,6 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 
   varBeredsk <- c("
   UPPER(SkjemaGUID) AS SkjemaGUID
--- ,AddressQuality
 ,AgeAdmitted
 , IsAsthmaticPatient
 -- ,Birthdate
@@ -37,7 +36,6 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 ,FormTypeId
 ,IsPregnant
 -- ,HealthUnitName
--- ,HealthUnitId
 ,HealthUnitShortName
 ,HF
 ,UPPER(HovedskjemaGUID) AS HovedskjemaGUID
@@ -89,6 +87,17 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
 
 # 1 er benyttet som standardverdi for MechanicalRespiratorType og vi må følgelig fjerne de som ikke har vært på respirator.
     BeredDataRaa$MechanicalrespiratorType[BeredDataRaa$MechanicalRespirator==2] <- -1
+
+# Riktig format på boolske variabler:
+    LogVar <-
+    c('IsEcmoTreatmentAdministered', 'IsRiskFactor', 'IsActiveSmoker',
+      'IsImpairedImmuneSystemIncludingHivPatient', 'IsCancerPatient',
+      'IsDiabeticPatient', 'IsHeartDiseaseIncludingHypertensionPatient', 'IsObesePatient',
+      'IsAsthmaticPatient', 'IsChronicLungDiseasePatient', 'IsKidneyDiseaseIncludingFailurePatient',
+      'IsLiverDiseaseIncludingFailurePatient', 'IsChronicNeurologicNeuromuscularPatient', 'IsPregnant')
+    endreVar <- intersect(names(BeredDataRaa), LogVar)
+    BeredDataRaa[, endreVar] <- apply(BeredDataRaa[, endreVar], 2, as.numeric)
+    BeredDataRaa[, endreVar] <- apply(BeredDataRaa[, endreVar], 2, as.logical)
 
 
   if (kobleInt == 1){

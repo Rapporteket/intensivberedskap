@@ -12,8 +12,6 @@ idag <- Sys.Date()
 datoTil <- as.POSIXlt(idag)
 startDato <- '2020-03-01'
 
-
-
 #---------Hente data------------
 
 #Uten staging:
@@ -46,7 +44,7 @@ names(RHFvalgInflu) <- RHFvalgInflu
 
 regTitle <- paste0('Norsk Intensiv- og kriseregister, Beredskapsregistrering ',ifelse(context=='QA', 'QA',''))
 
-source(system.file("shinyApps/intensivberedskap/R/covidfigurer_modul.R", package = "intensivberedskap"), encoding = 'UTF-8')
+# source("./R/koronafigurer_modul.R", encoding = 'UTF-8')
 
 ui <- tagList(
   navbarPage(
@@ -158,7 +156,7 @@ ui <- tagList(
 
     #------------Figurer-----------------------------------
     tabPanel("Antall intensivpasienter",
-             covidfigurer_UI(id = "covidfigurer_id", rhfNavn=rhfNavn)
+             covidfigurer_UI(id = "covidfigurer_id", rhfNavn=egetRHF)
     ),
     tabPanel(p("Fordelingsfigurer",
                title='Fordelingsfigurer for variabler registrert under intensivoppholdet'),
@@ -871,8 +869,11 @@ server <- function(input, output, session) {
 
   #----------Figurer, modul og fordelinger #################################
 
-  callModule(covidfigurer, "covidfigurer_id", rolle = user$role(), CoroData = CoroData, egetRHF = egetRHF, reshID = user$org())
-
+  # På helseregister.no: callModule(covidfigurer, "covidfigurer_id", rolle = user$role(), CoroData = CoroData, egetRHF = egetRHF, reshID = user$org())
+  # eksempel: norgast::sykehusvisning_server("sykehusvisning_id", RegData = RegData, hvd_session = session,BrValg = BrValg)
+  # covidfigurer("covidfigurer_id", rolle = user$role(), CoroData = CoroData, egetRHF = egetRHF, reshID = user$org())
+  covidfigurer(input = input$covidfigurer_id, output$covidfigurer_id, session=session,
+               rolle = user$role(), CoroData = CoroData, egetRHF = egetRHF, reshID = user$org())
 
   output$fordelinger <- renderPlot({
     NIRberedskFigAndeler(RegData=BeredIntPas, preprosess = 0,
