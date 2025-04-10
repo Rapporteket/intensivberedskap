@@ -75,6 +75,7 @@ regTitle <- ifelse(paaServer,
   CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
   BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
   BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)
+  # Se på denne:
   BeredIntPas <- NIRPreprosessBeredsk(RegData = BeredIntRaa, kobleInt = 1, aggPers = 1, tellFlereForlop = 1)
   InfluData <- NIRsqlPreInfluensa()
   InfluIntData <- NIRsqlPreInfluensa(kobleInt = 1)
@@ -773,8 +774,8 @@ server <- function(input, output, session) {
 
   #------------------ Abonnement ----------------------------------------------
   #--------Start modul, abonnement
-  alleResh <- unique(CoroDataRaa$UnitId)
-  Navn <- CoroDataRaa$HealthUnitShortName[match(alleResh, CoroDataRaa$UnitId)]
+  alleResh <- unique(CoroDataRaa$ReshId)
+  Navn <- CoroDataRaa$HealthUnitShortName[match(alleResh, CoroDataRaa$ReshId)]
   names(alleResh) <- Navn
   orgsAbb <- as.list(alleResh)
 

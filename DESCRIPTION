@@ -1,7 +1,7 @@
 Package: intensivberedskap
 Title: Resultater og app for Covid-pasienter på intensiv
-Version: 1.14.1
-Date: 2024-11-08
+Version: 1.15.0
+Date: 2025-04-108
 Authors@R: 
     person(given = "Lena Ringstad",
            family = "Olsen",
@@ -39,4 +39,4 @@ VignetteBuilder: knitr
 Suggests: 
     MASS,
     testthat (>= 2.1.0)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
