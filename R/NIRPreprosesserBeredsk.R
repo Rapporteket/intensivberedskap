@@ -22,7 +22,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
    RegData$Alder <- RegData$AgeAdmitted
    names(RegData)[which(names(RegData) == 'Respirator')] <- 'respiratortid'
    names(RegData)[which(names(RegData) == 'TransferredStatus')] <- 'Overf'
-   #names(RegData)[names(RegData) %in% c('PatientInRegistryGuid', 'PasientGUID')] <- 'PasientID'
 
    #Diagnoser:
    RegData$Bekreftet <- 0
@@ -75,18 +74,6 @@ NIRPreprosessBeredsk <- function(RegData=RegData, kobleInt=0, aggPers=1, tellFle
          indManglerIntPas <- which(RegData$PersonId %in% pasUint)
          if (length(indManglerIntPas)>0) {RegData <- RegData[-indManglerIntPas, ]}
       }}
-
-   #    #Konvertere boolske variable fra tekst til boolske variable... Gjøres i sql-fil
-   #
-   # LogVar <- c('IsEcmoTreatmentAdministered', 'IsRiskFactor', 'IsActiveSmoker',
-   # 'IsImpairedImmuneSystemIncludingHivPatient', 'IsCancerPatient',
-   # 'IsDiabeticPatient', 'IsHeartDiseaseIncludingHypertensionPatient',
-   # 'IsObesePatient', 'IsAsthmaticPatient', 'IsChronicLungDiseasePatient',
-   # 'IsKidneyDiseaseIncludingFailurePatient', 'IsLiverDiseaseIncludingFailurePatient',
-   # 'IsChronicNeurologicNeuromuscularPatient', 'IsPregnant')
-   # endreVar <- intersect(names(RegData), LogVar)
-   # RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.numeric)
-   # RegData[, endreVar] <- apply(RegData[, endreVar], 2, as.logical)
 
 
    #------SLÅ SAMMEN TIL PER PASIENT

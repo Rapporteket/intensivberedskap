@@ -15,7 +15,7 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 
   query <- paste0('SELECT
  SkjemaGUID
-,PasientGUID
+,PasientGUID AS PasientID
 ,Skjematype
 ,MoreThan24Hours
 ,MechanicalRespirator
