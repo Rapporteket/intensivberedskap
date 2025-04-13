@@ -71,7 +71,6 @@ regTitle <- ifelse(paaServer,
 
 #Uten staging:
   CoroDataRaa <- NIRberedskDataSQL(kobleInt = 0)
-  CoroDataRaa$HovedskjemaGUID <- toupper(CoroDataRaa$HovedskjemaGUID)
   CoroData <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 1, tellFlereForlop = 1)
   BeredDataOpph <- NIRPreprosessBeredsk(RegData = CoroDataRaa, aggPers = 0)
   BeredIntRaa <- NIRberedskDataSQL(kobleInt = 1)

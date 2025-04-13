@@ -83,7 +83,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
                     ' FROM readinessformdatacontract Q
                       WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
     #query <- 'SELECT * from ReadinessFormDataContract'
-    BeredDataRaa <- rapbase::loadRegData(registryName="nir", query=query, dbType="mysql")
+    BeredDataRaa <- rapbase::loadRegData(registryName="data", query=query, dbType="mysql")
 
     # 1 er benyttet som standardverdi for MechanicalRespiratorType og vi må følgelig fjerne de som ikke har vært på respirator.
     BeredDataRaa$MechanicalrespiratorType[BeredDataRaa$MechanicalRespirator==2] <- -1
@@ -108,7 +108,6 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
     forsteReg <- min(as.Date(BeredDataRaa$FormDate))
     # queryInt <- paste0('select * from mainformdatacontract
     #   WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'') #datoTil=Sys.Date(), '\'')
-    # IntDataRaa <- rapbase::loadRegData(registryName= "data", query=queryInt, dbType="mysql")
     IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg, datoTil = datoTil)
 
     #Felles variabler som skal hentes fra intensiv (= fjernes fra beredskap)
