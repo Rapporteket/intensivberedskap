@@ -83,7 +83,7 @@ NIRberedskDataSQL <- function(datoFra = '2020-03-01', datoTil = Sys.Date(), kobl
                     ' FROM readinessformdatacontract Q
                       WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
     #query <- 'SELECT * from ReadinessFormDataContract'
-    BeredDataRaa <- rapbase::loadRegData(registryName="data", query=query, dbType="mysql")
+    BeredDataRaa <- rapbase::loadRegData(registryName="nir", query=query, dbType="mysql")
 
     # 1 er benyttet som standardverdi for MechanicalRespiratorType og vi må følgelig fjerne de som ikke har vært på respirator.
     BeredDataRaa$MechanicalrespiratorType[BeredDataRaa$MechanicalRespirator==2] <- -1
