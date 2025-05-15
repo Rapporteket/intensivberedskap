@@ -24,8 +24,6 @@ Imports:
     kableExtra,
     knitr,
     magrittr,
-    rapbase,
-    rapFigurer,
     shiny,
     shinyalert,
     shinyjs,
