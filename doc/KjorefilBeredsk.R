@@ -85,7 +85,7 @@ BeredIntPas[BeredIntPas$PersonId %in% pas, c('PersonId', 'FormDate', 'PasientID'
 
 library(knitr)
 library(intensivberedskap)
-# CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
+# CoroData <- read.table('C:/ResultattjenesteGIT/readinessformdatacontract2020-03-18.csv', sep=';',
 #                        stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 #CoroData <- NIRberedskDataSQL()
 # valgtRHF <- 'Alle'
@@ -107,7 +107,7 @@ test <- intensivberedskap::abonnementBeredsk(rnwFil='Alle_BeredskapCorona.Rnw',
                               enhetsNivaa = 'Alle',  #For abonnement
                               Rpakke='intensivberedskap')
 
-#CoroData <- read.table('C:/ResultattjenesteGIT/ReadinessFormDataContract2020-03-18.csv', sep=';',
+#CoroData <- read.table('C:/ResultattjenesteGIT/readinessformdatacontract2020-03-18.csv', sep=';',
 #                                  stringsAsFactors=FALSE, header=T, encoding = 'UTF-8')
 library(intensivberedskap)
 
@@ -369,7 +369,7 @@ InfData <-   NIRsqlPreInfluensa()
 InfData <- rapbase::loadRegData(registryName = "nir", dbType = "mysql",
                      query = 'select * FROM influensaformdatacontract')
 BerData <- rapbase::loadRegData(registryName = "nir", dbType = "mysql",
-                                query = 'select * FROM ReadinessFormDataContract')
+                                query = 'select * FROM readinessformdatacontract')
 fellesnavn <- intersect(sort(names(InfData)), sort(names(BerData)))
 setdiff(sort(names(InfData)), fellesnavn)
 setdiff(sort(names(BerData)), fellesnavn)
