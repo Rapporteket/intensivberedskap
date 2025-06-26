@@ -15,7 +15,7 @@ LazyData: true
 Depends:
     R (>= 3.5.0)
 Remotes: 
-      Rapporteket/rapbase@*main,
+      Rapporteket/rapbase@main,
       Rapporteket/rapFigurer
 Imports:
     digest,
