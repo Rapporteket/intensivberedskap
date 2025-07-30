@@ -367,7 +367,7 @@ erInneliggendeMut <- function(datoer, regdata){
 
 InfData <-   NIRsqlPreInfluensa()
 InfData <- rapbase::loadRegData(registryName = "nir", dbType = "mysql",
-                     query = 'select * FROM influensaformdatacontract')
+                     query = 'select * FROM influensaregistrering')
 BerData <- rapbase::loadRegData(registryName = "nir", dbType = "mysql",
                                 query = 'select * FROM readinessformdatacontract')
 fellesnavn <- intersect(sort(names(InfData)), sort(names(BerData)))

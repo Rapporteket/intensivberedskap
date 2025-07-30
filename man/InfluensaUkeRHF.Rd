@@ -25,6 +25,9 @@ InfluensaUkeRHF(
 
 \item{ferdigstilt}{ferdigstilt registrering}
 }
+\value{
+Tabell med antall influensatilfeller per uke og RHF
+}
 \description{
 Influensatilfeller per uke, regionvis og hele landet
 }

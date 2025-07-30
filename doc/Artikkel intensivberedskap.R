@@ -6,7 +6,7 @@ library(intensiv)
 library(intensivberedskap)
 
 
-# query <- paste0('Select * FROM mainformdatacontract
+# query <- paste0('Select * FROM intensivopphold
 #             WHERE cast(DateAdmittedIntensive as date) BETWEEN \'',
 #                 datoFra='2020-03-01', '\' AND \'', datoTil=Sys.Date(), '\'')
 # DataNIR <- rapbase::LoadRegData(registryName= "nir", query=query, dbType="mysql")  #

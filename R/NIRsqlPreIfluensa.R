@@ -70,7 +70,7 @@ NIRsqlPreInfluensa <- function(datoFra = '2018-01-01', datoTil = Sys.Date(), pre
 ,MunicipalNumber
 ,FirstTimeClosed
 ,FormDate
-FROM influensaformdatacontract
+FROM influensaregistrering
 WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
 
   RegDataInf <- rapbase::loadRegData(registryName = "data", query = query, dbType = "mysql")
@@ -81,7 +81,7 @@ WHERE cast(FormDate as date) BETWEEN \'', datoFra, '\' AND \'', datoTil, '\'')
 
     #Koble på intensivdata.
     forsteReg <- min(as.Date(RegDataInf$FormDate))
-  # queryInt <- paste0('select * from mainformdatacontract
+  # queryInt <- paste0('select * from intensivopphold
   # WHERE cast(DateAdmittedIntensive as date) BETWEEN \'', datoFra=forsteReg, '\' AND \'', datoTil=datoTil, '\'')
   # IntDataRaa <- rapbase::loadRegData(registryName= "data", query=queryInt, dbType="mysql")
     IntDataRaa <- intensiv::NIRRegDataSQL(datoFra = forsteReg, datoTil = datoTil)

@@ -39,7 +39,7 @@ lagInfluDataFHI <- function(personIDvar='PersonIdBC19Hash'){
                 ,Morsdato
                 ,RiskFactor')
 
- queryInflu <- paste0('SELECT ', influVar, ' FROM influensaformdatacontract')
+ queryInflu <- paste0('SELECT ', influVar, ' FROM influensaregistrering')
 InfluDataRaa <-  rapbase::loadRegData(registryName = "nir", query = queryInflu, dbType = "mysql")
   #setdiff(names(InfluDataAlle), names(InfluDataRaa))
 

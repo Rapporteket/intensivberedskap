@@ -1,4 +1,26 @@
 
+#' Kjøre intensivberedskaps app
+#'
+#' @param browser vis i nettleser
+#' @param logAsJson logging
+#'
+#' @return Brukergrensesnittet til NIRberedskap-appen
+#' @export
+kjor_appNIRbered <- function(browser = FALSE, logAsJson = FALSE) {
+
+  if (logAsJson) {
+    rapbase::loggerSetup()
+  }
+  app <- shiny::shinyApp(
+    ui = intensivberedskap::ui_NIRbered,
+    server = intensivberedskap::server_NIRbered,
+    options = list(launch.browser = browser)
+  )
+
+  return(app)
+}
+
+
 #' Funksjon som produserer rapporten som skal sendes til mottager.
 #'
 #' @param rnwFil Navn på fila som skal kjøres. Angis uten ending (\emph{dvs uten  ".Rnw"})

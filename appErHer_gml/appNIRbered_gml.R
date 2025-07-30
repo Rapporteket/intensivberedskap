@@ -44,8 +44,7 @@ names(RHFvalgInflu) <- RHFvalgInflu
 
 regTitle <- paste0('Norsk Intensiv- og kriseregister, Beredskapsregistrering ',ifelse(context=='QA', 'QA',''))
 
-# source("./R/koronafigurer_modul.R", encoding = 'UTF-8')
-
+#----------------- ui-del---------------
 ui <- tagList(
   navbarPage(
     id='hovedark',
