@@ -34,5 +34,7 @@ aldersfordeling, gruppert
 Aldersfordeling, tabell
 }
 \examples{
+\dontrun{
 TabAlder(RegData=CoroData, enhetsNivaa='HF')
+}
 }

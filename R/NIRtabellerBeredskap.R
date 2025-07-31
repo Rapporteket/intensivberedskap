@@ -268,7 +268,10 @@ RisikofaktorerTab <- function(RegData, datoFra='2020-01-01', datoTil=Sys.Date(),
 #' @return aldersfordeling, gruppert
 #' @export
 #'
-#' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
+#' @examples
+#' \dontrun{
+#' TabAlder(RegData=CoroData, enhetsNivaa='HF')
+#' }
 TabAlderGml <- function(RegData, valgtRHF='Alle',
                      skjemastatus=9,resp=9, bekr=9,
                      dodInt=9,erMann=9){#enhetsNivaa='RHF'
@@ -330,7 +333,10 @@ TabAlderGml <- function(RegData, valgtRHF='Alle',
 #' @return aldersfordeling
 #' @export
 #'
-#' @examples TabAlder(RegData=CoroData, enhetsNivaa='HF')
+#' @examples
+#' \dontrun{
+#' TabAlder(RegData=CoroData, enhetsNivaa='HF')
+#' }
 TabAlder <- function(RegData, reshID=0, enhetsNivaa='Alle',
                      skjemastatus=9, resp=9, bekr=9,
                      dodInt=9,erMann=9, sens=0){
