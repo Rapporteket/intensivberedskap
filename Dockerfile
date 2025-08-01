@@ -13,6 +13,7 @@ COPY *.tar.gz .
 RUN R -e "remotes::install_local(list.files(pattern = \"*.tar.gz\"))" \
     && rm ./*.tar.gz \
     && R -e "remotes::install_github(\"Rapporteket/rapFigurer\")" \
+    && R -e "remotes::install_github(\"Rapporteket/intensiv\")" \
     && R -e "remotes::install_github(\"Rapporteket/rapbase\", ref = \"main\")"
 
 EXPOSE 3838
