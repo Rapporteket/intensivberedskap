@@ -23,7 +23,9 @@ Imports:
     htmltools,
     kableExtra,
     knitr,
+    lubridate,
     magrittr,
+    rlang,
     shiny,
     shinyalert,
     shinyjs,
@@ -31,5 +33,4 @@ Imports:
     tidyverse,
     tools,
     xtable
-VignetteBuilder: knitr
 RoxygenNote: 7.3.2
