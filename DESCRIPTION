@@ -16,7 +16,8 @@ Depends:
     R (>= 3.5.0)
 Remotes: 
       Rapporteket/rapbase@main,
-      Rapporteket/rapFigurer
+      Rapporteket/rapFigurer,
+      Rapporteket/intensiv
 Imports:
     digest,
     DT,
